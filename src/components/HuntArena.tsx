@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { CreatureStats } from '../physics';
 import { sizeToMass } from '../physics';
 import type { Creature } from '../types';
@@ -15,13 +15,54 @@ interface Props {
   onFinish: (o: HuntOutcome) => void;
 }
 
-const HIDE_DURATION_S = 14;
-const PREDATOR_KMH = 70;
-const TICK_MS = 50;
+type EnvId = 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean';
+type Strategy = 'hide' | 'run' | 'fight';
 
-const W = 600;
-const H = 220;
-const GROUND_Y = 170;
+interface Predator {
+  envName: string;
+  envEmoji: string;
+  name: string;
+  emoji: string;
+  topKmh: number;
+  perception: number;
+  bite: number;
+  sky: [string, string];
+  ground: [string, string];
+  envNote: string;
+}
+
+const PREDATORS: Record<EnvId, Predator> = {
+  savanna: {
+    envName: 'Savanna', envEmoji: '🌾',
+    name: 'Lion', emoji: '🦁', topKmh: 80, perception: 55, bite: 75,
+    sky: ['#9fd4ee', '#f8d68a'], ground: ['#f3d27d', '#c9a05a'],
+    envNote: 'Open grassland. Lions run in pride; long sightlines.',
+  },
+  forest: {
+    envName: 'Forest', envEmoji: '🌳',
+    name: 'Wolf', emoji: '🐺', topKmh: 65, perception: 70, bite: 55,
+    sky: ['#7fa663', '#cfd7a0'], ground: ['#7a6a3a', '#54472a'],
+    envNote: 'Dense trees + scent tracking. Wolves work in packs.',
+  },
+  mountain: {
+    envName: 'Mountain', envEmoji: '🏔',
+    name: 'Snow Leopard', emoji: '🐆', topKmh: 60, perception: 85, bite: 60,
+    sky: ['#b8c8d4', '#e5eef3'], ground: ['#c0ccd3', '#8089a0'],
+    envNote: 'Snow + cliffs. Ambush hunter, near-invisible against rock.',
+  },
+  desert: {
+    envName: 'Desert', envEmoji: '🏜',
+    name: 'Hyena', emoji: '🐺', topKmh: 60, perception: 50, bite: 90,
+    sky: ['#ffd589', '#fbe9b0'], ground: ['#e3b06a', '#a07a45'],
+    envNote: 'Bone-crushing bite force, but distracted in heat.',
+  },
+  ocean: {
+    envName: 'Ocean', envEmoji: '🌊',
+    name: 'Shark', emoji: '🦈', topKmh: 50, perception: 65, bite: 95,
+    sky: ['#74c4dc', '#2a5a85'], ground: ['#2a5a85', '#0c2a45'],
+    envNote: 'Electroreception + smell. Bite ignores most armor.',
+  },
+};
 
 function stealthScore(c: Creature): number {
   const m = sizeToMass(c.sizeUnit);
@@ -36,178 +77,207 @@ function stealthScore(c: Creature): number {
   return Math.max(0, Math.min(100, s));
 }
 
-function Predator({ x }: { x: number }) {
-  return (
-    <g transform={`translate(${x} ${GROUND_Y})`}>
-      <ellipse cx="0" cy="2" rx="22" ry="3" fill="rgba(0,0,0,0.25)" />
-      <line x1="-10" y1="-2" x2="-12" y2="14" stroke="#3a2118" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="-5" y1="-2" x2="-6" y2="14" stroke="#3a2118" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="6" y1="-2" x2="8" y2="14" stroke="#3a2118" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="11" y1="-2" x2="13" y2="14" stroke="#3a2118" strokeWidth="2.5" strokeLinecap="round" />
-      <ellipse cx="2" cy="-8" rx="16" ry="7" fill="#6e4d2c" />
-      <ellipse cx="2" cy="-5" rx="13" ry="3" fill="#8b6336" opacity="0.5" />
-      <circle cx="-10" cy="-9" r="6" fill="#5a3b22" />
-      <circle cx="-13" cy="-8" r="0.8" fill="#fffacc" />
-      <polygon points="-14,-13 -12,-16 -10,-13" fill="#5a3b22" />
-      <polygon points="-9,-13 -7,-16 -5,-13" fill="#5a3b22" />
-      <path d="M 16 -8 q 5 0 8 4" stroke="#3a2118" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-    </g>
-  );
+function fightPower(c: Creature, s: CreatureStats): number {
+  let p = 5;
+  if (c.hybrids.includes('venom')) p += 60;
+  if (c.hybrids.includes('electric')) p += 70;
+  if (c.defenseTier === 2) p += 30;
+  if (s.massKg > 100) p += 15;
+  if (s.massKg > 1000) p += 25;
+  if (c.brainTier === 2) p += 8;
+  return Math.min(100, p);
 }
 
+function predictHide(c: Creature, p: Predator) {
+  const stealth = stealthScore(c);
+  return { score: stealth, opp: p.perception, margin: stealth - p.perception };
+}
+function predictRun(s: CreatureStats, p: Predator) {
+  return { score: s.topSpeedKmh, opp: p.topKmh, margin: s.topSpeedKmh - p.topKmh };
+}
+function predictFight(c: Creature, s: CreatureStats, p: Predator) {
+  const power = fightPower(c, s);
+  return { score: power, opp: p.bite, margin: power - p.bite };
+}
+
+function confidence(margin: number): { label: string; cls: string } {
+  if (margin > 15) return { label: 'likely win', cls: 'good' };
+  if (margin > 0) return { label: 'close', cls: 'ok' };
+  if (margin > -15) return { label: 'risky', cls: 'risky' };
+  return { label: 'doomed', cls: 'bad' };
+}
+
+function reasonFor(strategy: Strategy, won: boolean, c: Creature): HuntOutcome['reason'] {
+  if (!won) return 'caught';
+  if (strategy === 'hide') return 'hidden';
+  if (strategy === 'run') return 'outran';
+  if (c.hybrids.includes('venom') || c.hybrids.includes('electric')) return 'fought';
+  return 'tanked';
+}
+
+const W = 600;
+const H = 220;
+const GROUND_Y = 170;
+
 export function HuntArena({ creature, stats, onFinish }: Props) {
-  const s = stealthScore(creature);
-  const [detection, setDetection] = useState(0);
-  const [time, setTime] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [envId, setEnvId] = useState<EnvId>('forest');
   const [done, setDone] = useState(false);
 
-  const detRef = useRef(0);
-  const timeRef = useRef(0);
-  const timerRef = useRef<number | null>(null);
+  const p = PREDATORS[envId];
+  const hide = predictHide(creature, p);
+  const run = predictRun(stats, p);
+  const fight = predictFight(creature, stats, p);
 
-  function reset() {
-    detRef.current = 0;
-    timeRef.current = 0;
-    setDetection(0);
-    setTime(0);
-  }
-
-  function start() {
-    reset();
-    setDone(false);
-    setRunning(true);
-  }
-
-  function stop(o: HuntOutcome) {
-    if (timerRef.current !== null) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setRunning(false);
+  function play(strategy: Strategy) {
+    const result =
+      strategy === 'hide' ? hide :
+      strategy === 'run' ? run :
+      fight;
+    const won = result.margin > 0;
     setDone(true);
-    onFinish(o);
+    onFinish({ won, reason: reasonFor(strategy, won, creature) });
   }
 
-  useEffect(() => {
-    if (!running) return;
-    const dt = TICK_MS / 1000;
-    const fillRate = Math.max(0.5, (100 - s)) / HIDE_DURATION_S;
-
-    timerRef.current = window.setInterval(() => {
-      timeRef.current += dt;
-      detRef.current += fillRate * dt;
-      setTime(timeRef.current);
-      setDetection(detRef.current);
-
-      if (timeRef.current >= HIDE_DURATION_S && detRef.current < 100) {
-        stop({ won: true, reason: 'hidden' });
-        return;
-      }
-      if (detRef.current >= 100) {
-        if (stats.topSpeedKmh >= PREDATOR_KMH) {
-          stop({ won: true, reason: 'outran' });
-        } else if (creature.hybrids.includes('venom') || creature.hybrids.includes('electric')) {
-          stop({ won: true, reason: 'fought' });
-        } else if (creature.defenseTier === 2) {
-          stop({ won: true, reason: 'tanked' });
-        } else {
-          stop({ won: false, reason: 'caught' });
-        }
-      }
-    }, TICK_MS);
-
-    return () => {
-      if (timerRef.current !== null) {
-        window.clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running]);
-
-  useEffect(() => {
-    if (!running && !done) reset();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s]);
-
-  const predatorStart = W - 50;
-  const predatorEnd = W * 0.6;
-  const predatorX = predatorStart - (detection / 100) * (predatorStart - predatorEnd);
+  function reset() { setDone(false); }
 
   return (
     <div className="arena">
-      <h2>The Hunt — forest</h2>
-      <p className="arena-help">
-        Stay hidden for {HIDE_DURATION_S}s. Stealth = small body + camouflage + senses. If spotted, only speed (&gt; {PREDATOR_KMH} km/h) or armor saves you.
-      </p>
+      <h2>The Hunt — encounter <small className="arena-env">· {p.envName}</small></h2>
+      <p className="arena-help">{p.envNote}</p>
+
+      <div className="prey-tabs">
+        {(Object.entries(PREDATORS) as [EnvId, Predator][]).map(([id, def]) => (
+          <button
+            key={id}
+            type="button"
+            className={`prey-tab${envId === id ? ' active' : ''}`}
+            onClick={() => { setEnvId(id); setDone(false); }}
+            disabled={done}
+            title={`${def.envName} — ${def.name}`}
+          >
+            <span className="prey-emoji">{def.envEmoji}</span>
+            <span className="prey-name">{def.envName}<small> {def.emoji}</small></span>
+          </button>
+        ))}
+      </div>
+
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="hunt-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#7fa663" />
-            <stop offset="1" stopColor="#cfd7a0" />
+            <stop offset="0" stopColor={p.sky[0]} />
+            <stop offset="1" stopColor={p.sky[1]} />
           </linearGradient>
           <linearGradient id="hunt-ground" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#7a6a3a" />
-            <stop offset="1" stopColor="#54472a" />
+            <stop offset="0" stopColor={p.ground[0]} />
+            <stop offset="1" stopColor={p.ground[1]} />
           </linearGradient>
         </defs>
 
         <rect x="0" y="0" width={W} height={GROUND_Y} fill="url(#hunt-sky)" />
         <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="url(#hunt-ground)" />
 
-        {[80, 200, 340, 470].map((tx, i) => (
-          <g key={i}>
-            <rect x={tx - 4} y={GROUND_Y - 60} width="8" height="60" fill="#3e2a18" />
-            <ellipse cx={tx} cy={GROUND_Y - 70} rx="34" ry="22" fill="#3f6b34" />
-            <ellipse cx={tx - 8} cy={GROUND_Y - 78} rx="22" ry="14" fill="#4d7d3e" />
-            <ellipse cx={tx + 10} cy={GROUND_Y - 65} rx="20" ry="12" fill="#345a2c" />
-          </g>
-        ))}
-
-        {Array.from({ length: 10 }).map((_, i) => {
-          const bx = 30 + i * 60 + (i % 2) * 15;
-          return <ellipse key={i} cx={bx} cy={GROUND_Y + 4} rx="14" ry="5" fill="#3f5a30" opacity="0.7" />;
-        })}
-
-        <rect x="6" y="6" width="260" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
-        <text x="14" y="22" fontSize="11" fill="#333">detection</text>
-        <rect x="78" y="13" width="180" height="10" fill="#eee" stroke="#999" />
-        <rect
-          x="78"
-          y="13"
-          width={Math.max(0, 180 * Math.min(1, detection / 100))}
-          height="10"
-          fill={detection > 75 ? '#c44' : detection > 40 ? '#e0a040' : '#5cc46a'}
-        />
-        <rect x={W - 140} y="6" width="134" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
-        <text x={W - 132} y="22" fontSize="11" fill="#333">
-          stealth {Math.round(s)} · {Math.max(0, HIDE_DURATION_S - time).toFixed(1)}s left
-        </text>
-
-        <Predator x={predatorX} />
+        {envId === 'forest' && (
+          <>
+            {[80, 200, 340, 470].map((tx, i) => (
+              <g key={i}>
+                <rect x={tx - 4} y={GROUND_Y - 60} width="8" height="60" fill="#3e2a18" />
+                <ellipse cx={tx} cy={GROUND_Y - 70} rx="34" ry="22" fill="#3f6b34" />
+              </g>
+            ))}
+          </>
+        )}
+        {envId === 'savanna' && (
+          <>
+            {[100, 280, 460].map((tx, i) => (
+              <g key={i}>
+                <rect x={tx - 3} y={GROUND_Y - 50} width="6" height="50" fill="#5a3b22" />
+                <ellipse cx={tx} cy={GROUND_Y - 56} rx="26" ry="10" fill="#557d3e" />
+              </g>
+            ))}
+          </>
+        )}
+        {envId === 'mountain' && (
+          <polygon points={`100,${GROUND_Y} 240,80 380,${GROUND_Y} 480,90 ${W},${GROUND_Y}`} fill="white" stroke="#bbb" strokeWidth="1" />
+        )}
+        {envId === 'desert' && (
+          <>
+            <circle cx={W - 80} cy="60" r="30" fill="#ffb84a" opacity="0.85" />
+            <ellipse cx="80" cy={GROUND_Y + 8} rx="30" ry="6" fill="#a07a45" />
+          </>
+        )}
+        {envId === 'ocean' && (
+          <>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <ellipse key={i} cx={50 + i * 120} cy={GROUND_Y + 30 + (i % 2) * 10} rx="30" ry="6" fill="#3a6fa3" opacity="0.5" />
+            ))}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <circle key={i} cx={(i * 73) % W} cy={50 + ((i * 37) % 110)} r={1.5} fill="white" opacity="0.5" />
+            ))}
+          </>
+        )}
 
         <g transform={`translate(${W * 0.28} 0)`}>
           <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="breathe" />
         </g>
+
+        <g transform={`translate(${W * 0.72} ${GROUND_Y - 10})`}>
+          <ellipse cx="0" cy="6" rx="34" ry="4" fill="rgba(0,0,0,0.25)" />
+          <text x="0" y="0" fontSize="56" textAnchor="middle">{p.emoji}</text>
+          <text x="0" y="22" fontSize="11" textAnchor="middle" fill="#333" fontWeight="700">{p.name}</text>
+        </g>
       </svg>
+
+      <div className="strategy-row">
+        <StrategyButton
+          icon="🫥" name="Hide" onClick={() => play('hide')}
+          score={hide.score} opp={hide.opp} oppLabel="perception" margin={hide.margin}
+          disabled={done}
+        />
+        <StrategyButton
+          icon="🏃" name="Run" onClick={() => play('run')}
+          score={run.score} opp={run.opp} oppLabel="speed" scoreSuffix=" km/h" margin={run.margin}
+          disabled={done}
+        />
+        <StrategyButton
+          icon="⚔️" name="Fight" onClick={() => play('fight')}
+          score={fight.score} opp={fight.opp} oppLabel="bite" margin={fight.margin}
+          disabled={done}
+        />
+      </div>
+
       <div className="arena-controls">
-        {!running && !done && (
-          <button className="btn" onClick={start} type="button">
-            Start the hunt
-          </button>
-        )}
-        {running && (
-          <button className="btn btn-secondary" onClick={() => stop({ won: false, reason: 'caught' })} type="button">
-            Give up
-          </button>
-        )}
         {done && (
-          <button className="btn" onClick={start} type="button">
-            Try again
-          </button>
+          <button className="btn" onClick={reset} type="button">Try again</button>
         )}
       </div>
     </div>
+  );
+}
+
+function StrategyButton({
+  icon, name, score, opp, oppLabel, scoreSuffix = '', margin, onClick, disabled,
+}: {
+  icon: string;
+  name: string;
+  score: number;
+  opp: number;
+  oppLabel: string;
+  scoreSuffix?: string;
+  margin: number;
+  onClick: () => void;
+  disabled: boolean;
+}) {
+  const c = confidence(margin);
+  return (
+    <button type="button" className={`strategy-btn strategy-${c.cls}`} onClick={onClick} disabled={disabled}>
+      <div className="strategy-head">
+        <span className="strategy-icon">{icon}</span>
+        <span className="strategy-name">{name}</span>
+      </div>
+      <div className="strategy-stats">
+        you <strong>{Math.round(score)}{scoreSuffix}</strong> vs {oppLabel} <strong>{Math.round(opp)}</strong>
+      </div>
+      <div className={`strategy-conf strategy-conf-${c.cls}`}>{c.label}</div>
+    </button>
   );
 }
