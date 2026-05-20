@@ -1,7 +1,7 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
-export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'penguin';
+export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'penguin' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
 
 export interface DexAnimal {
   name: string;
@@ -38,6 +38,10 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Anaconda':        { main: '#6a7e3a', shade: '#3a4a1c', light: '#92a258', cheek: '#94a274' },
   'Great white shark': { main: '#7090a4', shade: '#3a5060', light: '#ffffff', cheek: '#a4b8c8' },
   'Octopus':         { main: '#c45a78', shade: '#7a2c4c', light: '#e69cb0', cheek: '#fab8c8' },
+  'Velociraptor':    { main: '#9a6840', shade: '#5a3818', light: '#bc8a5e', cheek: '#d0a080' },
+  'Triceratops':     { main: '#7a9258', shade: '#42622a', light: '#9ab078', cheek: '#a8b88a' },
+  'Stegosaurus':     { main: '#6a8a6a', shade: '#385a3c', light: '#92ac90', cheek: '#a4b8a4' },
+  'Pterodactyl':     { main: '#9a8458', shade: '#5a4828', light: '#bca080', cheek: '#caaa90' },
 };
 
 const make = (
@@ -116,6 +120,14 @@ export const ANIMAL_DEX: DexAnimal[] = [
     'Detects electric fields from heartbeats. 300 serrated teeth, replaced lifelong.'),
   make('Octopus', '🐙', 5, 'fish', false, 0, 2, 0, 2, ['camouflage', 'venom'],
     '9 brains (one main + one per arm). Opens jars. Edits its own RNA.', 'octopus'),
+  make('Velociraptor', '🦖', 20, 'reptile', false, 2, 2, 0, 2, ['venom'],
+    'Pack hunter the size of a turkey. Feathered (Jurassic Park lied). Sickle claw could disembowel prey.', 'raptor'),
+  make('Triceratops', '🦕', 6000, 'reptile', false, 0, 1, 2, 1, [],
+    'Three-horned herbivore with a bony neck frill ~2 m wide. ~6 t. Lived alongside T-rex.', 'triceratops'),
+  make('Stegosaurus', '🦕', 3500, 'reptile', false, 0, 0, 2, 1, [],
+    'Plate-backed herbivore. Spiked tail (the thagomizer) for defence. Brain the size of a walnut.', 'stegosaurus'),
+  make('Pterodactyl', '🦅', 5, 'bird', false, 0, 1, 0, 2, ['wings'],
+    'Flying reptile, not a dinosaur. Wingspan ~1 m. Long toothless beak, head crest. Glided more than flapped.', 'pterodactyl'),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {

@@ -110,6 +110,260 @@ export function WhaleShape({ colors }: { colors: ColorOverride }) {
   );
 }
 
+export function RaptorShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      <path d="M 110 190 Q 60 175 25 140" stroke={colors.shade} strokeWidth="24" fill="none" strokeLinecap="round" />
+      <path d="M 110 190 Q 60 175 25 140" stroke={colors.main} strokeWidth="16" fill="none" strokeLinecap="round" />
+      <g stroke={colors.shade} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.7">
+        <line x1="75" y1="160" x2="72" y2="150" />
+        <line x1="55" y1="148" x2="52" y2="138" />
+        <line x1="40" y1="145" x2="35" y2="135" />
+      </g>
+
+      <path d="M 175 225 Q 165 250 178 275" stroke={colors.shade} strokeWidth="20" fill="none" strokeLinecap="round" />
+      <ellipse cx="180" cy="278" rx="14" ry="4" fill="#3a2118" />
+      <path d="M 183 278 l 8 -3 M 183 278 l 6 5 M 173 278 l -6 3" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+      <path d="M 205 225 Q 200 250 215 275" stroke={colors.shade} strokeWidth="20" fill="none" strokeLinecap="round" />
+      <ellipse cx="215" cy="278" rx="14" ry="4" fill="#3a2118" />
+      <path d="M 218 278 l 8 -3 M 218 278 l 6 5 M 208 278 l -6 3" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+      <ellipse cx="185" cy="200" rx="80" ry="34" fill={colors.shade} />
+      <ellipse cx="185" cy="195" rx="76" ry="30" fill={colors.main} />
+      <ellipse cx="185" cy="216" rx="62" ry="12" fill={colors.light} opacity="0.6" />
+
+      <g stroke={colors.shade} strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.7">
+        <path d="M 135 178 l 0 -6" />
+        <path d="M 150 174 l 0 -7" />
+        <path d="M 165 172 l 0 -8" />
+        <path d="M 185 170 l 0 -9" />
+        <path d="M 205 172 l 0 -8" />
+        <path d="M 225 175 l 0 -7" />
+      </g>
+
+      <line x1="235" y1="208" x2="252" y2="226" stroke={colors.shade} strokeWidth="7" strokeLinecap="round" />
+      <line x1="252" y1="226" x2="258" y2="232" stroke={colors.shade} strokeWidth="5" strokeLinecap="round" />
+      <g stroke="#1a1a1a" strokeWidth="1.8" strokeLinecap="round" fill="none">
+        <path d="M 258 232 l 5 -2" />
+        <path d="M 258 232 l 4 4" />
+        <path d="M 258 232 l 2 6" />
+      </g>
+
+      <path d="M 250 180 Q 275 162 295 168" stroke={colors.shade} strokeWidth="24" fill="none" strokeLinecap="round" />
+      <path d="M 250 180 Q 275 162 295 168" stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
+
+      <ellipse cx="305" cy="167" rx="34" ry="22" fill={colors.shade} />
+      <ellipse cx="303" cy="164" rx="30" ry="19" fill={colors.main} />
+      <ellipse cx="330" cy="170" rx="14" ry="9" fill={colors.main} />
+      <ellipse cx="330" cy="170" rx="13" ry="8" fill={colors.shade} opacity="0.4" />
+
+      <g fill="white">
+        <polygon points="322,178 324,184 326,178" />
+        <polygon points="328,179 330,184 332,179" />
+        <polygon points="334,179 336,183 338,178" />
+      </g>
+
+      <g className="eye-blink" style={{ transformOrigin: '305px 159px' }}>
+        <circle cx="305" cy="159" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="306" cy="159" rx="2.6" ry="4.5" fill="#1a1a1a" />
+        <circle cx="307" cy="156" r="1.6" fill="white" />
+      </g>
+
+      <circle cx="338" cy="166" r="1.6" fill={colors.shade} />
+
+      <ellipse cx="195" cy="285" rx="60" ry="5" fill="rgba(0,0,0,0.22)" />
+    </svg>
+  );
+}
+
+export function TriceratopsShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      <path d="M 80 205 Q 50 200 28 210" stroke={colors.shade} strokeWidth="26" fill="none" strokeLinecap="round" />
+      <path d="M 80 205 Q 50 200 28 210" stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
+
+      <rect x="100" y="220" width="22" height="55" fill={colors.shade} rx="5" />
+      <rect x="155" y="220" width="22" height="55" fill={colors.shade} rx="5" />
+      <rect x="220" y="220" width="22" height="55" fill={colors.shade} rx="5" />
+      <rect x="265" y="220" width="22" height="55" fill={colors.shade} rx="5" />
+      <ellipse cx="111" cy="278" rx="15" ry="4" fill="#3a2118" />
+      <ellipse cx="166" cy="278" rx="15" ry="4" fill="#3a2118" />
+      <ellipse cx="231" cy="278" rx="15" ry="4" fill="#3a2118" />
+      <ellipse cx="276" cy="278" rx="15" ry="4" fill="#3a2118" />
+
+      <ellipse cx="195" cy="195" rx="115" ry="50" fill={colors.shade} />
+      <ellipse cx="195" cy="190" rx="110" ry="44" fill={colors.main} />
+      <ellipse cx="195" cy="220" rx="92" ry="14" fill={colors.light} opacity="0.55" />
+      <ellipse cx="170" cy="160" rx="60" ry="14" fill="white" opacity="0.18" />
+
+      <ellipse cx="300" cy="180" rx="55" ry="62" fill={colors.shade} />
+      <ellipse cx="300" cy="180" rx="48" ry="55" fill={colors.main} />
+      <g fill={colors.shade}>
+        <polygon points="270,128 275,114 282,132" />
+        <polygon points="293,122 298,108 305,126" />
+        <polygon points="315,126 320,112 327,130" />
+        <polygon points="332,138 338,124 343,142" />
+      </g>
+
+      <ellipse cx="325" cy="200" rx="36" ry="24" fill={colors.shade} />
+      <ellipse cx="324" cy="198" rx="32" ry="21" fill={colors.main} />
+      <ellipse cx="345" cy="207" rx="14" ry="10" fill={colors.main} />
+
+      <g fill={colors.shade}>
+        <polygon points="346,200 354,180 360,202" />
+        <polygon points="312,175 308,140 320,175" />
+        <polygon points="340,175 346,140 352,175" />
+      </g>
+      <g fill={colors.light} opacity="0.4">
+        <polygon points="313,170 309,148 318,170" />
+        <polygon points="341,170 347,148 350,170" />
+      </g>
+
+      <g className="eye-blink" style={{ transformOrigin: '322px 193px' }}>
+        <circle cx="322" cy="193" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="323" cy="193" r="3" fill="#1a1a1a" />
+        <circle cx="324" cy="191" r="1.3" fill="white" />
+      </g>
+
+      <path d="M 345 213 L 358 213" stroke="#3a2118" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="354" cy="208" r="1.2" fill={colors.shade} />
+
+      <ellipse cx="200" cy="287" rx="135" ry="6" fill="rgba(0,0,0,0.2)" />
+    </svg>
+  );
+}
+
+export function StegosaurusShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      <path d="M 85 215 Q 50 230 22 252" stroke={colors.shade} strokeWidth="22" fill="none" strokeLinecap="round" />
+      <path d="M 85 215 Q 50 230 22 252" stroke={colors.main} strokeWidth="14" fill="none" strokeLinecap="round" />
+      <g fill={colors.shade}>
+        <polygon points="32,250 16,228 38,247" />
+        <polygon points="46,253 30,232 52,250" />
+        <polygon points="40,260 50,278 56,255" />
+        <polygon points="52,260 64,278 66,255" />
+      </g>
+
+      <rect x="100" y="218" width="22" height="58" fill={colors.shade} rx="5" />
+      <rect x="142" y="225" width="20" height="51" fill={colors.shade} rx="5" />
+      <rect x="225" y="220" width="22" height="56" fill={colors.shade} rx="5" />
+      <rect x="265" y="225" width="20" height="51" fill={colors.shade} rx="5" />
+      <ellipse cx="111" cy="278" rx="15" ry="4" fill="#3a2118" />
+      <ellipse cx="152" cy="278" rx="14" ry="4" fill="#3a2118" />
+      <ellipse cx="236" cy="278" rx="15" ry="4" fill="#3a2118" />
+      <ellipse cx="275" cy="278" rx="14" ry="4" fill="#3a2118" />
+
+      <path d="M 88 220 Q 88 175 110 165 Q 160 130 200 130 Q 240 130 270 165 Q 295 175 295 220 Z" fill={colors.shade} />
+      <path d="M 93 218 Q 93 175 113 167 Q 162 135 200 135 Q 238 135 268 167 Q 290 175 290 218 Z" fill={colors.main} />
+      <ellipse cx="195" cy="208" rx="90" ry="16" fill={colors.light} opacity="0.55" />
+
+      <g stroke={colors.shade} strokeWidth="1.2">
+        <polygon points="115,160 130,128 145,160" fill={colors.main} />
+        <polygon points="150,148 165,112 180,148" fill={colors.main} />
+        <polygon points="185,138 200,98 215,138" fill={colors.main} />
+        <polygon points="220,148 235,112 250,148" fill={colors.main} />
+        <polygon points="253,160 265,128 277,160" fill={colors.main} />
+      </g>
+      <g fill={colors.light} opacity="0.45">
+        <polygon points="120,155 130,134 140,155" />
+        <polygon points="156,144 165,118 174,144" />
+        <polygon points="191,134 200,104 209,134" />
+        <polygon points="226,144 235,118 244,144" />
+        <polygon points="258,155 265,134 272,155" />
+      </g>
+
+      <ellipse cx="298" cy="205" rx="22" ry="14" fill={colors.shade} />
+      <ellipse cx="297" cy="203" rx="19" ry="12" fill={colors.main} />
+      <ellipse cx="316" cy="208" rx="12" ry="8" fill={colors.main} />
+
+      <g className="eye-blink" style={{ transformOrigin: '297px 200px' }}>
+        <circle cx="297" cy="200" r="3.5" fill="white" stroke="#222" strokeWidth="0.5" />
+        <circle cx="298" cy="200" r="2" fill="#1a1a1a" />
+      </g>
+      <path d="M 313 212 L 323 213" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" />
+
+      <ellipse cx="195" cy="287" rx="130" ry="6" fill="rgba(0,0,0,0.2)" />
+    </svg>
+  );
+}
+
+export function PterodactylShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="ptero-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#7fbfe0" />
+          <stop offset="1" stopColor="#c4dde8" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="300" fill="url(#ptero-sky)" />
+      <g fill="white" opacity="0.6">
+        <ellipse cx="60" cy="60" rx="22" ry="6" />
+        <ellipse cx="50" cy="55" rx="14" ry="5" />
+        <ellipse cx="330" cy="80" rx="25" ry="7" />
+        <ellipse cx="345" cy="76" rx="16" ry="5" />
+      </g>
+
+      <path d="M 200 170 L 60 130 L 40 148 L 70 195 L 200 188 Z" fill={colors.shade} />
+      <path d="M 200 170 L 70 138 L 60 152 L 80 188 L 200 184 Z" fill={colors.main} />
+      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.5">
+        <line x1="200" y1="170" x2="60" y2="130" />
+        <line x1="200" y1="175" x2="80" y2="155" />
+        <line x1="200" y1="180" x2="100" y2="178" />
+      </g>
+
+      <path d="M 200 170 L 340 130 L 360 148 L 330 195 L 200 188 Z" fill={colors.shade} />
+      <path d="M 200 170 L 330 138 L 340 152 L 320 188 L 200 184 Z" fill={colors.main} />
+      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.5">
+        <line x1="200" y1="170" x2="340" y2="130" />
+        <line x1="200" y1="175" x2="320" y2="155" />
+        <line x1="200" y1="180" x2="300" y2="178" />
+      </g>
+
+      <ellipse cx="200" cy="180" rx="22" ry="34" fill={colors.shade} />
+      <ellipse cx="200" cy="178" rx="18" ry="30" fill={colors.main} />
+      <ellipse cx="195" cy="170" rx="10" ry="14" fill={colors.light} opacity="0.45" />
+
+      <ellipse cx="200" cy="140" rx="22" ry="18" fill={colors.shade} />
+      <ellipse cx="200" cy="138" rx="19" ry="15" fill={colors.main} />
+
+      <polygon points="218,132 270,98 220,148" fill={colors.shade} />
+      <polygon points="216,134 262,104 218,144" fill={colors.main} />
+      <line x1="222" y1="138" x2="262" y2="118" stroke="#3a2118" strokeWidth="0.6" />
+
+      <polygon points="195,125 188,84 210,90 215,120" fill={colors.shade} />
+      <polygon points="197,123 191,90 208,94 212,118" fill={colors.main} />
+
+      <g className="eye-blink" style={{ transformOrigin: '207px 137px' }}>
+        <circle cx="207" cy="137" r="4" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="208" cy="137" r="2.4" fill="#1a1a1a" />
+        <circle cx="209" cy="135" r="1.2" fill="white" />
+      </g>
+
+      <line x1="196" y1="212" x2="190" y2="240" stroke={colors.shade} strokeWidth="7" strokeLinecap="round" />
+      <line x1="204" y1="212" x2="210" y2="240" stroke={colors.shade} strokeWidth="7" strokeLinecap="round" />
+      <path d="M 190 240 l -3 4 l 5 -1 l -2 5 l 5 -2 l -2 5" stroke="#3a2118" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      <path d="M 210 240 l 3 4 l -5 -1 l 2 5 l -5 -2 l 2 5" stroke="#3a2118" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+
+      <ellipse cx="200" cy="262" rx="80" ry="5" fill="rgba(0,0,0,0.15)" />
+    </svg>
+  );
+}
+
 export function PenguinShape({ colors }: { colors: ColorOverride }) {
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">

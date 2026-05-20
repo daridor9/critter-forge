@@ -3,7 +3,7 @@ import type { DexAnimal } from '../data/animalDex';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { SnakeShape } from './SnakeShape';
-import { OctopusShape, WhaleShape, PenguinShape } from './dexShapes';
+import { OctopusShape, WhaleShape, PenguinShape, RaptorShape, TriceratopsShape, StegosaurusShape, PterodactylShape } from './dexShapes';
 
 interface Props {
   current: Creature;
@@ -51,6 +51,10 @@ function DexThumb({ animal }: { animal: DexAnimal }) {
     if (animal.shape === 'octopus') return <OctopusShape colors={animal.colors} />;
     if (animal.shape === 'whale') return <WhaleShape colors={animal.colors} />;
     if (animal.shape === 'penguin') return <PenguinShape colors={animal.colors} />;
+    if (animal.shape === 'raptor') return <RaptorShape colors={animal.colors} />;
+    if (animal.shape === 'triceratops') return <TriceratopsShape colors={animal.colors} />;
+    if (animal.shape === 'stegosaurus') return <StegosaurusShape colors={animal.colors} />;
+    if (animal.shape === 'pterodactyl') return <PterodactylShape colors={animal.colors} />;
   }
   return <CreatureSVG creature={animal.creature} colorOverride={animal.colors} />;
 }
