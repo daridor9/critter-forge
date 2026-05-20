@@ -3,7 +3,7 @@ import { defaultCreature } from './types';
 import type { Creature } from './types';
 import { computeStats } from './physics';
 import { Builder } from './components/Builder';
-import { CreatureSVG } from './components/CreatureSVG';
+import { CreatureStage } from './components/CreatureStage';
 import { StatsPanel } from './components/StatsPanel';
 import { ComparePanel } from './components/ComparePanel';
 import { ChaseArena } from './components/ChaseArena';
@@ -218,8 +218,8 @@ export default function App() {
         </section>
 
         <section className="col col-creature">
-          <div className="creature-stage">
-            <CreatureSVG creature={creature} />
+          <div className="creature-stage creature-stage-habitat">
+            <CreatureStage creature={creature} />
           </div>
           <div className="creature-name">
             <span className="gen-badge">🧬 Gen {generation}</span>
