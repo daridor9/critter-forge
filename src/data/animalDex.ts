@@ -1,11 +1,41 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
+import type { ColorOverride } from '../components/CreatureSVG';
 
 export interface DexAnimal {
   name: string;
   emoji: string;
   fact: string;
   creature: Creature;
+  colors?: ColorOverride;
 }
+
+export const ANIMAL_COLORS: Record<string, ColorOverride> = {
+  'Mouse':           { main: '#b8a698', shade: '#7a6a5c', light: '#d4c4b6', cheek: '#f0bcbc' },
+  'Hummingbird':     { main: '#3da080', shade: '#1f6e52', light: '#67bfa0', cheek: '#ff8a8a' },
+  'Bat':             { main: '#5a4a3e', shade: '#2e2418', light: '#7a685a', cheek: '#a06a76' },
+  'Cheetah':         { main: '#d4a060', shade: '#a8783c', light: '#e8c690', cheek: '#f0b890', pattern: '#1a1a1a' },
+  'Wolf':            { main: '#8a8580', shade: '#5a5550', light: '#b0aba4', cheek: '#bcb5ae' },
+  'Lion':            { main: '#d4a040', shade: '#a87820', light: '#e6c065', cheek: '#f0b890' },
+  'Polar bear':      { main: '#f4f4f0', shade: '#b8b8b0', light: '#ffffff', cheek: '#ffd8d8' },
+  'Snow leopard':    { main: '#d8d2c4', shade: '#9a948a', light: '#ede8de', cheek: '#f4d8c8', pattern: '#3a3530' },
+  'Elephant':        { main: '#9a958c', shade: '#5a554c', light: '#b8b3aa', cheek: '#caa8a8' },
+  'Blue whale':      { main: '#5a7a98', shade: '#2e4a68', light: '#7e9bb8', cheek: '#9eb4cc' },
+  'Dolphin':         { main: '#7090b0', shade: '#3e5e80', light: '#a2b8d0', cheek: '#b4c4d6' },
+  'Sloth':           { main: '#9a8458', shade: '#5e4e2c', light: '#b6a274', cheek: '#c0a878' },
+  'Kangaroo':        { main: '#b07248', shade: '#7a4a24', light: '#c89060', cheek: '#daa080' },
+  'Camel':           { main: '#d8b88a', shade: '#a8885a', light: '#ead4ae', cheek: '#f0c8aa' },
+  'Gorilla':         { main: '#2a2a2a', shade: '#0c0c0c', light: '#4a4a4a', cheek: '#5a4040' },
+  'Ostrich':         { main: '#3a3530', shade: '#1a1614', light: '#6a625a', cheek: '#d68b5a' },
+  'Eagle':           { main: '#8a6a48', shade: '#5a4220', light: '#b09070', cheek: '#e0a060' },
+  'Penguin':         { main: '#1a1a1a', shade: '#000000', light: '#ffffff', cheek: '#ffa040' },
+  'Owl':             { main: '#9a7a54', shade: '#5a402c', light: '#bca080', cheek: '#caaa90', pattern: '#3a2818' },
+  'Tortoise':        { main: '#7a924a', shade: '#42622a', light: '#9ab068', cheek: '#a8b88a' },
+  'Crocodile':       { main: '#5a7a3a', shade: '#2a4818', light: '#82a058', cheek: '#90a880' },
+  'Chameleon':       { main: '#5aa840', shade: '#2a7818', light: '#82c068', cheek: '#a0d090' },
+  'Anaconda':        { main: '#6a7e3a', shade: '#3a4a1c', light: '#92a258', cheek: '#94a274' },
+  'Great white shark': { main: '#7090a4', shade: '#3a5060', light: '#ffffff', cheek: '#a4b8c8' },
+  'Octopus':         { main: '#c45a78', shade: '#7a2c4c', light: '#e69cb0', cheek: '#fab8c8' },
+};
 
 const make = (
   name: string,
@@ -26,6 +56,7 @@ const make = (
     emoji,
     fact,
     creature: { name, sizeUnit, bodyPlan, warmBlooded, legTier, brainTier, defenseTier, sensorTier, hybrids },
+    colors: ANIMAL_COLORS[name],
   };
 };
 

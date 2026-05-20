@@ -53,6 +53,14 @@ function patternColor(c: Creature): string | null {
   return null;
 }
 
+export interface ColorOverride {
+  main: string;
+  shade: string;
+  light: string;
+  cheek: string;
+  pattern?: string;
+}
+
 interface BodyProps {
   creature: Creature;
   cx: number;
@@ -60,13 +68,14 @@ interface BodyProps {
   scale?: number;
   facingRight?: boolean;
   animate?: 'run' | 'breathe' | 'none';
+  colorOverride?: ColorOverride;
 }
 
-export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = true, animate = 'none' }: BodyProps) {
+export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = true, animate = 'none', colorOverride }: BodyProps) {
   const { bodyW, bodyH, legLen, legW, sizeT } = metrics(creature, scale);
   const props = massProportions(sizeT);
   const cy = footY - bodyH / 2 - legLen;
-  const colors = bodyColors(creature);
+  const colors = colorOverride ?? bodyColors(creature);
   const armorColor = '#6b6b6b';
 
   const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
@@ -89,7 +98,8 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
   const eyeCx = headCx + headR * 0.45;
   const eyeCy = headCy - headR * 0.1;
 
-  const pattern = patternColor(creature);
+  const pattern = colorOverride?.pattern ?? patternColor(creature);
+  const forcePattern = !!colorOverride?.pattern;
   const flip = facingRight ? '' : `translate(${cx * 2} 0) scale(-1 1)`;
   const animClass = animate === 'run' ? 'bob-run' : animate === 'breathe' ? 'bob-breathe' : undefined;
 
@@ -187,8 +197,8 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       <ellipse cx={cx} cy={cy + bodyH * 0.18} rx={bodyW * 0.42} ry={bodyH * 0.28} fill={colors.light} opacity={0.5} />
       <ellipse cx={cx + bodyW * 0.05} cy={cy + bodyH * 0.32} rx={bodyW * 0.4} ry={bodyH * 0.12} fill={colors.shade} opacity="0.25" />
 
-      {showDetail && pattern && creature.bodyPlan === 'mammal' && (
-        <g fill={pattern} opacity={0.55}>
+      {(showDetail || forcePattern) && pattern && creature.bodyPlan === 'mammal' && (
+        <g fill={pattern} opacity={forcePattern ? 0.85 : 0.55}>
           <circle cx={cx - bodyW * 0.18} cy={cy - bodyH * 0.05} r={bodyH * 0.07} />
           <circle cx={cx + bodyW * 0.05} cy={cy - bodyH * 0.13} r={bodyH * 0.06} />
           <circle cx={cx + bodyW * 0.22} cy={cy + bodyH * 0.04} r={bodyH * 0.05} />
@@ -508,7 +518,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
   );
 }
 
-export function CreatureSVG({ creature }: { creature: Creature }) {
+export function CreatureSVG({ creature, colorOverride }: { creature: Creature; colorOverride?: ColorOverride }) {
   const cx = 200;
   const footY = 260;
 
@@ -537,7 +547,7 @@ export function CreatureSVG({ creature }: { creature: Creature }) {
         </g>
       )}
 
-      <CreatureBody creature={creature} cx={cx} footY={footY} scale={1} />
+      <CreatureBody creature={creature} cx={cx} footY={footY} scale={1} colorOverride={colorOverride} />
     </svg>
   );
 }

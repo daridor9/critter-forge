@@ -27,7 +27,7 @@ export function DexModal({ current, onLoad, onClose }: Props) {
           {ANIMAL_DEX.map((a) => (
             <div key={a.name} className="dex-card">
               <div className="dex-thumb">
-                <CreatureSVG creature={a.creature} />
+                <CreatureSVG creature={a.creature} colorOverride={a.colors} />
               </div>
               <div className="dex-card-name">{a.emoji} {a.name}</div>
               <div className="dex-card-fact">{a.fact}</div>
