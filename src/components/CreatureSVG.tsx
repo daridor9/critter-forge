@@ -59,9 +59,10 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         ? [cx - bodyW * 0.38, cx - bodyW * 0.12, cx + bodyW * 0.12, cx + bodyW * 0.38]
         : [];
 
+  const brainHeadMult = [0.78, 1.0, 1.22][creature.brainTier];
+  const headR = bodyH * 0.44 * brainHeadMult;
   const headCx = cx + bodyW / 2 - 6 * scale;
   const headCy = cy - bodyH * 0.14;
-  const headR = bodyH * 0.44;
   const eyeCx = headCx + headR * 0.45;
   const eyeCy = headCy - headR * 0.1;
 
@@ -172,13 +173,66 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         <circle cx={headCx - headR * 0.35} cy={headCy - headR * 0.75} r={headR * 0.55} fill={colors.main} />
       )}
 
+      {creature.bodyPlan === 'mammal' && showDetail && (() => {
+        const hasEcho = creature.hybrids.includes('echolocation');
+        if (hasEcho) {
+          return (
+            <g>
+              <ellipse cx={headCx - headR * 0.45} cy={headCy - headR * 0.95} rx={headR * 0.32} ry={headR * 0.65} fill={colors.shade} transform={`rotate(-14 ${headCx - headR * 0.45} ${headCy - headR * 0.95})`} />
+              <ellipse cx={headCx + headR * 0.25} cy={headCy - headR * 1.0} rx={headR * 0.32} ry={headR * 0.65} fill={colors.shade} transform={`rotate(10 ${headCx + headR * 0.25} ${headCy - headR * 1.0})`} />
+              <ellipse cx={headCx - headR * 0.45} cy={headCy - headR * 0.9} rx={headR * 0.16} ry={headR * 0.42} fill="#e88aa0" opacity="0.85" transform={`rotate(-14 ${headCx - headR * 0.45} ${headCy - headR * 0.9})`} />
+              <ellipse cx={headCx + headR * 0.25} cy={headCy - headR * 0.95} rx={headR * 0.16} ry={headR * 0.42} fill="#e88aa0" opacity="0.85" transform={`rotate(10 ${headCx + headR * 0.25} ${headCy - headR * 0.95})`} />
+            </g>
+          );
+        }
+        const earH = creature.sensorTier === 0 ? headR * 0.45 : creature.sensorTier === 1 ? headR * 0.85 : headR * 1.25;
+        const earW = creature.sensorTier === 0 ? headR * 0.18 : creature.sensorTier === 1 ? headR * 0.22 : headR * 0.26;
+        return (
+          <g>
+            <polygon
+              points={`${headCx - headR * 0.5} ${headCy - headR * 0.5} ${headCx - headR * 0.5 + earW} ${headCy - headR * 0.5 - earH} ${headCx - headR * 0.5 + earW * 2.2} ${headCy - headR * 0.55}`}
+              fill={colors.shade}
+            />
+            <polygon
+              points={`${headCx + headR * 0.1} ${headCy - headR * 0.55} ${headCx + headR * 0.1 + earW} ${headCy - headR * 0.5 - earH} ${headCx + headR * 0.1 + earW * 2.2} ${headCy - headR * 0.5}`}
+              fill={colors.shade}
+            />
+            {creature.sensorTier >= 1 && (
+              <>
+                <polygon
+                  points={`${headCx - headR * 0.5 + earW * 0.4} ${headCy - headR * 0.5 - earH * 0.2} ${headCx - headR * 0.5 + earW} ${headCy - headR * 0.5 - earH * 0.85} ${headCx - headR * 0.5 + earW * 1.6} ${headCy - headR * 0.5 - earH * 0.2}`}
+                  fill="#e88aa0"
+                  opacity="0.8"
+                />
+                <polygon
+                  points={`${headCx + headR * 0.1 + earW * 0.4} ${headCy - headR * 0.5 - earH * 0.2} ${headCx + headR * 0.1 + earW} ${headCy - headR * 0.5 - earH * 0.85} ${headCx + headR * 0.1 + earW * 1.6} ${headCy - headR * 0.5 - earH * 0.2}`}
+                  fill="#e88aa0"
+                  opacity="0.8"
+                />
+              </>
+            )}
+          </g>
+        );
+      })()}
+
       <circle cx={headCx} cy={headCy} r={headR} fill={colors.main} />
 
-      {creature.bodyPlan === 'mammal' && showDetail && (
+      {creature.bodyPlan === 'bird' && showDetail && (
         <polygon
-          points={`${headCx - headR * 0.3} ${headCy - headR * 0.5} ${headCx - headR * 0.05} ${headCy - headR * 1.15} ${headCx + headR * 0.15} ${headCy - headR * 0.6}`}
-          fill={colors.shade}
+          points={`${headCx + headR * 0.85} ${headCy + headR * 0.05} ${headCx + headR * 1.45} ${headCy + headR * 0.25} ${headCx + headR * 0.85} ${headCy + headR * 0.4}`}
+          fill="#e8a838"
+          stroke="#9a6c20"
+          strokeWidth="0.6"
         />
+      )}
+      {creature.bodyPlan === 'reptile' && showDetail && (
+        <ellipse cx={headCx + headR * 0.75} cy={headCy + headR * 0.15} rx={headR * 0.4} ry={headR * 0.28} fill={colors.main} />
+      )}
+      {creature.bodyPlan === 'fish' && showDetail && (
+        <g stroke={colors.shade} strokeWidth={Math.max(1, 1.5 * scale)} fill="none" strokeLinecap="round">
+          <path d={`M ${headCx + headR * 0.15} ${headCy - headR * 0.35} q ${-headR * 0.15} ${headR * 0.35} 0 ${headR * 0.7}`} />
+          <path d={`M ${headCx + headR * 0.35} ${headCy - headR * 0.35} q ${-headR * 0.15} ${headR * 0.35} 0 ${headR * 0.7}`} />
+        </g>
       )}
 
       <g className={showDetail ? 'eye-blink' : undefined} style={{ transformOrigin: `${eyeCx}px ${eyeCy}px` }}>
@@ -221,24 +275,118 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         </g>
       )}
 
-      {creature.defenseTier === 1 && creature.bodyPlan === 'mammal' && showDetail && (
-        <g fill="none" stroke={colors.shade} strokeWidth="1.5" strokeLinecap="round">
-          <path d={`M ${cx - bodyW * 0.2} ${cy - bodyH / 2 - 1} l 1 -5`} />
-          <path d={`M ${cx - bodyW * 0.05} ${cy - bodyH / 2 - 1} l 1 -6`} />
-          <path d={`M ${cx + bodyW * 0.1} ${cy - bodyH / 2 - 1} l 1 -5`} />
-          <path d={`M ${cx + bodyW * 0.25} ${cy - bodyH / 2 - 1} l 1 -6`} />
+      {creature.defenseTier === 1 && (creature.bodyPlan === 'mammal' || creature.bodyPlan === 'bird') && (
+        <g fill="none" stroke={colors.shade} strokeWidth={Math.max(1.2, 1.5 * scale)} strokeLinecap="round">
+          {Array.from({ length: 18 }).map((_, i) => {
+            const angle = (i / 18) * Math.PI * 2 - Math.PI / 2;
+            if (Math.sin(angle) > 0.4) return null;
+            const sx = cx + (bodyW / 2) * Math.cos(angle);
+            const sy = cy + (bodyH / 2) * Math.sin(angle);
+            const len = 5 * scale;
+            const ex = sx + Math.cos(angle) * len;
+            const ey = sy + Math.sin(angle) * len;
+            return <path key={i} d={`M ${sx} ${sy} L ${ex} ${ey}`} />;
+          })}
+        </g>
+      )}
+
+      {creature.defenseTier === 1 && (creature.bodyPlan === 'reptile' || creature.bodyPlan === 'fish') && (
+        <g fill={colors.shade} opacity="0.55">
+          {Array.from({ length: 14 }).map((_, i) => {
+            const row = Math.floor(i / 7);
+            const col = i % 7;
+            const x = cx - bodyW * 0.32 + col * (bodyW * 0.1);
+            const y = cy - bodyH * 0.2 + row * (bodyH * 0.22);
+            return <path key={i} d={`M ${x} ${y} q ${bodyH * 0.04} ${-bodyH * 0.05} ${bodyH * 0.08} 0 z`} />;
+          })}
         </g>
       )}
 
       {creature.defenseTier === 2 && (
-        <g fill={armorColor}>
-          {[-0.3, 0, 0.3].map((off) => (
-            <polygon
-              key={off}
-              points={`${cx + bodyW * off - 5 * scale} ${cy - bodyH / 2} ${cx + bodyW * off} ${cy - bodyH / 2 - 14 * scale} ${cx + bodyW * off + 5 * scale} ${cy - bodyH / 2}`}
-            />
+        <g>
+          <path
+            d={`M ${cx - bodyW * 0.5} ${cy + bodyH * 0.1} q ${bodyW * 0.5} ${-bodyH * 0.75} ${bodyW} 0 l 0 ${bodyH * 0.15} q ${-bodyW * 0.5} ${bodyH * 0.45} ${-bodyW} 0 z`}
+            fill="#7a7570"
+            stroke="#2e2a26"
+            strokeWidth={Math.max(1, 1.5 * scale)}
+          />
+          <g stroke="#2e2a26" strokeWidth={Math.max(0.6, 1 * scale)} fill="none" opacity="0.7">
+            <path d={`M ${cx - bodyW * 0.3} ${cy - bodyH * 0.15} q ${bodyW * 0.08} ${-3 * scale} ${bodyW * 0.16} 0 q ${bodyW * 0.08} ${-3 * scale} ${bodyW * 0.16} 0 q ${bodyW * 0.08} ${-3 * scale} ${bodyW * 0.16} 0`} />
+            <path d={`M ${cx - bodyW * 0.35} ${cy + bodyH * 0.0} q ${bodyW * 0.08} ${-3 * scale} ${bodyW * 0.16} 0 q ${bodyW * 0.08} ${-3 * scale} ${bodyW * 0.16} 0 q ${bodyW * 0.08} ${-3 * scale} ${bodyW * 0.16} 0`} />
+          </g>
+          <g fill="#2e2a26">
+            {[-0.42, -0.2, 0, 0.2, 0.42].map((off) => {
+              const top = cy + bodyH * 0.1 - bodyH * 0.7 * Math.cos(off * 1.4);
+              return (
+                <polygon
+                  key={off}
+                  points={`${cx + bodyW * off - 5 * scale} ${top + 4 * scale} ${cx + bodyW * off} ${top - 16 * scale} ${cx + bodyW * off + 5 * scale} ${top + 4 * scale}`}
+                />
+              );
+            })}
+          </g>
+        </g>
+      )}
+
+      {creature.hybrids.includes('camouflage') && (
+        <g fill="#5a7038" opacity="0.55">
+          <ellipse cx={cx - bodyW * 0.25} cy={cy - bodyH * 0.12} rx={bodyH * 0.16} ry={bodyH * 0.11} />
+          <ellipse cx={cx + bodyW * 0.12} cy={cy + bodyH * 0.04} rx={bodyH * 0.13} ry={bodyH * 0.09} />
+          <ellipse cx={cx + bodyW * 0.28} cy={cy - bodyH * 0.18} rx={bodyH * 0.14} ry={bodyH * 0.1} />
+          <ellipse cx={cx - bodyW * 0.05} cy={cy + bodyH * 0.2} rx={bodyH * 0.12} ry={bodyH * 0.08} />
+          <ellipse cx={cx - bodyW * 0.32} cy={cy + bodyH * 0.12} rx={bodyH * 0.1} ry={bodyH * 0.07} />
+        </g>
+      )}
+
+      {creature.hybrids.includes('antifreeze') && (
+        <g fill="#cce7f4" stroke="#5b9fe0" strokeWidth={Math.max(0.5, 0.8 * scale)}>
+          {[[0.2, -0.25], [-0.18, -0.08], [0.32, 0.08], [-0.28, 0.16], [0.06, -0.32], [-0.05, 0.22]].map(([dx, dy], i) => (
+            <circle key={i} cx={cx + bodyW * (dx as number)} cy={cy + bodyH * (dy as number)} r={Math.max(1.8, 2.6 * scale)} />
           ))}
         </g>
+      )}
+
+      {creature.hybrids.includes('electric') && (
+        <polyline
+          points={`${cx - bodyW * 0.12} ${cy - bodyH * 0.25} ${cx + bodyW * 0.04} ${cy - bodyH * 0.08} ${cx - bodyW * 0.04} ${cy + bodyH * 0.05} ${cx + bodyW * 0.14} ${cy + bodyH * 0.22}`}
+          stroke="#ffd60a"
+          strokeWidth={Math.max(2, 2.6 * scale)}
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+
+      {creature.hybrids.includes('gills') && creature.bodyPlan !== 'fish' && (
+        <g stroke={colors.shade} strokeWidth={Math.max(1.5, 2 * scale)} strokeLinecap="round" fill="none">
+          <path d={`M ${cx + bodyW * 0.28} ${cy - bodyH * 0.18} q ${-2 * scale} ${bodyH * 0.12} 0 ${bodyH * 0.24}`} />
+          <path d={`M ${cx + bodyW * 0.35} ${cy - bodyH * 0.15} q ${-2 * scale} ${bodyH * 0.12} 0 ${bodyH * 0.24}`} />
+          <path d={`M ${cx + bodyW * 0.42} ${cy - bodyH * 0.12} q ${-2 * scale} ${bodyH * 0.12} 0 ${bodyH * 0.24}`} />
+        </g>
+      )}
+
+      {creature.hybrids.includes('thick-fur') && (
+        <g fill="none" stroke={colors.shade} strokeWidth={Math.max(1.8, 2.4 * scale)} strokeLinecap="round" opacity="0.9">
+          {Array.from({ length: 28 }).map((_, i) => {
+            const angle = (i / 28) * Math.PI * 2 - Math.PI / 2;
+            if (Math.sin(angle) > 0.55) return null;
+            const sx = cx + (bodyW / 2) * Math.cos(angle);
+            const sy = cy + (bodyH / 2) * Math.sin(angle);
+            const len = 10 * scale;
+            const ex = sx + Math.cos(angle) * len;
+            const ey = sy + Math.sin(angle) * len;
+            return <path key={i} d={`M ${sx} ${sy} L ${ex} ${ey}`} />;
+          })}
+        </g>
+      )}
+
+      {creature.hybrids.includes('venom') && showDetail && (
+        <polygon
+          points={`${headCx + headR * 0.18} ${headCy + headR * 0.6} ${headCx + headR * 0.28} ${headCy + headR * 0.95} ${headCx + headR * 0.38} ${headCy + headR * 0.6}`}
+          fill="white"
+          stroke="#1a1a1a"
+          strokeWidth="0.6"
+        />
       )}
       </g>
     </g>
