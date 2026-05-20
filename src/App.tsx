@@ -21,6 +21,8 @@ import { TournamentHUD, BetweenRounds, TournamentResults } from './components/To
 import { pickInsight } from './data/insights';
 import type { Insight, ArenaResult } from './data/insights';
 import { randomCreature, suggestName } from './data/randomCreature';
+import { adjustCreatureForStat } from './data/statAdjusters';
+import type { StatKey } from './data/statAdjusters';
 import type { TournamentState } from './data/tournament';
 import { TOURNAMENT_ORDER, scoreArena, difficultyFor } from './data/tournament';
 import { sounds, isMuted, setMuted } from './sounds';
@@ -135,6 +137,14 @@ export default function App() {
     if (!next) sounds.click();
   }
 
+  function adjustStat(stat: StatKey, dir: 1 | -1) {
+    const r = adjustCreatureForStat(creature, stat, dir);
+    if (r.changed) {
+      setCreature(r.creature);
+      sounds.click();
+    }
+  }
+
   function renderArena() {
     const id = effectiveArenaId;
     const gen = effectiveGeneration;
@@ -225,7 +235,7 @@ export default function App() {
             <span className="gen-badge">🧬 Gen {generation}</span>
             {creature.name}
           </div>
-          <StatsPanel creature={creature} stats={stats} />
+          <StatsPanel creature={creature} stats={stats} onAdjust={adjustStat} />
           <FoodEconomyPanel creature={creature} stats={stats} />
         </section>
 

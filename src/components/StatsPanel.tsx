@@ -2,10 +2,12 @@ import type { CSSProperties } from 'react';
 import type { CreatureStats } from '../physics';
 import { explainStats, vigilanceTaxFraction } from '../physics';
 import type { Creature } from '../types';
+import type { StatKey } from '../data/statAdjusters';
 
 interface Props {
   creature: Creature;
   stats: CreatureStats;
+  onAdjust?: (stat: StatKey, dir: 1 | -1) => void;
 }
 
 interface StatConfig {
@@ -45,7 +47,7 @@ function logFrac(value: number, min: number, max: number): number {
   return (Math.log10(v) - lo) / (hi - lo);
 }
 
-export function StatsPanel({ creature, stats }: Props) {
+export function StatsPanel({ creature, stats, onAdjust }: Props) {
   const ex = explainStats(creature, stats);
 
   const massFrac = logFrac(stats.massKg, 0.01, 100000);
@@ -66,33 +68,37 @@ export function StatsPanel({ creature, stats }: Props) {
       <h2>Live stats</h2>
 
       <div className="stats-group">
-        <StatRow cfg={CONFIG.mass} value={fmtMass(stats.massKg)} bar={massFrac} info={ex.massKg} />
-        <StatRow cfg={CONFIG.food} value={`${fmtMass(stats.foodKgPerDay)}`} sub={`${Math.round(stats.foodKcalPerDay)} kcal`} bar={foodFrac} info={ex.foodKcalPerDay} />
+        <StatRow stat="mass" cfg={CONFIG.mass} value={fmtMass(stats.massKg)} bar={massFrac} info={ex.massKg} onAdjust={onAdjust} />
+        <StatRow stat="food" cfg={CONFIG.food} value={`${fmtMass(stats.foodKgPerDay)}`} sub={`${Math.round(stats.foodKcalPerDay)} kcal`} bar={foodFrac} info={ex.foodKcalPerDay} onAdjust={onAdjust} />
         <StatRow
+          stat="vigil"
           cfg={CONFIG.vigil}
           value={`${vigilanceTaxFraction(creature) >= 0 ? '+' : ''}${(vigilanceTaxFraction(creature) * 100).toFixed(0)}%`}
           bar={Math.abs(vigilanceTaxFraction(creature)) / 0.3}
           info={ex.vigilance}
+          onAdjust={onAdjust}
         />
       </div>
 
       <div className="stats-group-label">Movement</div>
       <div className="stats-group">
-        <StatRow cfg={CONFIG.speed} value={`${stats.topSpeedKmh} km/h`} bar={speedFrac} info={ex.topSpeedKmh} />
-        <StatRow cfg={CONFIG.endurance} value={`${stats.enduranceKm} km`} bar={enduranceFrac} info={ex.enduranceKm} />
+        <StatRow stat="speed" cfg={CONFIG.speed} value={`${stats.topSpeedKmh} km/h`} bar={speedFrac} info={ex.topSpeedKmh} onAdjust={onAdjust} />
+        <StatRow stat="endurance" cfg={CONFIG.endurance} value={`${stats.enduranceKm} km`} bar={enduranceFrac} info={ex.enduranceKm} onAdjust={onAdjust} />
       </div>
 
       <div className="stats-group-label">Survival</div>
       <div className="stats-group">
-        <StatRow cfg={CONFIG.cold} value={`${Math.round(stats.coldTolerance)}`} bar={coldFrac} info={ex.coldTolerance} />
-        <StatRow cfg={CONFIG.lifespan} value={`${stats.lifespanYears} yrs`} bar={lifeFrac} info={ex.lifespanYears} />
-        <StatRow cfg={CONFIG.bone} value={`${Math.round(stats.boneBreakRisk)}`} bar={boneFrac} info={ex.boneBreakRisk} risk />
+        <StatRow stat="cold" cfg={CONFIG.cold} value={`${Math.round(stats.coldTolerance)}`} bar={coldFrac} info={ex.coldTolerance} onAdjust={onAdjust} />
+        <StatRow stat="lifespan" cfg={CONFIG.lifespan} value={`${stats.lifespanYears} yrs`} bar={lifeFrac} info={ex.lifespanYears} onAdjust={onAdjust} />
+        <StatRow stat="bone" cfg={CONFIG.bone} value={`${Math.round(stats.boneBreakRisk)}`} bar={boneFrac} info={ex.boneBreakRisk} risk onAdjust={onAdjust} />
         <StatRow
+          stat="heart"
           cfg={CONFIG.heart}
           value={`${stats.heartRateBpm} bpm`}
           bar={heartFrac}
           info={ex.heartRateBpm}
           beatPeriod={heartPeriod}
+          onAdjust={onAdjust}
         />
       </div>
     </div>
@@ -100,6 +106,7 @@ export function StatsPanel({ creature, stats }: Props) {
 }
 
 function StatRow({
+  stat,
   cfg,
   value,
   sub,
@@ -107,7 +114,9 @@ function StatRow({
   info,
   risk = false,
   beatPeriod,
+  onAdjust,
 }: {
+  stat: StatKey;
   cfg: StatConfig;
   value: string;
   sub?: string;
@@ -115,6 +124,7 @@ function StatRow({
   info?: string;
   risk?: boolean;
   beatPeriod?: number;
+  onAdjust?: (stat: StatKey, dir: 1 | -1) => void;
 }) {
   const pct = Math.max(0, Math.min(1, bar)) * 100;
   const barColor = risk ? riskGradient(bar) : cfg.color;
@@ -139,6 +149,16 @@ function StatRow({
             </span>
           )}
         </span>
+        {onAdjust && (
+          <span className="stat-adjust">
+            <button type="button" className="stat-adjust-btn" onClick={() => onAdjust(stat, -1)} aria-label={`Decrease ${cfg.label}`}>
+              −
+            </button>
+            <button type="button" className="stat-adjust-btn" onClick={() => onAdjust(stat, 1)} aria-label={`Increase ${cfg.label}`}>
+              +
+            </button>
+          </span>
+        )}
         <span className="stat-card-value">
           {value}
           {sub && <small> · {sub}</small>}

@@ -285,6 +285,40 @@ h2 {
   align-items: center;
   gap: 4px;
 }
+.stat-adjust {
+  display: inline-flex;
+  gap: 3px;
+  margin-right: 4px;
+}
+.stat-adjust-btn {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--fg-dim);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.stat-adjust-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.stat-adjust-btn:active {
+  transform: translateY(0);
+}
+
 .stat-card-value {
   font-weight: 700;
   font-size: 13px;
