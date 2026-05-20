@@ -1,7 +1,7 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
-export type DexShape = 'default' | 'snake';
+export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'penguin';
 
 export interface DexAnimal {
   name: string;
@@ -85,9 +85,9 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Elephant', '🐘', 4000, 'mammal', true, 0, 2, 2, 1, [],
     'Lives 65 years. Mourns dead. Largest land brain on Earth.'),
   make('Blue whale', '🐳', 100000, 'mammal', true, 0, 2, 2, 1, ['echolocation'],
-    'The biggest animal that has ever lived. Heart beats once every 10 seconds when diving.'),
+    'The biggest animal that has ever lived. Heart beats once every 10 seconds when diving.', 'whale'),
   make('Dolphin', '🐬', 200, 'mammal', true, 0, 2, 1, 2, ['echolocation', 'gills'],
-    'Recognizes itself in a mirror. Uses ultrasound to navigate murky water.'),
+    'Recognizes itself in a mirror. Uses ultrasound to navigate murky water.', 'whale'),
   make('Sloth', '🦥', 6, 'mammal', true, 0, 0, 1, 1, ['symbiosis'],
     'Algae grows in its fur for camouflage. Moves 30 cm/min. Sleeps 18h a day.'),
   make('Kangaroo', '🦘', 60, 'mammal', true, 2, 1, 0, 1, [],
@@ -101,7 +101,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Eagle', '🦅', 6, 'bird', true, 1, 2, 2, 2, ['wings'],
     'Sees small prey from 3 km away. Strikes at 240 km/h in a dive.'),
   make('Penguin', '🐧', 30, 'bird', true, 0, 1, 1, 2, ['thick-fur', 'gills'],
-    'Wings became flippers. Survives -40°C with feather + fat insulation.'),
+    'Wings became flippers. Survives -40°C with feather + fat insulation.', 'penguin'),
   make('Owl', '🦉', 1.5, 'bird', true, 1, 2, 0, 2, ['camouflage'],
     'Silent flight. Hears a mouse moving under snow 30 m away.'),
   make('Tortoise', '🐢', 200, 'reptile', false, 0, 1, 2, 1, [],
@@ -115,7 +115,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Great white shark', '🦈', 1100, 'fish', false, 0, 1, 1, 2, ['electric', 'gills'],
     'Detects electric fields from heartbeats. 300 serrated teeth, replaced lifelong.'),
   make('Octopus', '🐙', 5, 'fish', false, 0, 2, 0, 2, ['camouflage', 'venom'],
-    '9 brains (one main + one per arm). Opens jars. Edits its own RNA.'),
+    '9 brains (one main + one per arm). Opens jars. Edits its own RNA.', 'octopus'),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {

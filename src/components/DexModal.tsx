@@ -3,6 +3,7 @@ import type { DexAnimal } from '../data/animalDex';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { SnakeShape } from './SnakeShape';
+import { OctopusShape, WhaleShape, PenguinShape } from './dexShapes';
 
 interface Props {
   current: Creature;
@@ -45,8 +46,11 @@ export function DexModal({ current, onLoad, onClose }: Props) {
 }
 
 function DexThumb({ animal }: { animal: DexAnimal }) {
-  if (animal.shape === 'snake' && animal.colors) {
-    return <SnakeShape colors={animal.colors} />;
+  if (animal.colors) {
+    if (animal.shape === 'snake') return <SnakeShape colors={animal.colors} />;
+    if (animal.shape === 'octopus') return <OctopusShape colors={animal.colors} />;
+    if (animal.shape === 'whale') return <WhaleShape colors={animal.colors} />;
+    if (animal.shape === 'penguin') return <PenguinShape colors={animal.colors} />;
   }
   return <CreatureSVG creature={animal.creature} colorOverride={animal.colors} />;
 }
