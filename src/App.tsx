@@ -42,6 +42,7 @@ export default function App() {
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
   const [fullscreen, setFullscreen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [generation, setGeneration] = useState(1);
 
   const finish = (r: ArenaResult) => {
     const i = pickInsight(r, stats.massKg);
@@ -68,6 +69,7 @@ export default function App() {
 
   function doReset() {
     setCreature(defaultCreature);
+    setGeneration(1);
     sounds.click();
   }
 
@@ -84,10 +86,10 @@ export default function App() {
   }
 
   function renderArena() {
-    if (arenaId === 'chase') return <ChaseArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'chase', ...o })} />;
+    if (arenaId === 'chase') return <ChaseArena creature={creature} stats={stats} generation={generation} onFinish={(o) => finish({ arena: 'chase', ...o })} />;
     if (arenaId === 'hunt') return <HuntArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'hunt', ...o })} />;
-    if (arenaId === 'climb') return <ClimbArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'climb', ...o })} />;
-    if (arenaId === 'drought') return <DroughtArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'drought', ...o })} />;
+    if (arenaId === 'climb') return <ClimbArena creature={creature} stats={stats} generation={generation} onFinish={(o) => finish({ arena: 'climb', ...o })} />;
+    if (arenaId === 'drought') return <DroughtArena creature={creature} stats={stats} generation={generation} onFinish={(o) => finish({ arena: 'drought', ...o })} />;
     if (arenaId === 'deep') return <DeepArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'deep', ...o })} />;
     if (arenaId === 'maze') return <MazeArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'maze', ...o })} />;
     return null;
@@ -101,7 +103,7 @@ export default function App() {
             ← Back to builder
           </button>
           <div className="fs-creature">
-            <strong>🦎 {creature.name}</strong>
+            <strong>🦎 {creature.name} <span className="gen-badge">🧬 Gen {generation}</span></strong>
             <span>{stats.massKg < 1 ? `${Math.round(stats.massKg * 1000)} g` : `${stats.massKg < 10 ? stats.massKg.toFixed(1) : Math.round(stats.massKg)} kg`} · {stats.topSpeedKmh} km/h · {stats.enduranceKm} km · cold {Math.round(stats.coldTolerance)}</span>
           </div>
           <div className="fs-arena-tabs">
@@ -162,7 +164,10 @@ export default function App() {
           <div className="creature-stage">
             <CreatureSVG creature={creature} />
           </div>
-          <div className="creature-name">{creature.name}</div>
+          <div className="creature-name">
+            <span className="gen-badge">🧬 Gen {generation}</span>
+            {creature.name}
+          </div>
           <StatsPanel creature={creature} stats={stats} />
         </section>
 
@@ -208,6 +213,7 @@ export default function App() {
           parent={creature}
           onPick={(c) => {
             setCreature(c);
+            setGeneration((g) => g + 1);
             setShowEvolve(false);
             sounds.click();
           }}

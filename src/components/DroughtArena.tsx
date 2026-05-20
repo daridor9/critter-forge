@@ -12,12 +12,28 @@ export type DroughtOutcome = {
 interface Props {
   creature: Creature;
   stats: CreatureStats;
+  generation?: number;
   onFinish: (o: DroughtOutcome) => void;
 }
 
-const DAYS_GOAL = 60;
+interface DroughtEnv {
+  label: string;
+  sky: [string, string];
+  ground: [string, string];
+  sun: string;
+  sunRayColor: string;
+  availFood: number;
+  daysGoal: number;
+}
+
+const DROUGHT_ENVS: DroughtEnv[] = [
+  { label: 'dry season',     sky: ['#ffd589', '#fbe9b0'], ground: ['#e3b06a', '#a07a45'], sun: '#ffb84a', sunRayColor: '#f0a040', availFood: 30, daysGoal: 60 },
+  { label: 'parched',         sky: ['#ffba60', '#f0c878'], ground: ['#d99850', '#8a6230'], sun: '#ff9a30', sunRayColor: '#e08020', availFood: 22, daysGoal: 65 },
+  { label: 'scorched earth',  sky: ['#ff8845', '#f0a058'], ground: ['#c47238', '#6e4818'], sun: '#ff6a20', sunRayColor: '#c05010', availFood: 15, daysGoal: 70 },
+  { label: 'red dust',        sky: ['#d65a40', '#e89060'], ground: ['#a04828', '#5a2810'], sun: '#e03020', sunRayColor: '#a01010', availFood: 10, daysGoal: 75 },
+];
+
 const DAYS_PER_SEC = 2;
-const AVAIL_KCAL_PER_DAY = 30;
 const TICK_MS = 50;
 
 const W = 600;
@@ -28,7 +44,10 @@ function fatReserveKcal(massKg: number): number {
   return Math.max(50, massKg * 0.15 * 9000);
 }
 
-export function DroughtArena({ creature, stats, onFinish }: Props) {
+export function DroughtArena({ creature, stats, generation = 1, onFinish }: Props) {
+  const env = DROUGHT_ENVS[(generation - 1) % DROUGHT_ENVS.length];
+  const DAYS_GOAL = env.daysGoal;
+  const AVAIL_KCAL_PER_DAY = env.availFood;
   const R0 = fatReserveKcal(stats.massKg);
 
   const [reserve, setReserve] = useState(R0);
@@ -112,19 +131,19 @@ export function DroughtArena({ creature, stats, onFinish }: Props) {
 
   return (
     <div className="arena">
-      <h2>The Drought — cracked earth</h2>
+      <h2>The Drought — cracked earth <small className="arena-env">· {env.label}</small></h2>
       <p className="arena-help">
         Survive {DAYS_GOAL} days with only {AVAIL_KCAL_PER_DAY} kcal of food per day. Big bodies and cold-blooded creatures last longest.
       </p>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="drought-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#ffd589" />
-            <stop offset="1" stopColor="#fbe9b0" />
+            <stop offset="0" stopColor={env.sky[0]} />
+            <stop offset="1" stopColor={env.sky[1]} />
           </linearGradient>
           <linearGradient id="drought-ground" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#e3b06a" />
-            <stop offset="1" stopColor="#a07a45" />
+            <stop offset="0" stopColor={env.ground[0]} />
+            <stop offset="1" stopColor={env.ground[1]} />
           </linearGradient>
         </defs>
 
@@ -133,11 +152,11 @@ export function DroughtArena({ creature, stats, onFinish }: Props) {
 
         <g className="sun-rays" style={{ transformOrigin: `${sunCx}px ${sunCy}px` }}>
           {sunRays.map((r, i) => (
-            <line key={i} {...r} stroke="#f0a040" strokeWidth="2" opacity="0.6" strokeLinecap="round" />
+            <line key={i} {...r} stroke={env.sunRayColor} strokeWidth="2" opacity="0.7" strokeLinecap="round" />
           ))}
         </g>
-        <circle cx={sunCx} cy={sunCy} r="22" fill="#ffb84a" />
-        <circle cx={sunCx} cy={sunCy} r="22" fill="#ffd06a" opacity="0.4" />
+        <circle cx={sunCx} cy={sunCy} r="22" fill={env.sun} />
+        <circle cx={sunCx} cy={sunCy} r="22" fill={env.sun} opacity="0.4" />
 
         <polygon points={`0,${GROUND_Y} 90,${GROUND_Y - 18} 170,${GROUND_Y - 8} 260,${GROUND_Y - 22} 340,${GROUND_Y - 10} 440,${GROUND_Y - 20} ${W},${GROUND_Y - 6} ${W},${GROUND_Y}`} fill="#b88652" opacity="0.6" />
 

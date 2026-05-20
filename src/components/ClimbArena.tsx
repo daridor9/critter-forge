@@ -8,18 +8,39 @@ export type ClimbOutcome = { won: boolean; reason: 'reached-top' | 'froze' | 'ex
 interface Props {
   creature: Creature;
   stats: CreatureStats;
+  generation?: number;
   onFinish: (o: ClimbOutcome) => void;
 }
 
-const ALT_GOAL = 3000;
+interface ClimbEnv {
+  label: string;
+  sky: [string, string];
+  rockTop: string;
+  rockBottom: string;
+  snowCount: number;
+  altBonus: number;
+}
+
+const CLIMB_ENVS: ClimbEnv[] = [
+  { label: 'clear day', sky: ['#a8c8da', '#e5eef3'], rockTop: '#9aa9b1', rockBottom: '#6c7c84', snowCount: 14, altBonus: 0 },
+  { label: 'snowstorm', sky: ['#7c8c98', '#b8c4cc'], rockTop: '#8d9aa2', rockBottom: '#5d6c76', snowCount: 42, altBonus: 200 },
+  { label: 'aurora night', sky: ['#1a2244', '#3d2e5e'], rockTop: '#4c5566', rockBottom: '#2e3540', snowCount: 22, altBonus: 400 },
+  { label: 'glacial dawn', sky: ['#d4e6f0', '#f0d4e0'], rockTop: '#b8c4cc', rockBottom: '#8089a0', snowCount: 28, altBonus: 600 },
+];
+
+const BASE_ALT = 3000;
 const ALT_PER_SEC = 50;
+const ALT_GOAL = BASE_ALT;
 const E0 = 150;
 const TICK_MS = 50;
 
 const W = 600;
 const H = 240;
 
-export function ClimbArena({ creature, stats, onFinish }: Props) {
+export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props) {
+  const env = CLIMB_ENVS[(generation - 1) % CLIMB_ENVS.length];
+  const altGoal = ALT_GOAL + env.altBonus;
+
   const [altitude, setAltitude] = useState(0);
   const [energy, setEnergy] = useState(E0);
   const [running, setRunning] = useState(false);
@@ -64,7 +85,7 @@ export function ClimbArena({ creature, stats, onFinish }: Props) {
       setEnergy(energyRef.current);
       setAltitude(altRef.current);
 
-      if (altRef.current >= ALT_GOAL) {
+      if (altRef.current >= altGoal) {
         stop({ won: true, reason: 'reached-top' });
         return;
       }
@@ -88,13 +109,13 @@ export function ClimbArena({ creature, stats, onFinish }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.coldTolerance, stats.massKg]);
 
-  const climbFrac = Math.min(1, altitude / ALT_GOAL);
+  const climbFrac = Math.min(1, altitude / altGoal);
   const baseY = H - 24;
   const topY = 36;
   const footY = baseY - climbFrac * (baseY - topY);
   const cx = W / 2;
 
-  const snowflakes = Array.from({ length: 22 }).map((_, i) => ({
+  const snowflakes = Array.from({ length: env.snowCount }).map((_, i) => ({
     x: (i * 31 + 17) % W,
     y0: -20 + ((i * 53) % 60),
     r: 1.2 + (i % 3) * 0.4,
@@ -104,17 +125,17 @@ export function ClimbArena({ creature, stats, onFinish }: Props) {
 
   return (
     <div className="arena">
-      <h2>The Climb — snow mountain</h2>
-      <p className="arena-help">Climb to {ALT_GOAL} m. Cold drains energy fast if your cold tolerance is low. Heavy bodies tire fast too.</p>
+      <h2>The Climb — snow mountain <small className="arena-env">· {env.label}</small></h2>
+      <p className="arena-help">Climb to {altGoal} m. Cold drains energy fast if your cold tolerance is low. Heavy bodies tire fast too.</p>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="climb-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#a8c8da" />
-            <stop offset="1" stopColor="#e5eef3" />
+            <stop offset="0" stopColor={env.sky[0]} />
+            <stop offset="1" stopColor={env.sky[1]} />
           </linearGradient>
           <linearGradient id="climb-rock" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#9aa9b1" />
-            <stop offset="1" stopColor="#6c7c84" />
+            <stop offset="0" stopColor={env.rockTop} />
+            <stop offset="1" stopColor={env.rockBottom} />
           </linearGradient>
         </defs>
 
@@ -157,7 +178,7 @@ export function ClimbArena({ creature, stats, onFinish }: Props) {
         />
         <rect x={W - 110} y="6" width="104" height="22" fill="rgba(255,255,255,0.88)" rx="4" stroke="#bbb" />
         <text x={W - 102} y="22" fontSize="11" fill="#333">
-          {Math.round(altitude)} / {ALT_GOAL} m
+          {Math.round(altitude)} / {altGoal} m
         </text>
       </svg>
       <div className="arena-controls">

@@ -12,8 +12,37 @@ export type ChaseOutcome = {
 interface Props {
   creature: Creature;
   stats: CreatureStats;
+  generation?: number;
   onFinish: (o: ChaseOutcome) => void;
 }
+
+interface ChaseEnv {
+  label: string;
+  sky: [string, string, string];
+  sun: string;
+  sunHalo: string;
+  ground: [string, string, string];
+  hill: string;
+  hill2: string;
+  treeMain: string;
+  treeMid: string;
+  treeTop: string;
+  stars: boolean;
+  preyKmhBonus: number;
+}
+
+const CHASE_ENVS: ChaseEnv[] = [
+  { label: 'midday', sky: ['#7ec4e0', '#c8d8b8', '#f8d68a'], sun: '#ffd66a', sunHalo: '#ffe9a0', ground: ['#f3d27d', '#dfb066', '#a07a40'], hill: '#d4b56a', hill2: '#c89a55', treeMain: '#3f5a30', treeMid: '#557d3e', treeTop: '#6b9450', stars: false, preyKmhBonus: 0 },
+  { label: 'dusk', sky: ['#3a2a5a', '#d68b5a', '#f4a060'], sun: '#f06030', sunHalo: '#ffa060', ground: ['#d4a060', '#a87a45', '#6a4a28'], hill: '#a87a52', hill2: '#8a6238', treeMain: '#2a3a22', treeMid: '#3d5530', treeTop: '#557840', stars: false, preyKmhBonus: 2 },
+  { label: 'night', sky: ['#0a1530', '#1f2d5a', '#3a4878'], sun: '#f0f0ff', sunHalo: '#a0b8e0', ground: ['#5a5878', '#3e3c58', '#1e1c30'], hill: '#48506a', hill2: '#363c54', treeMain: '#1a2418', treeMid: '#243024', treeTop: '#2e3a2c', stars: true, preyKmhBonus: 4 },
+  { label: 'dawn', sky: ['#4a3a6a', '#e08aa0', '#f4c890'], sun: '#ffb098', sunHalo: '#ffd0c0', ground: ['#e8c590', '#c89a6a', '#8a6840'], hill: '#c79a78', hill2: '#a87a5e', treeMain: '#3c5a38', treeMid: '#577a4a', treeTop: '#6f9558', stars: false, preyKmhBonus: 6 },
+];
+
+const NIGHT_STARS = Array.from({ length: 28 }).map((_, i) => ({
+  x: ((i * 73 + 19) % 800),
+  y: ((i * 41) % 180) + 10,
+  r: ((i * 7) % 5 === 0 ? 1.6 : 1),
+}));
 
 const TRACK_M = 600;
 const START_GAP_M = 25;
@@ -170,7 +199,7 @@ function Bird({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
   );
 }
 
-function Tree({ x, h }: { x: number; h: number }) {
+function Tree({ x, h, colors }: { x: number; h: number; colors: { main: string; mid: string; top: string } }) {
   const baseY = GROUND_Y - 2;
   const topY = baseY - h;
   return (
@@ -179,11 +208,11 @@ function Tree({ x, h }: { x: number; h: number }) {
       <rect x={x - 5} y={topY + 20} width="2" height={h - 20} fill="#2a1a0a" opacity="0.5" />
       <line x1={x} y1={topY + 30} x2={x - 14} y2={topY + 20} stroke="#3e2a18" strokeWidth="2.5" />
       <line x1={x} y1={topY + 32} x2={x + 14} y2={topY + 22} stroke="#3e2a18" strokeWidth="2.5" />
-      <ellipse cx={x} cy={topY + 10} rx="42" ry="16" fill="#3f5a30" />
-      <ellipse cx={x - 18} cy={topY + 6} rx="24" ry="11" fill="#557d3e" />
-      <ellipse cx={x + 18} cy={topY + 14} rx="26" ry="12" fill="#557d3e" />
-      <ellipse cx={x - 4} cy={topY - 2} rx="20" ry="9" fill="#6b9450" />
-      <ellipse cx={x + 8} cy={topY + 4} rx="14" ry="7" fill="#6b9450" />
+      <ellipse cx={x} cy={topY + 10} rx="42" ry="16" fill={colors.main} />
+      <ellipse cx={x - 18} cy={topY + 6} rx="24" ry="11" fill={colors.mid} />
+      <ellipse cx={x + 18} cy={topY + 14} rx="26" ry="12" fill={colors.mid} />
+      <ellipse cx={x - 4} cy={topY - 2} rx="20" ry="9" fill={colors.top} />
+      <ellipse cx={x + 8} cy={topY + 4} rx="14" ry="7" fill={colors.top} />
     </g>
   );
 }
@@ -240,11 +269,14 @@ for (let i = 0; i < 36; i++) {
   GRASS_TUFTS.push({ x, y });
 }
 
-export function ChaseArena({ creature, stats, onFinish }: Props) {
+export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props) {
   const E0 = Math.max(1, stats.enduranceKm * 1.5);
+
+  const env = CHASE_ENVS[(generation - 1) % CHASE_ENVS.length];
 
   const [preyId, setPreyId] = useState<PreyId>('gazelle');
   const prey = PREYS.find((p) => p.id === preyId)!;
+  const preySpeedKmh = prey.speedKmh + env.preyKmhBonus;
 
   const [playerDist, setPlayerDist] = useState(0);
   const [gazelleDist, setGazelleDist] = useState(START_GAP_M);
@@ -286,7 +318,7 @@ export function ChaseArena({ creature, stats, onFinish }: Props) {
     if (!running) return;
     const dt = TICK_MS / 1000;
     const topMps = stats.topSpeedKmh / 3.6;
-    const preyMps = prey.speedKmh / 3.6;
+    const preyMps = preySpeedKmh / 3.6;
     const drainPerSec = 1.0 * (creature.warmBlooded ? 1 : 1.5);
 
     timerRef.current = window.setInterval(() => {
@@ -336,8 +368,8 @@ export function ChaseArena({ creature, stats, onFinish }: Props) {
 
   return (
     <div className="arena">
-      <h2>The Chase — savanna</h2>
-      <p className="arena-help">Catch the {prey.label.toLowerCase()} ({prey.speedKmh} km/h) before it covers {TRACK_M} m.</p>
+      <h2>The Chase — savanna <small className="arena-env">· {env.label}</small></h2>
+      <p className="arena-help">Catch the {prey.label.toLowerCase()} ({preySpeedKmh} km/h) before it covers {TRACK_M} m.</p>
 
       <div className="prey-tabs">
         {PREYS.map((p) => (
@@ -361,26 +393,34 @@ export function ChaseArena({ creature, stats, onFinish }: Props) {
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="chase-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#7ec4e0" />
-            <stop offset="0.55" stopColor="#c8d8b8" />
-            <stop offset="1" stopColor="#f8d68a" />
+            <stop offset="0" stopColor={env.sky[0]} />
+            <stop offset="0.55" stopColor={env.sky[1]} />
+            <stop offset="1" stopColor={env.sky[2]} />
           </linearGradient>
           <linearGradient id="chase-ground" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#f3d27d" />
-            <stop offset="0.5" stopColor="#dfb066" />
-            <stop offset="1" stopColor="#a07a40" />
+            <stop offset="0" stopColor={env.ground[0]} />
+            <stop offset="0.5" stopColor={env.ground[1]} />
+            <stop offset="1" stopColor={env.ground[2]} />
           </linearGradient>
           <linearGradient id="far-hill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#d4b56a" />
-            <stop offset="1" stopColor="#bf9854" />
+            <stop offset="0" stopColor={env.hill} />
+            <stop offset="1" stopColor={env.hill2} />
           </linearGradient>
         </defs>
 
         <rect x="0" y="0" width={W} height={GROUND_Y} fill="url(#chase-sky)" />
 
-        <circle cx={W - 130} cy="70" r="34" fill="#ffe9a0" opacity="0.6" />
-        <circle cx={W - 130} cy="70" r="26" fill="#ffd66a" />
-        <circle cx={W - 130} cy="70" r="22" fill="#fff0b0" opacity="0.5" />
+        {env.stars && (
+          <g fill="white">
+            {NIGHT_STARS.map((s, i) => (
+              <circle key={i} cx={s.x} cy={s.y} r={s.r} opacity={0.7 + ((i * 17) % 30) / 100} />
+            ))}
+          </g>
+        )}
+
+        <circle cx={W - 130} cy="70" r="34" fill={env.sunHalo} opacity="0.55" />
+        <circle cx={W - 130} cy="70" r="26" fill={env.sun} />
+        <circle cx={W - 130} cy="70" r="22" fill={env.sun} opacity="0.5" />
 
         {CLOUDS.map((c, i) => (
           <Cloud key={i} {...c} />
@@ -403,7 +443,7 @@ export function ChaseArena({ creature, stats, onFinish }: Props) {
         <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="url(#chase-ground)" />
 
         {TREES.map((t, i) => (
-          <Tree key={i} {...t} />
+          <Tree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />
         ))}
 
         {Array.from({ length: 14 }).map((_, i) => {
