@@ -7,17 +7,37 @@ interface Metrics {
   bodyH: number;
   legLen: number;
   legW: number;
+  logM: number;
+  sizeT: number;
 }
 
 function metrics(creature: Creature, scale: number): Metrics {
   const m = sizeToMass(creature.sizeUnit);
-  const baseSize = Math.max(15, 30 + Math.log10(Math.max(0.01, m)) * 22);
+  const logM = Math.log10(Math.max(0.01, m));
+  const sizeT = Math.max(0, Math.min(1, (logM + 2) / 7));
+
+  const baseSize = Math.max(15, 30 + logM * 22);
   const visualSize = baseSize * scale;
-  const bodyW = visualSize * 1.7;
+
+  const bodyAspect = 1.35 + sizeT * 1.15;
+  const legThickMult = 0.78 + sizeT * 0.95;
+
   const bodyH = visualSize;
-  const legLen = [bodyH * 0.4, bodyH * 0.75, bodyH * 1.15][creature.legTier];
-  const legW = [bodyH * 0.22, bodyH * 0.16, bodyH * 0.1][creature.legTier];
-  return { bodyW, bodyH, legLen, legW };
+  const bodyW = bodyH * bodyAspect;
+  const legLenBase = [bodyH * 0.35, bodyH * 0.7, bodyH * 1.1][creature.legTier];
+  const legLen = legLenBase * (1 - sizeT * 0.18);
+  const legW = [bodyH * 0.22, bodyH * 0.16, bodyH * 0.1][creature.legTier] * legThickMult;
+
+  return { bodyW, bodyH, legLen, legW, logM, sizeT };
+}
+
+function massProportions(sizeT: number) {
+  return {
+    headMult: 1.42 - sizeT * 1.1,
+    eyeMult: 1.55 - sizeT * 1.05,
+    earMult: 1.5 - sizeT * 1.1,
+    tailMult: 1.55 - sizeT * 1.15,
+  };
 }
 
 function bodyColors(creature: Creature) {
@@ -43,14 +63,17 @@ interface BodyProps {
 }
 
 export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = true, animate = 'none' }: BodyProps) {
-  const { bodyW, bodyH, legLen, legW } = metrics(creature, scale);
+  const { bodyW, bodyH, legLen, legW, sizeT } = metrics(creature, scale);
+  const props = massProportions(sizeT);
   const cy = footY - bodyH / 2 - legLen;
   const colors = bodyColors(creature);
   const armorColor = '#6b6b6b';
 
   const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
-  const eyeR = [6, 8, 11][creature.sensorTier] * scale;
+  const eyeR = [6, 8, 11][creature.sensorTier] * scale * props.eyeMult;
   const showDetail = scale >= 0.55;
+  const isTiny = sizeT < 0.2;
+  const isHuge = sizeT > 0.75;
 
   const xs =
     numLegs === 2
@@ -60,7 +83,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         : [];
 
   const brainHeadMult = [0.78, 1.0, 1.22][creature.brainTier];
-  const headR = bodyH * 0.44 * brainHeadMult;
+  const headR = bodyH * 0.44 * brainHeadMult * props.headMult;
   const headCx = cx + bodyW / 2 - 6 * scale;
   const headCy = cy - bodyH * 0.14;
   const eyeCx = headCx + headR * 0.45;
@@ -90,9 +113,15 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
 
       {creature.bodyPlan === 'mammal' && (
         <path
-          d={`M ${cx - bodyW / 2 + 4} ${cy - bodyH * 0.05} Q ${cx - bodyW / 2 - bodyH * 0.5} ${cy - bodyH * 0.45} ${cx - bodyW / 2 - bodyH * 0.65} ${cy - bodyH * 0.7}`}
+          d={
+            isTiny
+              ? `M ${cx - bodyW / 2 + 4} ${cy - bodyH * 0.02} Q ${cx - bodyW / 2 - bodyH * 0.9} ${cy + bodyH * 0.05} ${cx - bodyW / 2 - bodyH * 1.5 * props.tailMult} ${cy + bodyH * 0.5}`
+              : isHuge
+                ? `M ${cx - bodyW / 2 + 4} ${cy + bodyH * 0.1} Q ${cx - bodyW / 2 - bodyH * 0.3} ${cy + bodyH * 0.2} ${cx - bodyW / 2 - bodyH * 0.4 * props.tailMult} ${cy + bodyH * 0.3}`
+                : `M ${cx - bodyW / 2 + 4} ${cy - bodyH * 0.05} Q ${cx - bodyW / 2 - bodyH * 0.5} ${cy - bodyH * 0.45} ${cx - bodyW / 2 - bodyH * 0.65 * props.tailMult} ${cy - bodyH * 0.7 * props.tailMult}`
+          }
           stroke={colors.main}
-          strokeWidth={Math.max(2, bodyH * 0.13)}
+          strokeWidth={Math.max(2, bodyH * (isTiny ? 0.06 : isHuge ? 0.18 : 0.13))}
           strokeLinecap="round"
           fill="none"
         />
@@ -217,8 +246,8 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
             </g>
           );
         }
-        const earH = creature.sensorTier === 0 ? headR * 0.45 : headR * 0.85;
-        const earW = creature.sensorTier === 0 ? headR * 0.18 : headR * 0.22;
+        const earH = (creature.sensorTier === 0 ? headR * 0.45 : headR * 0.85) * props.earMult;
+        const earW = (creature.sensorTier === 0 ? headR * 0.18 : headR * 0.22) * props.earMult;
         return (
           <g>
             <polygon
@@ -324,6 +353,27 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
             opacity="0.9"
           />
         </g>
+      )}
+
+      {showDetail && isTiny && creature.bodyPlan === 'mammal' && (
+        <g stroke="#3a2118" strokeWidth={Math.max(0.5, 0.7 * scale)} strokeLinecap="round" fill="none" opacity="0.7">
+          <line x1={headCx + headR * 0.6} y1={headCy + headR * 0.3} x2={headCx + headR * 1.4} y2={headCy + headR * 0.15} />
+          <line x1={headCx + headR * 0.6} y1={headCy + headR * 0.45} x2={headCx + headR * 1.45} y2={headCy + headR * 0.45} />
+          <line x1={headCx + headR * 0.6} y1={headCy + headR * 0.6} x2={headCx + headR * 1.4} y2={headCy + headR * 0.75} />
+          <line x1={headCx + headR * 0.55} y1={headCy + headR * 0.32} x2={headCx - headR * 0.15} y2={headCy + headR * 0.18} />
+          <line x1={headCx + headR * 0.5} y1={headCy + headR * 0.5} x2={headCx - headR * 0.2} y2={headCy + headR * 0.5} />
+        </g>
+      )}
+
+      {showDetail && isHuge && creature.bodyPlan === 'mammal' && (
+        <ellipse
+          cx={headCx + headR * 0.3}
+          cy={headCy + headR * 0.85}
+          rx={headR * 0.65}
+          ry={headR * 0.35}
+          fill={colors.shade}
+          opacity="0.45"
+        />
       )}
 
       {creature.defenseTier === 1 && (creature.bodyPlan === 'mammal' || creature.bodyPlan === 'bird') && (
