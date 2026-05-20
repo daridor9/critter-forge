@@ -97,9 +97,10 @@ function pickHunt(r: Extract<ArenaResult, { arena: 'hunt' }>): Insight {
       'Chemistry beats brawn. A 50 g snake takes down a 100 kg deer with venom; an electric eel drops a horse ' +
       'with 600 V; a platypus has venomous spurs. Small predators win by being scary, not big.' };
   }
-  return { id: 'hunt-caught', won: false, title: 'Caught', text:
-    'Your creature was spotted and couldn\'t escape. To survive a hunt, pick ONE: be very small + camouflaged, ' +
-    'be fast enough to outrun (>70 km/h), be armored, or carry venom/electric. Otherwise = predator food.' };
+  return { id: 'hunt-caught', won: false, title: 'Injured — but you escaped', text:
+    'The predator caught you, you took a hit, and limped away. Bruised but alive. ' +
+    'Next time pick a strategy that matches your build: tiny + camouflaged → Hide. Fast (> predator speed) → Run. ' +
+    'Big or venomous or armored → Fight. The bigger your body or armor, the more brutal a fight you survive.' };
 }
 
 function pickMaze(r: Extract<ArenaResult, { arena: 'maze' }>): Insight {

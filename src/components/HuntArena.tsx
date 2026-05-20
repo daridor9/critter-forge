@@ -34,31 +34,31 @@ interface Predator {
 const PREDATORS: Record<EnvId, Predator> = {
   savanna: {
     envName: 'Savanna', envEmoji: '🌾',
-    name: 'Lion', emoji: '🦁', topKmh: 80, perception: 55, bite: 75,
+    name: 'Lion', emoji: '🦁', topKmh: 80, perception: 55, bite: 70,
     sky: ['#9fd4ee', '#f8d68a'], ground: ['#f3d27d', '#c9a05a'],
     envNote: 'Open grassland. Lions run in pride; long sightlines.',
   },
   forest: {
     envName: 'Forest', envEmoji: '🌳',
-    name: 'Wolf', emoji: '🐺', topKmh: 65, perception: 70, bite: 55,
+    name: 'Wolf', emoji: '🐺', topKmh: 65, perception: 70, bite: 50,
     sky: ['#7fa663', '#cfd7a0'], ground: ['#7a6a3a', '#54472a'],
     envNote: 'Dense trees + scent tracking. Wolves work in packs.',
   },
   mountain: {
     envName: 'Mountain', envEmoji: '🏔',
-    name: 'Snow Leopard', emoji: '🐆', topKmh: 60, perception: 85, bite: 60,
+    name: 'Snow Leopard', emoji: '🐆', topKmh: 60, perception: 85, bite: 55,
     sky: ['#b8c8d4', '#e5eef3'], ground: ['#c0ccd3', '#8089a0'],
     envNote: 'Snow + cliffs. Ambush hunter, near-invisible against rock.',
   },
   desert: {
     envName: 'Desert', envEmoji: '🏜',
-    name: 'Hyena', emoji: '🐺', topKmh: 60, perception: 50, bite: 90,
+    name: 'Hyena', emoji: '🐺', topKmh: 60, perception: 50, bite: 75,
     sky: ['#ffd589', '#fbe9b0'], ground: ['#e3b06a', '#a07a45'],
     envNote: 'Bone-crushing bite force, but distracted in heat.',
   },
   ocean: {
     envName: 'Ocean', envEmoji: '🌊',
-    name: 'Shark', emoji: '🦈', topKmh: 50, perception: 65, bite: 95,
+    name: 'Shark', emoji: '🦈', topKmh: 50, perception: 65, bite: 85,
     sky: ['#74c4dc', '#2a5a85'], ground: ['#2a5a85', '#0c2a45'],
     envNote: 'Electroreception + smell. Bite ignores most armor.',
   },
@@ -79,12 +79,19 @@ function stealthScore(c: Creature): number {
 
 function fightPower(c: Creature, s: CreatureStats): number {
   let p = 5;
-  if (c.hybrids.includes('venom')) p += 60;
-  if (c.hybrids.includes('electric')) p += 70;
-  if (c.defenseTier === 2) p += 30;
-  if (s.massKg > 100) p += 15;
-  if (s.massKg > 1000) p += 25;
-  if (c.brainTier === 2) p += 8;
+  // Mass is a big deal in a fight: log-scale so even modest creatures get
+  // some, and huge creatures dominate.
+  // 1 kg → ~12, 100 kg → ~32, 4000 kg → ~52, 100 t → ~72
+  p += Math.max(0, (Math.log10(Math.max(0.01, s.massKg)) + 1) * 12);
+  if (c.hybrids.includes('venom')) p += 45;
+  if (c.hybrids.includes('electric')) p += 55;
+  if (c.defenseTier === 2) p += 28;
+  if (c.defenseTier === 1) p += 8;
+  if (c.brainTier === 2) p += 12;
+  if (c.brainTier === 1) p += 5;
+  if (c.legTier === 2) p += 8;
+  if (c.legTier === 1) p += 4;
+  if (c.sensorTier === 2) p += 6;
   return Math.min(100, p);
 }
 
@@ -100,11 +107,14 @@ function predictFight(c: Creature, s: CreatureStats, p: Predator) {
   return { score: power, opp: p.bite, margin: power - p.bite };
 }
 
+const LUCK_SWING = 15;
+
 function confidence(margin: number): { label: string; cls: string } {
-  if (margin > 15) return { label: 'likely win', cls: 'good' };
-  if (margin > 0) return { label: 'close', cls: 'ok' };
-  if (margin > -15) return { label: 'risky', cls: 'risky' };
-  return { label: 'doomed', cls: 'bad' };
+  if (margin > 20) return { label: 'very likely', cls: 'good' };
+  if (margin > 5) return { label: 'likely', cls: 'good' };
+  if (margin > -5) return { label: 'coin flip', cls: 'ok' };
+  if (margin > -20) return { label: 'unlikely', cls: 'risky' };
+  return { label: 'long shot', cls: 'bad' };
 }
 
 function reasonFor(strategy: Strategy, won: boolean, c: Creature): HuntOutcome['reason'] {
@@ -133,7 +143,9 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
       strategy === 'hide' ? hide :
       strategy === 'run' ? run :
       fight;
-    const won = result.margin > 0;
+    const luck = (Math.random() * 2 - 1) * LUCK_SWING;
+    const adjustedMargin = result.margin + luck;
+    const won = adjustedMargin > 0;
     setDone(true);
     onFinish({ won, reason: reasonFor(strategy, won, creature) });
   }
