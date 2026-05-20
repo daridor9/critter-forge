@@ -185,8 +185,35 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
             </g>
           );
         }
-        const earH = creature.sensorTier === 0 ? headR * 0.45 : creature.sensorTier === 1 ? headR * 0.85 : headR * 1.25;
-        const earW = creature.sensorTier === 0 ? headR * 0.18 : creature.sensorTier === 1 ? headR * 0.22 : headR * 0.26;
+        if (creature.sensorTier === 2) {
+          const leftCx = headCx - headR * 0.5;
+          const rightCx = headCx + headR * 0.4;
+          const earCy = headCy - headR * 0.95;
+          const dishRx = headR * 0.42;
+          const dishRy = headR * 0.55;
+          return (
+            <g>
+              <g transform={`rotate(-22 ${leftCx} ${earCy})`}>
+                <ellipse cx={leftCx} cy={earCy} rx={dishRx} ry={dishRy} fill={colors.shade} />
+                <ellipse cx={leftCx} cy={earCy} rx={dishRx * 0.65} ry={dishRy * 0.78} fill="#e88aa0" opacity="0.9" />
+                <ellipse cx={leftCx} cy={earCy} rx={dishRx * 0.25} ry={dishRy * 0.35} fill={colors.shade} />
+              </g>
+              <g transform={`rotate(22 ${rightCx} ${earCy})`}>
+                <ellipse cx={rightCx} cy={earCy} rx={dishRx} ry={dishRy} fill={colors.shade} />
+                <ellipse cx={rightCx} cy={earCy} rx={dishRx * 0.65} ry={dishRy * 0.78} fill="#e88aa0" opacity="0.9" />
+                <ellipse cx={rightCx} cy={earCy} rx={dishRx * 0.25} ry={dishRy * 0.35} fill={colors.shade} />
+              </g>
+              <g stroke={colors.shade} strokeWidth={Math.max(0.6, 0.9 * scale)} fill="none" opacity="0.6">
+                <path d={`M ${leftCx - dishRx * 1.6} ${earCy - dishRy * 0.4} q ${-headR * 0.15} ${dishRy * 0.4} 0 ${dishRy * 0.8}`} />
+                <path d={`M ${leftCx - dishRx * 2.1} ${earCy - dishRy * 0.5} q ${-headR * 0.18} ${dishRy * 0.5} 0 ${dishRy}`} />
+                <path d={`M ${rightCx + dishRx * 1.6} ${earCy - dishRy * 0.4} q ${headR * 0.15} ${dishRy * 0.4} 0 ${dishRy * 0.8}`} />
+                <path d={`M ${rightCx + dishRx * 2.1} ${earCy - dishRy * 0.5} q ${headR * 0.18} ${dishRy * 0.5} 0 ${dishRy}`} />
+              </g>
+            </g>
+          );
+        }
+        const earH = creature.sensorTier === 0 ? headR * 0.45 : headR * 0.85;
+        const earW = creature.sensorTier === 0 ? headR * 0.18 : headR * 0.22;
         return (
           <g>
             <polygon
@@ -226,7 +253,23 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         />
       )}
       {creature.bodyPlan === 'reptile' && showDetail && (
-        <ellipse cx={headCx + headR * 0.75} cy={headCy + headR * 0.15} rx={headR * 0.4} ry={headR * 0.28} fill={colors.main} />
+        <>
+          <ellipse cx={headCx + headR * 0.75} cy={headCy + headR * 0.15} rx={headR * 0.45} ry={headR * 0.3} fill={colors.main} />
+          <ellipse cx={headCx + headR * 0.95} cy={headCy + headR * 0.25} rx={headR * 0.07} ry={headR * 0.05} fill={colors.shade} />
+          <g fill="#d94560" stroke="#9a3045" strokeWidth={Math.max(0.4, 0.6 * scale)}>
+            <path d={`M ${headCx + headR * 1.15} ${headCy + headR * 0.3} l ${headR * 0.45} ${headR * 0.08} l ${-headR * 0.12} ${-headR * 0.14} l ${headR * 0.2} ${0} l ${-headR * 0.12} ${headR * 0.14} l ${-headR * 0.2} ${0} z`} />
+          </g>
+        </>
+      )}
+      {creature.bodyPlan === 'reptile' && (
+        <g fill={colors.shade}>
+          {[-0.34, -0.18, -0.04, 0.1, 0.24, 0.36].map((off) => (
+            <polygon
+              key={off}
+              points={`${cx + bodyW * off - 4 * scale} ${cy - bodyH * 0.46} ${cx + bodyW * off} ${cy - bodyH * 0.65} ${cx + bodyW * off + 4 * scale} ${cy - bodyH * 0.46}`}
+            />
+          ))}
+        </g>
       )}
       {creature.bodyPlan === 'fish' && showDetail && (
         <g stroke={colors.shade} strokeWidth={Math.max(1, 1.5 * scale)} fill="none" strokeLinecap="round">
@@ -276,13 +319,13 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       {creature.defenseTier === 1 && (creature.bodyPlan === 'mammal' || creature.bodyPlan === 'bird') && (
-        <g fill="none" stroke={colors.shade} strokeWidth={Math.max(1.2, 1.5 * scale)} strokeLinecap="round">
-          {Array.from({ length: 18 }).map((_, i) => {
-            const angle = (i / 18) * Math.PI * 2 - Math.PI / 2;
-            if (Math.sin(angle) > 0.4) return null;
+        <g fill="none" stroke={colors.shade} strokeWidth={Math.max(1.4, 1.7 * scale)} strokeLinecap="round">
+          {Array.from({ length: 28 }).map((_, i) => {
+            const angle = (i / 28) * Math.PI * 2 - Math.PI / 2;
+            if (Math.sin(angle) > 0.5) return null;
             const sx = cx + (bodyW / 2) * Math.cos(angle);
             const sy = cy + (bodyH / 2) * Math.sin(angle);
-            const len = 5 * scale;
+            const len = 7 * scale;
             const ex = sx + Math.cos(angle) * len;
             const ey = sy + Math.sin(angle) * len;
             return <path key={i} d={`M ${sx} ${sy} L ${ex} ${ey}`} />;
@@ -291,14 +334,28 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       {creature.defenseTier === 1 && (creature.bodyPlan === 'reptile' || creature.bodyPlan === 'fish') && (
-        <g fill={colors.shade} opacity="0.55">
-          {Array.from({ length: 14 }).map((_, i) => {
-            const row = Math.floor(i / 7);
-            const col = i % 7;
-            const x = cx - bodyW * 0.32 + col * (bodyW * 0.1);
-            const y = cy - bodyH * 0.2 + row * (bodyH * 0.22);
-            return <path key={i} d={`M ${x} ${y} q ${bodyH * 0.04} ${-bodyH * 0.05} ${bodyH * 0.08} 0 z`} />;
-          })}
+        <g>
+          {Array.from({ length: 5 }).flatMap((_, row) =>
+            Array.from({ length: 7 }).map((_, col) => {
+              const offset = row % 2 === 0 ? 0 : bodyW * 0.06;
+              const x = cx - bodyW * 0.36 + col * (bodyW * 0.12) + offset;
+              const y = cy - bodyH * 0.32 + row * (bodyH * 0.18);
+              const dx = (x - cx) / (bodyW / 2);
+              const dy = (y - cy) / (bodyH / 2);
+              if (dx * dx + dy * dy > 0.78) return null;
+              const r = bodyH * 0.075;
+              return (
+                <path
+                  key={`${row}-${col}`}
+                  d={`M ${x - r} ${y} a ${r} ${r} 0 0 1 ${r * 2} 0 z`}
+                  fill={colors.shade}
+                  opacity="0.6"
+                  stroke={colors.shade}
+                  strokeWidth={Math.max(0.4, 0.6 * scale)}
+                />
+              );
+            })
+          )}
         </g>
       )}
 
