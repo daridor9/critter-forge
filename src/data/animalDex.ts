@@ -1,12 +1,15 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
+export type DexShape = 'default' | 'snake';
+
 export interface DexAnimal {
   name: string;
   emoji: string;
   fact: string;
   creature: Creature;
   colors?: ColorOverride;
+  shape?: DexShape;
 }
 
 export const ANIMAL_COLORS: Record<string, ColorOverride> = {
@@ -49,6 +52,7 @@ const make = (
   sensorTier: Tier,
   hybrids: Hybrid[],
   fact: string,
+  shape?: DexShape,
 ): DexAnimal => {
   const sizeUnit = Math.max(0, Math.min(100, Math.round((Math.log10(Math.max(0.001, massKg)) + 2) / 7 * 100)));
   return {
@@ -57,6 +61,7 @@ const make = (
     fact,
     creature: { name, sizeUnit, bodyPlan, warmBlooded, legTier, brainTier, defenseTier, sensorTier, hybrids },
     colors: ANIMAL_COLORS[name],
+    shape,
   };
 };
 
@@ -106,7 +111,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Chameleon', '🦎', 0.2, 'reptile', false, 1, 1, 0, 2, ['camouflage'],
     'Eyes move independently. Skin colour change in 0.3s via pigment cells.'),
   make('Anaconda', '🐍', 250, 'reptile', false, 0, 1, 1, 1, ['venom'],
-    'Crushes prey 1.5× its own mass. Cold-blooded — needs sun to digest.'),
+    'Crushes prey 1.5× its own mass. Cold-blooded — needs sun to digest.', 'snake'),
   make('Great white shark', '🦈', 1100, 'fish', false, 0, 1, 1, 2, ['electric', 'gills'],
     'Detects electric fields from heartbeats. 300 serrated teeth, replaced lifelong.'),
   make('Octopus', '🐙', 5, 'fish', false, 0, 2, 0, 2, ['camouflage', 'venom'],

@@ -1,6 +1,8 @@
 import { ANIMAL_DEX, closestAnimal } from '../data/animalDex';
+import type { DexAnimal } from '../data/animalDex';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
+import { SnakeShape } from './SnakeShape';
 
 interface Props {
   current: Creature;
@@ -27,7 +29,7 @@ export function DexModal({ current, onLoad, onClose }: Props) {
           {ANIMAL_DEX.map((a) => (
             <div key={a.name} className="dex-card">
               <div className="dex-thumb">
-                <CreatureSVG creature={a.creature} colorOverride={a.colors} />
+                <DexThumb animal={a} />
               </div>
               <div className="dex-card-name">{a.emoji} {a.name}</div>
               <div className="dex-card-fact">{a.fact}</div>
@@ -40,4 +42,11 @@ export function DexModal({ current, onLoad, onClose }: Props) {
       </div>
     </div>
   );
+}
+
+function DexThumb({ animal }: { animal: DexAnimal }) {
+  if (animal.shape === 'snake' && animal.colors) {
+    return <SnakeShape colors={animal.colors} />;
+  }
+  return <CreatureSVG creature={animal.creature} colorOverride={animal.colors} />;
 }
