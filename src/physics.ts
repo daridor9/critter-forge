@@ -122,6 +122,15 @@ export interface CreatureStats {
   heartRateBpm: number;
 }
 
+export function vigilanceTaxFraction(c: Creature): number {
+  let t = 0;
+  t += c.sensorTier * 0.05;
+  t += c.brainTier * 0.03;
+  if (c.hybrids.includes('camouflage')) t -= 0.05;
+  if (c.defenseTier === 2) t -= 0.03;
+  return Math.max(-0.06, Math.min(0.3, t));
+}
+
 export interface StatExplanations {
   massKg: string;
   foodKcalPerDay: string;
@@ -131,10 +140,12 @@ export interface StatExplanations {
   lifespanYears: string;
   boneBreakRisk: string;
   heartRateBpm: string;
+  vigilance: string;
 }
 
 export function explainStats(c: Creature, s: CreatureStats): StatExplanations {
   const fmtMass = (m: number) => (m < 1 ? `${(m * 1000).toFixed(0)} g` : `${m.toFixed(m < 10 ? 1 : 0)} kg`);
+  const vigTax = vigilanceTaxFraction(c);
   return {
     massKg: `Body mass on a log scale: tiny mouse (10 g) → blue whale (100 t). Your slider is at ${c.sizeUnit}/100.`,
     foodKcalPerDay:
@@ -142,7 +153,10 @@ export function explainStats(c: Creature, s: CreatureStats): StatExplanations {
       (c.warmBlooded ? '' : ' × 0.1 (cold-blooded eats 10× less per kg)') +
       (c.brainTier === 2 ? ' × 1.25 (big brain costs 25%)' : c.brainTier === 1 ? ' × 1.10 (brain costs 10%)' : '') +
       (c.hybrids.length ? ' × hybrid costs' : '') +
+      (vigTax !== 0 ? ` × (1 ${vigTax > 0 ? '+' : ''}${(vigTax * 100).toFixed(0)}% vigilance)` : '') +
       `. Result: ${Math.round(s.foodKcalPerDay)} kcal — ${fmtMass(s.foodKgPerDay)} of food per day.`,
+    vigilance: `Vigilance tax: being alert costs energy. Big brains and sharp senses watch for threats (more cost). ` +
+      `Camouflage and armor relax you (less cost). Yours: ${vigTax >= 0 ? '+' : ''}${(vigTax * 100).toFixed(0)}% on food bill.`,
     topSpeedKmh:
       `Top sprint speed peaks at ~50 kg of body mass (cheetah, pronghorn, ostrich). ` +
       `Your ${fmtMass(s.massKg)} ${c.bodyPlan} with ${['stubby', 'standard', 'runner'][c.legTier]} legs → ${s.topSpeedKmh} km/h.`,
@@ -183,7 +197,8 @@ export function computeStats(c: Creature): CreatureStats {
     if (e.bonusCold) coldBonus += e.bonusCold;
   }
 
-  const kcal = totalKcalPerDay(m, c.warmBlooded, c.brainTier) * foodMult;
+  const vigTax = vigilanceTaxFraction(c);
+  const kcal = totalKcalPerDay(m, c.warmBlooded, c.brainTier) * foodMult * (1 + vigTax);
   const baseCold = coldTolerance(m, c.warmBlooded, c.defenseTier);
   return {
     massKg: m,

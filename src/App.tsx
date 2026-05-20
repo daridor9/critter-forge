@@ -16,6 +16,7 @@ import { InsightCard } from './components/InsightCard';
 import { AlbumPanel } from './components/AlbumPanel';
 import { EvolveModal } from './components/EvolveModal';
 import { AboutModal } from './components/AboutModal';
+import { FoodEconomyPanel } from './components/FoodEconomyPanel';
 import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
 import type { Insight, ArenaResult } from './data/insights';
@@ -225,6 +226,7 @@ export default function App() {
             {creature.name}
           </div>
           <StatsPanel creature={creature} stats={stats} />
+          <FoodEconomyPanel creature={creature} stats={stats} />
         </section>
 
         <section className="col col-game">

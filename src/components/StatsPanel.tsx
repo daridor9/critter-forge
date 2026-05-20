@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { CreatureStats } from '../physics';
-import { explainStats } from '../physics';
+import { explainStats, vigilanceTaxFraction } from '../physics';
 import type { Creature } from '../types';
 
 interface Props {
@@ -19,6 +19,7 @@ interface StatConfig {
 const CONFIG = {
   mass:      { icon: '🏋️', label: 'Body mass',        color: '#e07b5b' },
   food:      { icon: '🍔', label: 'Food / day',       color: '#e89a3a' },
+  vigil:     { icon: '👁',  label: 'Vigilance tax',    color: '#a880e8' },
   speed:     { icon: '💨', label: 'Top speed',        color: '#d65a5a' },
   endurance: { icon: '🏃', label: 'Endurance',        color: '#5cc46a' },
   cold:      { icon: '🥶', label: 'Cold tolerance',   color: '#5b9fe0' },
@@ -67,6 +68,12 @@ export function StatsPanel({ creature, stats }: Props) {
       <div className="stats-group">
         <StatRow cfg={CONFIG.mass} value={fmtMass(stats.massKg)} bar={massFrac} info={ex.massKg} />
         <StatRow cfg={CONFIG.food} value={`${fmtMass(stats.foodKgPerDay)}`} sub={`${Math.round(stats.foodKcalPerDay)} kcal`} bar={foodFrac} info={ex.foodKcalPerDay} />
+        <StatRow
+          cfg={CONFIG.vigil}
+          value={`${vigilanceTaxFraction(creature) >= 0 ? '+' : ''}${(vigilanceTaxFraction(creature) * 100).toFixed(0)}%`}
+          bar={Math.abs(vigilanceTaxFraction(creature)) / 0.3}
+          info={ex.vigilance}
+        />
       </div>
 
       <div className="stats-group-label">Movement</div>

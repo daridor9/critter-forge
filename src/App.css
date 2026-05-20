@@ -1861,6 +1861,129 @@ h2 {
   font-weight: 700;
 }
 
+.food-economy {
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-top: 12px;
+  box-shadow: var(--shadow-1);
+}
+.food-economy h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  position: relative;
+  padding-bottom: 6px;
+}
+.food-economy h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 28px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  border-radius: 999px;
+}
+.food-help {
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin: 0 0 12px;
+}
+.food-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.food-env {
+  background: white;
+  border: 1px solid #efe8d6;
+  border-left: 4px solid #ccc;
+  border-radius: 9px;
+  padding: 8px 10px;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.food-env:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+.food-env-thriving { border-left-color: #5cc46a; }
+.food-env-tight    { border-left-color: #e89a3a; }
+.food-env-starving { border-left-color: #d65a5a; }
+
+.food-env-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.food-env-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.food-env-emoji {
+  font-size: 16px;
+}
+.food-env-net {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.food-env-net-thriving { color: #2a8a3a; }
+.food-env-net-tight    { color: #b8780f; }
+.food-env-net-starving { color: #b8302f; }
+
+.food-env-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.food-bar-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 38px;
+  gap: 6px;
+  align-items: center;
+}
+.food-bar-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #999;
+  font-weight: 700;
+  text-align: right;
+}
+.food-bar-track {
+  height: 8px;
+  background: #f0ead7;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.food-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s;
+}
+.food-bar-intake { background: linear-gradient(90deg, #5cc46a, #4aa856); }
+.food-bar-need   { background: linear-gradient(90deg, #e89a3a, #d68028); }
+.food-bar-num {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.food-footnote {
+  font-size: 10px;
+  color: #999;
+  margin: 10px 0 0;
+  line-height: 1.4;
+}
+
 .col-build h2,
 .stats h2,
 .compare h2,

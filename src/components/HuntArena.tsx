@@ -6,7 +6,7 @@ import { CreatureBody } from './CreatureSVG';
 
 export type HuntOutcome = {
   won: boolean;
-  reason: 'hidden' | 'outran' | 'tanked' | 'caught';
+  reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught';
 };
 
 interface Props {
@@ -107,6 +107,8 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
       if (detRef.current >= 100) {
         if (stats.topSpeedKmh >= PREDATOR_KMH) {
           stop({ won: true, reason: 'outran' });
+        } else if (creature.hybrids.includes('venom') || creature.hybrids.includes('electric')) {
+          stop({ won: true, reason: 'fought' });
         } else if (creature.defenseTier === 2) {
           stop({ won: true, reason: 'tanked' });
         } else {

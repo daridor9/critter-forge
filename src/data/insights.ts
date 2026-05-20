@@ -9,7 +9,7 @@ export type ArenaResult =
   | { arena: 'chase'; won: boolean; reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance' }
   | { arena: 'climb'; won: boolean; reason: 'reached-top' | 'froze' | 'exhausted' }
   | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved'; daysSurvived: number }
-  | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'caught' }
+  | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught' }
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number };
 
@@ -92,9 +92,14 @@ function pickHunt(r: Extract<ArenaResult, { arena: 'hunt' }>): Insight {
       'You couldn\'t outrun it, but your armor absorbed the strike. This is the turtle/armadillo/pangolin ' +
       'strategy — heavy, slow, but bite-proof. Costs you mobility everywhere else.' };
   }
+  if (r.reason === 'fought') {
+    return { id: 'hunt-fought', won: true, title: 'You fought back!', text:
+      'Chemistry beats brawn. A 50 g snake takes down a 100 kg deer with venom; an electric eel drops a horse ' +
+      'with 600 V; a platypus has venomous spurs. Small predators win by being scary, not big.' };
+  }
   return { id: 'hunt-caught', won: false, title: 'Caught', text:
     'Your creature was spotted and couldn\'t escape. To survive a hunt, pick ONE: be very small + camouflaged, ' +
-    'be fast enough to outrun (>70 km/h), or be armored. Big + slow + unarmored = predator food.' };
+    'be fast enough to outrun (>70 km/h), be armored, or carry venom/electric. Otherwise = predator food.' };
 }
 
 function pickMaze(r: Extract<ArenaResult, { arena: 'maze' }>): Insight {
