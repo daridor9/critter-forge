@@ -418,9 +418,31 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
           </g>
         )}
 
-        <circle cx={W - 130} cy="70" r="34" fill={env.sunHalo} opacity="0.55" />
+        <g className="sun-rays" style={{ transformOrigin: `${W - 130}px 70px` }}>
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            const r1 = 40;
+            const r2 = 58 + (i % 2 === 0 ? 6 : 0);
+            return (
+              <line
+                key={i}
+                x1={W - 130 + Math.cos(angle) * r1}
+                y1={70 + Math.sin(angle) * r1}
+                x2={W - 130 + Math.cos(angle) * r2}
+                y2={70 + Math.sin(angle) * r2}
+                stroke={env.sun}
+                strokeWidth="2"
+                strokeLinecap="round"
+                opacity="0.55"
+              />
+            );
+          })}
+        </g>
+        <circle cx={W - 130} cy="70" r="40" fill={env.sunHalo} opacity="0.35" />
+        <circle cx={W - 130} cy="70" r="32" fill={env.sunHalo} opacity="0.55" />
         <circle cx={W - 130} cy="70" r="26" fill={env.sun} />
-        <circle cx={W - 130} cy="70" r="22" fill={env.sun} opacity="0.5" />
+        <ellipse cx={W - 134} cy="64" rx="9" ry="6" fill={env.sun} opacity="0.6" />
+        <ellipse cx={W - 138} cy="60" rx="5" ry="3" fill="white" opacity="0.5" />
 
         {CLOUDS.map((c, i) => (
           <Cloud key={i} {...c} />

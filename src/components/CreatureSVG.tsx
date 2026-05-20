@@ -82,7 +82,9 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       {xs.map((x, i) => (
         <g key={i} className={`leg leg-${i % 2 === 0 ? 'a' : 'b'}`} style={{ transformOrigin: `${x}px ${cy + bodyH / 2 - 4 * scale}px` }}>
           <rect x={x - legW / 2} y={cy + bodyH / 2 - 4 * scale} width={legW} height={legLen} fill={colors.shade} rx={legW / 3} />
-          <ellipse cx={x} cy={cy + bodyH / 2 + legLen - 1} rx={legW * 0.75} ry={Math.max(1.5, legW * 0.4)} fill="#3a2118" />
+          <rect x={x - legW / 2 + Math.max(0.5, legW * 0.1)} y={cy + bodyH / 2 - 4 * scale + 1} width={Math.max(1, legW * 0.28)} height={legLen - 4} fill={colors.main} rx={legW / 4} opacity="0.7" />
+          <ellipse cx={x} cy={cy + bodyH / 2 + legLen - 1} rx={legW * 0.78} ry={Math.max(1.5, legW * 0.42)} fill="#3a2118" />
+          <ellipse cx={x - legW * 0.15} cy={cy + bodyH / 2 + legLen - 1.5} rx={legW * 0.25} ry={Math.max(0.6, legW * 0.15)} fill="#5a3825" opacity="0.7" />
         </g>
       ))}
 
@@ -150,8 +152,11 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         </>
       )}
 
+      <ellipse cx={cx + bodyW * 0.02} cy={cy + bodyH * 0.04} rx={bodyW / 2} ry={bodyH / 2} fill={colors.shade} opacity="0.5" />
       <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={colors.main} />
-      <ellipse cx={cx} cy={cy + bodyH * 0.18} rx={bodyW * 0.42} ry={bodyH * 0.28} fill={colors.light} opacity={0.45} />
+      <ellipse cx={cx - bodyW * 0.08} cy={cy - bodyH * 0.22} rx={bodyW * 0.3} ry={bodyH * 0.15} fill="white" opacity="0.22" />
+      <ellipse cx={cx} cy={cy + bodyH * 0.18} rx={bodyW * 0.42} ry={bodyH * 0.28} fill={colors.light} opacity={0.5} />
+      <ellipse cx={cx + bodyW * 0.05} cy={cy + bodyH * 0.32} rx={bodyW * 0.4} ry={bodyH * 0.12} fill={colors.shade} opacity="0.25" />
 
       {showDetail && pattern && creature.bodyPlan === 'mammal' && (
         <g fill={pattern} opacity={0.55}>
@@ -242,7 +247,10 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         );
       })()}
 
+      <circle cx={headCx + headR * 0.05} cy={headCy + headR * 0.05} r={headR} fill={colors.shade} opacity="0.45" />
       <circle cx={headCx} cy={headCy} r={headR} fill={colors.main} />
+      <ellipse cx={headCx - headR * 0.25} cy={headCy - headR * 0.55} rx={headR * 0.42} ry={headR * 0.22} fill="white" opacity="0.28" />
+      <ellipse cx={headCx + headR * 0.05} cy={headCy + headR * 0.55} rx={headR * 0.6} ry={headR * 0.18} fill={colors.shade} opacity="0.25" />
 
       {creature.bodyPlan === 'bird' && showDetail && (
         <polygon

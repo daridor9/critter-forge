@@ -17,15 +17,18 @@ interface ClimbEnv {
   sky: [string, string];
   rockTop: string;
   rockBottom: string;
+  farMountain: string;
+  midMountain: string;
   snowCount: number;
   altBonus: number;
+  aurora: boolean;
 }
 
 const CLIMB_ENVS: ClimbEnv[] = [
-  { label: 'clear day', sky: ['#a8c8da', '#e5eef3'], rockTop: '#9aa9b1', rockBottom: '#6c7c84', snowCount: 14, altBonus: 0 },
-  { label: 'snowstorm', sky: ['#7c8c98', '#b8c4cc'], rockTop: '#8d9aa2', rockBottom: '#5d6c76', snowCount: 42, altBonus: 200 },
-  { label: 'aurora night', sky: ['#1a2244', '#3d2e5e'], rockTop: '#4c5566', rockBottom: '#2e3540', snowCount: 22, altBonus: 400 },
-  { label: 'glacial dawn', sky: ['#d4e6f0', '#f0d4e0'], rockTop: '#b8c4cc', rockBottom: '#8089a0', snowCount: 28, altBonus: 600 },
+  { label: 'clear day', sky: ['#a8c8da', '#e5eef3'], rockTop: '#9aa9b1', rockBottom: '#6c7c84', farMountain: '#a8b8c4', midMountain: '#c0ccd3', snowCount: 14, altBonus: 0, aurora: false },
+  { label: 'snowstorm', sky: ['#7c8c98', '#b8c4cc'], rockTop: '#8d9aa2', rockBottom: '#5d6c76', farMountain: '#919fab', midMountain: '#a8b4be', snowCount: 42, altBonus: 200, aurora: false },
+  { label: 'aurora night', sky: ['#1a2244', '#3d2e5e'], rockTop: '#4c5566', rockBottom: '#2e3540', farMountain: '#3a4258', midMountain: '#4a5266', snowCount: 22, altBonus: 400, aurora: true },
+  { label: 'glacial dawn', sky: ['#d4e6f0', '#f0d4e0'], rockTop: '#b8c4cc', rockBottom: '#8089a0', farMountain: '#c4cdd6', midMountain: '#d6dde6', snowCount: 28, altBonus: 600, aurora: false },
 ];
 
 const BASE_ALT = 3000;
@@ -141,7 +144,16 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
 
         <rect x="0" y="0" width={W} height={H} fill="url(#climb-sky)" />
 
-        <polygon points={`0,${H} 90,${H * 0.45} 180,${H * 0.6} 280,${H * 0.4} 380,${H * 0.55} 480,${H * 0.42} ${W},${H * 0.55} ${W},${H}`} fill="#c0ccd3" opacity="0.85" />
+        {env.aurora && (
+          <g opacity="0.7">
+            <path d={`M 0 ${H * 0.18} q ${W * 0.25} ${H * 0.08} ${W * 0.5} 0 t ${W * 0.5} 0`} stroke="#7ae5b8" strokeWidth="14" fill="none" opacity="0.4" />
+            <path d={`M 0 ${H * 0.24} q ${W * 0.25} ${-H * 0.06} ${W * 0.5} 0 t ${W * 0.5} 0`} stroke="#7aa8e5" strokeWidth="12" fill="none" opacity="0.35" />
+            <path d={`M 0 ${H * 0.32} q ${W * 0.25} ${H * 0.05} ${W * 0.5} 0 t ${W * 0.5} 0`} stroke="#c47ae5" strokeWidth="10" fill="none" opacity="0.3" />
+          </g>
+        )}
+
+        <polygon points={`0,${H} 80,${H * 0.55} 200,${H * 0.7} 340,${H * 0.5} 460,${H * 0.65} ${W},${H * 0.55} ${W},${H}`} fill={env.farMountain} opacity="0.7" />
+        <polygon points={`0,${H} 90,${H * 0.45} 180,${H * 0.6} 280,${H * 0.4} 380,${H * 0.55} 480,${H * 0.42} ${W},${H * 0.55} ${W},${H}`} fill={env.midMountain} opacity="0.85" />
         <polygon points={`0,${H} 120,${H * 0.55} 240,${H * 0.35} 360,${H * 0.5} ${W * 0.85},${H * 0.32} ${W},${H * 0.5} ${W},${H}`} fill="#e9eff2" />
 
         <polygon points={`${W * 0.25},${H} ${W / 2},22 ${W * 0.75},${H}`} fill="url(#climb-rock)" />
