@@ -16,9 +16,12 @@ import { InsightCard } from './components/InsightCard';
 import { AlbumPanel } from './components/AlbumPanel';
 import { EvolveModal } from './components/EvolveModal';
 import { AboutModal } from './components/AboutModal';
+import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
 import type { Insight, ArenaResult } from './data/insights';
 import { randomCreature, suggestName } from './data/randomCreature';
+import type { TournamentState } from './data/tournament';
+import { TOURNAMENT_ORDER, scoreArena, difficultyFor } from './data/tournament';
 import { sounds, isMuted, setMuted } from './sounds';
 import './App.css';
 
@@ -43,13 +46,59 @@ export default function App() {
   const [fullscreen, setFullscreen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [generation, setGeneration] = useState(1);
+  const [tournament, setTournament] = useState<TournamentState | null>(null);
+
+  const effectiveArenaId: ArenaId = tournament ? TOURNAMENT_ORDER[tournament.round - 1] : arenaId;
+  const effectiveGeneration = tournament ? tournament.generation : generation;
 
   const finish = (r: ArenaResult) => {
+    if (tournament) {
+      const points = scoreArena(r, tournament.generation);
+      const result = {
+        arena: r.arena as ArenaId,
+        won: r.won,
+        points,
+        difficulty: difficultyFor(r.arena as ArenaId, tournament.generation),
+      };
+      const newResults = [...tournament.results, result];
+      const isLast = tournament.round >= TOURNAMENT_ORDER.length;
+      setTournament({
+        ...tournament,
+        results: newResults,
+        phase: isLast ? 'finished' : 'between-rounds',
+      });
+      if (r.won) sounds.win();
+      else sounds.lose();
+      return;
+    }
     const i = pickInsight(r, stats.massKg);
     if (i.won) sounds.win();
     else sounds.lose();
     setInsight(i);
   };
+
+  function startTournament() {
+    setTournament({ round: 1, results: [], phase: 'playing', generation: 1 });
+    setGeneration(1);
+    sounds.start();
+  }
+
+  function continueTournament() {
+    if (!tournament) return;
+    if (tournament.phase === 'finished') return;
+    setTournament({ ...tournament, round: tournament.round + 1, phase: 'playing' });
+    sounds.click();
+  }
+
+  function tournamentMutate() {
+    if (!tournament) return;
+    setShowEvolve(true);
+  }
+
+  function exitTournament() {
+    setTournament(null);
+    sounds.click();
+  }
 
   function openEvolveFromInsight() {
     setInsight(null);
@@ -86,12 +135,14 @@ export default function App() {
   }
 
   function renderArena() {
-    if (arenaId === 'chase') return <ChaseArena creature={creature} stats={stats} generation={generation} onFinish={(o) => finish({ arena: 'chase', ...o })} />;
-    if (arenaId === 'hunt') return <HuntArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'hunt', ...o })} />;
-    if (arenaId === 'climb') return <ClimbArena creature={creature} stats={stats} generation={generation} onFinish={(o) => finish({ arena: 'climb', ...o })} />;
-    if (arenaId === 'drought') return <DroughtArena creature={creature} stats={stats} generation={generation} onFinish={(o) => finish({ arena: 'drought', ...o })} />;
-    if (arenaId === 'deep') return <DeepArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'deep', ...o })} />;
-    if (arenaId === 'maze') return <MazeArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'maze', ...o })} />;
+    const id = effectiveArenaId;
+    const gen = effectiveGeneration;
+    if (id === 'chase') return <ChaseArena creature={creature} stats={stats} generation={gen} onFinish={(o) => finish({ arena: 'chase', ...o })} />;
+    if (id === 'hunt') return <HuntArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'hunt', ...o })} />;
+    if (id === 'climb') return <ClimbArena creature={creature} stats={stats} generation={gen} onFinish={(o) => finish({ arena: 'climb', ...o })} />;
+    if (id === 'drought') return <DroughtArena creature={creature} stats={stats} generation={gen} onFinish={(o) => finish({ arena: 'drought', ...o })} />;
+    if (id === 'deep') return <DeepArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'deep', ...o })} />;
+    if (id === 'maze') return <MazeArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'maze', ...o })} />;
     return null;
   }
 
@@ -152,6 +203,11 @@ export default function App() {
           <button className="header-btn" type="button" onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>
             {muted ? '🔇' : '🔊'}
           </button>
+          {!tournament ? (
+            <button className="header-btn header-btn-primary" type="button" onClick={startTournament} title="Run a full tournament">🏆 Tournament</button>
+          ) : (
+            <button className="header-btn header-btn-primary" type="button" onClick={exitTournament} title="Leave tournament">🚪 Exit</button>
+          )}
           <button className="header-btn" type="button" onClick={() => { setShowAbout(true); sounds.click(); }} title="About this game">ℹ About</button>
         </div>
       </header>
@@ -172,30 +228,34 @@ export default function App() {
         </section>
 
         <section className="col col-game">
-          <div className="arena-tabs">
-            {arenaTabs.map((t) => (
+          {tournament ? (
+            <TournamentHUD t={tournament} />
+          ) : (
+            <div className="arena-tabs">
+              {arenaTabs.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`arena-tab${arenaId === t.id ? ' active' : ''}`}
+                  onClick={() => pickArena(t.id)}
+                >
+                  {t.label}
+                </button>
+              ))}
               <button
-                key={t.id}
                 type="button"
-                className={`arena-tab${arenaId === t.id ? ' active' : ''}`}
-                onClick={() => pickArena(t.id)}
+                className="arena-expand"
+                onClick={() => { setFullscreen(true); sounds.click(); }}
+                title="Play in fullscreen"
               >
-                {t.label}
+                ⛶
               </button>
-            ))}
-            <button
-              type="button"
-              className="arena-expand"
-              onClick={() => { setFullscreen(true); sounds.click(); }}
-              title="Play in fullscreen"
-            >
-              ⛶
-            </button>
-          </div>
+            </div>
+          )}
 
           {renderArena()}
 
-          <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />
+          {!tournament && <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />}
         </section>
       </main>
 
@@ -213,11 +273,37 @@ export default function App() {
           parent={creature}
           onPick={(c) => {
             setCreature(c);
-            setGeneration((g) => g + 1);
+            if (tournament) {
+              setTournament({
+                ...tournament,
+                generation: tournament.generation + 1,
+                round: tournament.round + 1,
+                phase: 'playing',
+              });
+            } else {
+              setGeneration((g) => g + 1);
+            }
             setShowEvolve(false);
             sounds.click();
           }}
           onClose={() => setShowEvolve(false)}
+        />
+      )}
+
+      {tournament?.phase === 'between-rounds' && (
+        <BetweenRounds
+          t={tournament}
+          creature={creature}
+          onMutate={tournamentMutate}
+          onContinue={continueTournament}
+        />
+      )}
+      {tournament?.phase === 'finished' && (
+        <TournamentResults
+          t={tournament}
+          creature={creature}
+          onRestart={startTournament}
+          onExit={exitTournament}
         />
       )}
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
