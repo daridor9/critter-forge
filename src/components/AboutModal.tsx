@@ -65,6 +65,22 @@ export function AboutModal({ onClose }: Props) {
           <p>
             A human brain is ~2% of body mass but burns ~20% of total energy. Same for dolphins, ravens, octopi. You can't have a big brain on a starvation diet — that's why big brains evolved in rich-food environments.
           </p>
+          <p>
+            <strong>In the game, brain pays off everywhere:</strong>
+          </p>
+          <ul className="about-list">
+            <li><strong>🦌 Chase:</strong> +4% effective speed per tier (predict prey moves)</li>
+            <li><strong>🌳 Hunt:</strong> +5 stealth per tier (predict the predator)</li>
+            <li><strong>🏔 Climb:</strong> +6% climb efficiency per tier (route-finding)</li>
+            <li><strong>☀️ Drought:</strong> +8% fat-reserve stretch per tier (rationing)</li>
+            <li><strong>🌊 Deep:</strong> +10% breath-hold per tier (calm under pressure)</li>
+            <li><strong>🧩 Maze:</strong> the main pay-off — 20 fewer steps per tier</li>
+            <li><strong>🏔🏜 Foraging:</strong> bonus food in Mountain (snow caches) and Desert (water holes)</li>
+          </ul>
+          <p>
+            The cost: +10% food (tier 1) or +25% (tier 2), plus +3% vigilance tax per tier.
+            Worth it if you're trying to survive in many biomes — wasted if you specialize in one.
+          </p>
 
           <h4>8. Flight has a hard weight limit</h4>
           <p>

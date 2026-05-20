@@ -317,7 +317,8 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
   useEffect(() => {
     if (!running) return;
     const dt = TICK_MS / 1000;
-    const topMps = stats.topSpeedKmh / 3.6;
+    const brainBonus = 1 + creature.brainTier * 0.04;
+    const topMps = (stats.topSpeedKmh / 3.6) * brainBonus;
     const preyMps = preySpeedKmh / 3.6;
     const drainPerSec = 1.0 * (creature.warmBlooded ? 1 : 1.5);
 

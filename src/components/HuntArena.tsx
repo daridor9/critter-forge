@@ -30,7 +30,7 @@ function stealthScore(c: Creature): number {
   if (c.defenseTier === 1) s += 5;
   if (c.defenseTier === 2) s -= 15;
   if (c.sensorTier === 2) s += 10;
-  if (c.brainTier === 2) s += 5;
+  s += c.brainTier * 5;
   if (c.bodyPlan === 'fish') s -= 25;
   if (c.bodyPlan === 'bird') s += 8;
   return Math.max(0, Math.min(100, s));

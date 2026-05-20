@@ -31,7 +31,8 @@ function isAquatic(c: Creature): boolean {
 
 export function DeepArena({ creature, stats, onFinish }: Props) {
   const aq = isAquatic(creature);
-  const o2Capacity = aq ? 999 : 4 + Math.sqrt(stats.massKg) * 1.8;
+  const brainBonus = 1 + creature.brainTier * 0.1;
+  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus;
   const pressureProof = aq || creature.defenseTier === 2;
 
   const [depth, setDepth] = useState(0);

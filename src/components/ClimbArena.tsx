@@ -81,10 +81,11 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
     const dt = TICK_MS / 1000;
     const coldDrain = (100 - stats.coldTolerance) * 0.04;
     const effortDrain = Math.sqrt(stats.massKg) * 0.15;
+    const brainPath = 1 + creature.brainTier * 0.06;
 
     timerRef.current = window.setInterval(() => {
       energyRef.current -= (coldDrain + effortDrain) * dt;
-      altRef.current += ALT_PER_SEC * dt;
+      altRef.current += ALT_PER_SEC * brainPath * dt;
       setEnergy(energyRef.current);
       setAltitude(altRef.current);
 

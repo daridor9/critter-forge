@@ -40,15 +40,16 @@ const W = 600;
 const H = 210;
 const GROUND_Y = 130;
 
-function fatReserveKcal(massKg: number): number {
-  return Math.max(50, massKg * 0.15 * 9000);
+function fatReserveKcal(massKg: number, brainTier: number): number {
+  const brainBonus = 1 + brainTier * 0.08;
+  return Math.max(50, massKg * 0.15 * 9000) * brainBonus;
 }
 
 export function DroughtArena({ creature, stats, generation = 1, onFinish }: Props) {
   const env = DROUGHT_ENVS[(generation - 1) % DROUGHT_ENVS.length];
   const DAYS_GOAL = env.daysGoal;
   const AVAIL_KCAL_PER_DAY = env.availFood;
-  const R0 = fatReserveKcal(stats.massKg);
+  const R0 = fatReserveKcal(stats.massKg, creature.brainTier);
 
   const [reserve, setReserve] = useState(R0);
   const [day, setDay] = useState(0);

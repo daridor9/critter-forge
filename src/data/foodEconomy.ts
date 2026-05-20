@@ -50,11 +50,12 @@ export const FOOD_ENVS: FoodEnv[] = [
     bonus: (c, s) => {
       let b = 0.4;
       b += 0.6 * (s.coldTolerance / 100);
+      b += 0.12 * c.brainTier;
       if (s.massKg > 80 && s.massKg < 800) b += 0.2;
       if (c.hybrids.includes('thick-fur')) b += 0.2;
       return b;
     },
-    note: 'Sparse moss and small prey. Cold-tolerant musk-ox-types do best.',
+    note: 'Sparse moss and small prey. Cold-tolerant musk-ox-types do best; brains remember snow caches.',
   },
   {
     id: 'desert',
@@ -64,12 +65,13 @@ export const FOOD_ENVS: FoodEnv[] = [
     bonus: (c, s) => {
       let b = 0.3;
       if (!c.warmBlooded) b += 0.6;
+      b += 0.1 * c.brainTier;
       if (s.massKg > 200 && c.bodyPlan === 'mammal') b += 0.3;
       if (c.bodyPlan === 'reptile') b += 0.4;
       if (c.hybrids.includes('venom')) b += 0.2;
       return b;
     },
-    note: 'Almost no food. Cold-blooded reptiles and camels manage.',
+    note: 'Almost no food. Cold-blooded reptiles and camels manage; brains remember water holes.',
   },
   {
     id: 'ocean',
