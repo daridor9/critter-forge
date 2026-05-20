@@ -39,6 +39,7 @@ export default function App() {
   const [arenaId, setArenaId] = useState<ArenaId>('chase');
   const [showEvolve, setShowEvolve] = useState(false);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
+  const [fullscreen, setFullscreen] = useState(false);
 
   const finish = (r: ArenaResult) => {
     const i = pickInsight(r, stats.massKg);
@@ -78,6 +79,59 @@ export default function App() {
     setMuted(next);
     setMutedState(next);
     if (!next) sounds.click();
+  }
+
+  function renderArena() {
+    if (arenaId === 'chase') return <ChaseArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'chase', ...o })} />;
+    if (arenaId === 'hunt') return <HuntArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'hunt', ...o })} />;
+    if (arenaId === 'climb') return <ClimbArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'climb', ...o })} />;
+    if (arenaId === 'drought') return <DroughtArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'drought', ...o })} />;
+    if (arenaId === 'deep') return <DeepArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'deep', ...o })} />;
+    if (arenaId === 'maze') return <MazeArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'maze', ...o })} />;
+    return null;
+  }
+
+  if (fullscreen) {
+    return (
+      <div className="fullscreen">
+        <header className="fs-header">
+          <button className="header-btn" type="button" onClick={() => { setFullscreen(false); sounds.click(); }}>
+            ← Back to builder
+          </button>
+          <div className="fs-creature">
+            <strong>🦎 {creature.name}</strong>
+            <span>{stats.massKg < 1 ? `${Math.round(stats.massKg * 1000)} g` : `${stats.massKg < 10 ? stats.massKg.toFixed(1) : Math.round(stats.massKg)} kg`} · {stats.topSpeedKmh} km/h · {stats.enduranceKm} km · cold {Math.round(stats.coldTolerance)}</span>
+          </div>
+          <div className="fs-arena-tabs">
+            {arenaTabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`arena-tab${arenaId === t.id ? ' active' : ''}`}
+                onClick={() => pickArena(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </header>
+        <div className="fs-stage">{renderArena()}</div>
+        {insight && (
+          <InsightCard
+            insight={insight}
+            onClose={() => setInsight(null)}
+            onEvolve={insight.won ? openEvolveFromInsight : undefined}
+          />
+        )}
+        {showEvolve && (
+          <EvolveModal
+            parent={creature}
+            onPick={(c) => { setCreature(c); setShowEvolve(false); sounds.click(); }}
+            onClose={() => setShowEvolve(false)}
+          />
+        )}
+      </div>
+    );
   }
 
   return (
@@ -121,26 +175,17 @@ export default function App() {
                 {t.label}
               </button>
             ))}
+            <button
+              type="button"
+              className="arena-expand"
+              onClick={() => { setFullscreen(true); sounds.click(); }}
+              title="Play in fullscreen"
+            >
+              ⛶
+            </button>
           </div>
 
-          {arenaId === 'chase' && (
-            <ChaseArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'chase', ...o })} />
-          )}
-          {arenaId === 'hunt' && (
-            <HuntArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'hunt', ...o })} />
-          )}
-          {arenaId === 'climb' && (
-            <ClimbArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'climb', ...o })} />
-          )}
-          {arenaId === 'drought' && (
-            <DroughtArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'drought', ...o })} />
-          )}
-          {arenaId === 'deep' && (
-            <DeepArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'deep', ...o })} />
-          )}
-          {arenaId === 'maze' && (
-            <MazeArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'maze', ...o })} />
-          )}
+          {renderArena()}
 
           <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />
         </section>
