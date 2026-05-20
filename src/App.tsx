@@ -15,6 +15,7 @@ import { MazeArena } from './components/MazeArena';
 import { InsightCard } from './components/InsightCard';
 import { AlbumPanel } from './components/AlbumPanel';
 import { EvolveModal } from './components/EvolveModal';
+import { AboutModal } from './components/AboutModal';
 import { pickInsight } from './data/insights';
 import type { Insight, ArenaResult } from './data/insights';
 import { randomCreature, suggestName } from './data/randomCreature';
@@ -40,6 +41,7 @@ export default function App() {
   const [showEvolve, setShowEvolve] = useState(false);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
   const [fullscreen, setFullscreen] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const finish = (r: ArenaResult) => {
     const i = pickInsight(r, stats.massKg);
@@ -148,6 +150,7 @@ export default function App() {
           <button className="header-btn" type="button" onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>
             {muted ? '🔇' : '🔊'}
           </button>
+          <button className="header-btn" type="button" onClick={() => { setShowAbout(true); sounds.click(); }} title="About this game">ℹ About</button>
         </div>
       </header>
       <main>
@@ -211,6 +214,7 @@ export default function App() {
           onClose={() => setShowEvolve(false)}
         />
       )}
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   );
 }
