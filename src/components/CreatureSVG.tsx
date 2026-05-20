@@ -21,8 +21,8 @@ function metrics(creature: Creature, scale: number): Metrics {
 }
 
 function bodyColors(creature: Creature) {
-  if (creature.warmBlooded) return { main: '#e07b5b', shade: '#c66243', light: '#f0a387' };
-  return { main: '#5b9fe0', shade: '#4380bd', light: '#82bbed' };
+  if (creature.warmBlooded) return { main: '#e88a6c', shade: '#c66a4a', light: '#f6bea2', cheek: '#f29ca3' };
+  return { main: '#6caedf', shade: '#4787bd', light: '#9dc8ee', cheek: '#a5d4f3' };
 }
 
 function patternColor(c: Creature): string | null {
@@ -49,7 +49,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
   const armorColor = '#6b6b6b';
 
   const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
-  const eyeR = [3, 5, 8][creature.sensorTier] * scale;
+  const eyeR = [6, 8, 11][creature.sensorTier] * scale;
   const showDetail = scale >= 0.55;
 
   const xs =
@@ -60,10 +60,10 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         : [];
 
   const headCx = cx + bodyW / 2 - 6 * scale;
-  const headCy = cy - bodyH * 0.12;
-  const headR = bodyH * 0.36;
-  const eyeCx = headCx + headR * 0.55;
-  const eyeCy = headCy - headR * 0.2;
+  const headCy = cy - bodyH * 0.14;
+  const headR = bodyH * 0.44;
+  const eyeCx = headCx + headR * 0.45;
+  const eyeCy = headCy - headR * 0.1;
 
   const pattern = patternColor(creature);
   const flip = facingRight ? '' : `translate(${cx * 2} 0) scale(-1 1)`;
@@ -182,25 +182,43 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       <g className={showDetail ? 'eye-blink' : undefined} style={{ transformOrigin: `${eyeCx}px ${eyeCy}px` }}>
-        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.5" />
-        <circle cx={eyeCx + eyeR * 0.25} cy={eyeCy} r={eyeR * 0.55} fill="black" />
-        <circle cx={eyeCx + eyeR * 0.5} cy={eyeCy - eyeR * 0.3} r={eyeR * 0.2} fill="white" opacity="0.85" />
+        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx={eyeCx + eyeR * 0.18} cy={eyeCy + eyeR * 0.08} r={eyeR * 0.62} fill="#1a1a1a" />
+        <circle cx={eyeCx + eyeR * 0.4} cy={eyeCy - eyeR * 0.32} r={eyeR * 0.34} fill="white" />
+        <circle cx={eyeCx + eyeR * 0.05} cy={eyeCy + eyeR * 0.32} r={eyeR * 0.15} fill="white" opacity="0.8" />
       </g>
       {showDetail && creature.bodyPlan === 'mammal' && (
-        <g className="eye-blink" style={{ transformOrigin: `${eyeCx - headR * 0.5}px ${eyeCy + headR * 0.05}px` }}>
-          <circle cx={eyeCx - headR * 0.5} cy={eyeCy + headR * 0.05} r={eyeR * 0.85} fill="white" stroke="#222" strokeWidth="0.5" />
-          <circle cx={eyeCx - headR * 0.5 + eyeR * 0.2} cy={eyeCy + headR * 0.05} r={eyeR * 0.45} fill="black" />
+        <g className="eye-blink" style={{ transformOrigin: `${eyeCx - headR * 0.55}px ${eyeCy + headR * 0.08}px` }}>
+          <circle cx={eyeCx - headR * 0.55} cy={eyeCy + headR * 0.08} r={eyeR * 0.9} fill="white" stroke="#222" strokeWidth="0.6" />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.15} cy={eyeCy + headR * 0.08 + eyeR * 0.05} r={eyeR * 0.55} fill="#1a1a1a" />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.3} cy={eyeCy + headR * 0.08 - eyeR * 0.3} r={eyeR * 0.28} fill="white" />
         </g>
       )}
 
       {showDetail && (
-        <path
-          d={`M ${headCx + headR * 0.2} ${headCy + headR * 0.32} q ${headR * 0.3} ${headR * 0.22} ${headR * 0.6} 0`}
-          stroke="#3a2118"
-          strokeWidth={Math.max(0.8, 1.2 * scale)}
-          fill="none"
-          strokeLinecap="round"
-        />
+        <>
+          <ellipse cx={eyeCx - eyeR * 0.4} cy={eyeCy + headR * 0.5} rx={headR * 0.16} ry={headR * 0.1} fill={colors.cheek} opacity="0.75" />
+          {creature.bodyPlan === 'mammal' && (
+            <ellipse cx={eyeCx - headR * 0.85} cy={eyeCy + headR * 0.55} rx={headR * 0.14} ry={headR * 0.09} fill={colors.cheek} opacity="0.7" />
+          )}
+        </>
+      )}
+
+      {showDetail && (
+        <g>
+          <path
+            d={`M ${headCx + headR * 0.05} ${headCy + headR * 0.45} q ${headR * 0.35} ${headR * 0.35} ${headR * 0.7} 0`}
+            stroke="#3a2118"
+            strokeWidth={Math.max(1, 1.6 * scale)}
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d={`M ${headCx + headR * 0.18} ${headCy + headR * 0.58} q ${headR * 0.22} ${headR * 0.18} ${headR * 0.44} 0`}
+            fill="#e88aa0"
+            opacity="0.9"
+          />
+        </g>
       )}
 
       {creature.defenseTier === 1 && creature.bodyPlan === 'mammal' && showDetail && (
