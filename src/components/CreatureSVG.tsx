@@ -79,7 +79,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       {xs.map((x, i) => (
-        <g key={i}>
+        <g key={i} className={`leg leg-${i % 2 === 0 ? 'a' : 'b'}`} style={{ transformOrigin: `${x}px ${cy + bodyH / 2 - 4 * scale}px` }}>
           <rect x={x - legW / 2} y={cy + bodyH / 2 - 4 * scale} width={legW} height={legLen} fill={colors.shade} rx={legW / 3} />
           <ellipse cx={x} cy={cy + bodyH / 2 + legLen - 1} rx={legW * 0.75} ry={Math.max(1.5, legW * 0.4)} fill="#3a2118" />
         </g>
@@ -181,13 +181,16 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         />
       )}
 
-      <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.5" />
-      <circle cx={eyeCx + eyeR * 0.25} cy={eyeCy} r={eyeR * 0.55} fill="black" />
+      <g className={showDetail ? 'eye-blink' : undefined} style={{ transformOrigin: `${eyeCx}px ${eyeCy}px` }}>
+        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.5" />
+        <circle cx={eyeCx + eyeR * 0.25} cy={eyeCy} r={eyeR * 0.55} fill="black" />
+        <circle cx={eyeCx + eyeR * 0.5} cy={eyeCy - eyeR * 0.3} r={eyeR * 0.2} fill="white" opacity="0.85" />
+      </g>
       {showDetail && creature.bodyPlan === 'mammal' && (
-        <>
+        <g className="eye-blink" style={{ transformOrigin: `${eyeCx - headR * 0.5}px ${eyeCy + headR * 0.05}px` }}>
           <circle cx={eyeCx - headR * 0.5} cy={eyeCy + headR * 0.05} r={eyeR * 0.85} fill="white" stroke="#222" strokeWidth="0.5" />
           <circle cx={eyeCx - headR * 0.5 + eyeR * 0.2} cy={eyeCy + headR * 0.05} r={eyeR * 0.45} fill="black" />
-        </>
+        </g>
       )}
 
       {showDetail && (

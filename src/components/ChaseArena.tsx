@@ -19,9 +19,9 @@ const TRACK_M = 600;
 const START_GAP_M = 25;
 const TICK_MS = 50;
 
-const W = 600;
-const H = 210;
-const GROUND_Y = 160;
+const W = 800;
+const H = 420;
+const GROUND_Y = 300;
 
 type PreyId = 'rabbit' | 'gazelle' | 'kangaroo';
 interface PreyDef {
@@ -34,55 +34,109 @@ interface PreyDef {
 
 function Rabbit() {
   return (
-    <g>
-      <line x1="-4" y1="-2" x2="-5" y2="6" stroke="#7a5236" strokeWidth="2.4" strokeLinecap="round" />
-      <line x1="0" y1="-2" x2="-1" y2="6" stroke="#7a5236" strokeWidth="2.4" strokeLinecap="round" />
-      <line x1="6" y1="-2" x2="7" y2="6" stroke="#7a5236" strokeWidth="2.4" strokeLinecap="round" />
-      <line x1="10" y1="-2" x2="11" y2="6" stroke="#7a5236" strokeWidth="2.4" strokeLinecap="round" />
-      <ellipse cx="3" cy="-7" rx="11" ry="5" fill="#a48267" />
-      <ellipse cx="3" cy="-5" rx="9" ry="2.2" fill="#c7a98a" opacity="0.55" />
-      <circle cx="12" cy="-12" r="4" fill="#a48267" />
-      <ellipse cx="10" cy="-19" rx="1.6" ry="6" fill="#a48267" transform="rotate(-10 10 -19)" />
-      <ellipse cx="13.5" cy="-19" rx="1.6" ry="6" fill="#a48267" transform="rotate(10 13.5 -19)" />
-      <ellipse cx="10" cy="-19" rx="0.7" ry="4" fill="#e0b8a0" transform="rotate(-10 10 -19)" />
-      <ellipse cx="13.5" cy="-19" rx="0.7" ry="4" fill="#e0b8a0" transform="rotate(10 13.5 -19)" />
-      <circle cx="13.5" cy="-12.5" r="0.9" fill="#222" />
-      <circle cx="-8" cy="-7" r="2.5" fill="#f0e2c8" />
+    <g transform="scale(1.6)">
+      <ellipse cx="0" cy="2" rx="13" ry="3" fill="rgba(0,0,0,0.2)" />
+      <g className="leg leg-a" style={{ transformOrigin: '-5px 0px' }}>
+        <line x1="-4" y1="-2" x2="-5" y2="7" stroke="#7a5236" strokeWidth="2.6" strokeLinecap="round" />
+        <ellipse cx="-5" cy="7" rx="2" ry="0.8" fill="#3a2118" />
+      </g>
+      <g className="leg leg-b" style={{ transformOrigin: '0px 0px' }}>
+        <line x1="0" y1="-2" x2="-1" y2="7" stroke="#7a5236" strokeWidth="2.6" strokeLinecap="round" />
+        <ellipse cx="-1" cy="7" rx="2" ry="0.8" fill="#3a2118" />
+      </g>
+      <g className="leg leg-b" style={{ transformOrigin: '6px 0px' }}>
+        <line x1="6" y1="-2" x2="7" y2="7" stroke="#7a5236" strokeWidth="2.6" strokeLinecap="round" />
+        <ellipse cx="7" cy="7" rx="2" ry="0.8" fill="#3a2118" />
+      </g>
+      <g className="leg leg-a" style={{ transformOrigin: '10px 0px' }}>
+        <line x1="10" y1="-2" x2="11" y2="7" stroke="#7a5236" strokeWidth="2.6" strokeLinecap="round" />
+        <ellipse cx="11" cy="7" rx="2" ry="0.8" fill="#3a2118" />
+      </g>
+      <ellipse cx="3" cy="-8" rx="12" ry="6" fill="#a48267" />
+      <ellipse cx="3" cy="-6" rx="10" ry="2.4" fill="#c7a98a" opacity="0.55" />
+      <ellipse cx="-6" cy="-9" rx="3" ry="2" fill="#9a7458" opacity="0.6" />
+      <ellipse cx="2" cy="-10" rx="3" ry="2" fill="#9a7458" opacity="0.6" />
+      <circle cx="12" cy="-13" r="4.5" fill="#a48267" />
+      <ellipse cx="10" cy="-21" rx="1.8" ry="7" fill="#a48267" transform="rotate(-12 10 -21)" />
+      <ellipse cx="14" cy="-21" rx="1.8" ry="7" fill="#a48267" transform="rotate(12 14 -21)" />
+      <ellipse cx="10" cy="-21" rx="0.8" ry="4.5" fill="#e0b8a0" transform="rotate(-12 10 -21)" />
+      <ellipse cx="14" cy="-21" rx="0.8" ry="4.5" fill="#e0b8a0" transform="rotate(12 14 -21)" />
+      <g className="eye-blink" style={{ transformOrigin: '13.5px -13px' }}>
+        <circle cx="13.5" cy="-13" r="1.5" fill="white" stroke="#222" strokeWidth="0.4" />
+        <circle cx="13.8" cy="-13" r="1" fill="#222" />
+        <circle cx="14.1" cy="-13.3" r="0.4" fill="white" />
+      </g>
+      <ellipse cx="15" cy="-11" rx="0.6" ry="0.4" fill="#3a2118" />
+      <path d="M 11 -11 q 1 1 2.5 0.4" stroke="#3a2118" strokeWidth="0.5" fill="none" strokeLinecap="round" />
+      <circle cx="-8" cy="-8" r="3.2" fill="#f0e2c8" />
+      <circle cx="-9" cy="-8" r="1.4" fill="white" opacity="0.7" />
     </g>
   );
 }
 
 function Gazelle() {
   return (
-    <g>
-      <line x1="-7" y1="-2" x2="-8" y2="12" stroke="#7a5236" strokeWidth="2" strokeLinecap="round" />
-      <line x1="-3" y1="-2" x2="-4" y2="12" stroke="#7a5236" strokeWidth="2" strokeLinecap="round" />
-      <line x1="5" y1="-2" x2="6" y2="12" stroke="#7a5236" strokeWidth="2" strokeLinecap="round" />
-      <line x1="9" y1="-2" x2="10" y2="12" stroke="#7a5236" strokeWidth="2" strokeLinecap="round" />
-      <ellipse cx="1" cy="-8" rx="12" ry="6" fill="#c89366" />
-      <ellipse cx="1" cy="-4" rx="10" ry="3" fill="#e1b489" opacity="0.6" />
-      <circle cx="12" cy="-14" r="4" fill="#c89366" />
-      <line x1="11.5" y1="-16" x2="10" y2="-21" stroke="#3a2118" strokeWidth="1" strokeLinecap="round" />
-      <line x1="13.5" y1="-16" x2="13.5" y2="-22" stroke="#3a2118" strokeWidth="1" strokeLinecap="round" />
-      <circle cx="13.5" cy="-13" r="0.8" fill="#222" />
-      <path d="M -10 -8 q -4 -1 -6 -4" stroke="#7a5236" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <g transform="scale(1.6)">
+      <ellipse cx="0" cy="2" rx="14" ry="3" fill="rgba(0,0,0,0.2)" />
+      <g className="leg leg-a" style={{ transformOrigin: '-7px -2px' }}>
+        <line x1="-7" y1="-2" x2="-9" y2="12" stroke="#7a5236" strokeWidth="2.2" strokeLinecap="round" />
+        <ellipse cx="-9" cy="12" rx="1.5" ry="0.6" fill="#3a2118" />
+      </g>
+      <g className="leg leg-b" style={{ transformOrigin: '-3px -2px' }}>
+        <line x1="-3" y1="-2" x2="-5" y2="12" stroke="#7a5236" strokeWidth="2.2" strokeLinecap="round" />
+        <ellipse cx="-5" cy="12" rx="1.5" ry="0.6" fill="#3a2118" />
+      </g>
+      <g className="leg leg-b" style={{ transformOrigin: '5px -2px' }}>
+        <line x1="5" y1="-2" x2="7" y2="12" stroke="#7a5236" strokeWidth="2.2" strokeLinecap="round" />
+        <ellipse cx="7" cy="12" rx="1.5" ry="0.6" fill="#3a2118" />
+      </g>
+      <g className="leg leg-a" style={{ transformOrigin: '9px -2px' }}>
+        <line x1="9" y1="-2" x2="11" y2="12" stroke="#7a5236" strokeWidth="2.2" strokeLinecap="round" />
+        <ellipse cx="11" cy="12" rx="1.5" ry="0.6" fill="#3a2118" />
+      </g>
+      <ellipse cx="1" cy="-9" rx="13" ry="6.5" fill="#c89366" />
+      <ellipse cx="1" cy="-5" rx="11" ry="3" fill="#e1b489" opacity="0.6" />
+      <ellipse cx="-5" cy="-10" rx="2.5" ry="1.5" fill="#a87649" opacity="0.55" />
+      <ellipse cx="3" cy="-11" rx="2.5" ry="1.5" fill="#a87649" opacity="0.55" />
+      <ellipse cx="-7" cy="-7" rx="2.5" ry="1.5" fill="#a87649" opacity="0.55" />
+      <circle cx="13" cy="-15" r="4.5" fill="#c89366" />
+      <line x1="12" y1="-17" x2="10" y2="-23" stroke="#3a2118" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="14" y1="-17" x2="15" y2="-24" stroke="#3a2118" strokeWidth="1.2" strokeLinecap="round" />
+      <g className="eye-blink" style={{ transformOrigin: '14px -14px' }}>
+        <circle cx="14" cy="-14" r="1.2" fill="white" stroke="#222" strokeWidth="0.4" />
+        <circle cx="14.3" cy="-14" r="0.8" fill="#222" />
+      </g>
+      <ellipse cx="16" cy="-12" rx="0.6" ry="0.4" fill="#3a2118" />
+      <path d="M -12 -9 q -5 -1 -7 -4" stroke="#7a5236" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <circle cx="-19" cy="-13" r="1.2" fill="white" />
     </g>
   );
 }
 
 function Kangaroo() {
   return (
-    <g>
-      <path d="M -4 -10 Q -14 -2 -18 8" stroke="#9a6c3a" strokeWidth="3" fill="none" strokeLinecap="round" />
-      <path d="M -2 -7 Q -3 1 1 10" stroke="#9a6c3a" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      <path d="M 3 -7 Q 2 1 5 10" stroke="#9a6c3a" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      <ellipse cx="2" cy="-12" rx="6" ry="9" fill="#b58450" />
-      <ellipse cx="2" cy="-10" rx="4" ry="6" fill="#d2a673" opacity="0.55" />
-      <line x1="6" y1="-10" x2="9" y2="-6" stroke="#9a6c3a" strokeWidth="2" strokeLinecap="round" />
-      <ellipse cx="8" cy="-21" rx="3" ry="4.5" fill="#b58450" />
-      <ellipse cx="7" cy="-26" rx="1" ry="3" fill="#9a6c3a" />
-      <ellipse cx="10" cy="-26" rx="1" ry="3" fill="#9a6c3a" />
-      <circle cx="9.5" cy="-21" r="0.8" fill="#222" />
+    <g transform="scale(1.6)">
+      <ellipse cx="0" cy="2" rx="11" ry="3" fill="rgba(0,0,0,0.2)" />
+      <path d="M -4 -10 Q -16 -2 -20 10" stroke="#9a6c3a" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+      <g className="leg leg-a" style={{ transformOrigin: '-2px -6px' }}>
+        <path d="M -2 -7 Q -3 1 1 10" stroke="#9a6c3a" strokeWidth="3.8" fill="none" strokeLinecap="round" />
+      </g>
+      <g className="leg leg-b" style={{ transformOrigin: '3px -6px' }}>
+        <path d="M 3 -7 Q 2 1 5 10" stroke="#9a6c3a" strokeWidth="3.8" fill="none" strokeLinecap="round" />
+      </g>
+      <ellipse cx="2" cy="-13" rx="6.5" ry="10" fill="#b58450" />
+      <ellipse cx="2" cy="-10" rx="4.5" ry="6.5" fill="#d2a673" opacity="0.55" />
+      <ellipse cx="0" cy="-7" rx="3" ry="4" fill="#a87649" opacity="0.4" />
+      <line x1="6" y1="-11" x2="9" y2="-6" stroke="#9a6c3a" strokeWidth="2.2" strokeLinecap="round" />
+      <line x1="6" y1="-12" x2="9.5" y2="-9" stroke="#9a6c3a" strokeWidth="2" strokeLinecap="round" />
+      <ellipse cx="8" cy="-22" rx="3.2" ry="4.8" fill="#b58450" />
+      <ellipse cx="7" cy="-27" rx="1.1" ry="3.2" fill="#9a6c3a" />
+      <ellipse cx="10" cy="-27" rx="1.1" ry="3.2" fill="#9a6c3a" />
+      <g className="eye-blink" style={{ transformOrigin: '9.5px -22px' }}>
+        <circle cx="9.5" cy="-22" r="1.2" fill="white" stroke="#222" strokeWidth="0.4" />
+        <circle cx="9.8" cy="-22" r="0.8" fill="#222" />
+      </g>
+      <ellipse cx="11" cy="-20" rx="0.6" ry="0.4" fill="#3a2118" />
     </g>
   );
 }
@@ -92,6 +146,99 @@ const PREYS: PreyDef[] = [
   { id: 'gazelle', label: 'Gazelle', emoji: '🦌', speedKmh: 60, Render: Gazelle },
   { id: 'kangaroo', label: 'Kangaroo', emoji: '🦘', speedKmh: 70, Render: Kangaroo },
 ];
+
+function Cloud({ x, y, scale, duration, delay }: { x: number; y: number; scale: number; duration: number; delay: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <g className="cloud" style={{ animationDuration: `${duration}s`, animationDelay: `${delay}s` }}>
+        <ellipse cx="0" cy="0" rx="38" ry="11" fill="white" opacity="0.95" />
+        <ellipse cx="-18" cy="-5" rx="22" ry="9" fill="white" opacity="0.92" />
+        <ellipse cx="16" cy="-3" rx="26" ry="10" fill="white" opacity="0.9" />
+        <ellipse cx="-2" cy="-9" rx="14" ry="7" fill="white" opacity="0.88" />
+      </g>
+    </g>
+  );
+}
+
+function Bird({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <g className="bird-wing" style={{ transformOrigin: 'center' }}>
+        <path d="M -8 0 Q -4 -4 0 0 Q 4 -4 8 0" stroke="#3a2a18" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      </g>
+    </g>
+  );
+}
+
+function Tree({ x, h }: { x: number; h: number }) {
+  const baseY = GROUND_Y - 2;
+  const topY = baseY - h;
+  return (
+    <g>
+      <rect x={x - 4} y={topY + 20} width="8" height={h - 20} fill="#3e2a18" />
+      <rect x={x - 5} y={topY + 20} width="2" height={h - 20} fill="#2a1a0a" opacity="0.5" />
+      <line x1={x} y1={topY + 30} x2={x - 14} y2={topY + 20} stroke="#3e2a18" strokeWidth="2.5" />
+      <line x1={x} y1={topY + 32} x2={x + 14} y2={topY + 22} stroke="#3e2a18" strokeWidth="2.5" />
+      <ellipse cx={x} cy={topY + 10} rx="42" ry="16" fill="#3f5a30" />
+      <ellipse cx={x - 18} cy={topY + 6} rx="24" ry="11" fill="#557d3e" />
+      <ellipse cx={x + 18} cy={topY + 14} rx="26" ry="12" fill="#557d3e" />
+      <ellipse cx={x - 4} cy={topY - 2} rx="20" ry="9" fill="#6b9450" />
+      <ellipse cx={x + 8} cy={topY + 4} rx="14" ry="7" fill="#6b9450" />
+    </g>
+  );
+}
+
+function GrassTuft({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`} className="grass-tuft" style={{ transformOrigin: 'bottom' }}>
+      <line x1="0" y1="0" x2="-3" y2="-10" stroke="#5d7d2c" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="0" y2="-13" stroke="#5d7d2c" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="3" y2="-10" stroke="#6f8f3a" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="5" y2="-7" stroke="#6f8f3a" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="-5" y2="-7" stroke="#5d7d2c" strokeWidth="1.2" strokeLinecap="round" />
+    </g>
+  );
+}
+
+function DustPuffs({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <circle className="dust" cx="0" cy="0" r="4" fill="#d6c098" style={{ animationDelay: '0s' }} />
+      <circle className="dust" cx="-5" cy="-2" r="3.5" fill="#d6c098" style={{ animationDelay: '0.18s' }} />
+      <circle className="dust" cx="-10" cy="0" r="3" fill="#cbb585" style={{ animationDelay: '0.36s' }} />
+      <circle className="dust" cx="-3" cy="2" r="2.5" fill="#d6c098" style={{ animationDelay: '0.54s' }} />
+    </g>
+  );
+}
+
+const TREES = [
+  { x: 60, h: 110 },
+  { x: 200, h: 95 },
+  { x: 360, h: 115 },
+  { x: 510, h: 100 },
+  { x: 650, h: 105 },
+  { x: 770, h: 88 },
+];
+
+const CLOUDS = [
+  { x: 80, y: 70, scale: 1, duration: 55, delay: 0 },
+  { x: 320, y: 50, scale: 0.7, duration: 70, delay: -15 },
+  { x: 560, y: 85, scale: 0.85, duration: 60, delay: -30 },
+  { x: -150, y: 105, scale: 1.1, duration: 75, delay: -50 },
+];
+
+const BIRDS = [
+  { x: 180, y: 100, scale: 1.2 },
+  { x: 220, y: 115, scale: 0.9 },
+  { x: 250, y: 105, scale: 1.0 },
+];
+
+const GRASS_TUFTS: { x: number; y: number }[] = [];
+for (let i = 0; i < 36; i++) {
+  const x = 5 + i * 22 + (i % 3) * 3;
+  const y = H - 6 + ((i * 7) % 4) - 2;
+  GRASS_TUFTS.push({ x, y });
+}
 
 export function ChaseArena({ creature, stats, onFinish }: Props) {
   const E0 = Math.max(1, stats.enduranceKm * 1.5);
@@ -183,8 +330,8 @@ export function ChaseArena({ creature, stats, onFinish }: Props) {
   }, [stats.enduranceKm, preyId]);
 
   const scale = W / (TRACK_M + START_GAP_M);
-  const playerX = Math.max(28, Math.min(W - 30, playerDist * scale));
-  const gazelleX = Math.max(56, Math.min(W - 24, gazelleDist * scale));
+  const playerX = Math.max(40, Math.min(W - 40, playerDist * scale));
+  const gazelleX = Math.max(80, Math.min(W - 40, gazelleDist * scale));
   const energyShown = running || done ? energy : E0;
 
   return (
@@ -214,62 +361,81 @@ export function ChaseArena({ creature, stats, onFinish }: Props) {
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="chase-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#9fd4ee" />
-            <stop offset="1" stopColor="#f9e3a3" />
+            <stop offset="0" stopColor="#7ec4e0" />
+            <stop offset="0.55" stopColor="#c8d8b8" />
+            <stop offset="1" stopColor="#f8d68a" />
           </linearGradient>
           <linearGradient id="chase-ground" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#f3d27d" />
-            <stop offset="1" stopColor="#c9a05a" />
+            <stop offset="0.5" stopColor="#dfb066" />
+            <stop offset="1" stopColor="#a07a40" />
+          </linearGradient>
+          <linearGradient id="far-hill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#d4b56a" />
+            <stop offset="1" stopColor="#bf9854" />
           </linearGradient>
         </defs>
 
         <rect x="0" y="0" width={W} height={GROUND_Y} fill="url(#chase-sky)" />
-        <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="url(#chase-ground)" />
 
-        <ellipse cx="120" cy={GROUND_Y + 6} rx="180" ry="14" fill="#d9b568" opacity="0.85" />
-        <ellipse cx="480" cy={GROUND_Y + 8} rx="220" ry="16" fill="#d9b568" opacity="0.85" />
+        <circle cx={W - 130} cy="70" r="34" fill="#ffe9a0" opacity="0.6" />
+        <circle cx={W - 130} cy="70" r="26" fill="#ffd66a" />
+        <circle cx={W - 130} cy="70" r="22" fill="#fff0b0" opacity="0.5" />
 
-        {[
-          { x: 70, h: 26 },
-          { x: 250, h: 22 },
-          { x: 430, h: 28 },
-          { x: 555, h: 24 },
-        ].map((t) => (
-          <g key={t.x}>
-            <line x1={t.x} y1={GROUND_Y - 2} x2={t.x} y2={GROUND_Y - t.h} stroke="#5a3b22" strokeWidth="2" />
-            <ellipse cx={t.x} cy={GROUND_Y - t.h - 5} rx="16" ry="7" fill="#7a8c3a" />
-            <ellipse cx={t.x + 8} cy={GROUND_Y - t.h - 2} rx="9" ry="4" fill="#8a9c4a" />
-          </g>
+        {CLOUDS.map((c, i) => (
+          <Cloud key={i} {...c} />
         ))}
 
-        {Array.from({ length: 24 }).map((_, i) => {
-          const tx = 10 + i * 25;
+        {BIRDS.map((b, i) => (
+          <Bird key={i} {...b} />
+        ))}
+
+        <path
+          d={`M 0 ${GROUND_Y - 40} Q ${W * 0.2} ${GROUND_Y - 75} ${W * 0.4} ${GROUND_Y - 50} T ${W * 0.8} ${GROUND_Y - 55} T ${W} ${GROUND_Y - 40} L ${W} ${GROUND_Y} L 0 ${GROUND_Y} Z`}
+          fill="url(#far-hill)"
+          opacity="0.85"
+        />
+        <path
+          d={`M 0 ${GROUND_Y - 15} Q ${W * 0.25} ${GROUND_Y - 38} ${W * 0.5} ${GROUND_Y - 18} T ${W} ${GROUND_Y - 22} L ${W} ${GROUND_Y} L 0 ${GROUND_Y} Z`}
+          fill="#c89a55"
+        />
+
+        <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="url(#chase-ground)" />
+
+        {TREES.map((t, i) => (
+          <Tree key={i} {...t} />
+        ))}
+
+        {Array.from({ length: 14 }).map((_, i) => {
+          const rx = 30 + i * 56;
           return (
-            <g key={i} stroke="#6f8530" strokeWidth="1" strokeLinecap="round">
-              <line x1={tx} y1={H - 4} x2={tx - 2} y2={H - 11} />
-              <line x1={tx} y1={H - 4} x2={tx} y2={H - 13} />
-              <line x1={tx} y1={H - 4} x2={tx + 2} y2={H - 10} />
-            </g>
+            <ellipse key={i} cx={rx} cy={GROUND_Y + 18 + (i % 3) * 4} rx={5 + (i % 3) * 2} ry="2" fill="#7a5a32" opacity="0.4" />
           );
         })}
 
-        <rect x="6" y="6" width="250" height="22" fill="rgba(255,255,255,0.88)" rx="4" stroke="#bbb" />
-        <text x="14" y="22" fontSize="11" fill="#333">stamina</text>
-        <rect x="68" y="13" width="180" height="10" fill="#eee" stroke="#999" />
+        {GRASS_TUFTS.map((g, i) => (
+          <GrassTuft key={i} {...g} />
+        ))}
+
+        <rect x="10" y="10" width="280" height="28" fill="rgba(255,255,255,0.92)" rx="6" stroke="#bbb" />
+        <text x="22" y="29" fontSize="13" fill="#333">stamina</text>
+        <rect x="86" y="18" width="194" height="12" fill="#eee" stroke="#999" />
         <rect
-          x="68"
-          y="13"
-          width={Math.max(0, 180 * (energyShown / E0))}
-          height="10"
+          x="86"
+          y="18"
+          width={Math.max(0, 194 * (energyShown / E0))}
+          height="12"
           fill={energyShown > 0 ? '#5cc46a' : '#c44'}
         />
 
+        {running && <DustPuffs x={gazelleX - 18} y={GROUND_Y - 4} />}
         <g transform={`translate(${gazelleX} ${GROUND_Y})`}>
           <g className="bob-run">{prey.Render()}</g>
         </g>
 
+        {running && <DustPuffs x={playerX - 22} y={GROUND_Y - 2} />}
         <g transform={`translate(${playerX} 0)`}>
-          <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="run" />
+          <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.55} animate="run" />
         </g>
       </svg>
       <div className="arena-controls">
