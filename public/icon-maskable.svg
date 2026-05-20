@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#e07b5b"/>
+  <g transform="translate(256 280)">
+    <ellipse cx="0" cy="50" rx="150" ry="18" fill="rgba(0,0,0,0.2)"/>
+    <ellipse cx="0" cy="0" rx="130" ry="82" fill="#e88a6c"/>
+    <ellipse cx="0" cy="30" rx="100" ry="42" fill="#f6bea2" opacity="0.55"/>
+    <rect x="-85" y="65" width="28" height="65" fill="#c66a4a" rx="10"/>
+    <rect x="-35" y="65" width="28" height="65" fill="#c66a4a" rx="10"/>
+    <rect x="15" y="65" width="28" height="65" fill="#c66a4a" rx="10"/>
+    <rect x="65" y="65" width="28" height="65" fill="#c66a4a" rx="10"/>
+    <circle cx="105" cy="-25" r="52" fill="#e88a6c"/>
+    <polygon points="82,-55 92,-95 107,-65" fill="#c66a4a"/>
+    <polygon points="118,-50 128,-90 143,-60" fill="#c66a4a"/>
+    <circle cx="125" cy="-25" r="18" fill="white" stroke="#222" stroke-width="2"/>
+    <circle cx="130" cy="-22" r="11" fill="#1a1a1a"/>
+    <circle cx="135" cy="-31" r="5" fill="white"/>
+    <path d="M 108 0 q 22 24 44 0" stroke="#3a2118" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

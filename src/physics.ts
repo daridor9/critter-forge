@@ -98,6 +98,7 @@ function hybridEffect(h: Hybrid): HybridEffect {
     case 'antifreeze':   return { bonusCold: 30 };
     case 'thick-fur':    return { bonusCold: 25, topSpeedMult: 0.92 };
     case 'gills':        return {};
+    case 'symbiosis':    return { foodMult: 0.92, bonusCold: 12 };
   }
 }
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { defaultCreature } from './types';
 import type { Creature } from './types';
 import { computeStats } from './physics';
@@ -16,6 +16,8 @@ import { InsightCard } from './components/InsightCard';
 import { AlbumPanel } from './components/AlbumPanel';
 import { EvolveModal } from './components/EvolveModal';
 import { AboutModal } from './components/AboutModal';
+import { DexModal } from './components/DexModal';
+import { AchievementsModal, AchievementToast } from './components/AchievementsModal';
 import { FoodEconomyPanel } from './components/FoodEconomyPanel';
 import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
@@ -25,6 +27,16 @@ import { adjustCreatureForStat } from './data/statAdjusters';
 import type { StatKey } from './data/statAdjusters';
 import type { TournamentState } from './data/tournament';
 import { TOURNAMENT_ORDER, scoreArena, difficultyFor } from './data/tournament';
+import type { Achievement } from './data/achievements';
+import {
+  tryUnlock,
+  checkArenaWin,
+  checkCreatureAchievements,
+  checkSaveAchievements,
+  checkGenAchievements,
+} from './data/achievements';
+import { buildShareLink, readCreatureFromHash, clearCreatureHash } from './utils/shareLink';
+import { sizeToMass } from './physics';
 import { sounds, isMuted, setMuted } from './sounds';
 import './App.css';
 
@@ -50,11 +62,60 @@ export default function App() {
   const [showAbout, setShowAbout] = useState(false);
   const [generation, setGeneration] = useState(1);
   const [tournament, setTournament] = useState<TournamentState | null>(null);
+  const [showDex, setShowDex] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [toasts, setToasts] = useState<Achievement[]>([]);
+  const toastTimers = useRef<number[]>([]);
+
+  function pushToasts(items: Achievement[]) {
+    if (items.length === 0) return;
+    setToasts((prev) => [...prev, ...items]);
+    for (const item of items) {
+      const id = window.setTimeout(() => {
+        setToasts((prev) => prev.filter((x) => x.id !== item.id));
+      }, 4500);
+      toastTimers.current.push(id);
+    }
+    sounds.save();
+  }
+
+  useEffect(() => {
+    const fromHash = readCreatureFromHash();
+    if (fromHash) {
+      setCreature(fromHash);
+      clearCreatureHash();
+    }
+    const first = tryUnlock('first-creature');
+    if (first) pushToasts([first]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const got = checkCreatureAchievements(creature, sizeToMass(creature.sizeUnit));
+    if (got.length > 0) pushToasts(got);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creature]);
+
+  useEffect(() => {
+    const got = checkGenAchievements(generation);
+    if (got.length > 0) pushToasts(got);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generation]);
 
   const effectiveArenaId: ArenaId = tournament ? TOURNAMENT_ORDER[tournament.round - 1] : arenaId;
   const effectiveGeneration = tournament ? tournament.generation : generation;
 
   const finish = (r: ArenaResult) => {
+    const arenaGot = checkArenaWin(r);
+    if (arenaGot.length > 0) pushToasts(arenaGot);
+    if (r.arena === 'chase' && r.won) {
+      const k = tryUnlock('beat-kangaroo');
+      if (k) pushToasts([k]);
+    }
+    if (r.arena === 'hunt' && r.won && r.reason !== 'caught') {
+      const s = tryUnlock('beat-shark');
+      if (s) pushToasts([s]);
+    }
     if (tournament) {
       const points = scoreArena(r, tournament.generation);
       const result = {
@@ -72,6 +133,17 @@ export default function App() {
       });
       if (r.won) sounds.win();
       else sounds.lose();
+      if (isLast) {
+        const wins = newResults.filter((x) => x.won).length;
+        if (wins === TOURNAMENT_ORDER.length) {
+          const a = tryUnlock('tournament-apex');
+          if (a) pushToasts([a]);
+        }
+        if (wins >= 5) {
+          const a = tryUnlock('tournament-champ');
+          if (a) pushToasts([a]);
+        }
+      }
       return;
     }
     const i = pickInsight(r, stats.massKg);
@@ -84,6 +156,20 @@ export default function App() {
     setTournament({ round: 1, results: [], phase: 'playing', generation: 1 });
     setGeneration(1);
     sounds.start();
+    const a = tryUnlock('tournament-run');
+    if (a) pushToasts([a]);
+  }
+
+  async function shareLink() {
+    const url = buildShareLink(creature);
+    try {
+      await navigator.clipboard.writeText(url);
+      sounds.save();
+      const t: Achievement = { id: '_', emoji: '🔗', name: 'Link copied to clipboard', description: 'Share with a friend!' };
+      pushToasts([t]);
+    } catch {
+      window.prompt('Copy this link:', url);
+    }
   }
 
   function continueTournament() {
@@ -219,6 +305,9 @@ export default function App() {
           ) : (
             <button className="header-btn header-btn-primary" type="button" onClick={exitTournament} title="Leave tournament">🚪 Exit</button>
           )}
+          <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
+          <button className="header-btn" type="button" onClick={() => { setShowAchievements(true); sounds.click(); }} title="Achievements">🏅</button>
+          <button className="header-btn" type="button" onClick={shareLink} title="Copy a shareable link to your creature">🔗 Share</button>
           <button className="header-btn" type="button" onClick={() => { setShowAbout(true); sounds.click(); }} title="About this game">ℹ About</button>
         </div>
       </header>
@@ -271,7 +360,15 @@ export default function App() {
         </section>
       </main>
 
-      <AlbumPanel current={creature} onLoad={(c) => { setCreature(c); sounds.click(); }} onSaved={() => sounds.save()} />
+      <AlbumPanel
+        current={creature}
+        onLoad={(c) => { setCreature(c); sounds.click(); }}
+        onSaved={(count) => {
+          sounds.save();
+          const got = checkSaveAchievements(count);
+          if (got.length > 0) pushToasts(got);
+        }}
+      />
 
       {insight && (
         <InsightCard
@@ -319,6 +416,22 @@ export default function App() {
         />
       )}
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+      {showDex && (
+        <DexModal
+          current={creature}
+          onLoad={(c) => { setCreature(c); setShowDex(false); sounds.click(); }}
+          onClose={() => setShowDex(false)}
+        />
+      )}
+      {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
+
+      {toasts.length > 0 && (
+        <div className="toast-stack">
+          {toasts.map((a, i) => (
+            <AchievementToast key={`${a.id}-${i}`} name={a.name} emoji={a.emoji} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

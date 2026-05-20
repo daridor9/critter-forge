@@ -1,0 +1,25 @@
+{
+  "name": "Critter Forge",
+  "short_name": "Critters",
+  "description": "Biophysics creature-design game — for Adam Aridor",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#e07b5b",
+  "background_color": "#fdfbf2",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

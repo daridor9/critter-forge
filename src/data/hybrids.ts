@@ -56,6 +56,12 @@ export const hybridCatalog: HybridInfo[] = [
     emoji: '🐟',
     fact: 'Gills pull O₂ from water — but water carries ~30× less O₂ than air, so water flow must be much faster.',
   },
+  {
+    id: 'symbiosis',
+    name: 'Symbiotic partner',
+    emoji: '🤝',
+    fact: 'Clownfish in anemones, oxpeckers on buffalo, gut bacteria — cooperation rivals competition as a survival strategy.',
+  },
 ];
 
 export const MAX_HYBRIDS = 2;

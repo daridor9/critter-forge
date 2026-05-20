@@ -10,7 +10,8 @@ export type Hybrid =
   | 'camouflage'
   | 'antifreeze'
   | 'thick-fur'
-  | 'gills';
+  | 'gills'
+  | 'symbiosis';
 
 export interface Creature {
   sizeUnit: number;
