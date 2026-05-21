@@ -19,6 +19,10 @@ import { AboutModal } from './components/AboutModal';
 import { DexModal } from './components/DexModal';
 import { AchievementsModal, AchievementToast } from './components/AchievementsModal';
 import { ProfileModal } from './components/ProfileModal';
+import { QuestsModal } from './components/QuestsModal';
+import { DailyChallengeModal } from './components/DailyChallenge';
+import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
+import { exportCreatureCard } from './utils/exportCreature';
 import {
   recordArena,
   recordChaseCatch,
@@ -76,6 +80,9 @@ export default function App() {
   const [showDex, setShowDex] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showQuests, setShowQuests] = useState(false);
+  const [showDaily, setShowDaily] = useState(false);
+  const [xray, setXray] = useState(false);
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const toastTimers = useRef<number[]>([]);
 
@@ -152,6 +159,17 @@ export default function App() {
     if (r.arena === 'hunt' && r.won && r.reason !== 'caught') {
       const s = tryUnlock('beat-shark');
       if (s) pushToasts([s]);
+    }
+    const newQuests = checkQuests({ creature, result: r });
+    for (const q of newQuests) {
+      const a = { id: `quest-${q.id}`, emoji: q.emoji, name: `Quest: ${q.title}`, description: q.description };
+      pushToasts([a]);
+    }
+    const today = getTodayQuest();
+    if (!today.completed && today.quest.check({ creature, result: r })) {
+      markDailyComplete();
+      const a = { id: '_daily', emoji: '📅', name: 'Daily challenge complete!', description: today.quest.title };
+      pushToasts([a]);
     }
     if (tournament) {
       const points = scoreArena(r, tournament.generation);
@@ -345,9 +363,12 @@ export default function App() {
             <button className="header-btn header-btn-primary" type="button" onClick={exitTournament} title="Leave tournament">🚪 Exit</button>
           )}
           <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
+          <button className="header-btn" type="button" onClick={() => { setShowQuests(true); sounds.click(); }} title="Design quests">🎯</button>
+          <button className="header-btn" type="button" onClick={() => { setShowDaily(true); sounds.click(); }} title="Today's challenge">📅</button>
           <button className="header-btn" type="button" onClick={() => { setShowProfile(true); sounds.click(); }} title="Your profile">👤</button>
           <button className="header-btn" type="button" onClick={() => { setShowAchievements(true); sounds.click(); }} title="Achievements">🏅</button>
           <button className="header-btn" type="button" onClick={shareLink} title="Copy a shareable link to your creature">🔗 Share</button>
+          <button className="header-btn" type="button" onClick={() => { exportCreatureCard(creature, stats); sounds.click(); }} title="Export creature as a PNG image">📸</button>
           <button className="header-btn" type="button" onClick={() => { setShowAbout(true); sounds.click(); }} title="About this game">ℹ About</button>
         </div>
       </header>
@@ -358,7 +379,15 @@ export default function App() {
 
         <section className="col col-creature">
           <div className="creature-stage creature-stage-habitat">
-            <CreatureStage creature={creature} />
+            <CreatureStage creature={creature} xray={xray} />
+            <button
+              className="xray-toggle"
+              type="button"
+              onClick={() => { setXray(!xray); sounds.click(); }}
+              title={xray ? 'Hide x-ray' : 'Show x-ray (bones + organs)'}
+            >
+              {xray ? '🐾 Skin' : '🦴 X-ray'}
+            </button>
           </div>
           <div className="creature-name">
             <span className="gen-badge">🧬 Gen {generation}</span>
@@ -472,6 +501,8 @@ export default function App() {
       )}
       {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+      {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
+      {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
 
       {toasts.length > 0 && (
         <div className="toast-stack">

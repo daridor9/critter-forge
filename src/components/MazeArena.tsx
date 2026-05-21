@@ -169,12 +169,42 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
 
         <rect x="0" y="0" width={W} height={H} fill="url(#maze-bg)" />
 
-        <polyline points={PATH_POINTS} stroke="#5a5142" strokeWidth="46" fill="none" strokeLinecap="square" strokeLinejoin="miter" />
-        <polyline points={PATH_POINTS} stroke="#f0e2c8" strokeWidth="40" fill="none" strokeLinecap="square" strokeLinejoin="miter" />
+        <g stroke="#3a3f4a" strokeWidth="0.5" opacity="0.4">
+          {Array.from({ length: 16 }).map((_, i) => (
+            <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2={H} />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line key={`h${i}`} x1="0" y1={i * 30} x2={W} y2={i * 30} />
+          ))}
+        </g>
+
+        <polyline points={PATH_POINTS} stroke="#3a342a" strokeWidth="52" fill="none" strokeLinecap="square" strokeLinejoin="miter" />
+        <polyline points={PATH_POINTS} stroke="#f0e2c8" strokeWidth="42" fill="none" strokeLinecap="square" strokeLinejoin="miter" />
+
+        <g fill="#3a342a" stroke="#2c2620" strokeWidth="1">
+          <rect x="80" y="50" width="30" height="40" rx="3" />
+          <rect x="180" y="130" width="42" height="22" rx="3" />
+          <rect x="280" y="110" width="22" height="56" rx="3" />
+          <rect x="380" y="100" width="20" height="34" rx="3" />
+          <rect x="490" y="70" width="50" height="22" rx="3" />
+          <rect x="40" y="60" width="32" height="22" rx="3" />
+          <rect x="320" y="200" width="30" height="22" rx="3" />
+          <rect x="500" y="200" width="26" height="22" rx="3" />
+        </g>
+
+        <g stroke="#8a7e62" strokeWidth="1.5" fill="none" opacity="0.45" strokeDasharray="4 5">
+          <polyline points={PATH_POINTS} />
+        </g>
 
         <g>
-          <rect x={PATH[PATH.length - 1].x - 8} y={PATH[PATH.length - 1].y - 22} width="16" height="44" fill="#5cc46a" opacity="0.5" />
-          <text x={PATH[PATH.length - 1].x} y={PATH[PATH.length - 1].y - 26} textAnchor="middle" fontSize="14" fill="#5cc46a">EXIT</text>
+          <rect x={PATH[PATH.length - 1].x - 14} y={PATH[PATH.length - 1].y - 26} width="28" height="52" fill="#5cc46a" opacity="0.35" />
+          <rect x={PATH[PATH.length - 1].x - 14} y={PATH[PATH.length - 1].y - 26} width="28" height="52" fill="none" stroke="#5cc46a" strokeWidth="2" strokeDasharray="3 3" />
+          <text x={PATH[PATH.length - 1].x} y={PATH[PATH.length - 1].y - 32} textAnchor="middle" fontSize="13" fontWeight="700" fill="#5cc46a">EXIT</text>
+          <text x={PATH[PATH.length - 1].x} y={PATH[PATH.length - 1].y + 5} textAnchor="middle" fontSize="22">🏁</text>
+        </g>
+
+        <g>
+          <text x={PATH[0].x} y={PATH[0].y - 18} textAnchor="middle" fontSize="10" fontWeight="700" fill="#a0d4e4">START</text>
         </g>
 
         <rect x="6" y="6" width="270" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />

@@ -1,6 +1,7 @@
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { hybridCatalog } from '../data/hybrids';
+import { sizeToMass } from '../physics';
 
 const W = 400;
 const H = 300;
@@ -12,16 +13,27 @@ const FOOT_Y: Record<string, number> = {
   fish: 195,
 };
 
-export function CreatureStage({ creature }: { creature: Creature }) {
+interface Props {
+  creature: Creature;
+  xray?: boolean;
+}
+
+export function CreatureStage({ creature, xray = false }: Props) {
   const footY = FOOT_Y[creature.bodyPlan];
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-      {creature.bodyPlan === 'mammal' && <MeadowHabitat />}
-      {creature.bodyPlan === 'reptile' && <RockyHabitat />}
-      {creature.bodyPlan === 'bird' && <SkyHabitat />}
-      {creature.bodyPlan === 'fish' && <UnderwaterHabitat />}
+      {xray ? (
+        <rect width={W} height={H} fill="#0c1e30" />
+      ) : (
+        <>
+          {creature.bodyPlan === 'mammal' && <MeadowHabitat />}
+          {creature.bodyPlan === 'reptile' && <RockyHabitat />}
+          {creature.bodyPlan === 'bird' && <SkyHabitat />}
+          {creature.bodyPlan === 'fish' && <UnderwaterHabitat />}
+        </>
+      )}
 
-      {creature.hybrids.length > 0 && (
+      {creature.hybrids.length > 0 && !xray && (
         <g>
           {creature.hybrids.map((id, i) => {
             const info = hybridCatalog.find((h) => h.id === id);
@@ -35,8 +47,98 @@ export function CreatureStage({ creature }: { creature: Creature }) {
         </g>
       )}
 
-      <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={1} animate="breathe" />
+      {xray ? (
+        <XrayAnatomy creature={creature} cx={W / 2} footY={footY} />
+      ) : (
+        <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={1} animate="breathe" />
+      )}
     </svg>
+  );
+}
+
+function XrayAnatomy({ creature, cx, footY }: { creature: Creature; cx: number; footY: number }) {
+  const m = sizeToMass(creature.sizeUnit);
+  const baseSize = Math.max(15, 30 + Math.log10(Math.max(0.01, m)) * 22);
+  const visualSize = baseSize;
+  const sizeT = Math.max(0, Math.min(1, (Math.log10(Math.max(0.01, m)) + 2) / 7));
+  const bodyAspect = 1.35 + sizeT * 1.15;
+  const bodyH = visualSize;
+  const bodyW = bodyH * bodyAspect;
+  const legLen = [bodyH * 0.4, bodyH * 0.75, bodyH * 1.15][creature.legTier];
+  const cy = footY - bodyH / 2 - legLen;
+  const headR = bodyH * 0.44 * [0.78, 1.0, 1.22][creature.brainTier] * (1.42 - sizeT * 1.1);
+  const headCx = cx + bodyW / 2 - 6;
+  const headCy = cy - bodyH * 0.14;
+
+  const heartRateBpm = Math.max(4, Math.round(241 * Math.pow(m, -0.25)));
+  const beatPeriod = Math.max(0.25, 60 / heartRateBpm);
+
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill="rgba(160, 180, 220, 0.18)" stroke="rgba(180,200,240,0.4)" strokeWidth="1" />
+      <circle cx={headCx} cy={headCy} r={headR} fill="rgba(160, 180, 220, 0.18)" stroke="rgba(180,200,240,0.4)" strokeWidth="1" />
+
+      <line x1={cx - bodyW * 0.45} y1={cy} x2={cx + bodyW * 0.45} y2={cy} stroke="#fff" strokeWidth="1.4" opacity="0.85" />
+      <g stroke="#fff" strokeWidth="0.8" opacity="0.6">
+        {[-0.4, -0.25, -0.1, 0.05, 0.2, 0.35].map((off) => (
+          <g key={off}>
+            <path d={`M ${cx + bodyW * off} ${cy} q ${bodyH * 0.05} ${-bodyH * 0.25} ${0} ${-bodyH * 0.35}`} fill="none" />
+            <path d={`M ${cx + bodyW * off} ${cy} q ${bodyH * 0.05} ${bodyH * 0.2} ${0} ${bodyH * 0.3}`} fill="none" />
+          </g>
+        ))}
+      </g>
+
+      {creature.bodyPlan !== 'fish' && [
+        [-bodyW * 0.38, true],
+        [-bodyW * 0.12, false],
+        [bodyW * 0.12, false],
+        [bodyW * 0.38, true],
+      ].map(([x, big], i) => (
+        <line
+          key={i}
+          x1={cx + (x as number)}
+          y1={cy + bodyH / 2 - 4}
+          x2={cx + (x as number)}
+          y2={cy + bodyH / 2 + legLen}
+          stroke="#fff"
+          strokeWidth={big ? 1.6 : 1.2}
+          opacity="0.85"
+        />
+      ))}
+
+      <line x1={cx + bodyW / 2 - 4} y1={cy - bodyH * 0.05} x2={headCx} y2={headCy + headR * 0.4} stroke="#fff" strokeWidth="1.6" opacity="0.85" />
+
+      <ellipse
+        cx={cx - bodyW * 0.18}
+        cy={cy - bodyH * 0.05}
+        rx={Math.max(4, bodyW * 0.08)}
+        ry={Math.max(4, bodyH * 0.1)}
+        fill="#ff5a78"
+        opacity="0.85"
+        style={{ animation: `heartbeat ${beatPeriod}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }}
+      />
+      <text x={cx - bodyW * 0.18} y={cy - bodyH * 0.05 + 3} textAnchor="middle" fontSize="6" fill="#fff" opacity="0.7">♥</text>
+
+      <ellipse cx={cx - bodyW * 0.05} cy={cy - bodyH * 0.18} rx={Math.max(4, bodyW * 0.1)} ry={Math.max(3, bodyH * 0.08)} fill="#7ab8e0" opacity="0.5" />
+      <ellipse cx={cx + bodyW * 0.05} cy={cy - bodyH * 0.18} rx={Math.max(4, bodyW * 0.1)} ry={Math.max(3, bodyH * 0.08)} fill="#7ab8e0" opacity="0.5" />
+
+      <ellipse cx={cx + bodyW * 0.05} cy={cy + bodyH * 0.18} rx={Math.max(5, bodyW * 0.18)} ry={Math.max(4, bodyH * 0.12)} fill="#f0c850" opacity="0.45" />
+
+      <ellipse
+        cx={headCx + headR * 0.05}
+        cy={headCy - headR * 0.15}
+        rx={headR * 0.55 * [0.5, 0.85, 1.05][creature.brainTier]}
+        ry={headR * 0.45 * [0.5, 0.85, 1.05][creature.brainTier]}
+        fill="#c890e0"
+        opacity="0.55"
+      />
+      <text x={headCx} y={headCy - headR * 0.15 + 3} textAnchor="middle" fontSize="6" fill="#fff" opacity="0.7">🧠</text>
+
+      <g fill="#fff" opacity="0.7" fontSize="9">
+        <text x="14" y={H - 30}>♥ {heartRateBpm} bpm</text>
+        <text x="14" y={H - 18}>🦴 bones · 🧠 brain · 🫁 lungs</text>
+      </g>
+    </g>
   );
 }
 
