@@ -127,15 +127,15 @@ function pointAtPath(pathPts: { x: number; y: number }[], t: number): { x: numbe
 // Smarter brains see the shortcut more easily. Echolocation / sharp senses
 // nudge picks toward the shortcut too. Returns [pShort, pMedium, pLong].
 function pickProbabilities(c: Creature): [number, number, number] {
-  let pShort = [0.05, 0.20, 0.50, 0.80][c.brainTier];
-  let pLong  = [0.55, 0.30, 0.10, 0.02][c.brainTier];
+  let pShort = [0.05, 0.20, 0.55, 0.92][c.brainTier];
+  let pLong  = [0.55, 0.30, 0.07, 0.01][c.brainTier];
   // sharp senses / echolocation help spot the short path
   if (c.hybrids.includes('echolocation')) { pShort += 0.10; pLong -= 0.05; }
   if (c.sensorTier === 2) { pShort += 0.05; pLong -= 0.03; }
   if (c.sensorTier === 0 && c.brainTier === 0) { pShort -= 0.05; pLong += 0.10; }
-  pShort = Math.max(0.02, Math.min(0.95, pShort));
-  pLong = Math.max(0.01, Math.min(0.9, pLong));
-  const pMedium = Math.max(0.02, 1 - pShort - pLong);
+  pShort = Math.max(0.02, Math.min(0.97, pShort));
+  pLong = Math.max(0.005, Math.min(0.9, pLong));
+  const pMedium = Math.max(0.01, 1 - pShort - pLong);
   // renormalize
   const total = pShort + pMedium + pLong;
   return [pShort / total, pMedium / total, pLong / total];
@@ -153,6 +153,24 @@ function energyPerStep(stats: CreatureStats): number {
   return 2 + Math.sqrt(stats.massKg) * 0.3;
 }
 
+// The maze is a brain puzzle, not a marathon — a clever creature can solve it
+// even in a small body. Stamina budget combines a base buffer (so anything
+// gets a fair shot at the shortcut), real-body endurance (so big athletes get
+// more rope), and a brain bonus (smart creatures take confident steps that
+// don't waste energy). Sensors and echolocation extend the budget too.
+function staminaBudget(c: Creature, stats: CreatureStats): number {
+  const base = 25;
+  const enduranceBudget = Math.max(0, stats.enduranceKm * 1.2);
+  const brainBudget = c.brainTier * 22;     // tier 0=0, 1=22, 2=44, 3=66
+  const sensorBudget = c.sensorTier * 6;
+  const echoBudget = c.hybrids.includes('echolocation') ? 18 : 0;
+  return base + enduranceBudget + brainBudget + sensorBudget + echoBudget;
+}
+
+function maxStepsFor(c: Creature, stats: CreatureStats): number {
+  return staminaBudget(c, stats) / energyPerStep(stats);
+}
+
 // Total probability of success: sum of (pick-probability × can-this-path-finish-on-stamina).
 function successProbability(c: Creature, maxSteps: number): number {
   const probs = pickProbabilities(c);
@@ -164,9 +182,7 @@ function successProbability(c: Creature, maxSteps: number): number {
 }
 
 export function MazeArena({ creature, stats, onFinish }: Props) {
-  const perStep = useMemo(() => energyPerStep(stats), [stats]);
-  const budget = Math.max(10, stats.enduranceKm * 1.5);
-  const maxSteps = budget / perStep;
+  const maxSteps = useMemo(() => maxStepsFor(creature, stats), [creature, stats]);
 
   const probs = useMemo(() => pickProbabilities(creature), [creature]);
   const successP = useMemo(() => successProbability(creature, maxSteps), [creature, maxSteps]);

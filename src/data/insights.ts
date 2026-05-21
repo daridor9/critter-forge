@@ -22,7 +22,7 @@ export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature)
     case 'drought': return pickDrought(r);
     case 'hunt':    return pickHunt(r);
     case 'deep':    return pickDeep(r, massKg, creature);
-    case 'maze':    return pickMaze(r);
+    case 'maze':    return pickMaze(r, creature);
   }
 }
 
@@ -111,17 +111,35 @@ function pickHunt(r: Extract<ArenaResult, { arena: 'hunt' }>): Insight {
     'Big or venomous or armored → Fight. The bigger your body or armor, the more brutal a fight you survive.' };
 }
 
-function pickMaze(r: Extract<ArenaResult, { arena: 'maze' }>): Insight {
+function pickMaze(r: Extract<ArenaResult, { arena: 'maze' }>, c?: Creature): Insight {
   if (r.won) {
     return { id: 'maze-won', won: true, title: `Escaped in ${r.stepsTaken} steps!`, text:
       'Brain pays its food bill. Apes, dolphins, ravens and octopi solve novel puzzles in seconds — but ' +
       'their brains burn ~20% of total energy. Echolocation (bats, dolphins) reads the maze without eyes ' +
       'and is even more efficient.' };
   }
-  return { id: 'maze-exhausted', won: false, title: `Lost — needed ${r.stepsNeeded} steps`, text:
-    'Tiny brains use trial-and-error and run out of stamina before finding the exit. Upgrade to standard ' +
-    'or big brain (more food cost), or add echolocation, or sharpen the senses. Sometimes intelligence is ' +
-    'worth the metabolic price.' };
+  // Loss — pick the explanation that actually fits the creature, not a
+  // hardcoded "tiny brain" lecture.
+  const brain = c?.brainTier ?? 0;
+  const overshoot = r.stepsNeeded - r.stepsTaken;
+  let text: string;
+  let title = `Lost — couldn't finish the ${r.stepsNeeded}-step path`;
+  if (brain >= 3) {
+    text = 'Bad luck. Your genius brain almost always finds the shortcut, but this run rolled the unlucky ' +
+      'long route. Real octopi and ravens still mis-step sometimes. If overall odds are low, the body might ' +
+      'not have enough stamina for the longer paths — try bigger size or longer legs to extend stamina.';
+  } else if (brain === 2) {
+    text = 'Big brains get the shortcut about half the time. Upgrade to Genius (humans, dolphins, octopi) ' +
+      'to nearly guarantee picking the shortest path — or add echolocation/sharp senses to spot it.';
+  } else if (overshoot < 8) {
+    text = `So close — ran out of stamina just ${overshoot} steps from the exit. Smarter brains take ` +
+      'fewer, more confident steps; a bigger body or longer legs would give you more stamina to spare.';
+  } else {
+    text = 'Trial-and-error costs steps, and tiny brains do a lot of it. Upgrade to Standard or Big brain ' +
+      '(more food cost), or add echolocation, or sharpen the senses. Sometimes intelligence is worth the ' +
+      'metabolic price.';
+  }
+  return { id: 'maze-exhausted', won: false, title, text };
 }
 
 function pickDeep(r: Extract<ArenaResult, { arena: 'deep' }>, massKg: number, c?: Creature): Insight {
