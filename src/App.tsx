@@ -247,7 +247,7 @@ export default function App() {
       }
       return;
     }
-    const i = pickInsight(r, stats.massKg);
+    const i = pickInsight(r, stats.massKg, creature);
     if (i.won) sounds.win();
     else sounds.lose();
     setInsight(i);

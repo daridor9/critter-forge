@@ -1,3 +1,5 @@
+import type { Creature } from '../types';
+
 export interface Insight {
   id: string;
   title: string;
@@ -13,13 +15,13 @@ export type ArenaResult =
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number };
 
-export function pickInsight(r: ArenaResult, _massKg: number): Insight {
+export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature): Insight {
   switch (r.arena) {
     case 'chase':   return pickChase(r);
     case 'climb':   return pickClimb(r);
     case 'drought': return pickDrought(r);
     case 'hunt':    return pickHunt(r);
-    case 'deep':    return pickDeep(r);
+    case 'deep':    return pickDeep(r, massKg, creature);
     case 'maze':    return pickMaze(r);
   }
 }
@@ -122,12 +124,49 @@ function pickMaze(r: Extract<ArenaResult, { arena: 'maze' }>): Insight {
     'worth the metabolic price.' };
 }
 
-function pickDeep(r: Extract<ArenaResult, { arena: 'deep' }>): Insight {
+function pickDeep(r: Extract<ArenaResult, { arena: 'deep' }>, massKg: number, c?: Creature): Insight {
   if (r.won) {
-    return { id: 'deep-won', won: true, title: `Foraged at ${r.maxDepth}m!`, text:
-      'You handled the pressure and the breath demand. Sperm whales dive to 2000m holding a single breath ' +
-      'for 90 minutes — gigantic lungs + collapsible ribs let them survive crushing pressure. Your design ' +
-      'used the same principles.' };
+    // Pick the closest real-animal analogue so the win blurb matches the creature
+    // you actually built, instead of always citing sperm whales.
+    let text: string;
+    const camo = c?.hybrids.includes('camouflage') ?? false;
+    const venom = c?.hybrids.includes('venom') ?? false;
+    const gills = c?.hybrids.includes('gills') ?? false;
+    const echo = c?.hybrids.includes('echolocation') ?? false;
+    const isFish = c?.bodyPlan === 'fish';
+
+    if (isFish && massKg < 50 && (camo || venom)) {
+      // Octopus / cuttlefish profile
+      text = 'You won the cephalopod way. Octopi have copper-based blue blood that carries oxygen well in cold water, ' +
+        'three hearts, and a soft squishy body that handles pressure with no air pockets to collapse. ' +
+        'They solve mazes, open jars, and edit their own RNA. A brain in each arm helps.';
+    } else if (isFish && massKg > 800) {
+      // Great white / large fish
+      text = 'You\'re built for the deep. Big fish equalize pressure through their tissues (no air-filled lungs to collapse), ' +
+        'extract dissolved O₂ through gills, and detect heartbeats with electro-sense. ' +
+        'The great white\'s ampullae of Lorenzini read tiny voltage changes from prey.';
+    } else if (isFish || gills) {
+      // Generic fish/water-breather
+      text = 'Gills extract O₂ from the water — no surface trips needed. Water carries ~30× less oxygen than air, ' +
+        'so the gill surface must be huge and water must flow over it constantly. Your body equalizes ' +
+        'pressure through its tissues, so depth is no enemy.';
+    } else if (echo && c?.bodyPlan === 'mammal' && massKg > 50) {
+      // Dolphin profile
+      text = 'You dive like a dolphin. Flexible ribs that collapse under pressure (no air pockets to crush), ' +
+        'oxygen stored in muscle (myoglobin, ~10× a human\'s), and echolocation to hunt in the dark — ' +
+        'clicks that travel four times faster underwater than in air.';
+    } else if (c?.bodyPlan === 'mammal' && massKg > 1000) {
+      // Sperm whale / large diving mammal
+      text = 'You handled the pressure and the breath demand. Sperm whales dive to 2000 m holding a single ' +
+        'breath for 90 minutes — gigantic lungs + collapsible ribs let them survive crushing pressure. ' +
+        'Your design used the same principles.';
+    } else {
+      // Generic warm-blooded diver (seal/penguin profile)
+      text = 'You dove like a seal or a penguin. Big oxygen-storing muscles, a slow dive-heartbeat, ' +
+        'and tissues that handle pressure without collapsing. Mammals and birds that dive evolved these ' +
+        'tricks independently — a beautiful example of convergent evolution.';
+    }
+    return { id: 'deep-won', won: true, title: `Foraged at ${r.maxDepth}m!`, text };
   }
   if (r.reason === 'drowned') {
     return { id: 'deep-drowned', won: false, title: 'Out of breath', text:
