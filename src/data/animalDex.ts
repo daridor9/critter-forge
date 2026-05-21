@@ -1,7 +1,7 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
-export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'penguin' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
+export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin' | 'lion' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
 
 export interface DexAnimal {
   name: string;
@@ -81,7 +81,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Wolf', '🐺', 40, 'mammal', true, 1, 2, 1, 1, [],
     'Wins by stamina, not speed. Trots all day until prey collapses.'),
   make('Lion', '🦁', 190, 'mammal', true, 1, 2, 1, 2, [],
-    'Pride hunter. Females do most kills; males defend territory.'),
+    'Pride hunter. Males grow huge dark manes that signal genes + protect the neck. Females do most of the killing.', 'lion'),
   make('Polar bear', '🐻‍❄️', 450, 'mammal', true, 1, 1, 2, 2, ['thick-fur'],
     'Hollow fur traps body heat. Swims for hours in -2°C water.'),
   make('Snow leopard', '🐆', 50, 'mammal', true, 2, 2, 1, 2, ['thick-fur', 'camouflage'],
@@ -91,7 +91,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Blue whale', '🐳', 100000, 'mammal', true, 0, 2, 2, 1, ['echolocation'],
     'The biggest animal that has ever lived. Heart beats once every 10 seconds when diving.', 'whale'),
   make('Dolphin', '🐬', 200, 'mammal', true, 0, 2, 1, 2, ['echolocation', 'gills'],
-    'Recognizes itself in a mirror. Uses ultrasound to navigate murky water.', 'whale'),
+    'Recognizes itself in a mirror. Uses ultrasound to navigate murky water. Streamlined body + curved dorsal fin + iconic smile.', 'dolphin'),
   make('Sloth', '🦥', 6, 'mammal', true, 0, 0, 1, 1, ['symbiosis'],
     'Algae grows in its fur for camouflage. Moves 30 cm/min. Sleeps 18h a day.'),
   make('Kangaroo', '🦘', 60, 'mammal', true, 2, 1, 0, 1, [],
