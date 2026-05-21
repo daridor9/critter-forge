@@ -8,7 +8,7 @@ import {
   LionShape, CheetahShape, SnowLeopardShape, WolfShape, PolarBearShape,
   MouseShape, HummingbirdShape, BatShape,
   ElephantShape, GorillaShape, CamelShape, OstrichShape, EagleShape, OwlShape,
-  TortoiseShape, CrocodileShape, SharkShape,
+  TortoiseShape, CrocodileShape, SharkShape, ChameleonShape,
   RaptorShape, TriceratopsShape, StegosaurusShape, PterodactylShape,
 } from './dexShapes';
 
@@ -73,6 +73,7 @@ function DexThumb({ animal }: { animal: DexAnimal }) {
     if (animal.shape === 'tortoise') return <TortoiseShape colors={animal.colors} />;
     if (animal.shape === 'crocodile') return <CrocodileShape colors={animal.colors} />;
     if (animal.shape === 'shark') return <SharkShape colors={animal.colors} />;
+    if (animal.shape === 'chameleon') return <ChameleonShape colors={animal.colors} />;
     if (animal.shape === 'mouse') return <MouseShape colors={animal.colors} />;
     if (animal.shape === 'hummingbird') return <HummingbirdShape colors={animal.colors} />;
     if (animal.shape === 'bat') return <BatShape colors={animal.colors} />;

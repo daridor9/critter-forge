@@ -492,6 +492,106 @@ export function DolphinShape({ colors }: { colors: ColorOverride }) {
   );
 }
 
+export function ChameleonShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="cham-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#d6efc8" />
+          <stop offset="1" stopColor="#f0eed0" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="300" fill="url(#cham-bg)" />
+      <g opacity="0.5">
+        <ellipse cx="40" cy="60" rx="22" ry="10" fill="#7aa850" />
+        <ellipse cx="360" cy="80" rx="26" ry="11" fill="#7aa850" />
+        <ellipse cx="60" cy="120" rx="14" ry="6" fill="#7aa850" />
+      </g>
+
+      <path d="M 0 245 Q 80 252 200 244 Q 320 236 400 246" stroke="#5a3818" strokeWidth="16" fill="none" />
+      <path d="M 0 250 Q 80 257 200 249 Q 320 241 400 251" stroke="#3e2a18" strokeWidth="6" fill="none" opacity="0.6" />
+
+      <path d="M 105 220 C 70 218 50 240 60 258 C 70 272 92 270 95 254 C 96 244 84 244 84 254" stroke={colors.shade} strokeWidth="18" fill="none" strokeLinecap="round" />
+      <path d="M 105 220 C 70 218 50 240 60 258 C 70 272 92 270 95 254 C 96 244 84 244 84 254" stroke={colors.main} strokeWidth="13" fill="none" strokeLinecap="round" />
+
+      <path d="M 115 210 Q 130 130 200 130 Q 270 130 285 210 Q 285 232 200 234 Q 115 232 115 210 Z" fill={colors.shade} />
+      <path d="M 120 208 Q 135 138 200 138 Q 265 138 280 208 Q 280 229 200 231 Q 120 229 120 208 Z" fill={colors.main} />
+      <path d="M 130 218 Q 200 232 270 218 Q 270 226 200 230 Q 130 226 130 218 Z" fill={colors.light} opacity="0.6" />
+
+      <g fill={colors.shade}>
+        {[140, 156, 172, 188, 204, 220, 236, 252, 268].map((x) => (
+          <polygon key={x} points={`${x - 4},138 ${x},124 ${x + 4},138`} />
+        ))}
+      </g>
+
+      <g stroke={colors.shade} strokeWidth="2.5" fill="none" opacity="0.45">
+        <path d="M 145 218 q 0 -32 6 -65" />
+        <path d="M 170 224 q 0 -42 6 -85" />
+        <path d="M 200 228 q 0 -45 0 -90" />
+        <path d="M 230 224 q 0 -42 -6 -85" />
+        <path d="M 255 218 q 0 -32 -6 -65" />
+      </g>
+
+      <g>
+        <ellipse cx="140" cy="240" rx="14" ry="10" fill={colors.shade} />
+        <ellipse cx="140" cy="240" rx="11" ry="8" fill={colors.main} />
+        <path d="M 134 244 q -2 6 2 10 M 146 244 q 2 6 -2 10 M 132 240 q -8 4 -10 12 M 148 240 q 8 4 10 12" stroke={colors.shade} strokeWidth="3" fill="none" strokeLinecap="round" />
+      </g>
+      <g>
+        <ellipse cx="260" cy="240" rx="14" ry="10" fill={colors.shade} />
+        <ellipse cx="260" cy="240" rx="11" ry="8" fill={colors.main} />
+        <path d="M 254 244 q -2 6 2 10 M 266 244 q 2 6 -2 10 M 252 240 q -8 4 -10 12 M 268 240 q 8 4 10 12" stroke={colors.shade} strokeWidth="3" fill="none" strokeLinecap="round" />
+      </g>
+
+      <ellipse cx="305" cy="175" rx="40" ry="34" fill={colors.shade} />
+      <ellipse cx="305" cy="173" rx="36" ry="30" fill={colors.main} />
+
+      <path d="M 280 148 Q 295 102 320 102 Q 340 102 342 152 Q 320 145 280 152 Z" fill={colors.shade} />
+      <path d="M 285 146 Q 297 110 318 110 Q 336 110 340 148 Q 318 142 285 148 Z" fill={colors.main} />
+      <g fill={colors.shade}>
+        <polygon points="290,108 293,98 298,108" />
+        <polygon points="305,102 308,90 313,102" />
+        <polygon points="320,108 323,98 328,108" />
+      </g>
+
+      <ellipse cx="340" cy="188" rx="14" ry="11" fill={colors.main} />
+      <ellipse cx="338" cy="184" rx="10" ry="6" fill={colors.light} opacity="0.5" />
+
+      <line x1="352" y1="190" x2="392" y2="178" stroke="#ff5078" strokeWidth="3.5" strokeLinecap="round" />
+      <ellipse cx="394" cy="176" rx="8" ry="5" fill="#ff5078" />
+      <ellipse cx="394" cy="174" rx="4" ry="2.5" fill="#ff90a0" />
+
+      <g transform="translate(364 158)">
+        <ellipse cx="0" cy="0" rx="5" ry="3" fill="#3a2118" />
+        <ellipse cx="-5" cy="-2" rx="4" ry="2" fill="white" opacity="0.5" />
+        <ellipse cx="5" cy="-2" rx="4" ry="2" fill="white" opacity="0.5" />
+      </g>
+
+      <circle cx="292" cy="160" r="16" fill={colors.shade} />
+      <circle cx="292" cy="160" r="12" fill={colors.main} />
+      <g stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.6">
+        {Array.from({ length: 12 }).map((_, i) => {
+          const a = (i / 12) * Math.PI * 2;
+          return <line key={i} x1={292 + Math.cos(a) * 6} y1={160 + Math.sin(a) * 6} x2={292 + Math.cos(a) * 12} y2={160 + Math.sin(a) * 12} />;
+        })}
+      </g>
+      <circle cx="284" cy="160" r="4" fill="#1a1a1a" />
+      <circle cx="285" cy="158" r="1.4" fill="white" />
+
+      <circle cx="322" cy="174" r="16" fill={colors.shade} />
+      <circle cx="322" cy="174" r="12" fill={colors.main} />
+      <g stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.6">
+        {Array.from({ length: 12 }).map((_, i) => {
+          const a = (i / 12) * Math.PI * 2;
+          return <line key={i} x1={322 + Math.cos(a) * 6} y1={174 + Math.sin(a) * 6} x2={322 + Math.cos(a) * 12} y2={174 + Math.sin(a) * 12} />;
+        })}
+      </g>
+      <circle cx="330" cy="178" r="4" fill="#1a1a1a" />
+      <circle cx="331" cy="176" r="1.4" fill="white" />
+    </svg>
+  );
+}
+
 export function ElephantShape({ colors }: { colors: ColorOverride }) {
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">

@@ -6,7 +6,7 @@ export type DexShape =
   | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'polarbear'
   | 'mouse' | 'hummingbird' | 'bat'
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
-  | 'tortoise' | 'crocodile' | 'shark'
+  | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
 
 export interface DexAnimal {
@@ -119,7 +119,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Crocodile', '🐊', 700, 'reptile', false, 0, 1, 2, 2, ['venom'],
     'Bite force 16,000 N (lion: 4,000). Long jaw with interlocking teeth. Hasn\'t changed much in 200 million years.', 'crocodile'),
   make('Chameleon', '🦎', 0.2, 'reptile', false, 1, 1, 0, 2, ['camouflage'],
-    'Eyes move independently. Skin colour change in 0.3s via pigment cells.'),
+    'Two eyes that move independently like turret cameras. Curled prehensile tail grips branches. Long sticky tongue snaps out 2× body length. Colour-change skin in 0.3 s.', 'chameleon'),
   make('Anaconda', '🐍', 250, 'reptile', false, 0, 1, 1, 1, ['venom'],
     'Crushes prey 1.5× its own mass. Cold-blooded — needs sun to digest.', 'snake'),
   make('Great white shark', '🦈', 1100, 'fish', false, 0, 1, 1, 2, ['electric', 'gills'],

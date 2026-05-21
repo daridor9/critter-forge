@@ -140,9 +140,33 @@ export function AboutModal({ onClose }: Props) {
             Each trait (legs, brain, defense, sensors, body plan, blood) has a 50/50 chance of coming from each parent, plus a ~20% chance of mutating one tier. Size averages with a random spread. Hybrid traits inherited 50/50 from the combined parent pool, capped at 2.
           </p>
 
-          <h4>🔗 Share & community</h4>
+          <h4>🔗 Sharing with a friend — step by step</h4>
+          <ol className="about-list" style={{ paddingLeft: 22 }}>
+            <li>Build a creature you're proud of. Save it to the Family album so you don't lose it.</li>
+            <li>Click <strong>🔗 Share</strong> in the header. A link is copied to your clipboard (you'll see a "Link copied to clipboard" notification pop in the corner).</li>
+            <li>Send the link to a friend — text message, WhatsApp, email, AirDrop, by reading the URL out loud, anything. The whole creature is encoded inside the URL; nothing else is needed.</li>
+            <li>Your friend opens the link in their browser (or installs the game by visiting the URL on iPad → "Add to Home Screen").</li>
+            <li>The game reads the creature out of the URL, displays it as their current creature, AND auto-saves it to their Family album with a 🌐 globe prefix so they know where it came from.</li>
+            <li>From that moment, your creature lives permanently in their album. They can play it in arenas, evolve it through generations, or 🧬 <strong>Breed</strong> it with one of their own designs.</li>
+          </ol>
+          <p style={{ fontSize: 12, color: '#888' }}>
+            No server or sign-up. The game has no backend — everything you share is in the URL itself. That also means it's safe and private: nobody is tracking you, and the link only works for whoever you send it to.
+          </p>
+
+          <h4>🌐 Community generations — building a lineage tree</h4>
           <p>
-            Click <strong>🔗 Share</strong> in the header to copy a URL with your current creature encoded. When a friend opens that link, the creature loads automatically AND is saved to their album with a 🌐 prefix marker, so they can immediately cross-breed it with their own designs. Adam's album becomes a hybrid of his creatures + every friend's creature he's imported.
+            Once you and friends start sharing, the Family album becomes a cross-breeding gene pool. Here's how a community lineage tree forms:
+          </p>
+          <ol className="about-list" style={{ paddingLeft: 22 }}>
+            <li>Adam builds <em>"Swift Mighty Fluffer"</em> and shares it.</li>
+            <li>His cousin Maya opens the link. Her album now has Adam's creature with a 🌐 marker, plus her own designs.</li>
+            <li>Maya clicks <strong>🧬 Breed</strong>, picks Adam's creature + her own <em>"Tank Beast Wolfy"</em>. Three offspring appear, each mixing traits from both parents. She adopts one: <em>"Mighty Wolfy"</em>.</li>
+            <li>Maya shares <em>"Mighty Wolfy"</em> back to Adam.</li>
+            <li>Adam imports it (🌐 marker), then breeds it with his Cheetah. Three new offspring appear, each carrying traits from <em>three</em> creatures across <em>two</em> families.</li>
+            <li>The chain keeps going. Every creature anyone shares can be bred with any creature anyone else has — the gene pool grows with every link.</li>
+          </ol>
+          <p>
+            The 👤 Profile tracks how many shared creatures you've imported (<em>"Shared imported"</em> counter). Each evolution or breed counts toward your <em>"Generations"</em> tally. Over weeks of sharing, your album becomes a real family tree — and you can scroll through and remember which design came from whom.
           </p>
 
           <h4>👤 Profile + 🏅 Achievements</h4>
