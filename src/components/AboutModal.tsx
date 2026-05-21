@@ -109,7 +109,7 @@ export function AboutModal({ onClose }: Props) {
             Every choice pays off <em>somewhere</em> — and is a liability <em>somewhere else</em>. That's the whole point of biology.
           </p>
 
-          <h3>The eight hybrid traits — borrowed from real animals</h3>
+          <h3>The nine hybrid traits — borrowed from real animals</h3>
           <ul className="about-list">
             <li><strong>🦇 Echolocation</strong> (bats, dolphins) — pings the world with sound; works in darkness and water.</li>
             <li><strong>🦅 Wings</strong> (bats, birds) — flight, hard-capped at 2 kg.</li>
@@ -119,7 +119,39 @@ export function AboutModal({ onClose }: Props) {
             <li><strong>🧊 Antifreeze blood</strong> (arctic fish) — survive at -2°C salt water.</li>
             <li><strong>🦣 Thick fur</strong> (musk-oxen, mammoths) — ~8× warmer per gram than sheep wool.</li>
             <li><strong>🐟 Gills</strong> (fish) — O₂ from water; needs fast flow (water has 30× less O₂ than air).</li>
+            <li><strong>🤝 Symbiotic partner</strong> (clownfish + anemone, oxpecker + buffalo) — cooperation saves 8% food and adds +12 cold tolerance. Two creatures sharing survival.</li>
           </ul>
+
+          <h3>🧬 Evolution, breeding & community</h3>
+
+          <h4>Evolve after a win</h4>
+          <p>
+            Win an arena and a <strong>Next generation 🥚</strong> button appears. Click it to see three offspring with small mutations — every card shows what changed in plain English ("Brain tiny → standard ↑", "Hybrid: gained Camouflage", "Size grew +8", "Flipped to cold-blooded"). Pick one and your creature becomes that variant. Reset to start a new lineage.
+          </p>
+          <p>
+            The <strong>🧬 Gen N</strong> badge next to your creature's name counts every evolution. After Gen 1 the environment itself shifts each round: Chase cycles midday → dusk → night → dawn; Climb shifts through snowstorm → aurora night → glacial dawn; Drought gets progressively scorched. The world co-evolves with you.
+          </p>
+
+          <h4>Breed in the Family album</h4>
+          <p>
+            Save creatures to the album (💾 button). With 2+ saved, a 🧬 <strong>Breed</strong> toggle appears. Pick two creatures as parents → three offspring cards show, each with notes about what was inherited from which parent and which traits got a ⚡ mutation. Pick one to adopt. Names blend the parents ("Cheetwolf", "Eagle of Mouse").
+          </p>
+          <p>
+            Each trait (legs, brain, defense, sensors, body plan, blood) has a 50/50 chance of coming from each parent, plus a ~20% chance of mutating one tier. Size averages with a random spread. Hybrid traits inherited 50/50 from the combined parent pool, capped at 2.
+          </p>
+
+          <h4>🔗 Share & community</h4>
+          <p>
+            Click <strong>🔗 Share</strong> in the header to copy a URL with your current creature encoded. When a friend opens that link, the creature loads automatically AND is saved to their album with a 🌐 prefix marker, so they can immediately cross-breed it with their own designs. Adam's album becomes a hybrid of his creatures + every friend's creature he's imported.
+          </p>
+
+          <h4>👤 Profile + 🏅 Achievements</h4>
+          <p>
+            The <strong>👤 button</strong> opens your lifetime stats: tests run, wins/losses per arena, win rate, total chase kcal earned, generations adopted, tournaments completed, bred offspring, shared imported. Everything tracked locally in this browser.
+          </p>
+          <p>
+            The <strong>🏅 button</strong> opens 22 achievements covering arena wins, generation milestones, mass extremes, hybrid coverage, tournament rank, and rare wins like fighting back with venom or catching the kangaroo. Toasts pop in the corner whenever you unlock something new.
+          </p>
 
           <h3>Credits</h3>
           <ul className="about-list">
