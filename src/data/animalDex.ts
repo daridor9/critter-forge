@@ -1,7 +1,7 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
-export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin' | 'lion' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
+export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin' | 'lion' | 'mouse' | 'hummingbird' | 'bat' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
 
 export interface DexAnimal {
   name: string;
@@ -71,11 +71,11 @@ const make = (
 
 export const ANIMAL_DEX: DexAnimal[] = [
   make('Mouse', '🐭', 0.025, 'mammal', true, 1, 0, 1, 2, [],
-    'Heart beats ~600 bpm. Burns the same lifetime heartbeats as a whale, in 2 years instead of 100.'),
+    'Heart beats ~600 bpm. Burns the same lifetime heartbeats as a whale, in 2 years instead of 100.', 'mouse'),
   make('Hummingbird', '🐦', 0.004, 'bird', true, 0, 1, 0, 2, ['wings'],
-    'Eats its body weight in nectar every day. Heart at 1200 bpm in flight — physics-limit metabolism.'),
+    'Eats its body weight in nectar every day. Heart at 1200 bpm in flight — physics-limit metabolism.', 'hummingbird'),
   make('Bat', '🦇', 0.05, 'mammal', true, 0, 2, 0, 2, ['echolocation', 'wings'],
-    'Pings the dark with ultrasound. Catches mosquitoes mid-air using sound alone.'),
+    'Pings the dark with ultrasound. Catches mosquitoes mid-air using sound alone.', 'bat'),
   make('Cheetah', '🐆', 50, 'mammal', true, 2, 1, 0, 2, [],
     'Fastest land animal: 110 km/h. Holds top speed ~30 seconds before overheating.'),
   make('Wolf', '🐺', 40, 'mammal', true, 1, 2, 1, 1, [],
