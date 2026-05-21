@@ -1,6 +1,7 @@
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { getBespokeShape } from './dexShapes';
+import { getBespokeXray } from './xrayShapes';
 import { hybridCatalog } from '../data/hybrids';
 import { sizeToMass } from '../physics';
 
@@ -75,7 +76,17 @@ export function CreatureStage({ creature, xray = false }: Props) {
       )}
 
       {xray ? (
-        <XrayAnatomy creature={creature} cx={W / 2} footY={footY} />
+        (() => {
+          // If this creature came from the dex, render its bespoke x-ray
+          // (e.g. octopus shows 9 brains + 3 hearts + no bones, whale shows
+          // a car-sized heart, shark shows cartilage instead of bones).
+          const BespokeXray = getBespokeXray(creature.shape);
+          if (BespokeXray) {
+            const m = sizeToMass(creature.sizeUnit);
+            return <BespokeXray creature={creature} massKg={m} />;
+          }
+          return <XrayAnatomy creature={creature} cx={W / 2} footY={footY} />;
+        })()
       ) : (
         <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={1} animate="breathe" />
       )}
