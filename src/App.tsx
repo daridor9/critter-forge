@@ -23,6 +23,7 @@ import { QuestsModal } from './components/QuestsModal';
 import { DailyChallengeModal } from './components/DailyChallenge';
 import { CompareModal } from './components/CompareModal';
 import { LineageModal } from './components/LineageModal';
+import { BattleModal } from './components/BattleModal';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
 import { recordRoot, recordEvolve } from './data/lineage';
@@ -130,6 +131,7 @@ export default function App() {
   const [showDaily, setShowDaily] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
   const [showLineage, setShowLineage] = useState(false);
+  const [showBattle, setShowBattle] = useState(false);
   const [xray, setXray] = useState(false);
   const [lineageId, setLineageId] = useState<string | null>(() => recordRoot(defaultCreature));
   const [toasts, setToasts] = useState<Achievement[]>([]);
@@ -418,6 +420,7 @@ export default function App() {
           )}
           <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
           <button className="header-btn" type="button" onClick={() => { setShowCompare(true); sounds.click(); }} title="Compare two creatures side by side">⚖️</button>
+          <button className="header-btn" type="button" onClick={() => { setShowBattle(true); sounds.click(); }} title="Pit two creatures in a battle">⚔️</button>
           <button className="header-btn" type="button" onClick={() => { setShowLineage(true); sounds.click(); }} title="Lineage timeline">📈</button>
           <button className="header-btn" type="button" onClick={() => { setShowQuests(true); sounds.click(); }} title="Design quests">🎯</button>
           <button className="header-btn" type="button" onClick={() => { setShowDaily(true); sounds.click(); }} title="Today's challenge">📅</button>
@@ -574,6 +577,7 @@ export default function App() {
       {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
       {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
       {showLineage && <LineageModal currentLineageId={lineageId} onClose={() => setShowLineage(false)} />}
+      {showBattle && <BattleModal current={creature} onClose={() => setShowBattle(false)} />}
 
       {toasts.length > 0 && (
         <div className="toast-stack">
