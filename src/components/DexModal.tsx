@@ -3,15 +3,7 @@ import type { DexAnimal } from '../data/animalDex';
 import { FOOD_CHAIN } from '../data/foodChain';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
-import { SnakeShape } from './SnakeShape';
-import {
-  OctopusShape, WhaleShape, DolphinShape, PenguinShape,
-  LionShape, CheetahShape, SnowLeopardShape, WolfShape, PolarBearShape,
-  MouseShape, HummingbirdShape, BatShape,
-  ElephantShape, GorillaShape, CamelShape, OstrichShape, EagleShape, OwlShape,
-  TortoiseShape, CrocodileShape, SharkShape, ChameleonShape,
-  RaptorShape, TriceratopsShape, StegosaurusShape, PterodactylShape,
-} from './dexShapes';
+import { getBespokeShape } from './dexShapes';
 
 interface Props {
   current: Creature;
@@ -63,34 +55,7 @@ export function DexModal({ current, onLoad, onClose }: Props) {
 }
 
 function DexThumb({ animal }: { animal: DexAnimal }) {
-  if (animal.colors) {
-    if (animal.shape === 'snake') return <SnakeShape colors={animal.colors} />;
-    if (animal.shape === 'octopus') return <OctopusShape colors={animal.colors} />;
-    if (animal.shape === 'whale') return <WhaleShape colors={animal.colors} />;
-    if (animal.shape === 'dolphin') return <DolphinShape colors={animal.colors} />;
-    if (animal.shape === 'penguin') return <PenguinShape colors={animal.colors} />;
-    if (animal.shape === 'lion') return <LionShape colors={animal.colors} />;
-    if (animal.shape === 'cheetah') return <CheetahShape colors={animal.colors} />;
-    if (animal.shape === 'snowleopard') return <SnowLeopardShape colors={animal.colors} />;
-    if (animal.shape === 'wolf') return <WolfShape colors={animal.colors} />;
-    if (animal.shape === 'polarbear') return <PolarBearShape colors={animal.colors} />;
-    if (animal.shape === 'elephant') return <ElephantShape colors={animal.colors} />;
-    if (animal.shape === 'gorilla') return <GorillaShape colors={animal.colors} />;
-    if (animal.shape === 'camel') return <CamelShape colors={animal.colors} />;
-    if (animal.shape === 'ostrich') return <OstrichShape colors={animal.colors} />;
-    if (animal.shape === 'eagle') return <EagleShape colors={animal.colors} />;
-    if (animal.shape === 'owl') return <OwlShape colors={animal.colors} />;
-    if (animal.shape === 'tortoise') return <TortoiseShape colors={animal.colors} />;
-    if (animal.shape === 'crocodile') return <CrocodileShape colors={animal.colors} />;
-    if (animal.shape === 'shark') return <SharkShape colors={animal.colors} />;
-    if (animal.shape === 'chameleon') return <ChameleonShape colors={animal.colors} />;
-    if (animal.shape === 'mouse') return <MouseShape colors={animal.colors} />;
-    if (animal.shape === 'hummingbird') return <HummingbirdShape colors={animal.colors} />;
-    if (animal.shape === 'bat') return <BatShape colors={animal.colors} />;
-    if (animal.shape === 'raptor') return <RaptorShape colors={animal.colors} />;
-    if (animal.shape === 'triceratops') return <TriceratopsShape colors={animal.colors} />;
-    if (animal.shape === 'stegosaurus') return <StegosaurusShape colors={animal.colors} />;
-    if (animal.shape === 'pterodactyl') return <PterodactylShape colors={animal.colors} />;
-  }
+  const Bespoke = getBespokeShape(animal.shape);
+  if (Bespoke && animal.colors) return <Bespoke colors={animal.colors} />;
   return <CreatureSVG creature={animal.creature} colorOverride={animal.colors} />;
 }

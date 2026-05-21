@@ -26,6 +26,7 @@ import { LineageModal } from './components/LineageModal';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
 import { recordRoot, recordEvolve } from './data/lineage';
+import { arenaFitFor, fitEmoji } from './data/arenaFit';
 import {
   recordArena,
   recordChaseCatch,
@@ -74,9 +75,27 @@ export default function App() {
   const [undoStack, setUndoStack] = useState<Creature[]>([]);
 
   function setCreature(next: Creature | ((prev: Creature) => Creature)) {
-    const resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(creature) : next;
+    let resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(creature) : next;
     if (resolved !== creature) {
       setUndoStack((s) => [...s.slice(-19), creature]);
+      // If the user changed a trait but inherited the previous shape (e.g. tweaked
+      // a slider on a loaded-from-dex octopus), the bespoke silhouette no longer
+      // matches what they built — strip it so the generic morph kicks back in.
+      if (resolved.shape && resolved.shape === creature.shape) {
+        const traitsChanged =
+          resolved.sizeUnit !== creature.sizeUnit ||
+          resolved.bodyPlan !== creature.bodyPlan ||
+          resolved.warmBlooded !== creature.warmBlooded ||
+          resolved.legTier !== creature.legTier ||
+          resolved.brainTier !== creature.brainTier ||
+          resolved.defenseTier !== creature.defenseTier ||
+          resolved.sensorTier !== creature.sensorTier ||
+          resolved.hybrids.length !== creature.hybrids.length ||
+          resolved.hybrids.some((h, i) => h !== creature.hybrids[i]);
+        if (traitsChanged) {
+          resolved = { ...resolved, shape: undefined, colors: undefined };
+        }
+      }
     }
     setCreatureRaw(resolved);
   }
@@ -337,16 +356,20 @@ export default function App() {
             <span>{stats.massKg < 1 ? `${Math.round(stats.massKg * 1000)} g` : `${stats.massKg < 10 ? stats.massKg.toFixed(1) : Math.round(stats.massKg)} kg`} · {stats.topSpeedKmh} km/h · {stats.enduranceKm} km · cold {Math.round(stats.coldTolerance)}</span>
           </div>
           <div className="fs-arena-tabs">
-            {arenaTabs.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className={`arena-tab${arenaId === t.id ? ' active' : ''}`}
-                onClick={() => pickArena(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+            {arenaTabs.map((t) => {
+              const fit = arenaFitFor(t.id, creature);
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`arena-tab arena-fit-${fit.fit}${arenaId === t.id ? ' active' : ''}`}
+                  onClick={() => pickArena(t.id)}
+                  title={`${fit.fit === 'great' ? 'Great fit' : fit.fit === 'ok' ? 'Workable' : 'Tough match'} — ${fit.reason}`}
+                >
+                  <span className="arena-fit-dot">{fitEmoji(fit.fit)}</span> {t.label}
+                </button>
+              );
+            })}
           </div>
         </header>
         <div className="fs-stage">{renderArena()}</div>
@@ -430,16 +453,20 @@ export default function App() {
             <TournamentHUD t={tournament} />
           ) : (
             <div className="arena-tabs">
-              {arenaTabs.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`arena-tab${arenaId === t.id ? ' active' : ''}`}
-                  onClick={() => pickArena(t.id)}
-                >
-                  {t.label}
-                </button>
-              ))}
+              {arenaTabs.map((t) => {
+                const fit = arenaFitFor(t.id, creature);
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className={`arena-tab arena-fit-${fit.fit}${arenaId === t.id ? ' active' : ''}`}
+                    onClick={() => pickArena(t.id)}
+                    title={`${fit.fit === 'great' ? 'Great fit' : fit.fit === 'ok' ? 'Workable' : 'Tough match'} — ${fit.reason}`}
+                  >
+                    <span className="arena-fit-dot">{fitEmoji(fit.fit)}</span> {t.label}
+                  </button>
+                );
+              })}
               <button
                 type="button"
                 className="arena-expand"

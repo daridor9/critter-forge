@@ -1,4 +1,6 @@
 import type { ColorOverride } from './CreatureSVG';
+import { SnakeShape } from './SnakeShape';
+import type { ComponentType } from 'react';
 
 const BG_DEFS = (
   <defs>
@@ -1711,4 +1713,42 @@ export function PenguinShape({ colors }: { colors: ColorOverride }) {
       <line x1="220" y1="271" x2="234" y2="275" stroke="#7a4810" strokeWidth="0.7" />
     </svg>
   );
+}
+
+// Registry: shape-name → component. Used by CreatureStage / CreatureSVG /
+// DexModal so a creature loaded straight from the dex can render its
+// canonical silhouette anywhere in the app.
+export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverride }>> = {
+  snake: SnakeShape,
+  octopus: OctopusShape,
+  whale: WhaleShape,
+  dolphin: DolphinShape,
+  penguin: PenguinShape,
+  lion: LionShape,
+  cheetah: CheetahShape,
+  snowleopard: SnowLeopardShape,
+  wolf: WolfShape,
+  polarbear: PolarBearShape,
+  mouse: MouseShape,
+  hummingbird: HummingbirdShape,
+  bat: BatShape,
+  elephant: ElephantShape,
+  gorilla: GorillaShape,
+  camel: CamelShape,
+  ostrich: OstrichShape,
+  eagle: EagleShape,
+  owl: OwlShape,
+  tortoise: TortoiseShape,
+  crocodile: CrocodileShape,
+  shark: SharkShape,
+  chameleon: ChameleonShape,
+  raptor: RaptorShape,
+  triceratops: TriceratopsShape,
+  stegosaurus: StegosaurusShape,
+  pterodactyl: PterodactylShape,
+};
+
+export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
+  if (!name || name === 'default') return null;
+  return BESPOKE_SHAPES[name] ?? null;
 }

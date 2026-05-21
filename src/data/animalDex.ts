@@ -65,12 +65,17 @@ const make = (
   shape?: DexShape,
 ): DexAnimal => {
   const sizeUnit = Math.max(0, Math.min(100, Math.round((Math.log10(Math.max(0.001, massKg)) + 2) / 7 * 100)));
+  const colors = ANIMAL_COLORS[name];
   return {
     name,
     emoji,
     fact,
-    creature: { name, sizeUnit, bodyPlan, warmBlooded, legTier, brainTier, defenseTier, sensorTier, hybrids },
-    colors: ANIMAL_COLORS[name],
+    creature: {
+      name, sizeUnit, bodyPlan, warmBlooded, legTier, brainTier, defenseTier, sensorTier, hybrids,
+      shape,
+      colors,
+    },
+    colors,
     shape,
   };
 };

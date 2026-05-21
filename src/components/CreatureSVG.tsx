@@ -1,6 +1,7 @@
 import type { Creature } from '../types';
 import { sizeToMass } from '../physics';
 import { hybridCatalog } from '../data/hybrids';
+import { getBespokeShape } from './dexShapes';
 
 interface Metrics {
   bodyW: number;
@@ -519,6 +520,12 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
 }
 
 export function CreatureSVG({ creature, colorOverride }: { creature: Creature; colorOverride?: ColorOverride }) {
+  const Bespoke = getBespokeShape(creature.shape);
+  const colors = colorOverride ?? creature.colors;
+  if (Bespoke && colors) {
+    return <Bespoke colors={colors} />;
+  }
+
   const cx = 200;
   const footY = 260;
 
@@ -547,7 +554,7 @@ export function CreatureSVG({ creature, colorOverride }: { creature: Creature; c
         </g>
       )}
 
-      <CreatureBody creature={creature} cx={cx} footY={footY} scale={1} colorOverride={colorOverride} />
+      <CreatureBody creature={creature} cx={cx} footY={footY} scale={1} colorOverride={colors} />
     </svg>
   );
 }

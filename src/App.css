@@ -675,6 +675,19 @@ h2 {
   color: white;
   border-color: var(--accent);
 }
+.arena-tab .arena-fit-dot {
+  font-size: 9px;
+  margin-right: 2px;
+  vertical-align: middle;
+  filter: saturate(1.1);
+}
+.arena-tab.arena-fit-great:not(.active) {
+  border-color: #6ab050;
+  box-shadow: inset 0 -2px 0 rgba(106, 176, 80, 0.35);
+}
+.arena-tab.arena-fit-tough:not(.active) {
+  opacity: 0.62;
+}
 
 .header-btn-primary {
   background: linear-gradient(135deg, var(--accent), #c25541);

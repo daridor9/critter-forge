@@ -1,5 +1,6 @@
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { getBespokeShape } from './dexShapes';
 import { hybridCatalog } from '../data/hybrids';
 import { sizeToMass } from '../physics';
 
@@ -20,6 +21,32 @@ interface Props {
 
 export function CreatureStage({ creature, xray = false }: Props) {
   const footY = FOOT_Y[creature.bodyPlan];
+
+  // If this creature was loaded straight from the dex (and not yet mutated),
+  // render the bespoke canonical shape so an octopus actually looks like an
+  // octopus instead of a generic fish silhouette.
+  const Bespoke = !xray ? getBespokeShape(creature.shape) : null;
+  if (Bespoke && creature.colors) {
+    return (
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Bespoke colors={creature.colors} />
+        {creature.hybrids.length > 0 && (
+          <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            {creature.hybrids.map((id, i) => {
+              const info = hybridCatalog.find((h) => h.id === id);
+              if (!info) return null;
+              return (
+                <text key={id} x={W / 2 + (i - (creature.hybrids.length - 1) / 2) * 30} y={26} textAnchor="middle" fontSize="20">
+                  {info.emoji}
+                </text>
+              );
+            })}
+          </svg>
+        )}
+      </div>
+    );
+  }
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
       {xray ? (
