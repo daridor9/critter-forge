@@ -75,29 +75,34 @@ export default function App() {
   const [undoStack, setUndoStack] = useState<Creature[]>([]);
 
   function setCreature(next: Creature | ((prev: Creature) => Creature)) {
-    let resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(creature) : next;
-    if (resolved !== creature) {
-      setUndoStack((s) => [...s.slice(-19), creature]);
+    // Functional setter — `creature` from closure can be stale right after an
+    // arena finishes (multiple state updates batch around the same render),
+    // which previously made a brain-tier bump appear to "revert" if the user
+    // clicked + while React was still settling.
+    setCreatureRaw((prev) => {
+      let resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(prev) : next;
+      if (resolved === prev) return prev;
+      setUndoStack((s) => [...s.slice(-19), prev]);
       // If the user changed a trait but inherited the previous shape (e.g. tweaked
       // a slider on a loaded-from-dex octopus), the bespoke silhouette no longer
       // matches what they built — strip it so the generic morph kicks back in.
-      if (resolved.shape && resolved.shape === creature.shape) {
+      if (resolved.shape && resolved.shape === prev.shape) {
         const traitsChanged =
-          resolved.sizeUnit !== creature.sizeUnit ||
-          resolved.bodyPlan !== creature.bodyPlan ||
-          resolved.warmBlooded !== creature.warmBlooded ||
-          resolved.legTier !== creature.legTier ||
-          resolved.brainTier !== creature.brainTier ||
-          resolved.defenseTier !== creature.defenseTier ||
-          resolved.sensorTier !== creature.sensorTier ||
-          resolved.hybrids.length !== creature.hybrids.length ||
-          resolved.hybrids.some((h, i) => h !== creature.hybrids[i]);
+          resolved.sizeUnit !== prev.sizeUnit ||
+          resolved.bodyPlan !== prev.bodyPlan ||
+          resolved.warmBlooded !== prev.warmBlooded ||
+          resolved.legTier !== prev.legTier ||
+          resolved.brainTier !== prev.brainTier ||
+          resolved.defenseTier !== prev.defenseTier ||
+          resolved.sensorTier !== prev.sensorTier ||
+          resolved.hybrids.length !== prev.hybrids.length ||
+          resolved.hybrids.some((h, i) => h !== prev.hybrids[i]);
         if (traitsChanged) {
           resolved = { ...resolved, shape: undefined, colors: undefined };
         }
       }
-    }
-    setCreatureRaw(resolved);
+      return resolved;
+    });
   }
 
   function undo() {

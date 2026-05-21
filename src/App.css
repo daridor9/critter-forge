@@ -1038,6 +1038,66 @@ h2 {
   text-align: center;
 }
 
+.maze-odds {
+  background: linear-gradient(135deg, #fbf6ea, #fdf2dc);
+  border: 1px solid #e0d2a8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 4px 0 10px;
+  font-size: 12px;
+  color: #3a322a;
+}
+.maze-odds-row {
+  display: grid;
+  grid-template-columns: 22px 70px 60px 44px 1fr;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.maze-odds-row.active {
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+.maze-odds-emoji {
+  font-size: 14px;
+}
+.maze-odds-label {
+  font-weight: 600;
+}
+.maze-odds-steps {
+  color: #7a6b50;
+  font-variant-numeric: tabular-nums;
+}
+.maze-odds-prob {
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.maze-odds-stam {
+  font-size: 10.5px;
+  text-align: right;
+}
+.maze-odds-stam.ok { color: #4a8a3a; }
+.maze-odds-stam.no { color: #b04848; }
+.maze-odds-total {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #d0c090;
+  font-size: 12.5px;
+}
+.maze-odds-total strong {
+  color: #c25541;
+  font-size: 14px;
+}
+.maze-odds-explain {
+  color: #8a7a5a;
+  margin-left: 6px;
+  font-size: 11px;
+}
+
 .btn {
   background: var(--accent);
   color: white;
