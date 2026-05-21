@@ -7,6 +7,8 @@ import { CreatureBody } from './CreatureSVG';
 export type ChaseOutcome = {
   won: boolean;
   reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance';
+  preyId?: 'rabbit' | 'gazelle' | 'kangaroo';
+  reward?: number;
 };
 
 interface Props {
@@ -58,6 +60,7 @@ interface PreyDef {
   label: string;
   emoji: string;
   speedKmh: number;
+  reward: number;
   Render: () => ReactNode;
 }
 
@@ -171,9 +174,9 @@ function Kangaroo() {
 }
 
 const PREYS: PreyDef[] = [
-  { id: 'rabbit', label: 'Rabbit', emoji: '🐰', speedKmh: 40, Render: Rabbit },
-  { id: 'gazelle', label: 'Gazelle', emoji: '🦌', speedKmh: 60, Render: Gazelle },
-  { id: 'kangaroo', label: 'Kangaroo', emoji: '🦘', speedKmh: 70, Render: Kangaroo },
+  { id: 'rabbit', label: 'Rabbit', emoji: '🐰', speedKmh: 40, reward: 600, Render: Rabbit },
+  { id: 'gazelle', label: 'Gazelle', emoji: '🦌', speedKmh: 60, reward: 2200, Render: Gazelle },
+  { id: 'kangaroo', label: 'Kangaroo', emoji: '🦘', speedKmh: 70, reward: 4800, Render: Kangaroo },
 ];
 
 function Cloud({ x, y, scale, duration, delay }: { x: number; y: number; scale: number; duration: number; delay: number }) {
@@ -335,7 +338,7 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
       setGazelleDist(gazelleRef.current);
 
       if (playerRef.current >= gazelleRef.current) {
-        stop({ won: true, reason: 'caught' });
+        stop({ won: true, reason: 'caught', preyId: prey.id, reward: prey.reward });
         return;
       }
       if (gazelleRef.current >= TRACK_M + START_GAP_M) {
@@ -385,7 +388,7 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
             <span className="prey-emoji">{p.emoji}</span>
             <span className="prey-name">
               {p.label}
-              <small> {p.speedKmh}</small>
+              <small> {p.speedKmh} · {p.reward} kcal</small>
             </span>
           </button>
         ))}

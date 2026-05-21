@@ -2205,6 +2205,107 @@ h2 {
   box-shadow: 0 0 0 2px var(--accent), var(--shadow-2);
 }
 
+.evolve-changes {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  text-align: left;
+  font-size: 11px;
+  color: var(--fg-dim);
+  line-height: 1.4;
+}
+.evolve-changes li {
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: rgba(255, 244, 230, 0.6);
+  margin-bottom: 2px;
+}
+.evolve-change-none {
+  color: #aaa;
+  font-style: italic;
+  background: transparent !important;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+.profile-block {
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+.profile-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.profile-lbl {
+  font-size: 11px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.profile-table th,
+.profile-table td {
+  text-align: right;
+  padding: 5px 8px;
+  border-bottom: 1px solid #f0ecdf;
+}
+.profile-table th:first-child,
+.profile-table td:first-child {
+  text-align: left;
+}
+.profile-table th {
+  background: var(--panel-soft);
+  font-weight: 700;
+  color: var(--fg-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.profile-prey {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.profile-prey-item {
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 14px;
+  text-align: center;
+}
+.profile-prey-emoji {
+  font-size: 22px;
+  display: block;
+  margin-bottom: 2px;
+}
+.profile-prey-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+}
+.profile-prey-item small {
+  font-size: 10px;
+  color: var(--fg-dim);
+}
+
 .strategy-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

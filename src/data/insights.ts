@@ -6,7 +6,7 @@ export interface Insight {
 }
 
 export type ArenaResult =
-  | { arena: 'chase'; won: boolean; reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance' }
+  | { arena: 'chase'; won: boolean; reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance'; preyId?: 'rabbit' | 'gazelle' | 'kangaroo'; reward?: number }
   | { arena: 'climb'; won: boolean; reason: 'reached-top' | 'froze' | 'exhausted' }
   | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved'; daysSurvived: number }
   | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught' }
@@ -26,9 +26,15 @@ export function pickInsight(r: ArenaResult, _massKg: number): Insight {
 
 function pickChase(r: Extract<ArenaResult, { arena: 'chase' }>): Insight {
   if (r.won) {
-    return { id: 'chase-won', won: true, title: 'You caught the prey!', text:
-      'Your creature balanced speed and stamina. Real wolves hunt this way — they trot for hours and ' +
-      'exhaust prey rather than out-sprinting them. Cheetahs are faster but can only sprint ~30 seconds.' };
+    const reward = r.reward ?? 0;
+    const preyText =
+      r.preyId === 'rabbit' ? 'Easy catch — but rabbits are small (~600 kcal). To eat well, hunt bigger.'
+      : r.preyId === 'gazelle' ? 'Medium prey, medium reward (~2,200 kcal). The wolf-cheetah zone.'
+      : r.preyId === 'kangaroo' ? 'Big haul (~4,800 kcal)! Kangaroos hit 70 km/h — your design earned a feast.'
+      : '';
+    return { id: 'chase-won', won: true, title: `You caught the prey! +${reward.toLocaleString()} kcal`, text:
+      `${preyText} Real wolves win by stamina, not pure speed. Cheetahs are faster but can only sprint ~30 seconds — ` +
+      `if the prey jukes once, the cheetah loses.` };
   }
   if (r.reason === 'lost-stamina') {
     return { id: 'no-stamina', won: false, title: 'Out of breath', text:

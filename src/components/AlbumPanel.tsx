@@ -31,7 +31,7 @@ function genId(): string {
 
 interface Props {
   current: Creature;
-  onLoad: (c: Creature) => void;
+  onLoad: (c: Creature, fromBreed?: boolean) => void;
   onSaved?: (count: number) => void;
 }
 
@@ -91,7 +91,7 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
   }
 
   function onPickOffspring(c: Creature) {
-    onLoad(c);
+    onLoad(c, true);
     setBreedPair(null);
     setBreedMode(false);
     setPickedIds([]);

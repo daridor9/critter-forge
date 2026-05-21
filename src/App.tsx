@@ -18,6 +18,17 @@ import { EvolveModal } from './components/EvolveModal';
 import { AboutModal } from './components/AboutModal';
 import { DexModal } from './components/DexModal';
 import { AchievementsModal, AchievementToast } from './components/AchievementsModal';
+import { ProfileModal } from './components/ProfileModal';
+import {
+  recordArena,
+  recordChaseCatch,
+  recordGeneration,
+  recordEvolved,
+  recordBred,
+  recordTournament,
+  recordSaved,
+  recordSharedImport,
+} from './data/profile';
 import { FoodEconomyPanel } from './components/FoodEconomyPanel';
 import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
@@ -64,6 +75,7 @@ export default function App() {
   const [tournament, setTournament] = useState<TournamentState | null>(null);
   const [showDex, setShowDex] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const toastTimers = useRef<number[]>([]);
 
@@ -84,11 +96,32 @@ export default function App() {
     if (fromHash) {
       setCreature(fromHash);
       clearCreatureHash();
+      recordSharedImport();
+      const t: Achievement = { id: '_imp', emoji: '🌐', name: 'Imported a shared creature', description: 'It\'s saved to your album as community.' };
+      pushToasts([t]);
+      autoSaveShared(fromHash);
     }
     const first = tryUnlock('first-creature');
     if (first) pushToasts([first]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function autoSaveShared(c: Creature): void {
+    try {
+      const key = 'critter-forge:album';
+      const items = JSON.parse(localStorage.getItem(key) || '[]');
+      const id = (typeof crypto !== 'undefined' && 'randomUUID' in crypto) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      items.push({
+        id,
+        name: `🌐 ${c.name}`,
+        creature: c,
+        savedAt: Date.now(),
+      });
+      localStorage.setItem(key, JSON.stringify(items));
+    } catch {
+      /* ignore */
+    }
+  }
 
   useEffect(() => {
     const got = checkCreatureAchievements(creature, sizeToMass(creature.sizeUnit));
@@ -106,9 +139,13 @@ export default function App() {
   const effectiveGeneration = tournament ? tournament.generation : generation;
 
   const finish = (r: ArenaResult) => {
+    recordArena(r);
     const arenaGot = checkArenaWin(r);
     if (arenaGot.length > 0) pushToasts(arenaGot);
     if (r.arena === 'chase' && r.won) {
+      if ('preyId' in r && r.preyId && 'reward' in r && typeof r.reward === 'number') {
+        recordChaseCatch(r.preyId, r.reward);
+      }
       const k = tryUnlock('beat-kangaroo');
       if (k) pushToasts([k]);
     }
@@ -135,6 +172,8 @@ export default function App() {
       else sounds.lose();
       if (isLast) {
         const wins = newResults.filter((x) => x.won).length;
+        const totalPoints = newResults.reduce((acc, x) => acc + x.points, 0);
+        recordTournament(totalPoints);
         if (wins === TOURNAMENT_ORDER.length) {
           const a = tryUnlock('tournament-apex');
           if (a) pushToasts([a]);
@@ -306,6 +345,7 @@ export default function App() {
             <button className="header-btn header-btn-primary" type="button" onClick={exitTournament} title="Leave tournament">🚪 Exit</button>
           )}
           <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
+          <button className="header-btn" type="button" onClick={() => { setShowProfile(true); sounds.click(); }} title="Your profile">👤</button>
           <button className="header-btn" type="button" onClick={() => { setShowAchievements(true); sounds.click(); }} title="Achievements">🏅</button>
           <button className="header-btn" type="button" onClick={shareLink} title="Copy a shareable link to your creature">🔗 Share</button>
           <button className="header-btn" type="button" onClick={() => { setShowAbout(true); sounds.click(); }} title="About this game">ℹ About</button>
@@ -362,9 +402,14 @@ export default function App() {
 
       <AlbumPanel
         current={creature}
-        onLoad={(c) => { setCreature(c); sounds.click(); }}
+        onLoad={(c, fromBreed) => {
+          setCreature(c);
+          sounds.click();
+          if (fromBreed) recordBred();
+        }}
         onSaved={(count) => {
           sounds.save();
+          recordSaved(count);
           const got = checkSaveAchievements(count);
           if (got.length > 0) pushToasts(got);
         }}
@@ -382,6 +427,8 @@ export default function App() {
           parent={creature}
           onPick={(c) => {
             setCreature(c);
+            recordEvolved();
+            recordGeneration();
             if (tournament) {
               setTournament({
                 ...tournament,
@@ -424,6 +471,7 @@ export default function App() {
         />
       )}
       {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
       {toasts.length > 0 && (
         <div className="toast-stack">

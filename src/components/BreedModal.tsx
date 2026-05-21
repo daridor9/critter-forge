@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Creature } from '../types';
 import { breed } from '../data/breeding';
+import type { BreedResult } from '../data/breeding';
 import { CreatureSVG } from './CreatureSVG';
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function BreedModal({ parent1, parent2, onPick, onClose }: Props) {
-  const [variants] = useState(() => [breed(parent1, parent2), breed(parent1, parent2), breed(parent1, parent2)]);
+  const [variants] = useState<BreedResult[]>(() => [breed(parent1, parent2), breed(parent1, parent2), breed(parent1, parent2)]);
 
   return (
     <div className="insight-overlay" onClick={onClose}>
@@ -19,15 +20,20 @@ export function BreedModal({ parent1, parent2, onPick, onClose }: Props) {
         <h3>Offspring 👨‍👩‍👧</h3>
         <p>
           <strong>{parent1.name}</strong> + <strong>{parent2.name}</strong> produced three children with a mix of traits.
-          Pick one to adopt, or close to skip.
+          Each card shows what was inherited or mutated.
         </p>
         <div className="evolve-variants">
           {variants.map((v, i) => (
-            <button key={i} className="evolve-card" type="button" onClick={() => onPick(v)}>
+            <button key={i} className="evolve-card" type="button" onClick={() => onPick(v.creature)}>
               <div className="evolve-thumb">
-                <CreatureSVG creature={v} />
+                <CreatureSVG creature={v.creature} />
               </div>
-              <div className="evolve-name">{v.name}</div>
+              <div className="evolve-name">{v.creature.name}</div>
+              <ul className="evolve-changes">
+                {v.notes.length > 0
+                  ? v.notes.map((n, j) => <li key={j}>{n}</li>)
+                  : <li className="evolve-change-none">(traits identical to both parents)</li>}
+              </ul>
             </button>
           ))}
         </div>

@@ -21,6 +21,88 @@ function mutateName(parent: string): string {
   return `${prefix} ${parent}`;
 }
 
+const TIER_NAMES_LEG = ['stubby', 'standard', 'runner'];
+const TIER_NAMES_BRAIN = ['tiny', 'standard', 'big'];
+const TIER_NAMES_DEFENSE = ['none', 'fur/scales', 'armor'];
+const TIER_NAMES_SENSORS = ['simple', 'sharp', 'sonar'];
+
+function describeTierChange(label: string, names: readonly string[], from: Tier, to: Tier): string | null {
+  if (from === to) return null;
+  const arrow = to > from ? '↑' : '↓';
+  return `${label} ${names[from]} → ${names[to]} ${arrow}`;
+}
+
+interface Mutation {
+  creature: Creature;
+  changes: string[];
+}
+
+function mutate(parent: Creature): Mutation {
+  const changes: string[] = [];
+  let child = { ...parent };
+  const numMutations = Math.random() < 0.7 ? 1 : 2;
+
+  const mutators: ((c: Creature) => { creature: Creature; change: string | null })[] = [
+    (c) => {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const next = Math.max(0, Math.min(100, c.sizeUnit + dir * 8));
+      if (next === c.sizeUnit) return { creature: c, change: null };
+      return { creature: { ...c, sizeUnit: next }, change: `Size ${dir > 0 ? 'grew' : 'shrank'} (+${Math.abs(next - c.sizeUnit)})` };
+    },
+    (c) => {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const next = clampTier(c.legTier + dir);
+      if (next === c.legTier) return { creature: c, change: null };
+      return { creature: { ...c, legTier: next }, change: describeTierChange('Legs', TIER_NAMES_LEG, c.legTier, next) };
+    },
+    (c) => {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const next = clampTier(c.brainTier + dir);
+      if (next === c.brainTier) return { creature: c, change: null };
+      return { creature: { ...c, brainTier: next }, change: describeTierChange('Brain', TIER_NAMES_BRAIN, c.brainTier, next) };
+    },
+    (c) => {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const next = clampTier(c.defenseTier + dir);
+      if (next === c.defenseTier) return { creature: c, change: null };
+      return { creature: { ...c, defenseTier: next }, change: describeTierChange('Defense', TIER_NAMES_DEFENSE, c.defenseTier, next) };
+    },
+    (c) => {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const next = clampTier(c.sensorTier + dir);
+      if (next === c.sensorTier) return { creature: c, change: null };
+      return { creature: { ...c, sensorTier: next }, change: describeTierChange('Sensors', TIER_NAMES_SENSORS, c.sensorTier, next) };
+    },
+    (c) => {
+      const next = tweakHybrids(c);
+      const added = next.filter((h) => !c.hybrids.includes(h));
+      const removed = c.hybrids.filter((h) => !next.includes(h));
+      if (added.length === 0 && removed.length === 0) return { creature: c, change: null };
+      const parts: string[] = [];
+      if (added.length > 0) parts.push(`gained ${added.map((h) => hybridCatalog.find((x) => x.id === h)?.name ?? h).join(', ')}`);
+      if (removed.length > 0) parts.push(`lost ${removed.map((h) => hybridCatalog.find((x) => x.id === h)?.name ?? h).join(', ')}`);
+      return { creature: { ...c, hybrids: next }, change: 'Hybrid: ' + parts.join(' · ') };
+    },
+    (c) => ({
+      creature: { ...c, warmBlooded: !c.warmBlooded },
+      change: c.warmBlooded ? 'Flipped to cold-blooded ❄️' : 'Flipped to warm-blooded 🔥',
+    }),
+  ];
+
+  for (let i = 0; i < numMutations; i++) {
+    const m = mutators[Math.floor(Math.random() * mutators.length)];
+    const r = m(child);
+    if (r.change) {
+      child = r.creature;
+      changes.push(r.change);
+    }
+  }
+
+  child = { ...child, hybrids: child.hybrids.filter((h) => isHybridValid(h, child).valid) };
+  child.name = mutateName(parent.name);
+  return { creature: child, changes };
+}
+
 function tweakHybrids(c: Creature): Hybrid[] {
   const all = hybridCatalog.map((h) => h.id);
   const has = new Set(c.hybrids);
@@ -35,29 +117,8 @@ function tweakHybrids(c: Creature): Hybrid[] {
   return c.hybrids;
 }
 
-function mutate(parent: Creature): Creature {
-  const mutators: ((c: Creature) => Creature)[] = [
-    (c) => ({ ...c, sizeUnit: Math.max(0, Math.min(100, c.sizeUnit + (Math.random() < 0.5 ? -8 : 8))) }),
-    (c) => ({ ...c, legTier: clampTier(c.legTier + (Math.random() < 0.5 ? -1 : 1)) }),
-    (c) => ({ ...c, brainTier: clampTier(c.brainTier + (Math.random() < 0.5 ? -1 : 1)) }),
-    (c) => ({ ...c, defenseTier: clampTier(c.defenseTier + (Math.random() < 0.5 ? -1 : 1)) }),
-    (c) => ({ ...c, sensorTier: clampTier(c.sensorTier + (Math.random() < 0.5 ? -1 : 1)) }),
-    (c) => ({ ...c, hybrids: tweakHybrids(c) }),
-    (c) => ({ ...c, warmBlooded: !c.warmBlooded }),
-  ];
-  let child = { ...parent };
-  const numMutations = Math.random() < 0.7 ? 1 : 2;
-  for (let i = 0; i < numMutations; i++) {
-    const m = mutators[Math.floor(Math.random() * mutators.length)];
-    child = m(child);
-  }
-  child = { ...child, hybrids: child.hybrids.filter((h) => isHybridValid(h, child).valid) };
-  child.name = mutateName(parent.name);
-  return child;
-}
-
 export function EvolveModal({ parent, onPick, onClose }: Props) {
-  const [variants] = useState(() => [mutate(parent), mutate(parent), mutate(parent)]);
+  const [variants] = useState<Mutation[]>(() => [mutate(parent), mutate(parent), mutate(parent)]);
 
   return (
     <div className="insight-overlay" onClick={onClose}>
@@ -66,11 +127,16 @@ export function EvolveModal({ parent, onPick, onClose }: Props) {
         <p>Your winning creature spawned three offspring with small mutations. Pick one to evolve into — or keep your current design.</p>
         <div className="evolve-variants">
           {variants.map((v, i) => (
-            <button key={i} className="evolve-card" type="button" onClick={() => onPick(v)}>
+            <button key={i} className="evolve-card" type="button" onClick={() => onPick(v.creature)}>
               <div className="evolve-thumb">
-                <CreatureSVG creature={v} />
+                <CreatureSVG creature={v.creature} />
               </div>
-              <div className="evolve-name">{v.name}</div>
+              <div className="evolve-name">{v.creature.name}</div>
+              <ul className="evolve-changes">
+                {v.changes.length > 0
+                  ? v.changes.map((c, j) => <li key={j}>{c}</li>)
+                  : <li className="evolve-change-none">(no visible change — same form)</li>}
+              </ul>
             </button>
           ))}
         </div>
