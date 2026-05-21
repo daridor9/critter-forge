@@ -1,7 +1,7 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
-export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin' | 'lion' | 'mouse' | 'hummingbird' | 'bat' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
+export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin' | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'polarbear' | 'mouse' | 'hummingbird' | 'bat' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
 
 export interface DexAnimal {
   name: string;
@@ -77,15 +77,15 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Bat', '🦇', 0.05, 'mammal', true, 0, 2, 0, 2, ['echolocation', 'wings'],
     'Pings the dark with ultrasound. Catches mosquitoes mid-air using sound alone.', 'bat'),
   make('Cheetah', '🐆', 50, 'mammal', true, 2, 1, 0, 2, [],
-    'Fastest land animal: 110 km/h. Holds top speed ~30 seconds before overheating.'),
+    'Fastest land animal: 110 km/h. Holds top speed ~30 seconds before overheating. Black tear stripes shade the eyes from glare.', 'cheetah'),
   make('Wolf', '🐺', 40, 'mammal', true, 1, 2, 1, 1, [],
-    'Wins by stamina, not speed. Trots all day until prey collapses.'),
+    'Wins by stamina, not speed. Long snout, pointed ears, bushy tail. Trots all day until prey collapses.', 'wolf'),
   make('Lion', '🦁', 190, 'mammal', true, 1, 2, 1, 2, [],
     'Pride hunter. Males grow huge dark manes that signal genes + protect the neck. Females do most of the killing.', 'lion'),
   make('Polar bear', '🐻‍❄️', 450, 'mammal', true, 1, 1, 2, 2, ['thick-fur'],
-    'Hollow fur traps body heat. Swims for hours in -2°C water.'),
+    'Hollow fur traps body heat. Black skin under white fur. Swims for hours in -2°C water.', 'polarbear'),
   make('Snow leopard', '🐆', 50, 'mammal', true, 2, 2, 1, 2, ['thick-fur', 'camouflage'],
-    'Lives above 3000 m. Tail almost as long as its body for balance on cliffs.'),
+    'Lives above 3000 m. Tail almost as long as its body for balance on cliffs. Dark open-ring rosettes on pale fur.', 'snowleopard'),
   make('Elephant', '🐘', 4000, 'mammal', true, 0, 2, 2, 1, [],
     'Lives 65 years. Mourns dead. Largest land brain on Earth.'),
   make('Blue whale', '🐳', 100000, 'mammal', true, 0, 2, 2, 1, ['echolocation'],
