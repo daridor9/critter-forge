@@ -87,8 +87,8 @@ function fightPower(c: Creature, s: CreatureStats): number {
   if (c.hybrids.includes('electric')) p += 55;
   if (c.defenseTier === 2) p += 28;
   if (c.defenseTier === 1) p += 8;
-  if (c.brainTier === 2) p += 12;
-  if (c.brainTier === 1) p += 5;
+  if (c.brainTier >= 2) p += 12 + (c.brainTier - 2) * 6; // genius gets another +6
+  else if (c.brainTier === 1) p += 5;
   if (c.legTier === 2) p += 8;
   if (c.legTier === 1) p += 4;
   if (c.sensorTier === 2) p += 6;

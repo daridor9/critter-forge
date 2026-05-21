@@ -29,6 +29,13 @@ function beatPeriodFor(massKg: number, mult = 1): number {
   return Math.max(0.25, (60 / heartRate(massKg)) / mult);
 }
 
+// Visual brain scale per tier so a Tiny brain is a pinpoint and a Genius
+// brain fills the skull. Used as a multiplier on every brain ellipse radius
+// inside the bespoke x-rays.
+function brainScaleFor(tier: number): number {
+  return [0.45, 0.85, 1.15, 1.5][tier] ?? 1;
+}
+
 function HeartLabel({ x, y, bpm }: { x: number; y: number; bpm: number }) {
   return (
     <text x={x} y={y} fontSize="8" fill="white" opacity="0.75" textAnchor="middle">♥ {bpm} bpm</text>
@@ -44,9 +51,10 @@ function Caption({ text, y = 286 }: { text: string; y?: number }) {
 // ─── Octopus ─────────────────────────────────────────────────────────────
 // 9 brains (1 central + 1 ganglion per arm), 3 hearts (2 branchial + 1 systemic),
 // ink sac, NO bones, copper-based blue blood. The showcase x-ray.
-export function OctopusXray({ massKg }: XrayProps) {
+export function OctopusXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1.4);          // systemic
   const beatBranchial = beatPeriodFor(massKg, 1.8); // gill hearts beat faster
+  const bs = brainScaleFor(creature.brainTier);
   const tentacles = [
     { sx: 155, sy: 175, c1x: 90,  c1y: 195, c2x: 50,  c2y: 250, ex: 30,  ey: 270 },
     { sx: 170, sy: 185, c1x: 130, c1y: 230, c2x: 110, c2y: 270, ex: 95,  ey: 290 },
@@ -76,19 +84,19 @@ export function OctopusXray({ massKg }: XrayProps) {
       ))}
 
       {/* central brain (the "main" one — donut-shaped around the esophagus in real octopi) */}
-      <ellipse cx="200" cy="105" rx="22" ry="14" fill={BRAIN} opacity="0.85" />
-      <ellipse cx="200" cy="105" rx="8" ry="5" fill="#0c1e30" opacity="0.7" />
-      <text x="200" y="108" fontSize="7" textAnchor="middle" fill="white" opacity="0.85">🧠</text>
+      <ellipse cx="200" cy="105" rx={22 * bs} ry={14 * bs} fill={BRAIN} opacity="0.85" />
+      <ellipse cx="200" cy="105" rx={8 * bs} ry={5 * bs} fill="#0c1e30" opacity="0.7" />
+      <text x="200" y={108} fontSize="7" textAnchor="middle" fill="white" opacity="0.85">🧠</text>
 
       {/* 8 arm ganglia — "mini brains" — at base of each tentacle */}
       {tentacles.slice(0, 7).map((t, i) => (
         <g key={`g${i}`}>
-          <circle cx={t.sx} cy={t.sy} r="5" fill={BRAIN} opacity="0.8" />
-          <circle cx={t.sx} cy={t.sy} r="2" fill="#0c1e30" opacity="0.6" />
+          <circle cx={t.sx} cy={t.sy} r={5 * bs} fill={BRAIN} opacity="0.8" />
+          <circle cx={t.sx} cy={t.sy} r={2 * bs} fill="#0c1e30" opacity="0.6" />
         </g>
       ))}
-      <circle cx={205} cy={195} r="5" fill={BRAIN} opacity="0.8" />
-      <circle cx={205} cy={195} r="2" fill="#0c1e30" opacity="0.6" />
+      <circle cx={205} cy={195} r={5 * bs} fill={BRAIN} opacity="0.8" />
+      <circle cx={205} cy={195} r={2 * bs} fill="#0c1e30" opacity="0.6" />
 
       {/* 3 hearts: 1 systemic (center, big), 2 branchial (gill hearts, smaller, beat faster) */}
       <ellipse cx="200" cy="145" rx="14" ry="10" fill={HEART} opacity="0.9"
@@ -125,8 +133,9 @@ export function OctopusXray({ massKg }: XrayProps) {
 // ─── Whale ───────────────────────────────────────────────────────────────
 // Heart the size of a small car, ribcage that flexes under pressure,
 // massive lungs, baleen plates (for filter feeders).
-export function WhaleXray({ massKg }: XrayProps) {
+export function WhaleXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* body outline */}
@@ -173,7 +182,7 @@ export function WhaleXray({ massKg }: XrayProps) {
       <text x="210" y="152" fontSize="8" textAnchor="middle" fill="white" opacity="0.8">🫁</text>
 
       {/* brain — small relative to body */}
-      <ellipse cx="55" cy="158" rx="9" ry="7" fill={BRAIN} opacity="0.85" />
+      <ellipse cx="55" cy="158" rx={9 * bs} ry={7 * bs} fill={BRAIN} opacity="0.85" />
       <text x="55" y="161" fontSize="6" textAnchor="middle" fill="white" opacity="0.85">🧠</text>
 
       {/* blowhole channel */}
@@ -189,8 +198,9 @@ export function WhaleXray({ massKg }: XrayProps) {
 // ─── Dolphin ─────────────────────────────────────────────────────────────
 // Echolocation "melon" on forehead, big brain, flexible ribs that collapse
 // at depth so air doesn't crush them.
-export function DolphinXray({ massKg }: XrayProps) {
+export function DolphinXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* streamlined body */}
@@ -221,7 +231,7 @@ export function DolphinXray({ massKg }: XrayProps) {
       </g>
 
       {/* big brain */}
-      <ellipse cx="118" cy="154" rx="13" ry="10" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="118" cy="154" rx={13 * bs} ry={10 * bs} fill={BRAIN} opacity="0.9" />
       <text x="118" y="157" fontSize="7" textAnchor="middle" fill="white" opacity="0.9">🧠</text>
 
       {/* heart */}
@@ -246,8 +256,9 @@ export function DolphinXray({ massKg }: XrayProps) {
 // ─── Shark ───────────────────────────────────────────────────────────────
 // Cartilage skeleton (not bone — drawn with dashed/lighter strokes),
 // 5 gill slits, huge oily liver (buoyancy, not a swim bladder).
-export function SharkXray({ massKg }: XrayProps) {
+export function SharkXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* body outline */}
@@ -287,7 +298,7 @@ export function SharkXray({ massKg }: XrayProps) {
         style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
 
       {/* brain */}
-      <ellipse cx="80" cy="170" rx="7" ry="5" fill={BRAIN} opacity="0.85" />
+      <ellipse cx="80" cy="170" rx={7 * bs} ry={5 * bs} fill={BRAIN} opacity="0.85" />
 
       {/* ampullae of Lorenzini — electrosense pores on snout */}
       <g fill="#ffe48a" opacity="0.7">
@@ -305,8 +316,9 @@ export function SharkXray({ massKg }: XrayProps) {
 // ─── Snake ───────────────────────────────────────────────────────────────
 // Single long spine with 200-400 ribs (we draw ~30 to suggest it),
 // one elongated functional lung, long single stomach.
-export function SnakeXray({ massKg }: XrayProps) {
+export function SnakeXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 0.5); // cold-blooded — slower
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* body outline — an undulating line */}
@@ -346,7 +358,7 @@ export function SnakeXray({ massKg }: XrayProps) {
       <ellipse cx="150" cy="178" rx="55" ry="5" fill={STOMACH} opacity="0.55" transform="rotate(5 150 178)" />
 
       {/* brain (tiny) */}
-      <circle cx="380" cy="178" r="3" fill={BRAIN} opacity="0.9" />
+      <circle cx="380" cy="178" r={3 * bs} fill={BRAIN} opacity="0.9" />
 
       <HeartLabel x={340} y={205} bpm={heartRate(massKg)} />
       <Caption text="200+ ribs · 1 functional lung · cold-blooded" />
@@ -356,8 +368,9 @@ export function SnakeXray({ massKg }: XrayProps) {
 
 // ─── Tortoise ────────────────────────────────────────────────────────────
 // Shell = fused ribs + vertebrae. The skeleton IS the shell.
-export function TortoiseXray({ massKg }: XrayProps) {
+export function TortoiseXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 0.3); // very slow, cold-blooded
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* shell dome outline */}
@@ -380,7 +393,7 @@ export function TortoiseXray({ massKg }: XrayProps) {
       {/* head poking out */}
       <ellipse cx="315" cy="208" rx="20" ry="10" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.45)" strokeWidth="1" />
       <ellipse cx="318" cy="208" rx="6" ry="5" fill="none" stroke={BONE} strokeWidth="1.2" />
-      <ellipse cx="320" cy="208" r="2" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="320" cy="208" rx={2 * bs} ry={2 * bs} fill={BRAIN} opacity="0.9" />
       {/* legs */}
       <ellipse cx="125" cy="222" rx="14" ry="7" fill="rgba(160,180,220,0.2)" />
       <ellipse cx="275" cy="222" rx="14" ry="7" fill="rgba(160,180,220,0.2)" />
@@ -404,8 +417,9 @@ export function TortoiseXray({ massKg }: XrayProps) {
 // ─── Elephant ─────────────────────────────────────────────────────────────
 // Biggest land brain, columnar leg bones (square-cube survival),
 // trunk = 40,000 muscles + ZERO bones, continuously-growing tusks.
-export function ElephantXray({ massKg }: XrayProps) {
+export function ElephantXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* body outline */}
@@ -446,7 +460,7 @@ export function ElephantXray({ massKg }: XrayProps) {
       ))}
 
       {/* huge brain (biggest land brain) */}
-      <ellipse cx="298" cy="140" rx="16" ry="13" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="298" cy="140" rx={16 * bs} ry={13 * bs} fill={BRAIN} opacity="0.9" />
       <text x="298" y="144" fontSize="8" textAnchor="middle" fill="white" opacity="0.9">🧠</text>
 
       {/* heart */}
@@ -465,8 +479,9 @@ export function ElephantXray({ massKg }: XrayProps) {
 
 // ─── Bat ─────────────────────────────────────────────────────────────────
 // Wing bones are elongated FINGERS — the only mammal with true flapping flight.
-export function BatXray({ massKg }: XrayProps) {
+export function BatXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* tiny body */}
@@ -507,7 +522,7 @@ export function BatXray({ massKg }: XrayProps) {
       <ellipse cx="200" cy="140" rx="9" ry="7" fill="none" stroke={BONE} strokeWidth="1.4" />
 
       {/* large brain (sonar processing) */}
-      <ellipse cx="200" cy="138" rx="6" ry="5" fill={BRAIN} opacity="0.85" />
+      <ellipse cx="200" cy="138" rx={6 * bs} ry={5 * bs} fill={BRAIN} opacity="0.85" />
 
       {/* ears (huge, for echolocation) */}
       <path d="M 194 132 Q 188 118 190 130" stroke={BONE} strokeWidth="1.2" fill="none" />
@@ -531,8 +546,9 @@ export function BatXray({ massKg }: XrayProps) {
 
 // ─── Mouse ───────────────────────────────────────────────────────────────
 // Tiny body, fast heart (~600 bpm), proportionally huge brain.
-export function MouseXray({ massKg }: XrayProps) {
+export function MouseXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* tiny body */}
@@ -572,7 +588,7 @@ export function MouseXray({ massKg }: XrayProps) {
       ))}
 
       {/* big-relative-to-body brain */}
-      <ellipse cx="244" cy="170" rx="8" ry="6" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="244" cy="170" rx={8 * bs} ry={6 * bs} fill={BRAIN} opacity="0.9" />
 
       {/* huge ears */}
       <circle cx="232" cy="158" r="6" fill="none" stroke={BONE} strokeWidth="1" />
@@ -596,8 +612,9 @@ export function MouseXray({ massKg }: XrayProps) {
 
 // ─── Hummingbird ─────────────────────────────────────────────────────────
 // Huge keel sternum for flight muscles, fastest vertebrate heart.
-export function HummingbirdXray({ massKg }: XrayProps) {
+export function HummingbirdXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       {/* tiny body */}
@@ -624,7 +641,7 @@ export function HummingbirdXray({ massKg }: XrayProps) {
       </g>
 
       {/* huge brain (proportional) */}
-      <ellipse cx="200" cy="148" rx="5" ry="4" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="200" cy="148" rx={5 * bs} ry={4 * bs} fill={BRAIN} opacity="0.9" />
 
       {/* heart — super fast (1200 bpm in flight) */}
       <ellipse cx="200" cy="180" rx="4" ry="3.5" fill={HEART} opacity="0.95"
@@ -642,8 +659,9 @@ export function HummingbirdXray({ massKg }: XrayProps) {
 
 // ─── Eagle / Pterodactyl-style flying skeleton ───────────────────────────
 // Hollow bones, big keel, long wing.
-export function EagleXray({ massKg }: XrayProps) {
+export function EagleXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       <ellipse cx="200" cy="175" rx="46" ry="36" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
@@ -681,7 +699,7 @@ export function EagleXray({ massKg }: XrayProps) {
         style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
 
       {/* brain */}
-      <ellipse cx="200" cy="135" rx="7" ry="5" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="200" cy="135" rx={7 * bs} ry={5 * bs} fill={BRAIN} opacity="0.9" />
 
       {/* talons / legs */}
       <line x1="195" y1="208" x2="190" y2="232" stroke={BONE} strokeWidth="1.3" />
@@ -701,8 +719,9 @@ export function EagleXray({ massKg }: XrayProps) {
 
 // ─── Penguin ─────────────────────────────────────────────────────────────
 // Dense (not hollow) bones — sinks better for diving.
-export function PenguinXray({ massKg }: XrayProps) {
+export function PenguinXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   return (
     <g>
       <ellipse cx="200" cy="180" rx="46" ry="60" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
@@ -736,7 +755,7 @@ export function PenguinXray({ massKg }: XrayProps) {
       </g>
 
       {/* brain */}
-      <ellipse cx="200" cy="118" rx="6" ry="5" fill={BRAIN} opacity="0.9" />
+      <ellipse cx="200" cy="118" rx={6 * bs} ry={5 * bs} fill={BRAIN} opacity="0.9" />
 
       {/* big lungs (for diving breath-holds) */}
       <ellipse cx="183" cy="170" rx="12" ry="22" fill={LUNG} opacity="0.55" />
@@ -761,6 +780,7 @@ export function PenguinXray({ massKg }: XrayProps) {
 // Big-cat sprint skeleton: long spine, deep ribcage, leg bones, heart, lungs.
 export function QuadrupedXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
+  const bs = brainScaleFor(creature.brainTier);
   // tweak by shape: gorilla = upright-ish, polar bear = thicker, cheetah = slim
   const isUpright = creature.shape === 'gorilla';
   return (
@@ -815,7 +835,7 @@ export function QuadrupedXray({ creature, massKg }: XrayProps) {
       <ellipse cx={isUpright ? 217 : 240} cy={isUpright ? 160 : 158} rx={isUpright ? 12 : 22} ry={isUpright ? 14 : 9} fill={LUNG} opacity="0.5" />
 
       {/* brain */}
-      <ellipse cx={isUpright ? 200 : 295} cy={isUpright ? 115 : 142} rx="7" ry="5.5" fill={BRAIN} opacity="0.9" />
+      <ellipse cx={isUpright ? 200 : 295} cy={isUpright ? 115 : 142} rx={7 * bs} ry={5.5 * bs} fill={BRAIN} opacity="0.9" />
 
       {/* stomach */}
       <ellipse cx={isUpright ? 200 : 210} cy={isUpright ? 200 : 178} rx={isUpright ? 14 : 22} ry={isUpright ? 10 : 8} fill={STOMACH} opacity="0.45" />

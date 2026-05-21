@@ -89,6 +89,7 @@ export function creatureEpithet(c: Creature): string {
   const s = computeStats(c);
   if (c.defenseTier === 2) return 'the Iron';
   if (c.legTier === 2 && s.topSpeedKmh > 100) return 'the Swift';
+  if (c.brainTier === 3) return 'the Genius';
   if (c.brainTier === 2) return 'the Cunning';
   if (s.lifespanYears >= 40) return 'the Ancient';
   if (s.massKg < 1) return 'the Tiny';

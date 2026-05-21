@@ -1,4 +1,4 @@
-import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
+import type { Creature, BodyPlan, Tier, BrainTier, Hybrid } from '../types';
 import { isHybridValid } from '../physics';
 import { hybridCatalog, MAX_HYBRIDS } from '../data/hybrids';
 
@@ -69,10 +69,10 @@ export function Builder({ creature, onChange }: Props) {
         </div>
       </div>
 
-      <TierRow label="Legs" options={['stubby', 'standard', 'runner']} value={creature.legTier} onChange={(v) => set('legTier', v)} />
-      <TierRow label="Brain" options={['tiny', 'standard', 'big']} value={creature.brainTier} onChange={(v) => set('brainTier', v)} />
-      <TierRow label="Defense" options={['none', 'fur/scales', 'armor']} value={creature.defenseTier} onChange={(v) => set('defenseTier', v)} />
-      <TierRow label="Sensors" options={['simple', 'sharp', 'sonar']} value={creature.sensorTier} onChange={(v) => set('sensorTier', v)} />
+      <TierRow label="Legs" options={['stubby', 'standard', 'runner']} value={creature.legTier} onChange={(v) => set('legTier', v as Tier)} />
+      <TierRow label="Brain" options={['tiny', 'standard', 'big', 'genius']} value={creature.brainTier} onChange={(v) => set('brainTier', v as BrainTier)} />
+      <TierRow label="Defense" options={['none', 'fur/scales', 'armor']} value={creature.defenseTier} onChange={(v) => set('defenseTier', v as Tier)} />
+      <TierRow label="Sensors" options={['simple', 'sharp', 'sonar']} value={creature.sensorTier} onChange={(v) => set('sensorTier', v as Tier)} />
 
       <HybridSection creature={creature} onChange={(hybrids) => set('hybrids', hybrids)} />
     </div>
@@ -137,9 +137,9 @@ function TierRow({
   onChange,
 }: {
   label: string;
-  options: [string, string, string];
-  value: Tier;
-  onChange: (v: Tier) => void;
+  options: string[];
+  value: number;
+  onChange: (v: number) => void;
 }) {
   return (
     <div className="row">
@@ -150,7 +150,7 @@ function TierRow({
             key={i}
             type="button"
             className={value === i ? 'pill active' : 'pill'}
-            onClick={() => onChange(i as Tier)}
+            onClick={() => onChange(i)}
           >
             {opt}
           </button>

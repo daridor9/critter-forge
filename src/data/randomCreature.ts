@@ -1,4 +1,4 @@
-import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
+import type { Creature, BodyPlan, Tier, BrainTier, Hybrid } from '../types';
 import { hybridCatalog } from './hybrids';
 import { isHybridValid } from '../physics';
 
@@ -26,7 +26,7 @@ export function suggestName(c: Creature): string {
   if (c.sizeUnit < 20) adjPools.push(ADJECTIVES_SMALL);
   if (c.legTier === 2) adjPools.push(ADJECTIVES_FAST);
   if (c.defenseTier === 2) adjPools.push(ADJECTIVES_TOUGH);
-  if (c.brainTier === 2) adjPools.push(ADJECTIVES_SMART);
+  if (c.brainTier >= 2) adjPools.push(ADJECTIVES_SMART);
   if (adjPools.length === 0) adjPools.push(ADJECTIVES_DEFAULT);
 
   const adj = pick(pick(adjPools));
@@ -37,13 +37,15 @@ export function suggestName(c: Creature): string {
 export function randomCreature(): Creature {
   const bodyPlan = pick<BodyPlan>(['mammal', 'reptile', 'bird', 'fish']);
   const tiers: Tier[] = [0, 1, 2];
+  // Brain has a rare 4th tier — Genius — show up ~8% of the time on random.
+  const brainTiers: BrainTier[] = Math.random() < 0.08 ? [3] : [0, 1, 2];
   const base: Creature = {
     name: 'Random',
     sizeUnit: Math.floor(Math.random() * 95) + 3,
     bodyPlan,
     warmBlooded: Math.random() < 0.65,
     legTier: pick(tiers),
-    brainTier: pick(tiers),
+    brainTier: pick(brainTiers),
     defenseTier: pick(tiers),
     sensorTier: pick(tiers),
     hybrids: [],

@@ -28,6 +28,7 @@ const CONFIG = {
   lifespan:  { icon: '⏳', label: 'Lifespan',          color: '#8a6bbe' },
   bone:      { icon: '🦴', label: 'Bone-break risk', color: '#d65a5a', riskColor: '#5cc46a', reverse: true },
   heart:     { icon: '💗', label: 'Heart rate',       color: '#e88a96' },
+  brain:     { icon: '🧠', label: 'Brain size',       color: '#a880e8' },
 } as const satisfies Record<string, StatConfig>;
 
 const MAX = {
@@ -100,9 +101,26 @@ export function StatsPanel({ creature, stats, onAdjust }: Props) {
           beatPeriod={heartPeriod}
           onAdjust={onAdjust}
         />
+        <StatRow
+          stat="brain"
+          cfg={CONFIG.brain}
+          value={fmtBrain(stats.brainMassGrams)}
+          sub={`EQ ${stats.eq.toFixed(1)}×`}
+          bar={Math.min(1, stats.eq / 7)}
+          info={ex.brain}
+          onAdjust={onAdjust}
+        />
       </div>
     </div>
   );
+}
+
+function fmtBrain(grams: number): string {
+  if (grams < 0.1) return `${(grams * 1000).toFixed(0)} mg`;
+  if (grams < 1) return `${grams.toFixed(2)} g`;
+  if (grams < 10) return `${grams.toFixed(1)} g`;
+  if (grams < 1000) return `${Math.round(grams)} g`;
+  return `${(grams / 1000).toFixed(2)} kg`;
 }
 
 function StatRow({

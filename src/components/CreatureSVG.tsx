@@ -92,7 +92,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         ? [cx - bodyW * 0.38, cx - bodyW * 0.12, cx + bodyW * 0.12, cx + bodyW * 0.38]
         : [];
 
-  const brainHeadMult = [0.78, 1.0, 1.22][creature.brainTier];
+  const brainHeadMult = [0.78, 1.0, 1.22, 1.45][creature.brainTier];
   const headR = bodyH * 0.44 * brainHeadMult * props.headMult;
   const headCx = cx + bodyW / 2 - 6 * scale;
   const headCy = cy - bodyH * 0.14;
@@ -214,8 +214,8 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
         </g>
       )}
 
-      {creature.brainTier === 2 && showDetail && (
-        <circle cx={headCx - headR * 0.35} cy={headCy - headR * 0.75} r={headR * 0.55} fill={colors.main} />
+      {creature.brainTier >= 2 && showDetail && (
+        <circle cx={headCx - headR * 0.35} cy={headCy - headR * 0.75} r={headR * (creature.brainTier === 3 ? 0.65 : 0.55)} fill={colors.main} />
       )}
 
       {creature.bodyPlan === 'mammal' && showDetail && (() => {

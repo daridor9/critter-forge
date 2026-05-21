@@ -48,6 +48,7 @@ export function arenaFitFor(arena: ArenaId, c: Creature): ArenaFit {
       return { fit: 'tough', reason: 'Will drown without gills.' };
     }
     case 'maze': {
+      if (c.brainTier === 3) return { fit: 'great', reason: 'Genius brain — puzzles are no contest.' };
       if (c.brainTier === 2) return { fit: 'great', reason: 'Big brain solves puzzles.' };
       if (c.brainTier === 0) return { fit: 'tough', reason: 'Tiny brain gets lost.' };
       return { fit: 'ok', reason: 'Can muddle through.' };

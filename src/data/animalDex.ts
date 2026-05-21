@@ -1,4 +1,4 @@
-import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
+import type { Creature, BodyPlan, Tier, BrainTier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
 export type DexShape =
@@ -57,7 +57,7 @@ const make = (
   bodyPlan: BodyPlan,
   warmBlooded: boolean,
   legTier: Tier,
-  brainTier: Tier,
+  brainTier: BrainTier,
   defenseTier: Tier,
   sensorTier: Tier,
   hybrids: Hybrid[],
@@ -101,8 +101,8 @@ export const ANIMAL_DEX: DexAnimal[] = [
     'Lives 65 years. Mourns dead. Largest land brain on Earth. Trunk has 40,000+ muscles; tusks are continuously-growing incisors.', 'elephant'),
   make('Blue whale', '🐳', 100000, 'mammal', true, 0, 2, 2, 1, ['echolocation'],
     'The biggest animal that has ever lived. Heart beats once every 10 seconds when diving.', 'whale'),
-  make('Dolphin', '🐬', 200, 'mammal', true, 0, 2, 1, 2, ['echolocation', 'gills'],
-    'Recognizes itself in a mirror. Uses ultrasound to navigate murky water. Streamlined body + curved dorsal fin + iconic smile.', 'dolphin'),
+  make('Dolphin', '🐬', 200, 'mammal', true, 0, 3, 1, 2, ['echolocation', 'gills'],
+    'Recognizes itself in a mirror. Uses ultrasound to navigate murky water. EQ ~5 — second only to humans.', 'dolphin'),
   make('Sloth', '🦥', 6, 'mammal', true, 0, 0, 1, 1, ['symbiosis'],
     'Algae grows in its fur for camouflage. Moves 30 cm/min. Sleeps 18h a day.'),
   make('Kangaroo', '🦘', 60, 'mammal', true, 2, 1, 0, 1, [],
@@ -129,8 +129,8 @@ export const ANIMAL_DEX: DexAnimal[] = [
     'Crushes prey 1.5× its own mass. Cold-blooded — needs sun to digest.', 'snake'),
   make('Great white shark', '🦈', 1100, 'fish', false, 0, 1, 1, 2, ['electric', 'gills'],
     'Detects electric fields from heartbeats. 300 serrated teeth in rows, replaced lifelong. Triangular dorsal fin + crescent tail.', 'shark'),
-  make('Octopus', '🐙', 5, 'fish', false, 0, 2, 0, 2, ['camouflage', 'venom'],
-    '9 brains (one main + one per arm). Opens jars. Edits its own RNA.', 'octopus'),
+  make('Octopus', '🐙', 5, 'fish', false, 0, 3, 0, 2, ['camouflage', 'venom'],
+    '9 brains (one main + one per arm). Opens jars. Edits its own RNA. EQ ~2 — smartest invertebrate.', 'octopus'),
   make('Velociraptor', '🦖', 20, 'reptile', false, 2, 2, 0, 2, ['venom'],
     'Pack hunter the size of a turkey. Feathered (Jurassic Park lied). Sickle claw could disembowel prey.', 'raptor'),
   make('Triceratops', '🦕', 6000, 'reptile', false, 0, 1, 2, 1, [],

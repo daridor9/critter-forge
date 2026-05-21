@@ -104,7 +104,7 @@ function XrayAnatomy({ creature, cx, footY }: { creature: Creature; cx: number; 
   const bodyW = bodyH * bodyAspect;
   const legLen = [bodyH * 0.4, bodyH * 0.75, bodyH * 1.15][creature.legTier];
   const cy = footY - bodyH / 2 - legLen;
-  const headR = bodyH * 0.44 * [0.78, 1.0, 1.22][creature.brainTier] * (1.42 - sizeT * 1.1);
+  const headR = bodyH * 0.44 * [0.78, 1.0, 1.22, 1.45][creature.brainTier] * (1.42 - sizeT * 1.1);
   const headCx = cx + bodyW / 2 - 6;
   const headCy = cy - bodyH * 0.14;
 
@@ -165,8 +165,8 @@ function XrayAnatomy({ creature, cx, footY }: { creature: Creature; cx: number; 
       <ellipse
         cx={headCx + headR * 0.05}
         cy={headCy - headR * 0.15}
-        rx={headR * 0.55 * [0.5, 0.85, 1.05][creature.brainTier]}
-        ry={headR * 0.45 * [0.5, 0.85, 1.05][creature.brainTier]}
+        rx={headR * 0.55 * [0.5, 0.85, 1.05, 1.3][creature.brainTier]}
+        ry={headR * 0.45 * [0.5, 0.85, 1.05, 1.3][creature.brainTier]}
         fill="#c890e0"
         opacity="0.55"
       />

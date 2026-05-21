@@ -1,6 +1,10 @@
 export type BodyPlan = 'mammal' | 'reptile' | 'bird' | 'fish';
 
 export type Tier = 0 | 1 | 2;
+// Brain has a 4th tier (Genius) beyond the standard 3-tier system.
+// Tier 3 represents the encephalization-quotient outliers — humans, dolphins,
+// some octopi, ravens, elephants. Costs 50% more food than baseline.
+export type BrainTier = 0 | 1 | 2 | 3;
 
 export type Hybrid =
   | 'echolocation'
@@ -30,7 +34,7 @@ export interface Creature {
   bodyPlan: BodyPlan;
   warmBlooded: boolean;
   legTier: Tier;
-  brainTier: Tier;
+  brainTier: BrainTier;
   defenseTier: Tier;
   sensorTier: Tier;
   hybrids: Hybrid[];

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Creature, Tier, Hybrid } from '../types';
+import type { Creature, Tier, BrainTier, Hybrid } from '../types';
 import { isHybridValid } from '../physics';
 import { hybridCatalog } from '../data/hybrids';
 import { CreatureSVG } from './CreatureSVG';
@@ -13,6 +13,9 @@ interface Props {
 function clampTier(t: number): Tier {
   return Math.max(0, Math.min(2, Math.round(t))) as Tier;
 }
+function clampBrainTier(t: number): BrainTier {
+  return Math.max(0, Math.min(3, Math.round(t))) as BrainTier;
+}
 
 const NAME_PREFIXES = ['Swift', 'Stout', 'Sleek', 'Bright', 'Bold', 'Tiny', 'Mighty', 'Sly'];
 
@@ -22,11 +25,11 @@ function mutateName(parent: string): string {
 }
 
 const TIER_NAMES_LEG = ['stubby', 'standard', 'runner'];
-const TIER_NAMES_BRAIN = ['tiny', 'standard', 'big'];
+const TIER_NAMES_BRAIN = ['tiny', 'standard', 'big', 'genius'];
 const TIER_NAMES_DEFENSE = ['none', 'fur/scales', 'armor'];
 const TIER_NAMES_SENSORS = ['simple', 'sharp', 'sonar'];
 
-function describeTierChange(label: string, names: readonly string[], from: Tier, to: Tier): string | null {
+function describeTierChange(label: string, names: readonly string[], from: number, to: number): string | null {
   if (from === to) return null;
   const arrow = to > from ? '↑' : '↓';
   return `${label} ${names[from]} → ${names[to]} ${arrow}`;
@@ -57,7 +60,7 @@ function mutate(parent: Creature): Mutation {
     },
     (c) => {
       const dir = Math.random() < 0.5 ? -1 : 1;
-      const next = clampTier(c.brainTier + dir);
+      const next = clampBrainTier(c.brainTier + dir);
       if (next === c.brainTier) return { creature: c, change: null };
       return { creature: { ...c, brainTier: next }, change: describeTierChange('Brain', TIER_NAMES_BRAIN, c.brainTier, next) };
     },

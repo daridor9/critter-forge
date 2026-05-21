@@ -1,9 +1,10 @@
-import type { Creature, Tier } from '../types';
+import type { Creature, Tier, BrainTier } from '../types';
 
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 const tier = (t: number): Tier => Math.max(0, Math.min(2, t)) as Tier;
+const brainTier = (t: number): BrainTier => Math.max(0, Math.min(3, t)) as BrainTier;
 
-export type StatKey = 'mass' | 'food' | 'vigil' | 'speed' | 'endurance' | 'cold' | 'lifespan' | 'bone' | 'heart';
+export type StatKey = 'mass' | 'food' | 'vigil' | 'speed' | 'endurance' | 'cold' | 'lifespan' | 'bone' | 'heart' | 'brain';
 
 export interface AdjustResult {
   creature: Creature;
@@ -22,12 +23,12 @@ export function adjustCreatureForStat(c: Creature, stat: StatKey, dir: 1 | -1): 
     case 'food': {
       if (dir > 0) {
         if (!c.warmBlooded) return { creature: { ...c, warmBlooded: true }, changed: true };
-        if (c.brainTier < 2) return { creature: { ...c, brainTier: tier(c.brainTier + 1) }, changed: true };
+        if (c.brainTier < 3) return { creature: { ...c, brainTier: brainTier(c.brainTier + 1) }, changed: true };
         const next = clamp(c.sizeUnit + 5);
         if (next === c.sizeUnit) return noChange;
         return { creature: { ...c, sizeUnit: next }, changed: true };
       }
-      if (c.brainTier > 0) return { creature: { ...c, brainTier: tier(c.brainTier - 1) }, changed: true };
+      if (c.brainTier > 0) return { creature: { ...c, brainTier: brainTier(c.brainTier - 1) }, changed: true };
       if (c.warmBlooded) return { creature: { ...c, warmBlooded: false }, changed: true };
       const next = clamp(c.sizeUnit - 5);
       if (next === c.sizeUnit) return noChange;
@@ -36,11 +37,16 @@ export function adjustCreatureForStat(c: Creature, stat: StatKey, dir: 1 | -1): 
     case 'vigil': {
       const next = tier(c.sensorTier + dir);
       if (next === c.sensorTier) {
-        const bnext = tier(c.brainTier + dir);
+        const bnext = brainTier(c.brainTier + dir);
         if (bnext === c.brainTier) return noChange;
         return { creature: { ...c, brainTier: bnext }, changed: true };
       }
       return { creature: { ...c, sensorTier: next }, changed: true };
+    }
+    case 'brain': {
+      const next = brainTier(c.brainTier + dir);
+      if (next === c.brainTier) return noChange;
+      return { creature: { ...c, brainTier: next }, changed: true };
     }
     case 'speed':
     case 'endurance': {

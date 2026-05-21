@@ -1,4 +1,4 @@
-import type { Creature, BodyPlan, Tier, Hybrid } from './types';
+import type { Creature, BodyPlan, Tier, BrainTier, Hybrid } from './types';
 
 // Size slider 0..100 → mass 0.01 kg..100,000 kg (log scale)
 export function sizeToMass(sizeUnit: number): number {
@@ -15,11 +15,35 @@ export function basalKcalPerDay(massKg: number, warmBlooded: boolean): number {
   return warmBlooded ? warm : warm * 0.1;
 }
 
-// Brain energy cost: tier 0 ~ no overhead, tier 2 adds ~25%.
-export function totalKcalPerDay(massKg: number, warmBlooded: boolean, brainTier: Tier): number {
+// Brain energy cost: tier 0 ~ no overhead, tier 2 adds ~25%, tier 3 (genius) +50%.
+// A real human brain (~2% of body mass) burns ~20% of total energy.
+export function totalKcalPerDay(massKg: number, warmBlooded: boolean, brainTier: BrainTier): number {
   const base = basalKcalPerDay(massKg, warmBlooded);
-  const brainMult = [1.0, 1.10, 1.25][brainTier];
+  const brainMult = [1.0, 1.10, 1.25, 1.5][brainTier];
   return base * brainMult;
+}
+
+// Mammalian brain allometry: M_brain ≈ 0.01 · M_body^0.76 (kg).
+// This is the "expected" brain mass for a generic mammal of that body size.
+// 0.76 is the standard exponent across vertebrates.
+function expectedBrainMassKg(massKg: number): number {
+  return 0.01 * Math.pow(massKg, 0.76);
+}
+
+// Encephalization Quotient — actual brain mass ÷ expected for that body size.
+// Anchors: cow ~0.5, dog ~1.2, chimp ~2.5, dolphin ~5, human ~7, octopus ~1.5.
+// Each tier roughly doubles+ over the previous.
+function eqForTier(tier: BrainTier): number {
+  return [0.35, 1.0, 2.5, 6.0][tier];
+}
+
+export function encephalizationQuotient(c: Creature): number {
+  return eqForTier(c.brainTier);
+}
+
+export function brainMassGrams(c: Creature): number {
+  const m = sizeToMass(c.sizeUnit);
+  return expectedBrainMassKg(m) * eqForTier(c.brainTier) * 1000;
 }
 
 function bodyPlanSpeedMult(bp: BodyPlan): number {
@@ -121,6 +145,8 @@ export interface CreatureStats {
   lifespanYears: number;
   boneBreakRisk: number;
   heartRateBpm: number;
+  brainMassGrams: number;
+  eq: number;
 }
 
 export function vigilanceTaxFraction(c: Creature): number {
@@ -142,6 +168,7 @@ export interface StatExplanations {
   boneBreakRisk: string;
   heartRateBpm: string;
   vigilance: string;
+  brain: string;
 }
 
 export function explainStats(c: Creature, s: CreatureStats): StatExplanations {
@@ -152,7 +179,7 @@ export function explainStats(c: Creature, s: CreatureStats): StatExplanations {
     foodKcalPerDay:
       `Kleiber's law: BMR = 70 × mass^0.75 = ${Math.round(70 * Math.pow(s.massKg, 0.75))} kcal/day` +
       (c.warmBlooded ? '' : ' × 0.1 (cold-blooded eats 10× less per kg)') +
-      (c.brainTier === 2 ? ' × 1.25 (big brain costs 25%)' : c.brainTier === 1 ? ' × 1.10 (brain costs 10%)' : '') +
+      (c.brainTier === 3 ? ' × 1.50 (genius brain costs 50%)' : c.brainTier === 2 ? ' × 1.25 (big brain costs 25%)' : c.brainTier === 1 ? ' × 1.10 (brain costs 10%)' : '') +
       (c.hybrids.length ? ' × hybrid costs' : '') +
       (vigTax !== 0 ? ` × (1 ${vigTax > 0 ? '+' : ''}${(vigTax * 100).toFixed(0)}% vigilance)` : '') +
       `. Result: ${Math.round(s.foodKcalPerDay)} kcal — ${fmtMass(s.foodKgPerDay)} of food per day.`,
@@ -179,6 +206,12 @@ export function explainStats(c: Creature, s: CreatureStats): StatExplanations {
       `Heart rate ∝ mass^(−1/4). All mammals share ~1.5 billion heartbeats per lifetime — ` +
       `small fast hearts burn through them in years; whale hearts last a century. ` +
       `Yours: ${s.heartRateBpm} bpm.`,
+    brain:
+      `Brain mass ≈ 0.01 × body_mass^0.76 (kg). For a ${fmtMass(s.massKg)} body, a "standard" mammal ` +
+      `brain would weigh ~${Math.round(expectedBrainMassKg(s.massKg) * 1000)} g. Your tier ` +
+      `(${['tiny','standard','big','genius'][c.brainTier]}) gives an EQ — encephalization quotient — of ${s.eq.toFixed(1)}×, ` +
+      `so brain mass is ~${s.brainMassGrams < 1 ? `${(s.brainMassGrams * 1000).toFixed(0)} mg` : `${s.brainMassGrams < 10 ? s.brainMassGrams.toFixed(1) : Math.round(s.brainMassGrams)} g`}. ` +
+      `For reference: cow EQ ~0.5, dog ~1.2, chimp ~2.5, dolphin ~5, human ~7.`,
   };
 }
 
@@ -211,5 +244,7 @@ export function computeStats(c: Creature): CreatureStats {
     lifespanYears: lifespanYears(m, c.warmBlooded),
     boneBreakRisk: boneBreakRisk(m, c.legTier),
     heartRateBpm: heartRate(m),
+    brainMassGrams: brainMassGrams(c),
+    eq: eqForTier(c.brainTier),
   };
 }
