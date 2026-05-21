@@ -5,6 +5,7 @@ import { CreatureSVG } from './CreatureSVG';
 import { simulateBattle, VENUE_META } from '../data/battle';
 import type { Venue, BattleStep, BattleResult } from '../data/battle';
 import { hybridCatalog } from '../data/hybrids';
+import { recordBattle } from '../data/profile';
 
 interface SavedCreature {
   id: string;
@@ -61,6 +62,7 @@ export function BattleModal({ current, onClose }: Props) {
 
   function startBattle() {
     const r = simulateBattle(cA, cB, venue);
+    recordBattle(venue, r.winner);
     setResult(r);
     setLogIdx(0);
     setStep('play');
@@ -69,6 +71,7 @@ export function BattleModal({ current, onClose }: Props) {
   function rematch() {
     if (tickRef.current !== null) window.clearTimeout(tickRef.current);
     const r = simulateBattle(cA, cB, venue);
+    recordBattle(venue, r.winner);
     setResult(r);
     setLogIdx(0);
     setStep('play');

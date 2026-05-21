@@ -2756,6 +2756,32 @@ h2 {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+.profile-table-hunt td { font-variant-numeric: tabular-nums; }
+.profile-table-hunt small { color: var(--fg-dim); font-size: 10.5px; }
+.profile-best {
+  font-size: 11px;
+  color: #c25541;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.profile-dim { color: var(--fg-dim); }
+.profile-empty {
+  color: var(--fg-dim);
+  font-size: 12px;
+  margin: 4px 0 18px;
+  font-style: italic;
+}
+.profile-total-row td {
+  background: #fbf6e8;
+  border-top: 2px solid #d8c8a0;
+  text-align: left;
+}
+.profile-total-row td:last-child { text-align: right; }
+.profile-foot {
+  margin-top: 14px;
+  text-align: center;
+  color: var(--fg-dim);
+}
 .profile-prey {
   display: flex;
   gap: 10px;

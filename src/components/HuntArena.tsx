@@ -7,6 +7,8 @@ import { CreatureBody } from './CreatureSVG';
 export type HuntOutcome = {
   won: boolean;
   reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught';
+  env: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean';
+  strategy: 'hide' | 'run' | 'fight';
 };
 
 interface Props {
@@ -147,7 +149,7 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     const adjustedMargin = result.margin + luck;
     const won = adjustedMargin > 0;
     setDone(true);
-    onFinish({ won, reason: reasonFor(strategy, won, creature) });
+    onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy });
   }
 
   function reset() { setDone(false); }
