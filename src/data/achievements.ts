@@ -1,5 +1,6 @@
 import type { Creature } from '../types';
 import type { ArenaResult } from './insights';
+import { loadProfile } from './profile';
 
 export interface Achievement {
   id: string;
@@ -31,6 +32,23 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'beat-kangaroo',     emoji: '🦘', name: 'Out-hopped a kangaroo', description: 'Catch the kangaroo (70 km/h).' },
   { id: 'beat-shark',        emoji: '🦈', name: 'Bigger than a shark',  description: 'Survive the Shark.' },
   { id: 'fought-back',       emoji: '⚔️', name: 'Fought back',          description: 'Win a Hunt by fighting.' },
+
+  // Stats-driven badges (auto-check after every arena/battle).
+  { id: 'deep-100',          emoji: '🤿', name: 'Diver',                description: 'Dive past 100 m.' },
+  { id: 'deep-500',          emoji: '🧜', name: 'Deep-sea swimmer',     description: 'Dive past 500 m.' },
+  { id: 'deep-1000',         emoji: '🐋', name: 'Abyss',                description: 'Dive past 1000 m.' },
+  { id: 'drought-14',        emoji: '🌵', name: 'Two-week thirst',      description: 'Survive 14 days of drought.' },
+  { id: 'drought-30',        emoji: '🏜️', name: 'Camel-tier',           description: 'Survive 30 days of drought.' },
+  { id: 'maze-fast',         emoji: '⚡', name: 'Maze sprinter',        description: 'Escape the maze in under 25 steps.' },
+  { id: 'maze-genius',       emoji: '🧠', name: 'Puzzle prodigy',       description: 'Escape the maze in under 20 steps.' },
+  { id: 'hunt-streak-5',     emoji: '🎯', name: 'On a roll',             description: '5 Hunt wins in a row.' },
+  { id: 'hunt-streak-10',    emoji: '🔥', name: 'Apex predator',         description: '10 Hunt wins in a row.' },
+  { id: 'chase-big-haul',    emoji: '🍖', name: 'Big haul',              description: 'Catch a 4,800-kcal prey (kangaroo).' },
+  { id: 'tests-50',          emoji: '🧪', name: 'Field researcher',      description: 'Run 50 arena tests.' },
+  { id: 'tests-200',         emoji: '🔬', name: 'Naturalist',            description: 'Run 200 arena tests.' },
+  { id: 'battle-first',      emoji: '⚔️', name: 'First blood',           description: 'Win a 1-vs-1 battle.' },
+  { id: 'battle-all-venues', emoji: '🥋', name: 'All-arounder',          description: 'Win in all 4 battle venues.' },
+  { id: 'bracket-champ',     emoji: '👑', name: 'Bracket champion',      description: 'Win a tournament bracket.' },
 ];
 
 const KEY = 'critter-forge:achievements';
@@ -159,4 +177,43 @@ export function checkGenAchievements(gen: number): Achievement[] {
     if (a) out.push(a);
   }
   return out;
+}
+
+// Re-evaluates the stats-driven badges against the current profile. Call
+// after recordArena() or recordBattle() — anything that changed personal
+// bests, streaks, or totals.
+export function checkStatsAchievements(): Achievement[] {
+  const out: Achievement[] = [];
+  const p = loadProfile();
+
+  if (p.bestDeepDepth >= 100) push(out, tryUnlock('deep-100'));
+  if (p.bestDeepDepth >= 500) push(out, tryUnlock('deep-500'));
+  if (p.bestDeepDepth >= 1000) push(out, tryUnlock('deep-1000'));
+
+  if (p.bestDroughtDays >= 14) push(out, tryUnlock('drought-14'));
+  if (p.bestDroughtDays >= 30) push(out, tryUnlock('drought-30'));
+
+  if (p.fastestMazeSteps > 0 && p.fastestMazeSteps <= 25) push(out, tryUnlock('maze-fast'));
+  if (p.fastestMazeSteps > 0 && p.fastestMazeSteps <= 20) push(out, tryUnlock('maze-genius'));
+
+  if (p.longestHuntStreak >= 5) push(out, tryUnlock('hunt-streak-5'));
+  if (p.longestHuntStreak >= 10) push(out, tryUnlock('hunt-streak-10'));
+
+  if (p.bestChaseKcal >= 4800) push(out, tryUnlock('chase-big-haul'));
+
+  if (p.testsRun >= 50) push(out, tryUnlock('tests-50'));
+  if (p.testsRun >= 200) push(out, tryUnlock('tests-200'));
+
+  // Battles
+  const bv = p.battleByVenue;
+  const totalBattleWins = Object.values(bv).reduce((acc, v) => acc + v.wins, 0);
+  if (totalBattleWins >= 1) push(out, tryUnlock('battle-first'));
+  const venueWins = (['brawl', 'race', 'maze', 'dive'] as const).every((v) => (bv[v]?.wins ?? 0) >= 1);
+  if (venueWins) push(out, tryUnlock('battle-all-venues'));
+
+  return out;
+}
+
+function push(arr: Achievement[], a: Achievement | null): void {
+  if (a) arr.push(a);
 }

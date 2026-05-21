@@ -24,6 +24,7 @@ import { DailyChallengeModal } from './components/DailyChallenge';
 import { CompareModal } from './components/CompareModal';
 import { LineageModal } from './components/LineageModal';
 import { BattleModal } from './components/BattleModal';
+import { BracketModal } from './components/BracketModal';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
 import { recordRoot, recordEvolve } from './data/lineage';
@@ -54,10 +55,11 @@ import {
   checkCreatureAchievements,
   checkSaveAchievements,
   checkGenAchievements,
+  checkStatsAchievements,
 } from './data/achievements';
 import { buildShareLink, readCreatureFromHash, clearCreatureHash } from './utils/shareLink';
 import { sizeToMass } from './physics';
-import { sounds, isMuted, setMuted } from './sounds';
+import { sounds, isMuted, setMuted, startAmbient } from './sounds';
 import './App.css';
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -132,6 +134,7 @@ export default function App() {
   const [showCompare, setShowCompare] = useState(false);
   const [showLineage, setShowLineage] = useState(false);
   const [showBattle, setShowBattle] = useState(false);
+  const [showBracket, setShowBracket] = useState(false);
   const [xray, setXray] = useState(false);
   const [lineageId, setLineageId] = useState<string | null>(() => recordRoot(defaultCreature));
   const [toasts, setToasts] = useState<Achievement[]>([]);
@@ -187,6 +190,18 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creature]);
 
+  // Ambient habitat audio — re-keys whenever bodyPlan changes. Muted state
+  // is respected internally.
+  useEffect(() => {
+    const habitat =
+      creature.bodyPlan === 'mammal' ? 'meadow' :
+      creature.bodyPlan === 'reptile' ? 'rocky' :
+      creature.bodyPlan === 'bird' ? 'sky' : 'underwater';
+    if (!muted) startAmbient(habitat);
+    return () => { /* don't stop on every re-render */ };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creature.bodyPlan, muted]);
+
   useEffect(() => {
     const got = checkGenAchievements(generation);
     if (got.length > 0) pushToasts(got);
@@ -200,6 +215,10 @@ export default function App() {
     recordArena(r);
     const arenaGot = checkArenaWin(r);
     if (arenaGot.length > 0) pushToasts(arenaGot);
+    // Stats badges might have just unlocked (e.g. dive depth, drought days,
+    // maze speed, hunt streak, tests-run thresholds).
+    const statsGot = checkStatsAchievements();
+    if (statsGot.length > 0) pushToasts(statsGot);
     if (r.arena === 'chase' && r.won) {
       if ('preyId' in r && r.preyId && 'reward' in r && typeof r.reward === 'number') {
         recordChaseCatch(r.preyId, r.reward);
@@ -421,6 +440,7 @@ export default function App() {
           <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
           <button className="header-btn" type="button" onClick={() => { setShowCompare(true); sounds.click(); }} title="Compare two creatures side by side">⚖️</button>
           <button className="header-btn" type="button" onClick={() => { setShowBattle(true); sounds.click(); }} title="Pit two creatures in a battle">⚔️</button>
+          <button className="header-btn" type="button" onClick={() => { setShowBracket(true); sounds.click(); }} title="Battle bracket — 4 or 8 creatures, single elimination">🥇</button>
           <button className="header-btn" type="button" onClick={() => { setShowLineage(true); sounds.click(); }} title="Lineage timeline">📈</button>
           <button className="header-btn" type="button" onClick={() => { setShowQuests(true); sounds.click(); }} title="Design quests">🎯</button>
           <button className="header-btn" type="button" onClick={() => { setShowDaily(true); sounds.click(); }} title="Today's challenge">📅</button>
@@ -578,6 +598,7 @@ export default function App() {
       {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
       {showLineage && <LineageModal currentLineageId={lineageId} onClose={() => setShowLineage(false)} />}
       {showBattle && <BattleModal current={creature} onClose={() => setShowBattle(false)} />}
+      {showBracket && <BracketModal current={creature} onClose={() => setShowBracket(false)} />}
 
       {toasts.length > 0 && (
         <div className="toast-stack">
