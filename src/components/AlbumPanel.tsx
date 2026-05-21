@@ -8,6 +8,7 @@ interface SavedCreature {
   name: string;
   creature: Creature;
   savedAt: number;
+  notes?: string;
 }
 
 const KEY = 'critter-forge:album';
@@ -41,6 +42,8 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
   const [breedMode, setBreedMode] = useState(false);
   const [pickedIds, setPickedIds] = useState<string[]>([]);
   const [breedPair, setBreedPair] = useState<[Creature, Creature] | null>(null);
+  const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState('');
 
   useEffect(() => {
     if (!justSavedId) return;
@@ -97,6 +100,20 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
     setPickedIds([]);
   }
 
+  function startEditNotes(item: SavedCreature) {
+    setEditingNotesId(item.id);
+    setNotesDraft(item.notes ?? '');
+  }
+
+  function saveNotes() {
+    if (!editingNotesId) return;
+    const next = items.map((i) => (i.id === editingNotesId ? { ...i, notes: notesDraft } : i));
+    setItems(next);
+    writeAlbum(next);
+    setEditingNotesId(null);
+    setNotesDraft('');
+  }
+
   return (
     <section className="album">
       <div className="album-head">
@@ -122,6 +139,7 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
         <div className="album-grid">
           {items.map((item) => {
             const selected = breedMode && pickedIds.includes(item.id);
+            const isEditing = editingNotesId === item.id;
             return (
               <div
                 key={item.id}
@@ -137,9 +155,34 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
                 </button>
                 <div className="album-name" title={item.name}>{item.name}</div>
                 {!breedMode && (
-                  <button className="album-del" type="button" onClick={() => remove(item.id)} title="Delete">
-                    ✕
-                  </button>
+                  <>
+                    {isEditing ? (
+                      <div className="album-notes-editor">
+                        <textarea
+                          value={notesDraft}
+                          onChange={(e) => setNotesDraft(e.target.value)}
+                          placeholder="Add a note (e.g. 'best for Drought')…"
+                          rows={2}
+                          maxLength={120}
+                        />
+                        <div className="album-notes-actions">
+                          <button type="button" className="album-note-btn" onClick={saveNotes}>Save</button>
+                          <button type="button" className="album-note-btn" onClick={() => setEditingNotesId(null)}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : item.notes ? (
+                      <div className="album-notes" onClick={() => startEditNotes(item)} title="Click to edit">
+                        📝 {item.notes}
+                      </div>
+                    ) : (
+                      <button type="button" className="album-add-note" onClick={() => startEditNotes(item)}>
+                        + add note
+                      </button>
+                    )}
+                    <button className="album-del" type="button" onClick={() => remove(item.id)} title="Delete">
+                      ✕
+                    </button>
+                  </>
                 )}
               </div>
             );

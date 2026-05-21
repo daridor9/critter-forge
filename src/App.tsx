@@ -21,8 +21,11 @@ import { AchievementsModal, AchievementToast } from './components/AchievementsMo
 import { ProfileModal } from './components/ProfileModal';
 import { QuestsModal } from './components/QuestsModal';
 import { DailyChallengeModal } from './components/DailyChallenge';
+import { CompareModal } from './components/CompareModal';
+import { LineageModal } from './components/LineageModal';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
+import { recordRoot, recordEvolve } from './data/lineage';
 import {
   recordArena,
   recordChaseCatch,
@@ -67,7 +70,26 @@ const arenaTabs: { id: ArenaId; label: string }[] = [
 ];
 
 export default function App() {
-  const [creature, setCreature] = useState<Creature>(defaultCreature);
+  const [creature, setCreatureRaw] = useState<Creature>(defaultCreature);
+  const [undoStack, setUndoStack] = useState<Creature[]>([]);
+
+  function setCreature(next: Creature | ((prev: Creature) => Creature)) {
+    const resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(creature) : next;
+    if (resolved !== creature) {
+      setUndoStack((s) => [...s.slice(-19), creature]);
+    }
+    setCreatureRaw(resolved);
+  }
+
+  function undo() {
+    setUndoStack((s) => {
+      if (s.length === 0) return s;
+      const prev = s[s.length - 1];
+      setCreatureRaw(prev);
+      sounds.click();
+      return s.slice(0, -1);
+    });
+  }
   const stats = useMemo(() => computeStats(creature), [creature]);
   const [insight, setInsight] = useState<Insight | null>(null);
   const [arenaId, setArenaId] = useState<ArenaId>('chase');
@@ -82,7 +104,10 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showQuests, setShowQuests] = useState(false);
   const [showDaily, setShowDaily] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
+  const [showLineage, setShowLineage] = useState(false);
   const [xray, setXray] = useState(false);
+  const [lineageId, setLineageId] = useState<string | null>(() => recordRoot(defaultCreature));
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const toastTimers = useRef<number[]>([]);
 
@@ -353,6 +378,7 @@ export default function App() {
         <div className="header-actions">
           <button className="header-btn" type="button" onClick={doRandom} title="Random creature">🎲 Random</button>
           <button className="header-btn" type="button" onClick={doSuggestName} title="Suggest a name based on traits">✏️ Name</button>
+          <button className="header-btn" type="button" onClick={undo} disabled={undoStack.length === 0} title={`Undo last change (${undoStack.length})`}>↶ Undo</button>
           <button className="header-btn" type="button" onClick={doReset} title="Reset to default">↺ Reset</button>
           <button className="header-btn" type="button" onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>
             {muted ? '🔇' : '🔊'}
@@ -363,6 +389,8 @@ export default function App() {
             <button className="header-btn header-btn-primary" type="button" onClick={exitTournament} title="Leave tournament">🚪 Exit</button>
           )}
           <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
+          <button className="header-btn" type="button" onClick={() => { setShowCompare(true); sounds.click(); }} title="Compare two creatures side by side">⚖️</button>
+          <button className="header-btn" type="button" onClick={() => { setShowLineage(true); sounds.click(); }} title="Lineage timeline">📈</button>
           <button className="header-btn" type="button" onClick={() => { setShowQuests(true); sounds.click(); }} title="Design quests">🎯</button>
           <button className="header-btn" type="button" onClick={() => { setShowDaily(true); sounds.click(); }} title="Today's challenge">📅</button>
           <button className="header-btn" type="button" onClick={() => { setShowProfile(true); sounds.click(); }} title="Your profile">👤</button>
@@ -434,7 +462,14 @@ export default function App() {
         onLoad={(c, fromBreed) => {
           setCreature(c);
           sounds.click();
-          if (fromBreed) recordBred();
+          if (fromBreed) {
+            recordBred();
+            const newId = lineageId ? recordEvolve(lineageId, c, [`Bred offspring`]) : recordRoot(c);
+            setLineageId(newId);
+          } else {
+            const newId = recordRoot(c);
+            setLineageId(newId);
+          }
         }}
         onSaved={(count) => {
           sounds.save();
@@ -456,6 +491,8 @@ export default function App() {
           parent={creature}
           onPick={(c) => {
             setCreature(c);
+            const newId = lineageId ? recordEvolve(lineageId, c, [`Evolved from ${creature.name}`]) : recordRoot(c);
+            setLineageId(newId);
             recordEvolved();
             recordGeneration();
             if (tournament) {
@@ -503,6 +540,8 @@ export default function App() {
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
       {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
       {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
+      {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
+      {showLineage && <LineageModal currentLineageId={lineageId} onClose={() => setShowLineage(false)} />}
 
       {toasts.length > 0 && (
         <div className="toast-stack">
