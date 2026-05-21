@@ -3,7 +3,14 @@ import type { DexAnimal } from '../data/animalDex';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { SnakeShape } from './SnakeShape';
-import { OctopusShape, WhaleShape, DolphinShape, PenguinShape, LionShape, CheetahShape, SnowLeopardShape, WolfShape, PolarBearShape, MouseShape, HummingbirdShape, BatShape, RaptorShape, TriceratopsShape, StegosaurusShape, PterodactylShape } from './dexShapes';
+import {
+  OctopusShape, WhaleShape, DolphinShape, PenguinShape,
+  LionShape, CheetahShape, SnowLeopardShape, WolfShape, PolarBearShape,
+  MouseShape, HummingbirdShape, BatShape,
+  ElephantShape, GorillaShape, CamelShape, OstrichShape, EagleShape, OwlShape,
+  TortoiseShape, CrocodileShape, SharkShape,
+  RaptorShape, TriceratopsShape, StegosaurusShape, PterodactylShape,
+} from './dexShapes';
 
 interface Props {
   current: Creature;
@@ -57,6 +64,15 @@ function DexThumb({ animal }: { animal: DexAnimal }) {
     if (animal.shape === 'snowleopard') return <SnowLeopardShape colors={animal.colors} />;
     if (animal.shape === 'wolf') return <WolfShape colors={animal.colors} />;
     if (animal.shape === 'polarbear') return <PolarBearShape colors={animal.colors} />;
+    if (animal.shape === 'elephant') return <ElephantShape colors={animal.colors} />;
+    if (animal.shape === 'gorilla') return <GorillaShape colors={animal.colors} />;
+    if (animal.shape === 'camel') return <CamelShape colors={animal.colors} />;
+    if (animal.shape === 'ostrich') return <OstrichShape colors={animal.colors} />;
+    if (animal.shape === 'eagle') return <EagleShape colors={animal.colors} />;
+    if (animal.shape === 'owl') return <OwlShape colors={animal.colors} />;
+    if (animal.shape === 'tortoise') return <TortoiseShape colors={animal.colors} />;
+    if (animal.shape === 'crocodile') return <CrocodileShape colors={animal.colors} />;
+    if (animal.shape === 'shark') return <SharkShape colors={animal.colors} />;
     if (animal.shape === 'mouse') return <MouseShape colors={animal.colors} />;
     if (animal.shape === 'hummingbird') return <HummingbirdShape colors={animal.colors} />;
     if (animal.shape === 'bat') return <BatShape colors={animal.colors} />;

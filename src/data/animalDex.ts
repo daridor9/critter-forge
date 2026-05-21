@@ -1,7 +1,13 @@
 import type { Creature, BodyPlan, Tier, Hybrid } from '../types';
 import type { ColorOverride } from '../components/CreatureSVG';
 
-export type DexShape = 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin' | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'polarbear' | 'mouse' | 'hummingbird' | 'bat' | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
+export type DexShape =
+  | 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin'
+  | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'polarbear'
+  | 'mouse' | 'hummingbird' | 'bat'
+  | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
+  | 'tortoise' | 'crocodile' | 'shark'
+  | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
 
 export interface DexAnimal {
   name: string;
@@ -87,7 +93,7 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Snow leopard', '🐆', 50, 'mammal', true, 2, 2, 1, 2, ['thick-fur', 'camouflage'],
     'Lives above 3000 m. Tail almost as long as its body for balance on cliffs. Dark open-ring rosettes on pale fur.', 'snowleopard'),
   make('Elephant', '🐘', 4000, 'mammal', true, 0, 2, 2, 1, [],
-    'Lives 65 years. Mourns dead. Largest land brain on Earth.'),
+    'Lives 65 years. Mourns dead. Largest land brain on Earth. Trunk has 40,000+ muscles; tusks are continuously-growing incisors.', 'elephant'),
   make('Blue whale', '🐳', 100000, 'mammal', true, 0, 2, 2, 1, ['echolocation'],
     'The biggest animal that has ever lived. Heart beats once every 10 seconds when diving.', 'whale'),
   make('Dolphin', '🐬', 200, 'mammal', true, 0, 2, 1, 2, ['echolocation', 'gills'],
@@ -97,27 +103,27 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Kangaroo', '🦘', 60, 'mammal', true, 2, 1, 0, 1, [],
     'Hops at 70 km/h using elastic tendons. Tail acts as a fifth leg.'),
   make('Camel', '🐪', 600, 'mammal', true, 1, 1, 1, 1, [],
-    'Survives 10% water loss (we die at 5%). Hump is fat, not water.'),
+    'Survives 10% water loss (we die at 5%). Hump is fat, not water — burns it for energy + metabolic water.', 'camel'),
   make('Gorilla', '🦍', 180, 'mammal', true, 1, 2, 1, 2, [],
-    'Mostly herbivorous despite huge canines. Brain ~500 g.'),
+    'Mostly herbivorous despite huge canines. Brain ~500 g. Knuckle-walker: long arms, short legs.', 'gorilla'),
   make('Ostrich', '🪶', 110, 'bird', true, 2, 1, 0, 2, [],
-    'Cannot fly — too heavy. Runs 70 km/h. Kicks can kill a lion.'),
+    'Cannot fly — too heavy. Runs 70 km/h on two powerful clawed legs. Kicks can kill a lion.', 'ostrich'),
   make('Eagle', '🦅', 6, 'bird', true, 1, 2, 2, 2, ['wings'],
-    'Sees small prey from 3 km away. Strikes at 240 km/h in a dive.'),
+    'Sees small prey from 3 km away. Hooked beak, sharp talons. Strikes at 240 km/h in a dive.', 'eagle'),
   make('Penguin', '🐧', 30, 'bird', true, 0, 1, 1, 2, ['thick-fur', 'gills'],
     'Wings became flippers. Survives -40°C with feather + fat insulation.', 'penguin'),
   make('Owl', '🦉', 1.5, 'bird', true, 1, 2, 0, 2, ['camouflage'],
-    'Silent flight. Hears a mouse moving under snow 30 m away.'),
+    'Silent flight. Huge forward-facing eyes (rare in birds). Hears a mouse moving under snow 30 m away.', 'owl'),
   make('Tortoise', '🐢', 200, 'reptile', false, 0, 1, 2, 1, [],
-    'Lives 150+ years. Heart beats ~10 bpm. Slow metabolism = long life.'),
+    'Lives 150+ years. Heart beats ~10 bpm. Slow metabolism = long life. Shell is fused vertebrae + ribs.', 'tortoise'),
   make('Crocodile', '🐊', 700, 'reptile', false, 0, 1, 2, 2, ['venom'],
-    'Bite force 16,000 N (lion: 4,000). Hasn\'t changed much in 200 million years.'),
+    'Bite force 16,000 N (lion: 4,000). Long jaw with interlocking teeth. Hasn\'t changed much in 200 million years.', 'crocodile'),
   make('Chameleon', '🦎', 0.2, 'reptile', false, 1, 1, 0, 2, ['camouflage'],
     'Eyes move independently. Skin colour change in 0.3s via pigment cells.'),
   make('Anaconda', '🐍', 250, 'reptile', false, 0, 1, 1, 1, ['venom'],
     'Crushes prey 1.5× its own mass. Cold-blooded — needs sun to digest.', 'snake'),
   make('Great white shark', '🦈', 1100, 'fish', false, 0, 1, 1, 2, ['electric', 'gills'],
-    'Detects electric fields from heartbeats. 300 serrated teeth, replaced lifelong.'),
+    'Detects electric fields from heartbeats. 300 serrated teeth in rows, replaced lifelong. Triangular dorsal fin + crescent tail.', 'shark'),
   make('Octopus', '🐙', 5, 'fish', false, 0, 2, 0, 2, ['camouflage', 'venom'],
     '9 brains (one main + one per arm). Opens jars. Edits its own RNA.', 'octopus'),
   make('Velociraptor', '🦖', 20, 'reptile', false, 2, 2, 0, 2, ['venom'],
