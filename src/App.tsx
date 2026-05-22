@@ -22,6 +22,7 @@ import { ProfileModal } from './components/ProfileModal';
 import { QuestsModal } from './components/QuestsModal';
 import { DailyChallengeModal } from './components/DailyChallenge';import { CompareModal } from './components/CompareModal';
 import { LineageModal } from './components/LineageModal';
+import { PortraitModal } from './components/PortraitModal';
 import { BattleModal } from './components/BattleModal';
 import { BracketModal } from './components/BracketModal';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
@@ -126,6 +127,7 @@ export default function App() {
   const [showDaily, setShowDaily] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
   const [showLineage, setShowLineage] = useState(false);
+  const [showPortrait, setShowPortrait] = useState(false);
   const [showBattle, setShowBattle] = useState(false);
   const [showBracket, setShowBracket] = useState(false);
   // Anatomy layer for the creature view: skin (default), muscles, or anatomy
@@ -537,6 +539,14 @@ export default function App() {
               <div className="stage-creature">
                 <div className="creature-stage creature-stage-habitat">
                   <CreatureStage creature={creature} layer={anatomyLayer} />
+                  <button
+                    type="button"
+                    className="portrait-launch-btn"
+                    onClick={() => { setShowPortrait(true); sounds.click(); }}
+                    title="View AI portrait of this critter"
+                  >
+                    ✨ <span className="portrait-launch-label">Portrait</span>
+                  </button>
                   <div className="anatomy-toggle" role="tablist" aria-label="Anatomy layer">
                     {(['skin', 'muscles', 'anatomy'] as const).map((id) => (
                       <button
@@ -661,6 +671,7 @@ export default function App() {
       {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
       {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
       {showLineage && <LineageModal currentLineageId={lineageId} onClose={() => setShowLineage(false)} />}
+      {showPortrait && <PortraitModal creature={creature} onClose={() => setShowPortrait(false)} />}
       {showBattle && <BattleModal current={creature} onClose={() => setShowBattle(false)} />}
       {showBracket && <BracketModal current={creature} onClose={() => setShowBracket(false)} />}
 

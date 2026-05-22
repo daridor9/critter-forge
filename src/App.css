@@ -3734,3 +3734,244 @@ main {
     font-size: 12px;
   }
 }
+
+
+/* ============================================================
+   Portrait modal — AI-generated portrait per creature
+   ============================================================
+   The launch button sits in the top-LEFT of the creature stage
+   (the anatomy toggle owns the top-right). The modal walks the
+   user through copy-prompt → paste-into-AI → paste-URL-back.
+   ============================================================ */
+.portrait-launch-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: var(--shadow-1);
+  transition: background 0.12s, transform 0.08s;
+}
+.portrait-launch-btn:hover {
+  background: linear-gradient(135deg, #fffcf2, #fff3d8);
+  color: var(--accent-deep);
+}
+.portrait-launch-btn:active {
+  transform: scale(0.96);
+}
+.portrait-launch-label {
+  display: inline-block;
+}
+@media (max-width: 640px) {
+  .portrait-launch-label { display: none; }
+  .portrait-launch-btn { padding: 5px 8px; }
+}
+
+.portrait-modal {
+  max-width: 720px;
+}
+.portrait-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.portrait-saved {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  background: linear-gradient(135deg, #fff8e8, #fae6c8);
+  border: 1.5px solid var(--accent-light);
+  border-radius: var(--radius-lg);
+}
+.portrait-saved-image {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.portrait-saved-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.portrait-saved-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.portrait-saved-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+}
+
+.portrait-section {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  background: var(--panel-soft);
+}
+.portrait-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.portrait-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.portrait-section-head h3 {
+  margin: 0;
+}
+
+.portrait-prompt-textarea {
+  width: 100%;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--fg);
+  resize: vertical;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+.portrait-prompt-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(224, 123, 91, 0.18);
+}
+.portrait-hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+}
+
+.portrait-ai-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.portrait-ai-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 11px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  transition: background 0.12s, border-color 0.12s;
+}
+.portrait-ai-link:hover {
+  background: linear-gradient(135deg, #fffcf2, #fff3d8);
+  border-color: var(--accent-light);
+}
+
+.portrait-url-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.portrait-url-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  background: #fff;
+}
+.portrait-url-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(224, 123, 91, 0.18);
+}
+
+.portrait-preview {
+  margin-top: 10px;
+  text-align: center;
+}
+.portrait-preview img {
+  max-width: 100%;
+  max-height: 240px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  display: inline-block;
+  transition: opacity 0.2s;
+}
+.portrait-error {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #ffe8e0;
+  border: 1px solid #f5b7a3;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #8a2a1a;
+  line-height: 1.5;
+}
+
+.portrait-howto {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--fg-dim);
+  background: var(--bg-deep);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.portrait-howto summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--fg);
+}
+.portrait-howto p {
+  margin: 8px 0 0 0;
+  line-height: 1.5;
+}
+.portrait-howto code {
+  background: var(--panel);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--accent-deep);
+}
+
+@media (max-width: 640px) {
+  .portrait-saved {
+    grid-template-columns: 1fr;
+  }
+}
