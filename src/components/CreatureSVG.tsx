@@ -79,6 +79,16 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
   const colors = colorOverride ?? bodyColors(creature);
   const armorColor = '#6b6b6b';
 
+  // Pokémon/cell-shaded look: bold dark outline around major shapes.
+  // The thickness scales with the creature so a mouse-sized critter doesn't
+  // look like it has a marker line and a whale doesn't look fragile.
+  const OUTLINE = '#2a1a14';
+  const OUTLINE_W = Math.max(1.4, 2.4 * scale);
+  const OUTLINE_W_THIN = Math.max(1, 1.6 * scale);
+  // Iris color signals warm/cold blood without us writing a label.
+  const irisColor = creature.warmBlooded ? '#c47030' : '#3f7fc2';
+  const irisColorDeep = creature.warmBlooded ? '#8a4818' : '#1e5288';
+
   const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
   // Eye size by sensor tier. Bumped from [6,8,11] for a kawaii read — the
   // critter should feel cute and alive when seen at a glance. eyeMult still
@@ -118,10 +128,27 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
 
       {xs.map((x, i) => (
         <g key={i} className={`leg leg-${i % 2 === 0 ? 'a' : 'b'}`} style={{ transformOrigin: `${x}px ${cy + bodyH / 2 - 4 * scale}px` }}>
-          <rect x={x - legW / 2} y={cy + bodyH / 2 - 4 * scale} width={legW} height={legLen} fill={colors.shade} rx={legW / 3} />
-          <rect x={x - legW / 2 + Math.max(0.5, legW * 0.1)} y={cy + bodyH / 2 - 4 * scale + 1} width={Math.max(1, legW * 0.28)} height={legLen - 4} fill={colors.main} rx={legW / 4} opacity="0.7" />
-          <ellipse cx={x} cy={cy + bodyH / 2 + legLen - 1} rx={legW * 0.78} ry={Math.max(1.5, legW * 0.42)} fill="#3a2118" />
-          <ellipse cx={x - legW * 0.15} cy={cy + bodyH / 2 + legLen - 1.5} rx={legW * 0.25} ry={Math.max(0.6, legW * 0.15)} fill="#5a3825" opacity="0.7" />
+          {/* Leg shaft with bold outline (Pokémon-style) */}
+          <rect
+            x={x - legW / 2} y={cy + bodyH / 2 - 4 * scale}
+            width={legW} height={legLen}
+            fill={colors.main}
+            stroke={OUTLINE} strokeWidth={OUTLINE_W_THIN}
+            rx={legW / 3}
+          />
+          {/* Inner shade band for cell-shading */}
+          <rect
+            x={x - legW / 2 + Math.max(0.8, legW * 0.18)}
+            y={cy + bodyH / 2 - 4 * scale + 2}
+            width={Math.max(1, legW * 0.45)}
+            height={legLen - 6}
+            fill={colors.shade}
+            rx={legW / 4}
+            opacity="0.7"
+          />
+          {/* Foot/paw pad */}
+          <ellipse cx={x} cy={cy + bodyH / 2 + legLen - 1} rx={legW * 0.85} ry={Math.max(1.8, legW * 0.5)} fill={OUTLINE} />
+          <ellipse cx={x - legW * 0.15} cy={cy + bodyH / 2 + legLen - 1.5} rx={legW * 0.28} ry={Math.max(0.7, legW * 0.18)} fill="#5a3825" opacity="0.7" />
         </g>
       ))}
 
@@ -134,8 +161,8 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
                 ? `M ${cx - bodyW / 2 + 4} ${cy + bodyH * 0.1} Q ${cx - bodyW / 2 - bodyH * 0.3} ${cy + bodyH * 0.2} ${cx - bodyW / 2 - bodyH * 0.4 * props.tailMult} ${cy + bodyH * 0.3}`
                 : `M ${cx - bodyW / 2 + 4} ${cy - bodyH * 0.05} Q ${cx - bodyW / 2 - bodyH * 0.5} ${cy - bodyH * 0.45} ${cx - bodyW / 2 - bodyH * 0.65 * props.tailMult} ${cy - bodyH * 0.7 * props.tailMult}`
           }
-          stroke={colors.main}
-          strokeWidth={Math.max(2, bodyH * (isTiny ? 0.06 : isHuge ? 0.18 : 0.13))}
+          stroke={colors.shade}
+          strokeWidth={Math.max(3, bodyH * (isTiny ? 0.09 : isHuge ? 0.22 : 0.16))}
           strokeLinecap="round"
           fill="none"
         />
@@ -196,10 +223,27 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       <ellipse cx={cx + bodyW * 0.02} cy={cy + bodyH * 0.04} rx={bodyW / 2} ry={bodyH / 2} fill={colors.shade} opacity="0.5" />
-      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={colors.main} stroke={colors.shade} strokeWidth={Math.max(0.8, 1.4 * scale)} strokeOpacity={0.55} />
-      <ellipse cx={cx - bodyW * 0.08} cy={cy - bodyH * 0.22} rx={bodyW * 0.3} ry={bodyH * 0.15} fill="white" opacity="0.22" />
-      <ellipse cx={cx} cy={cy + bodyH * 0.18} rx={bodyW * 0.42} ry={bodyH * 0.28} fill={colors.light} opacity={0.5} />
-      <ellipse cx={cx + bodyW * 0.05} cy={cy + bodyH * 0.32} rx={bodyW * 0.4} ry={bodyH * 0.12} fill={colors.shade} opacity="0.25" />
+      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={colors.main} stroke={OUTLINE} strokeWidth={OUTLINE_W} />
+      {/* Cell-shaded crisp shadow on top-left (Pokémon-style hard edge) */}
+      <path
+        d={`M ${cx - bodyW * 0.42} ${cy - bodyH * 0.05}
+            Q ${cx - bodyW * 0.15} ${cy - bodyH * 0.42} ${cx + bodyW * 0.1} ${cy - bodyH * 0.35}
+            Q ${cx - bodyW * 0.1} ${cy - bodyH * 0.18} ${cx - bodyW * 0.42} ${cy - bodyH * 0.05} Z`}
+        fill={colors.shade}
+        opacity="0.85"
+      />
+      {/* Cell-shaded crisp shadow on bottom-right */}
+      <path
+        d={`M ${cx + bodyW * 0.05} ${cy + bodyH * 0.42}
+            Q ${cx + bodyW * 0.3} ${cy + bodyH * 0.3} ${cx + bodyW * 0.45} ${cy + bodyH * 0.08}
+            Q ${cx + bodyW * 0.35} ${cy + bodyH * 0.32} ${cx + bodyW * 0.05} ${cy + bodyH * 0.42} Z`}
+        fill={colors.shade}
+        opacity="0.5"
+      />
+      {/* Soft sheen highlight on top (more visible than before) */}
+      <ellipse cx={cx - bodyW * 0.05} cy={cy - bodyH * 0.25} rx={bodyW * 0.32} ry={bodyH * 0.13} fill={colors.light} opacity="0.85" />
+      {/* Belly band — Pokémon-style two-tone */}
+      <ellipse cx={cx} cy={cy + bodyH * 0.2} rx={bodyW * 0.4} ry={bodyH * 0.22} fill={colors.light} opacity="0.5" />
 
       {(showDetail || forcePattern) && pattern && creature.bodyPlan === 'mammal' && (
         <g fill={pattern} opacity={forcePattern ? 0.85 : 0.55}>
@@ -291,9 +335,17 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       })()}
 
       <circle cx={headCx + headR * 0.05} cy={headCy + headR * 0.05} r={headR} fill={colors.shade} opacity="0.45" />
-      <circle cx={headCx} cy={headCy} r={headR} fill={colors.main} stroke={colors.shade} strokeWidth={Math.max(0.8, 1.4 * scale)} strokeOpacity={0.55} />
-      <ellipse cx={headCx - headR * 0.25} cy={headCy - headR * 0.55} rx={headR * 0.42} ry={headR * 0.22} fill="white" opacity="0.28" />
-      <ellipse cx={headCx + headR * 0.05} cy={headCy + headR * 0.55} rx={headR * 0.6} ry={headR * 0.18} fill={colors.shade} opacity="0.25" />
+      <circle cx={headCx} cy={headCy} r={headR} fill={colors.main} stroke={OUTLINE} strokeWidth={OUTLINE_W} />
+      {/* Crisp cell-shaded shadow on top-back of head */}
+      <path
+        d={`M ${headCx - headR * 0.8} ${headCy + headR * 0.1}
+            Q ${headCx - headR * 0.4} ${headCy - headR * 0.7} ${headCx + headR * 0.2} ${headCy - headR * 0.6}
+            Q ${headCx - headR * 0.2} ${headCy - headR * 0.3} ${headCx - headR * 0.8} ${headCy + headR * 0.1} Z`}
+        fill={colors.shade}
+        opacity="0.8"
+      />
+      {/* Sheen highlight on top of head */}
+      <ellipse cx={headCx - headR * 0.2} cy={headCy - headR * 0.5} rx={headR * 0.38} ry={headR * 0.18} fill="white" opacity="0.55" />
 
       {creature.bodyPlan === 'bird' && showDetail && (
         <polygon
@@ -330,16 +382,26 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       <g className={showDetail ? 'eye-blink' : undefined} style={{ transformOrigin: `${eyeCx}px ${eyeCy}px` }}>
-        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.8" />
-        <circle cx={eyeCx + eyeR * 0.18} cy={eyeCy + eyeR * 0.08} r={eyeR * 0.62} fill="#1a1a1a" />
-        <circle cx={eyeCx + eyeR * 0.4} cy={eyeCy - eyeR * 0.32} r={eyeR * 0.4} fill="white" />
-        <circle cx={eyeCx - eyeR * 0.05} cy={eyeCy + eyeR * 0.3} r={eyeR * 0.2} fill="white" opacity="0.9" />
+        {/* Sclera with bold outline */}
+        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke={OUTLINE} strokeWidth={OUTLINE_W_THIN} />
+        {/* Colored iris (warm = amber, cold = teal) */}
+        <circle cx={eyeCx + eyeR * 0.08} cy={eyeCy + eyeR * 0.05} r={eyeR * 0.78} fill={irisColor} />
+        {/* Iris inner gradient ring */}
+        <circle cx={eyeCx + eyeR * 0.08} cy={eyeCy + eyeR * 0.05} r={eyeR * 0.55} fill={irisColorDeep} />
+        {/* Pupil */}
+        <circle cx={eyeCx + eyeR * 0.18} cy={eyeCy + eyeR * 0.1} r={eyeR * 0.34} fill={OUTLINE} />
+        {/* Big bright highlight (Pokémon-style sparkle) */}
+        <circle cx={eyeCx + eyeR * 0.36} cy={eyeCy - eyeR * 0.3} r={eyeR * 0.42} fill="white" />
+        {/* Small secondary highlight */}
+        <circle cx={eyeCx - eyeR * 0.15} cy={eyeCy + eyeR * 0.35} r={eyeR * 0.22} fill="white" opacity="0.95" />
       </g>
       {showDetail && creature.bodyPlan === 'mammal' && (
         <g className="eye-blink" style={{ transformOrigin: `${eyeCx - headR * 0.55}px ${eyeCy + headR * 0.08}px` }}>
-          <circle cx={eyeCx - headR * 0.55} cy={eyeCy + headR * 0.08} r={eyeR * 0.9} fill="white" stroke="#222" strokeWidth="0.8" />
-          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.15} cy={eyeCy + headR * 0.08 + eyeR * 0.05} r={eyeR * 0.55} fill="#1a1a1a" />
-          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.3} cy={eyeCy + headR * 0.08 - eyeR * 0.3} r={eyeR * 0.33} fill="white" />
+          <circle cx={eyeCx - headR * 0.55} cy={eyeCy + headR * 0.08} r={eyeR * 0.9} fill="white" stroke={OUTLINE} strokeWidth={OUTLINE_W_THIN} />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.05} cy={eyeCy + headR * 0.08 + eyeR * 0.05} r={eyeR * 0.7} fill={irisColor} />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.05} cy={eyeCy + headR * 0.08 + eyeR * 0.05} r={eyeR * 0.48} fill={irisColorDeep} />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.15} cy={eyeCy + headR * 0.08 + eyeR * 0.08} r={eyeR * 0.3} fill={OUTLINE} />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.3} cy={eyeCy + headR * 0.08 - eyeR * 0.3} r={eyeR * 0.35} fill="white" />
         </g>
       )}
 
@@ -354,30 +416,50 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
 
       {showDetail && (
         <g>
+          {/* Pokémon-style bolder smile, using the OUTLINE color */}
           <path
-            d={`M ${headCx + headR * 0.05} ${headCy + headR * 0.45} q ${headR * 0.35} ${headR * 0.35} ${headR * 0.7} 0`}
-            stroke="#3a2118"
-            strokeWidth={Math.max(1, 1.6 * scale)}
+            d={`M ${headCx + headR * 0.05} ${headCy + headR * 0.45} q ${headR * 0.35} ${headR * 0.42} ${headR * 0.7} 0`}
+            stroke={OUTLINE}
+            strokeWidth={Math.max(1.4, 2 * scale)}
             fill="none"
             strokeLinecap="round"
           />
+          {/* Inner mouth / tongue patch */}
           <path
-            d={`M ${headCx + headR * 0.18} ${headCy + headR * 0.58} q ${headR * 0.22} ${headR * 0.18} ${headR * 0.44} 0`}
+            d={`M ${headCx + headR * 0.2} ${headCy + headR * 0.58} q ${headR * 0.2} ${headR * 0.2} ${headR * 0.4} 0`}
             fill="#e88aa0"
-            opacity="0.9"
+            opacity="0.95"
           />
         </g>
       )}
 
-      {showDetail && isTiny && creature.bodyPlan === 'mammal' && (
-        <g stroke="#3a2118" strokeWidth={Math.max(0.5, 0.7 * scale)} strokeLinecap="round" fill="none" opacity="0.7">
-          <line x1={headCx + headR * 0.6} y1={headCy + headR * 0.3} x2={headCx + headR * 1.4} y2={headCy + headR * 0.15} />
-          <line x1={headCx + headR * 0.6} y1={headCy + headR * 0.45} x2={headCx + headR * 1.45} y2={headCy + headR * 0.45} />
-          <line x1={headCx + headR * 0.6} y1={headCy + headR * 0.6} x2={headCx + headR * 1.4} y2={headCy + headR * 0.75} />
-          <line x1={headCx + headR * 0.55} y1={headCy + headR * 0.32} x2={headCx - headR * 0.15} y2={headCy + headR * 0.18} />
-          <line x1={headCx + headR * 0.5} y1={headCy + headR * 0.5} x2={headCx - headR * 0.2} y2={headCy + headR * 0.5} />
+      {/* Nose: a small dark dot above the smile, for mammals and birds */}
+      {showDetail && (creature.bodyPlan === 'mammal' || creature.bodyPlan === 'bird') && (
+        <ellipse
+          cx={headCx + headR * 0.4}
+          cy={headCy + headR * 0.28}
+          rx={headR * 0.1}
+          ry={headR * 0.075}
+          fill={OUTLINE}
+        />
+      )}
+
+      {/* Whiskers for mammals (3 per side, scaled to head, skipped for huge/whale) */}
+      {showDetail && creature.bodyPlan === 'mammal' && !isHuge && (
+        <g stroke={OUTLINE} strokeWidth={Math.max(0.7, 1 * scale)} strokeLinecap="round" fill="none" opacity="0.75">
+          {/* Right-side whiskers fanning out from nose area */}
+          <line x1={headCx + headR * 0.45} y1={headCy + headR * 0.32} x2={headCx + headR * 1.0} y2={headCy + headR * 0.22} />
+          <line x1={headCx + headR * 0.45} y1={headCy + headR * 0.4} x2={headCx + headR * 1.05} y2={headCy + headR * 0.4} />
+          <line x1={headCx + headR * 0.45} y1={headCy + headR * 0.48} x2={headCx + headR * 1.0} y2={headCy + headR * 0.58} />
+          {/* Left-side whiskers, mirror */}
+          <line x1={headCx + headR * 0.32} y1={headCy + headR * 0.32} x2={headCx - headR * 0.15} y2={headCy + headR * 0.2} />
+          <line x1={headCx + headR * 0.32} y1={headCy + headR * 0.4} x2={headCx - headR * 0.2} y2={headCy + headR * 0.4} />
+          <line x1={headCx + headR * 0.32} y1={headCy + headR * 0.48} x2={headCx - headR * 0.15} y2={headCy + headR * 0.6} />
         </g>
       )}
+
+      {/* (Removed duplicate isTiny whiskers — now handled by the all-size
+          mammal whiskers above.) */}
 
       {showDetail && isHuge && creature.bodyPlan === 'mammal' && (
         <ellipse
