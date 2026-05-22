@@ -3459,3 +3459,59 @@ main {
     min-width: 180px;
   }
 }
+
+/* ============================================================
+   Anatomy layer toggle (Skin / Muscles / Anatomy)
+   ============================================================
+   Sits in the same spot the old single X-ray button occupied
+   (top-right of .creature-stage-habitat). Three-segment pill,
+   compact enough not to compete with the creature.
+   ============================================================ */
+.anatomy-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: inline-flex;
+  gap: 0;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-1);
+}
+.anatomy-toggle-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.12s, color 0.12s, transform 0.08s;
+}
+.anatomy-toggle-btn:hover:not(.active) {
+  color: var(--accent);
+  background: rgba(224, 123, 91, 0.08);
+}
+.anatomy-toggle-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: white;
+  box-shadow: 0 1px 4px rgba(224, 123, 91, 0.4);
+}
+.anatomy-toggle-btn:active:not(.active) {
+  transform: scale(0.96);
+}
+.anatomy-toggle-label {
+  display: inline-block;
+}
+@media (max-width: 640px) {
+  /* On phones, hide labels and show emoji-only — keeps the control compact. */
+  .anatomy-toggle-label { display: none; }
+  .anatomy-toggle-btn { padding: 4px 7px; }
+}

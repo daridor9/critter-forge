@@ -128,7 +128,9 @@ export default function App() {
   const [showLineage, setShowLineage] = useState(false);
   const [showBattle, setShowBattle] = useState(false);
   const [showBracket, setShowBracket] = useState(false);
-  const [xray, setXray] = useState(false);
+  // Anatomy layer for the creature view: skin (default), muscles, or anatomy
+  // (skeleton + organs, biology-textbook style).
+  const [anatomyLayer, setAnatomyLayer] = useState<'skin' | 'muscles' | 'anatomy'>('skin');
   const [lineageId, setLineageId] = useState<string | null>(() => recordRoot(defaultCreature));
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const toastTimers = useRef<number[]>([]);
@@ -534,15 +536,22 @@ export default function App() {
             {showCreatureView ? (
               <div className="stage-creature">
                 <div className="creature-stage creature-stage-habitat">
-                  <CreatureStage creature={creature} xray={xray} />
-                  <button
-                    className="xray-toggle"
-                    type="button"
-                    onClick={() => { setXray(!xray); sounds.click(); }}
-                    title={xray ? 'Hide x-ray' : 'Show x-ray (bones + organs)'}
-                  >
-                    {xray ? '🐾 Skin' : '🦴 X-ray'}
-                  </button>
+                  <CreatureStage creature={creature} layer={anatomyLayer} />
+                  <div className="anatomy-toggle" role="tablist" aria-label="Anatomy layer">
+                    {(['skin', 'muscles', 'anatomy'] as const).map((id) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={anatomyLayer === id}
+                        className={anatomyLayer === id ? 'anatomy-toggle-btn active' : 'anatomy-toggle-btn'}
+                        onClick={() => { setAnatomyLayer(id); sounds.click(); }}
+                        title={id === 'skin' ? 'Normal view' : id === 'muscles' ? 'Show muscles' : 'Show skeleton + organs'}
+                      >
+                        {id === 'skin' ? '🐾' : id === 'muscles' ? '💪' : '🦴'} <span className="anatomy-toggle-label">{id === 'skin' ? 'Skin' : id === 'muscles' ? 'Muscles' : 'Anatomy'}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="creature-name">
                   <span className="gen-badge">🧬 Gen {generation}</span>

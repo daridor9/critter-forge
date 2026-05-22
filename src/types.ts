@@ -43,6 +43,14 @@ export interface Creature {
   colors?: ShapeColors;
 }
 
+/**
+ * Which anatomical layer to display when looking at a creature.
+ *  - skin:    normal habitat view (what users see when designing)
+ *  - muscles: removed-skin view showing major muscle groups
+ *  - anatomy: skeleton + labeled organs, biology-textbook style
+ */
+export type AnatomyLayer = 'skin' | 'muscles' | 'anatomy';
+
 export const defaultCreature: Creature = {
   sizeUnit: 40,
   bodyPlan: 'mammal',
