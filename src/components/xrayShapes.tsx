@@ -1200,6 +1200,138 @@ export function StegosaurusXray({ creature, massKg }: XrayProps) {
   );
 }
 
+// ─── Tiger ───────────────────────────────────────────────────────────────
+// Big-cat anatomy: flexible spine, retractile claws, huge temporalis jaw
+// muscles, binocular predator eyes.
+export function TigerXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg);
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      <ellipse cx="195" cy="175" rx="118" ry="44" fill="rgba(160,180,220,0.2)" stroke="rgba(180,200,240,0.48)" strokeWidth="1" />
+      <path d="M 88 170 Q 148 142 220 150 Q 270 155 308 170" stroke={BONE} strokeWidth="2.2" fill="none" />
+      <path d="M 90 174 Q 55 160 28 142" stroke={BONE} strokeWidth="1.5" fill="none" />
+
+      <g stroke={BONE} strokeWidth="1.1" fill="none" opacity="0.82">
+        {[110, 132, 154, 176, 198, 220, 242, 264].map((x) => (
+          <path key={x} d={`M ${x} 154 Q ${x + 8} 184 ${x - 2} 208`} />
+        ))}
+      </g>
+
+      {[125, 165, 238, 280].map((x, i) => (
+        <g key={x}>
+          <line x1={x} y1="207" x2={x + (i % 2 === 0 ? -6 : 5)} y2="246" stroke={BONE} strokeWidth="1.8" />
+          <line x1={x + (i % 2 === 0 ? -6 : 5)} y1="246" x2={x + (i % 2 === 0 ? -16 : 16)} y2="263" stroke={BONE} strokeWidth="1.4" />
+          <path d={`M ${x + (i % 2 === 0 ? -20 : 20)} 263 q 10 4 22 0`} stroke="#fff5d8" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+        </g>
+      ))}
+
+      <circle cx="315" cy="158" r="32" fill="rgba(160,180,220,0.18)" stroke={BONE} strokeWidth="1.6" />
+      <path d="M 296 170 Q 314 185 338 174" stroke={BONE} strokeWidth="1.3" fill="none" />
+      <g fill="#fff5d8" stroke="#888" strokeWidth="0.4">
+        <polygon points="304 174 307 187 310 174" />
+        <polygon points="324 174 327 187 330 174" />
+      </g>
+      <ellipse cx="306" cy="151" rx={7 * bs} ry={5 * bs} fill={BRAIN} opacity="0.9" />
+      <circle cx="302" cy="154" r="3" fill="#ffe48a" opacity="0.85" />
+      <circle cx="326" cy="154" r="3" fill="#ffe48a" opacity="0.85" />
+
+      <ellipse cx="178" cy="175" rx="14" ry="10" fill={HEART} opacity="0.92"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+      <ellipse cx="210" cy="166" rx="22" ry="12" fill={LUNG} opacity="0.48" />
+      <ellipse cx="242" cy="166" rx="22" ry="12" fill={LUNG} opacity="0.48" />
+      <ellipse cx="248" cy="190" rx="18" ry="10" fill={STOMACH} opacity="0.72" />
+
+      <HeartLabel x={178} y={206} bpm={heartRate(massKg)} />
+      <Caption text="Flexible ambush spine · retractile claws · binocular hunter eyes" />
+    </g>
+  );
+}
+
+// ─── T-Rex ───────────────────────────────────────────────────────────────
+// Massive skull and bite, air-sac lungs, huge balancing tail, and famously
+// tiny forelimbs.
+export function TRexXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg, 0.7);
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      <ellipse cx="198" cy="168" rx="66" ry="45" fill="rgba(160,180,220,0.2)" stroke="rgba(180,200,240,0.48)" strokeWidth="1" />
+      <path d="M 132 140 Q 188 128 242 158 Q 292 190 366 208" stroke={BONE} strokeWidth="2.4" fill="none" />
+      <g stroke={BONE} strokeWidth="1" fill="none" opacity="0.75">
+        {[150, 166, 182, 198, 214, 230].map((x) => (
+          <path key={x} d={`M ${x} 148 Q ${x + 14} 178 ${x + 2} 204`} />
+        ))}
+      </g>
+
+      <ellipse cx="118" cy="116" rx="58" ry="27" fill="rgba(160,180,220,0.18)" stroke={BONE} strokeWidth="1.7" />
+      <path d="M 66 127 Q 118 156 174 132" stroke={BONE} strokeWidth="1.5" fill="none" />
+      <g fill="#fff5d8" stroke="#888" strokeWidth="0.35">
+        {[74, 86, 98, 110, 122, 134, 146, 158].map((x) => (
+          <polygon key={x} points={`${x - 2} 132 ${x} 145 ${x + 2} 132`} />
+        ))}
+      </g>
+      <ellipse cx="132" cy="110" rx={8 * bs} ry={5 * bs} fill={BRAIN} opacity="0.9" />
+
+      <g stroke={BONE} fill="none">
+        <path d="M 178 205 Q 170 232 158 270" strokeWidth="2.4" />
+        <path d="M 225 205 Q 245 232 262 270" strokeWidth="2.4" />
+        <path d="M 158 270 q -18 2 -28 8" strokeWidth="1.5" />
+        <path d="M 262 270 q 20 2 32 8" strokeWidth="1.5" />
+        <path d="M 168 164 q -18 8 -22 24" strokeWidth="1.3" />
+        <path d="M 218 164 q 18 8 22 24" strokeWidth="1.3" />
+      </g>
+      <text x="210" y="190" fontSize="7" textAnchor="middle" fill="white" opacity="0.85">tiny arms</text>
+
+      <ellipse cx="182" cy="166" rx="15" ry="11" fill={HEART} opacity="0.92"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+      <ellipse cx="210" cy="157" rx="20" ry="12" fill={LUNG} opacity="0.42" />
+      <ellipse cx="235" cy="160" rx="18" ry="10" fill={LUNG} opacity="0.35" />
+      <g stroke={LUNG} strokeWidth="1" fill="none" opacity="0.45">
+        <circle cx="252" cy="146" r="7" />
+        <circle cx="260" cy="164" r="6" />
+        <circle cx="238" cy="142" r="5" />
+      </g>
+
+      <HeartLabel x={182} y={198} bpm={heartRate(massKg)} />
+      <Caption text="Crushing skull · air-sac lungs · giant tail counterweight" />
+    </g>
+  );
+}
+
+// ─── Jellyfish ───────────────────────────────────────────────────────────
+// No bones, no brain, no heart: a nerve net, gut cavity, and stinging cells.
+export function JellyfishXray() {
+  return (
+    <g>
+      <path d="M 108 170 Q 200 68 292 170 Z" fill="rgba(160,210,240,0.18)" stroke="rgba(190,230,255,0.55)" strokeWidth="1.5" />
+      <ellipse cx="200" cy="170" rx="92" ry="7" fill="rgba(190,230,255,0.25)" stroke="rgba(190,230,255,0.45)" />
+
+      <g stroke="#ffe48a" strokeWidth="1.2" fill="none" opacity="0.82" strokeDasharray="2 4">
+        <path d="M 135 168 Q 155 125 185 92" />
+        <path d="M 180 168 Q 188 118 196 82" />
+        <path d="M 220 168 Q 212 118 204 82" />
+        <path d="M 265 168 Q 245 125 215 92" />
+        <ellipse cx="200" cy="145" rx="42" ry="20" />
+      </g>
+
+      <g stroke={MUSCLE} strokeWidth="2.2" fill="none" strokeLinecap="round" opacity="0.78">
+        {[140, 160, 180, 200, 220, 240, 260].map((x) => (
+          <path key={x} d={`M ${x} 176 q -12 32 0 64 q 12 30 0 56`} />
+        ))}
+      </g>
+      <g fill={STOMACH} opacity="0.68">
+        <ellipse cx="182" cy="138" rx="10" ry="15" />
+        <ellipse cx="218" cy="138" rx="10" ry="15" />
+        <ellipse cx="200" cy="122" rx="10" ry="15" />
+      </g>
+
+      <text x="200" y="50" textAnchor="middle" fontSize="11" fill="white" opacity="0.9" fontWeight="700">no brain · no heart · no bones</text>
+      <Caption text="Diffuse nerve net · stinging tentacles · 95% water" />
+    </g>
+  );
+}
+
 // ─── Registry ────────────────────────────────────────────────────────────
 export const BESPOKE_XRAYS: Record<string, ComponentType<XrayProps>> = {
   crocodile: CrocodileXray,
@@ -1207,6 +1339,9 @@ export const BESPOKE_XRAYS: Record<string, ComponentType<XrayProps>> = {
   raptor: RaptorXray,
   triceratops: TriceratopsXray,
   stegosaurus: StegosaurusXray,
+  tiger: TigerXray,
+  trex: TRexXray,
+  jellyfish: JellyfishXray,
   octopus: OctopusXray,
   whale: WhaleXray,
   dolphin: DolphinXray,
@@ -1229,8 +1364,6 @@ export const BESPOKE_XRAYS: Record<string, ComponentType<XrayProps>> = {
   polarbear: QuadrupedXray,
   gorilla: QuadrupedXray,
   camel: QuadrupedXray,
-  // crocodile, chameleon, raptor, triceratops, stegosaurus fall back to the
-  // generic x-ray for now — easy to add bespoke versions later.
 };
 
 export function getBespokeXray(name?: string): ComponentType<XrayProps> | null {

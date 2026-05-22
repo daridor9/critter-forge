@@ -1732,6 +1732,8 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   mouse: MouseShape,
   hummingbird: HummingbirdShape,
   bat: BatShape,
+  sloth: SlothShape,
+  kangaroo: KangarooShape,
   elephant: ElephantShape,
   gorilla: GorillaShape,
   camel: CamelShape,
@@ -1754,6 +1756,120 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
   if (!name || name === 'default') return null;
   return BESPOKE_SHAPES[name] ?? null;
+}
+
+// ─── Sloth ──────────────────────────────────────────────────────────────
+// Slow arboreal mammal: long hook claws, shaggy algae-green fur, sleepy face.
+export function SlothShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="30" y1="85" x2="370" y2="55" stroke="#7a5a32" strokeWidth="16" strokeLinecap="round" />
+      <line x1="78" y1="110" x2="338" y2="88" stroke="#a67a43" strokeWidth="6" strokeLinecap="round" opacity="0.75" />
+      <ellipse cx="200" cy="255" rx="112" ry="7" fill="rgba(0,0,0,0.16)" />
+
+      <path d="M 140 105 Q 118 154 128 218" stroke={colors.shade} strokeWidth="26" fill="none" strokeLinecap="round" />
+      <path d="M 250 98 Q 285 142 278 215" stroke={colors.shade} strokeWidth="26" fill="none" strokeLinecap="round" />
+      <path d="M 140 105 Q 118 154 128 218" stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
+      <path d="M 250 98 Q 285 142 278 215" stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
+
+      <g stroke="#2d2015" strokeWidth="3" fill="none" strokeLinecap="round">
+        <path d="M 126 92 q 0 22 16 20" />
+        <path d="M 142 90 q 0 22 16 20" />
+        <path d="M 238 88 q 0 22 16 20" />
+        <path d="M 254 87 q 0 22 16 20" />
+      </g>
+
+      <ellipse cx="205" cy="175" rx="78" ry="62" fill={colors.shade} />
+      <ellipse cx="200" cy="168" rx="72" ry="58" fill={colors.main} />
+      <ellipse cx="190" cy="178" rx="50" ry="38" fill={colors.light} opacity="0.45" />
+
+      <g stroke="#6f8a45" strokeWidth="2" opacity="0.55" strokeLinecap="round">
+        {[150, 168, 186, 204, 222, 240].map((x, i) => (
+          <path key={x} d={`M ${x} ${130 + (i % 2) * 8} q -8 34 4 72`} />
+        ))}
+      </g>
+      <g stroke={colors.shade} strokeWidth="1.8" opacity="0.55" strokeLinecap="round">
+        {[145, 170, 195, 220, 245].map((x) => (
+          <path key={x} d={`M ${x} 118 q -12 26 -4 58 q 8 28 0 56`} />
+        ))}
+      </g>
+
+      <circle cx="205" cy="118" r="42" fill={colors.shade} />
+      <circle cx="205" cy="116" r="38" fill={colors.light} />
+      <ellipse cx="190" cy="113" rx="14" ry="18" fill="#5b4732" opacity="0.72" transform="rotate(-18 190 113)" />
+      <ellipse cx="220" cy="113" rx="14" ry="18" fill="#5b4732" opacity="0.72" transform="rotate(18 220 113)" />
+
+      <g className="eye-blink" style={{ transformOrigin: '190px 114px' }}>
+        <circle cx="190" cy="114" r="4.5" fill="#16120e" />
+        <circle cx="191" cy="112" r="1.3" fill="white" opacity="0.8" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '220px 114px' }}>
+        <circle cx="220" cy="114" r="4.5" fill="#16120e" />
+        <circle cx="221" cy="112" r="1.3" fill="white" opacity="0.8" />
+      </g>
+      <ellipse cx="205" cy="128" rx="5" ry="3.5" fill="#2d2015" />
+      <path d="M 194 138 Q 205 146 216 138" stroke="#2d2015" strokeWidth="2" fill="none" strokeLinecap="round" />
+
+      <g stroke="#2d2015" strokeWidth="2.2" fill="none" strokeLinecap="round">
+        <path d="M 130 220 q -8 18 -22 12" />
+        <path d="M 142 220 q -6 18 -20 16" />
+        <path d="M 276 218 q 8 18 22 12" />
+        <path d="M 264 218 q 6 18 20 16" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── Kangaroo ───────────────────────────────────────────────────────────
+// Hopping macropod: giant hind legs, long counterbalance tail, tiny forearms.
+export function KangarooShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="266" x2="380" y2="266" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+      <ellipse cx="205" cy="270" rx="146" ry="7" fill="rgba(0,0,0,0.18)" />
+
+      <path d="M 155 194 Q 90 212 45 246 Q 95 242 158 224" fill={colors.shade} />
+      <path d="M 152 197 Q 96 215 58 240 Q 102 236 156 218" fill={colors.main} />
+
+      <path d="M 210 190 Q 194 224 162 256 L 232 256 Q 238 225 228 196 Z" fill={colors.shade} />
+      <path d="M 214 194 Q 202 224 176 252 L 230 252 Q 232 226 224 200 Z" fill={colors.main} />
+      <ellipse cx="178" cy="260" rx="44" ry="9" fill={colors.shade} transform="rotate(-4 178 260)" />
+
+      <path d="M 250 188 Q 258 224 290 256 L 354 256 Q 312 228 270 196 Z" fill={colors.shade} />
+      <path d="M 252 194 Q 262 224 294 252 L 340 252 Q 306 230 272 202 Z" fill={colors.main} />
+      <ellipse cx="316" cy="260" rx="42" ry="9" fill={colors.shade} transform="rotate(5 316 260)" />
+
+      <ellipse cx="215" cy="170" rx="66" ry="82" fill={colors.shade} transform="rotate(-10 215 170)" />
+      <ellipse cx="213" cy="164" rx="58" ry="75" fill={colors.main} transform="rotate(-10 213 164)" />
+      <ellipse cx="220" cy="188" rx="34" ry="48" fill={colors.light} opacity="0.62" transform="rotate(-8 220 188)" />
+
+      <path d="M 250 135 Q 276 154 282 190" stroke={colors.shade} strokeWidth="11" fill="none" strokeLinecap="round" />
+      <path d="M 250 135 Q 274 154 279 188" stroke={colors.main} strokeWidth="7" fill="none" strokeLinecap="round" />
+      <path d="M 240 145 Q 254 166 246 191" stroke={colors.shade} strokeWidth="8" fill="none" strokeLinecap="round" />
+
+      <path d="M 242 105 Q 268 80 296 86 Q 314 94 310 116 Q 300 136 266 130 Q 248 126 242 105 Z" fill={colors.shade} />
+      <path d="M 247 106 Q 270 86 294 91 Q 306 98 302 114 Q 294 128 268 124 Q 252 121 247 106 Z" fill={colors.main} />
+      <ellipse cx="286" cy="118" rx="18" ry="10" fill={colors.light} opacity="0.5" />
+
+      <ellipse cx="270" cy="66" rx="8" ry="29" fill={colors.shade} transform="rotate(-18 270 66)" />
+      <ellipse cx="290" cy="66" rx="8" ry="29" fill={colors.shade} transform="rotate(12 290 66)" />
+      <ellipse cx="270" cy="68" rx="4" ry="20" fill="#e0a58a" transform="rotate(-18 270 68)" opacity="0.8" />
+      <ellipse cx="290" cy="68" rx="4" ry="20" fill="#e0a58a" transform="rotate(12 290 68)" opacity="0.8" />
+
+      <g className="eye-blink" style={{ transformOrigin: '294px 102px' }}>
+        <circle cx="294" cy="102" r="5.5" fill="white" stroke="#222" strokeWidth="0.5" />
+        <circle cx="295" cy="102" r="3" fill="#1a1a1a" />
+        <circle cx="296" cy="100" r="1.1" fill="white" />
+      </g>
+      <ellipse cx="305" cy="111" rx="4.5" ry="3" fill="#1a1a1a" />
+      <path d="M 301 118 Q 294 123 286 120" stroke="#3a2118" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M 225 188 Q 242 198 256 184" stroke="#8a5530" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7" />
+    </svg>
+  );
 }
 
 // ─── Tiger ──────────────────────────────────────────────────────────────

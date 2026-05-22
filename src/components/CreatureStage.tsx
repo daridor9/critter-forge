@@ -88,7 +88,12 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
           const BespokeXray = getBespokeXray(creature.shape);
           if (BespokeXray) {
             const m = sizeToMass(creature.sizeUnit);
-            return <BespokeXray creature={creature} massKg={m} />;
+            return (
+              <>
+                <rect width={W} height={H} fill="#0c1e30" />
+                <BespokeXray creature={creature} massKg={m} />
+              </>
+            );
           }
           return <AnatomyView creature={creature} cx={W / 2} footY={footY} />;
         })()

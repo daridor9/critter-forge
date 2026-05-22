@@ -33,4 +33,7 @@ export const FOOD_CHAIN: Record<string, FoodChainEntry> = {
   'Triceratops':     { eats: ['plants', 'ferns', 'cycads'], eatenBy: ['🦖 T-rex'] },
   'Stegosaurus':     { eats: ['ferns', 'mosses', 'low plants'], eatenBy: ['Allosaurus'] },
   'Pterodactyl':     { eats: ['🐟 Fish', 'insects'], eatenBy: ['(big predators)'] },
+  'Tiger':           { eats: ['deer', 'wild boar', 'buffalo calves'], eatenBy: ['(apex predator)'] },
+  'T-Rex':           { eats: ['🦕 Triceratops', 'hadrosaurs', 'armored dinos'], eatenBy: ['(apex predator)'] },
+  'Jellyfish':       { eats: ['plankton', 'fish eggs', 'tiny crustaceans'], eatenBy: ['sea turtles', '🐧 Penguins', 'sunfish'] },
 };

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { defaultCreature } from './types';
 import type { Creature } from './types';
 import { computeStats } from './physics';
@@ -14,17 +14,7 @@ import { DeepArena } from './components/DeepArena';
 import { MazeArena } from './components/MazeArena';
 import { InsightCard } from './components/InsightCard';
 import { AlbumPanel } from './components/AlbumPanel';
-import { EvolveModal } from './components/EvolveModal';
-import { AboutModal } from './components/AboutModal';
-import { DexModal } from './components/DexModal';
-import { AchievementsModal, AchievementToast } from './components/AchievementsModal';
-import { ProfileModal } from './components/ProfileModal';
-import { QuestsModal } from './components/QuestsModal';
-import { DailyChallengeModal } from './components/DailyChallenge';import { CompareModal } from './components/CompareModal';
-import { LineageModal } from './components/LineageModal';
-import { PortraitModal } from './components/PortraitModal';
-import { BattleModal } from './components/BattleModal';
-import { BracketModal } from './components/BracketModal';
+import { AchievementToast } from './components/AchievementToast';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
 import { recordRoot, recordEvolve } from './data/lineage';
@@ -60,6 +50,19 @@ import { buildShareLink, readCreatureFromHash, clearCreatureHash } from './utils
 import { sizeToMass } from './physics';
 import { sounds, isMuted, setMuted, startAmbient } from './sounds';
 import './App.css';
+
+const AboutModal = lazy(() => import('./components/AboutModal').then((m) => ({ default: m.AboutModal })));
+const AchievementsModal = lazy(() => import('./components/AchievementsModal').then((m) => ({ default: m.AchievementsModal })));
+const BattleModal = lazy(() => import('./components/BattleModal').then((m) => ({ default: m.BattleModal })));
+const BracketModal = lazy(() => import('./components/BracketModal').then((m) => ({ default: m.BracketModal })));
+const CompareModal = lazy(() => import('./components/CompareModal').then((m) => ({ default: m.CompareModal })));
+const DailyChallengeModal = lazy(() => import('./components/DailyChallenge').then((m) => ({ default: m.DailyChallengeModal })));
+const DexModal = lazy(() => import('./components/DexModal').then((m) => ({ default: m.DexModal })));
+const EvolveModal = lazy(() => import('./components/EvolveModal').then((m) => ({ default: m.EvolveModal })));
+const LineageModal = lazy(() => import('./components/LineageModal').then((m) => ({ default: m.LineageModal })));
+const PortraitModal = lazy(() => import('./components/PortraitModal').then((m) => ({ default: m.PortraitModal })));
+const ProfileModal = lazy(() => import('./components/ProfileModal').then((m) => ({ default: m.ProfileModal })));
+const QuestsModal = lazy(() => import('./components/QuestsModal').then((m) => ({ default: m.QuestsModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
 type StageView = 'creature' | ArenaId;
@@ -616,31 +619,33 @@ export default function App() {
           onEvolve={insight.won ? openEvolveFromInsight : undefined}
         />
       )}
-      {showEvolve && (
-        <EvolveModal
-          parent={creature}
-          onPick={(c) => {
-            setCreature(c);
-            const newId = lineageId ? recordEvolve(lineageId, c, [`Evolved from ${creature.name}`]) : recordRoot(c);
-            setLineageId(newId);
-            recordEvolved();
-            recordGeneration();
-            if (tournament) {
-              setTournament({
-                ...tournament,
-                generation: tournament.generation + 1,
-                round: tournament.round + 1,
-                phase: 'playing',
-              });
-            } else {
-              setGeneration((g) => g + 1);
-            }
-            setShowEvolve(false);
-            sounds.click();
-          }}
-          onClose={() => setShowEvolve(false)}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showEvolve && (
+          <EvolveModal
+            parent={creature}
+            onPick={(c) => {
+              setCreature(c);
+              const newId = lineageId ? recordEvolve(lineageId, c, [`Evolved from ${creature.name}`]) : recordRoot(c);
+              setLineageId(newId);
+              recordEvolved();
+              recordGeneration();
+              if (tournament) {
+                setTournament({
+                  ...tournament,
+                  generation: tournament.generation + 1,
+                  round: tournament.round + 1,
+                  phase: 'playing',
+                });
+              } else {
+                setGeneration((g) => g + 1);
+              }
+              setShowEvolve(false);
+              sounds.click();
+            }}
+            onClose={() => setShowEvolve(false)}
+          />
+        )}
+      </Suspense>
       {tournament?.phase === 'between-rounds' && (
         <BetweenRounds
           t={tournament}
@@ -657,23 +662,25 @@ export default function App() {
           onExit={exitTournament}
         />
       )}
-      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
-      {showDex && (
-        <DexModal
-          current={creature}
-          onLoad={(c) => { setCreature(c); setShowDex(false); sounds.click(); }}
-          onClose={() => setShowDex(false)}
-        />
-      )}
-      {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
-      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
-      {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
-      {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
-      {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
-      {showLineage && <LineageModal currentLineageId={lineageId} onClose={() => setShowLineage(false)} />}
-      {showPortrait && <PortraitModal creature={creature} onClose={() => setShowPortrait(false)} />}
-      {showBattle && <BattleModal current={creature} onClose={() => setShowBattle(false)} />}
-      {showBracket && <BracketModal current={creature} onClose={() => setShowBracket(false)} />}
+      <Suspense fallback={null}>
+        {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+        {showDex && (
+          <DexModal
+            current={creature}
+            onLoad={(c) => { setCreature(c); setShowDex(false); sounds.click(); }}
+            onClose={() => setShowDex(false)}
+          />
+        )}
+        {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
+        {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+        {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
+        {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
+        {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
+        {showLineage && <LineageModal currentLineageId={lineageId} onClose={() => setShowLineage(false)} />}
+        {showPortrait && <PortraitModal creature={creature} onClose={() => setShowPortrait(false)} />}
+        {showBattle && <BattleModal current={creature} onClose={() => setShowBattle(false)} />}
+        {showBracket && <BracketModal current={creature} onClose={() => setShowBracket(false)} />}
+      </Suspense>
 
       {toasts.length > 0 && (
         <div className="toast-stack">

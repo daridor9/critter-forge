@@ -5,4 +5,15 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/critter-forge/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/src/components/dexShapes.tsx') || id.includes('/src/components/xrayShapes.tsx')) {
+            return 'creature-art';
+          }
+        },
+      },
+    },
+  },
 })

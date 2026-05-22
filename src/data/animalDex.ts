@@ -4,7 +4,7 @@ import type { ColorOverride } from '../components/CreatureSVG';
 export type DexShape =
   | 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin'
   | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'polarbear'
-  | 'mouse' | 'hummingbird' | 'bat'
+  | 'mouse' | 'hummingbird' | 'bat' | 'sloth' | 'kangaroo'
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
@@ -108,9 +108,9 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Dolphin', '🐬', 200, 'mammal', true, 0, 3, 1, 2, ['echolocation', 'gills'],
     'Recognizes itself in a mirror. Uses ultrasound to navigate murky water. EQ ~5 — second only to humans.', 'dolphin'),
   make('Sloth', '🦥', 6, 'mammal', true, 0, 0, 1, 1, ['symbiosis'],
-    'Algae grows in its fur for camouflage. Moves 30 cm/min. Sleeps 18h a day.'),
+    'Algae grows in its fur for camouflage. Moves 30 cm/min. Sleeps 18h a day.', 'sloth'),
   make('Kangaroo', '🦘', 60, 'mammal', true, 2, 1, 0, 1, [],
-    'Hops at 70 km/h using elastic tendons. Tail acts as a fifth leg.'),
+    'Hops at 70 km/h using elastic tendons. Tail acts as a fifth leg.', 'kangaroo'),
   make('Camel', '🐪', 600, 'mammal', true, 1, 1, 1, 1, [],
     'Survives 10% water loss (we die at 5%). Hump is fat, not water — burns it for energy + metabolic water.', 'camel'),
   make('Gorilla', '🦍', 180, 'mammal', true, 1, 2, 1, 2, [],
