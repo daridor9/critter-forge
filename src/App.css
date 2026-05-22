@@ -3110,6 +3110,9 @@ header {
   flex-wrap: wrap;
   padding: 14px 22px;
   margin-bottom: 16px;
+  /* The polish layer sets overflow: hidden on header (for the shimmer bar
+     decoration). That clips the More popover menu. Restore default. */
+  overflow: visible;
 }
 
 .header-title {
