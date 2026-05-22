@@ -108,6 +108,13 @@ export function DexModal({ current, onLoad, onClose }: Props) {
                 </div>
                 <div className="dex-card-name">{a.emoji} {a.name}</div>
                 <div className="dex-card-fact">{a.fact}</div>
+                {a.adaptations && a.adaptations.length > 0 && (
+                  <div className="dex-adaptations" aria-label={`${a.name} adaptations`}>
+                    {a.adaptations.map((adaptation) => (
+                      <span key={adaptation}>{adaptation}</span>
+                    ))}
+                  </div>
+                )}
                 {food && (
                   <div className="dex-food">
                     <div><strong>🍴 Eats:</strong> {food.eats.join(', ')}</div>
@@ -185,6 +192,7 @@ function matchesFilters(
   const haystack = [
     animal.name,
     animal.fact,
+    ...(animal.adaptations ?? []),
     c.bodyPlan,
     ...c.hybrids,
     ...(food?.eats ?? []),

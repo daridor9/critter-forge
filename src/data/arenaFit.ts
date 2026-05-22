@@ -9,6 +9,10 @@ export interface ArenaFit {
   reason: string;
 }
 
+function hasAdaptation(c: Creature, text: string): boolean {
+  return c.adaptations?.some((a) => a.includes(text)) ?? false;
+}
+
 // Quick biological sanity-check: does this creature actually belong in this
 // arena? Used to draw a 🟢/🟡/⚪ dot on each arena tab so the kid can see at
 // a glance that, e.g., loading the Octopus from the dex points at Deep + Maze
@@ -43,6 +47,7 @@ export function arenaFitFor(arena: ArenaId, c: Creature): ArenaFit {
       return { fit: 'ok', reason: 'Marginal in the heat.' };
     }
     case 'deep': {
+      if (hasAdaptation(c, 'diver') || hasAdaptation(c, 'gills')) return { fit: 'great', reason: 'Real diving/aquatic adaptations.' };
       if (c.bodyPlan === 'fish' || c.hybrids.includes('gills')) return { fit: 'great', reason: 'Built for water.' };
       if (c.hybrids.includes('echolocation')) return { fit: 'ok', reason: 'Sound helps navigate the dark.' };
       return { fit: 'tough', reason: 'Will drown without gills.' };

@@ -2878,6 +2878,23 @@ h2 {
   margin-bottom: 8px;
   flex: 1;
 }
+.dex-adaptations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 8px;
+}
+.dex-adaptations span {
+  max-width: 100%;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #eef6ff;
+  border: 1px solid #cfe0f4;
+  color: #3a6c9a;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.25;
+}
 .dex-load {
   font-size: 12px;
   padding: 6px 12px;
@@ -3505,6 +3522,143 @@ main {
   background: #fafaf3;
   border-radius: 12px;
   padding: 12px;
+}
+
+.mission-board {
+  background: linear-gradient(180deg, #fffaf0, #fbfaf3);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow-1);
+}
+.mission-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mission-head h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--accent);
+}
+.mission-head p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+.mission-rank {
+  min-width: 58px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid var(--line);
+  color: var(--fg-dim);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.mission-rank span {
+  display: block;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1;
+}
+.mission-apex,
+.mission-current,
+.mission-next {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.mission-apex-title,
+.mission-next-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 7px;
+}
+.mission-arena-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.mission-arena-track span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid var(--line);
+  color: var(--fg-dim);
+  font-size: 11px;
+  font-weight: 700;
+}
+.mission-arena-track span.won {
+  background: #eef9ef;
+  border-color: #bfe8c5;
+  color: #2f7c3a;
+}
+.mission-current {
+  display: grid;
+  gap: 7px;
+}
+.mission-current div {
+  display: grid;
+  gap: 2px;
+}
+.mission-current strong {
+  font-size: 12px;
+  color: var(--fg);
+}
+.mission-current span {
+  font-size: 12px;
+  color: var(--fg-dim);
+  line-height: 1.3;
+}
+.mission-list {
+  display: grid;
+  gap: 6px;
+}
+.mission-list button {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--fg);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.mission-list button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.mission-list button span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mission-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mission-actions .btn {
+  padding: 7px 10px;
+  font-size: 12px;
 }
 
 .stage-arena {

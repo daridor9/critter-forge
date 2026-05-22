@@ -18,8 +18,9 @@ export type Hybrid =
   | 'symbiosis';
 
 // When a creature is loaded straight from the dex, it carries the bespoke
-// shape name and palette so the main stage can render the canonical critter
-// (e.g. an octopus actually looks like an octopus, not a generic fish blob).
+// shape name, palette, and factual adaptations so the main stage can render
+// the canonical critter and the arenas can respect real biology without
+// pretending every adaptation is a player hybrid power.
 // Cleared the moment the user mutates any trait in the builder.
 export interface ShapeColors {
   main: string;
@@ -41,6 +42,7 @@ export interface Creature {
   name: string;
   shape?: string;
   colors?: ShapeColors;
+  adaptations?: string[];
 }
 
 /**

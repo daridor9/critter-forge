@@ -80,14 +80,16 @@ export const FOOD_ENVS: FoodEnv[] = [
     baseAvailable: 1100,
     bonus: (c, s) => {
       const aquatic = c.bodyPlan === 'fish' || c.hybrids.includes('gills');
-      if (!aquatic) return 0.04;
+      const diveAdapted = c.adaptations?.some((a) => a.includes('diver') || a.includes('gills') || a.includes('deep-diving')) ?? false;
+      if (!aquatic && !diveAdapted) return 0.04;
       let b = 1.0;
+      if (diveAdapted && !aquatic) b = 0.75;
       if (s.massKg > 100) b += 0.4;
       if (c.hybrids.includes('echolocation')) b += 0.2;
       if (c.hybrids.includes('electric')) b += 0.15;
       return b;
     },
-    note: 'Plankton, fish, krill. Aquatic only — gills or fish body.',
+    note: 'Plankton, fish, krill. Fish, gills, and real diving adaptations do best.',
   },
 ];
 

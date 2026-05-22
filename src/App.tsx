@@ -30,6 +30,7 @@ import {
   recordSharedImport,
 } from './data/profile';
 import { FoodEconomyPanel } from './components/FoodEconomyPanel';
+import { MissionBoard } from './components/MissionBoard';
 import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
 import type { Insight, ArenaResult } from './data/insights';
@@ -96,7 +97,7 @@ export default function App() {
           resolved.hybrids.length !== prev.hybrids.length ||
           resolved.hybrids.some((h, i) => h !== prev.hybrids[i]);
         if (traitsChanged) {
-          resolved = { ...resolved, shape: undefined, colors: undefined };
+          resolved = { ...resolved, shape: undefined, colors: undefined, adaptations: undefined };
         }
       }
       return resolved;
@@ -575,6 +576,12 @@ export default function App() {
                     <StatsPanel creature={creature} stats={stats} onAdjust={adjustStat} />
                   </div>
                   <div className="creature-info-food">
+                    <MissionBoard
+                      creature={creature}
+                      generation={generation}
+                      onOpenQuests={() => { setShowQuests(true); sounds.click(); }}
+                      onStartTournament={startTournament}
+                    />
                     <FoodEconomyPanel creature={creature} stats={stats} />
                     <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />
                   </div>

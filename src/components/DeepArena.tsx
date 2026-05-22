@@ -29,11 +29,16 @@ function isAquatic(c: Creature): boolean {
   return c.bodyPlan === 'fish' || c.hybrids.includes('gills');
 }
 
+function isDiveAdapted(c: Creature): boolean {
+  return c.adaptations?.some((a) => a.includes('diver') || a.includes('gills') || a.includes('deep-diving')) ?? false;
+}
+
 export function DeepArena({ creature, stats, onFinish }: Props) {
   const aq = isAquatic(creature);
+  const diveAdapted = isDiveAdapted(creature);
   const brainBonus = 1 + creature.brainTier * 0.1;
-  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus;
-  const pressureProof = aq || creature.defenseTier === 2;
+  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus * (diveAdapted ? 2.8 : 1);
+  const pressureProof = aq || diveAdapted || creature.defenseTier === 2;
 
   const [depth, setDepth] = useState(0);
   const [o2, setO2] = useState(o2Capacity);
@@ -202,7 +207,7 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           </button>
         )}
         {!running && !done && (
-          <small className="arena-meta">{aq ? 'gills/fish — unlimited breath' : `breath: ${o2Capacity.toFixed(1)}s`} · {pressureProof ? 'pressure-safe' : 'fragile at depth'} · phase: {phase}</small>
+          <small className="arena-meta">{aq ? 'gills/fish — unlimited breath' : diveAdapted ? `dive adaptation — breath: ${o2Capacity.toFixed(1)}s` : `breath: ${o2Capacity.toFixed(1)}s`} · {pressureProof ? 'pressure-safe' : 'fragile at depth'} · phase: {phase}</small>
         )}
       </div>
     </div>
