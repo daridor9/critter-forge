@@ -80,7 +80,10 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
   const armorColor = '#6b6b6b';
 
   const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
-  const eyeR = [6, 8, 11][creature.sensorTier] * scale * props.eyeMult;
+  // Eye size by sensor tier. Bumped from [6,8,11] for a kawaii read — the
+  // critter should feel cute and alive when seen at a glance. eyeMult still
+  // scales it with body size so big creatures don't get bug-eyed.
+  const eyeR = [8, 11, 14][creature.sensorTier] * scale * props.eyeMult;
   const showDetail = scale >= 0.55;
   const isTiny = sizeT < 0.2;
   const isHuge = sizeT > 0.75;
@@ -193,7 +196,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       <ellipse cx={cx + bodyW * 0.02} cy={cy + bodyH * 0.04} rx={bodyW / 2} ry={bodyH / 2} fill={colors.shade} opacity="0.5" />
-      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={colors.main} />
+      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={colors.main} stroke={colors.shade} strokeWidth={Math.max(0.8, 1.4 * scale)} strokeOpacity={0.55} />
       <ellipse cx={cx - bodyW * 0.08} cy={cy - bodyH * 0.22} rx={bodyW * 0.3} ry={bodyH * 0.15} fill="white" opacity="0.22" />
       <ellipse cx={cx} cy={cy + bodyH * 0.18} rx={bodyW * 0.42} ry={bodyH * 0.28} fill={colors.light} opacity={0.5} />
       <ellipse cx={cx + bodyW * 0.05} cy={cy + bodyH * 0.32} rx={bodyW * 0.4} ry={bodyH * 0.12} fill={colors.shade} opacity="0.25" />
@@ -288,7 +291,7 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       })()}
 
       <circle cx={headCx + headR * 0.05} cy={headCy + headR * 0.05} r={headR} fill={colors.shade} opacity="0.45" />
-      <circle cx={headCx} cy={headCy} r={headR} fill={colors.main} />
+      <circle cx={headCx} cy={headCy} r={headR} fill={colors.main} stroke={colors.shade} strokeWidth={Math.max(0.8, 1.4 * scale)} strokeOpacity={0.55} />
       <ellipse cx={headCx - headR * 0.25} cy={headCy - headR * 0.55} rx={headR * 0.42} ry={headR * 0.22} fill="white" opacity="0.28" />
       <ellipse cx={headCx + headR * 0.05} cy={headCy + headR * 0.55} rx={headR * 0.6} ry={headR * 0.18} fill={colors.shade} opacity="0.25" />
 
@@ -327,16 +330,16 @@ export function CreatureBody({ creature, cx, footY, scale = 1, facingRight = tru
       )}
 
       <g className={showDetail ? 'eye-blink' : undefined} style={{ transformOrigin: `${eyeCx}px ${eyeCy}px` }}>
-        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx={eyeCx} cy={eyeCy} r={eyeR} fill="white" stroke="#222" strokeWidth="0.8" />
         <circle cx={eyeCx + eyeR * 0.18} cy={eyeCy + eyeR * 0.08} r={eyeR * 0.62} fill="#1a1a1a" />
-        <circle cx={eyeCx + eyeR * 0.4} cy={eyeCy - eyeR * 0.32} r={eyeR * 0.34} fill="white" />
-        <circle cx={eyeCx + eyeR * 0.05} cy={eyeCy + eyeR * 0.32} r={eyeR * 0.15} fill="white" opacity="0.8" />
+        <circle cx={eyeCx + eyeR * 0.4} cy={eyeCy - eyeR * 0.32} r={eyeR * 0.4} fill="white" />
+        <circle cx={eyeCx - eyeR * 0.05} cy={eyeCy + eyeR * 0.3} r={eyeR * 0.2} fill="white" opacity="0.9" />
       </g>
       {showDetail && creature.bodyPlan === 'mammal' && (
         <g className="eye-blink" style={{ transformOrigin: `${eyeCx - headR * 0.55}px ${eyeCy + headR * 0.08}px` }}>
-          <circle cx={eyeCx - headR * 0.55} cy={eyeCy + headR * 0.08} r={eyeR * 0.9} fill="white" stroke="#222" strokeWidth="0.6" />
+          <circle cx={eyeCx - headR * 0.55} cy={eyeCy + headR * 0.08} r={eyeR * 0.9} fill="white" stroke="#222" strokeWidth="0.8" />
           <circle cx={eyeCx - headR * 0.55 + eyeR * 0.15} cy={eyeCy + headR * 0.08 + eyeR * 0.05} r={eyeR * 0.55} fill="#1a1a1a" />
-          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.3} cy={eyeCy + headR * 0.08 - eyeR * 0.3} r={eyeR * 0.28} fill="white" />
+          <circle cx={eyeCx - headR * 0.55 + eyeR * 0.3} cy={eyeCy + headR * 0.08 - eyeR * 0.3} r={eyeR * 0.33} fill="white" />
         </g>
       )}
 

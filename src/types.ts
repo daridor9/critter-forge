@@ -47,10 +47,10 @@ export const defaultCreature: Creature = {
   sizeUnit: 40,
   bodyPlan: 'mammal',
   warmBlooded: true,
-  legTier: 1,
+  legTier: 2,
   brainTier: 1,
   defenseTier: 1,
   sensorTier: 1,
   hybrids: [],
-  name: 'My Critter',
+  name: 'Pip',
 };
