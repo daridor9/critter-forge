@@ -121,17 +121,37 @@ interface AnatomyMetrics {
   m: number;
 }
 
-function getAnatomyMetrics(creature: Creature, cx: number, footY: number): AnatomyMetrics {
+function getAnatomyMetrics(creature: Creature, cx: number, footY: number, opts?: { presentation?: boolean }): AnatomyMetrics {
   const m = sizeToMass(creature.sizeUnit);
   const logM = Math.log10(Math.max(0.01, m));
   const sizeT = Math.max(0, Math.min(1, (logM + 2) / 7));
   const baseSize = Math.max(15, 30 + logM * 22);
   const bodyAspect = 1.35 + sizeT * 1.15;
-  const bodyH = baseSize;
-  const bodyW = bodyH * bodyAspect;
-  const legLen = [bodyH * 0.4, bodyH * 0.75, bodyH * 1.15][creature.legTier];
-  const cy = footY - bodyH / 2 - legLen;
-  const headR = bodyH * 0.44 * [0.78, 1.0, 1.22, 1.45][creature.brainTier] * (1.42 - sizeT * 1.1);
+  let bodyH = baseSize;
+  let bodyW = bodyH * bodyAspect;
+  let legLen = [bodyH * 0.4, bodyH * 0.75, bodyH * 1.15][creature.legTier];
+  let headR = bodyH * 0.44 * [0.78, 1.0, 1.22, 1.45][creature.brainTier] * (1.42 - sizeT * 1.1);
+
+  // Presentation mode: anatomy and muscle views zoom the creature so it
+  // fills the canvas. Otherwise tiny creatures get lost in empty space.
+  // Target: total height (body + legs) ≈ 210px in a 300px canvas, capped
+  // at 2.6× zoom to avoid overflow for already-large creatures.
+  if (opts?.presentation) {
+    const rawTotal = bodyH + legLen;
+    const zoom = Math.max(1, Math.min(2.6, 210 / rawTotal));
+    bodyH *= zoom;
+    bodyW *= zoom;
+    legLen *= zoom;
+    headR *= zoom;
+  }
+
+  // In presentation mode anchor the creature vertically near the canvas
+  // center; otherwise keep the foot-on-the-ground placement used by the
+  // skin/habitat view so habitats line up the way they always have.
+  const cy = opts?.presentation
+    ? 145 - legLen / 2
+    : footY - bodyH / 2 - legLen;
+
   const headCx = cx + bodyW / 2 - 6;
   const headCy = cy - bodyH * 0.14;
   const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
@@ -161,8 +181,8 @@ const ORGAN = {
 };
 
 function AnatomyView({ creature, cx, footY }: { creature: Creature; cx: number; footY: number }) {
-  const M = getAnatomyMetrics(creature, cx, footY);
-  const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, heartRateBpm, beatPeriod } = M;
+  const M = getAnatomyMetrics(creature, cx, footY, { presentation: true });
+  const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, heartRateBpm, beatPeriod, m } = M;
 
   const isFish = creature.bodyPlan === 'fish';
   const isMammal = creature.bodyPlan === 'mammal';
@@ -194,6 +214,50 @@ function AnatomyView({ creature, cx, footY }: { creature: Creature; cx: number; 
 
   return (
     <g>
+      {/* Graph-paper grid — sells the "textbook page" feel. Faint
+          parchment-on-parchment so it never competes with the anatomy. */}
+      <g stroke="#d8c8a0" strokeWidth="0.4" opacity="0.7">
+        {Array.from({ length: Math.ceil(W / 20) + 1 }).map((_, i) => (
+          <line key={`gv-${i}`} x1={i * 20} y1={0} x2={i * 20} y2={H} />
+        ))}
+        {Array.from({ length: Math.ceil(H / 20) + 1 }).map((_, i) => (
+          <line key={`gh-${i}`} x1={0} y1={i * 20} x2={W} y2={i * 20} />
+        ))}
+      </g>
+      {/* Slightly darker every-100 lines for a real graph-paper feel */}
+      <g stroke="#b8a070" strokeWidth="0.6" opacity="0.55">
+        {Array.from({ length: Math.ceil(W / 100) + 1 }).map((_, i) => (
+          <line key={`gV-${i}`} x1={i * 100} y1={0} x2={i * 100} y2={H} />
+        ))}
+        {Array.from({ length: Math.ceil(H / 100) + 1 }).map((_, i) => (
+          <line key={`gH-${i}`} x1={0} y1={i * 100} x2={W} y2={i * 100} />
+        ))}
+      </g>
+
+      {/* Textbook title: "Anatomy of [name]" with a mass + body-plan subtitle */}
+      <g>
+        <text
+          x={W / 2} y={22}
+          textAnchor="middle"
+          fontSize="13" fontWeight="700"
+          fontFamily="ui-rounded, Georgia, serif"
+          fill={INK}
+          style={{ letterSpacing: '0.02em' }}
+        >
+          Anatomy of {creature.name}
+        </text>
+        <text
+          x={W / 2} y={36}
+          textAnchor="middle"
+          fontSize="9.5"
+          fontFamily="ui-rounded, system-ui, sans-serif"
+          fill={INK_LIGHT}
+          style={{ fontStyle: 'italic' }}
+        >
+          {m < 0.1 ? `${(m * 1000).toFixed(0)} g` : m < 10 ? `${m.toFixed(1)} kg` : `${Math.round(m)} kg`} · {creature.bodyPlan}{creature.warmBlooded ? '' : ' (cold-blooded)'}
+        </text>
+      </g>
+
       {/* Faint body silhouette so the skeleton has context */}
       <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill="#fff" fillOpacity="0.35" stroke={INK_LIGHT} strokeWidth="0.6" strokeDasharray="2 3" />
       <circle cx={headCx} cy={headCy} r={headR} fill="#fff" fillOpacity="0.35" stroke={INK_LIGHT} strokeWidth="0.6" strokeDasharray="2 3" />
@@ -354,11 +418,34 @@ const MUSCLE_MID = '#c45a68';
 const MUSCLE_LIGHT = '#e08a92';
 
 function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; footY: number }) {
-  const M = getAnatomyMetrics(creature, cx, footY);
-  const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, beatPeriod } = M;
+  const M = getAnatomyMetrics(creature, cx, footY, { presentation: true });
+  const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, beatPeriod, m } = M;
 
   return (
     <g>
+      {/* Title strip matching anatomy view (slightly muted to read as a
+          'second page' of the same textbook) */}
+      <text
+        x={W / 2} y={22}
+        textAnchor="middle"
+        fontSize="13" fontWeight="700"
+        fontFamily="ui-rounded, Georgia, serif"
+        fill="#5a1a24"
+        style={{ letterSpacing: '0.02em' }}
+      >
+        Musculature of {creature.name}
+      </text>
+      <text
+        x={W / 2} y={36}
+        textAnchor="middle"
+        fontSize="9.5"
+        fontFamily="ui-rounded, system-ui, sans-serif"
+        fill="#8a4a52"
+        style={{ fontStyle: 'italic' }}
+      >
+        {m < 0.1 ? `${(m * 1000).toFixed(0)} g` : m < 10 ? `${m.toFixed(1)} kg` : `${Math.round(m)} kg`} · {creature.bodyPlan}{creature.warmBlooded ? '' : ' (cold-blooded)'}
+      </text>
+
       {/* Body in muscle tone */}
       <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={MUSCLE_MID} stroke={MUSCLE_DEEP} strokeWidth="1" />
       <circle cx={headCx} cy={headCy} r={headR} fill={MUSCLE_MID} stroke={MUSCLE_DEEP} strokeWidth="1" />
