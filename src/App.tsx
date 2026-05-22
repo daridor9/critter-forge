@@ -20,8 +20,7 @@ import { DexModal } from './components/DexModal';
 import { AchievementsModal, AchievementToast } from './components/AchievementsModal';
 import { ProfileModal } from './components/ProfileModal';
 import { QuestsModal } from './components/QuestsModal';
-import { DailyChallengeModal } from './components/DailyChallenge';
-import { CompareModal } from './components/CompareModal';
+import { DailyChallengeModal } from './components/DailyChallenge';import { CompareModal } from './components/CompareModal';
 import { LineageModal } from './components/LineageModal';
 import { BattleModal } from './components/BattleModal';
 import { BracketModal } from './components/BracketModal';
@@ -43,8 +42,7 @@ import { FoodEconomyPanel } from './components/FoodEconomyPanel';
 import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
 import type { Insight, ArenaResult } from './data/insights';
-import { randomCreature, suggestName } from './data/randomCreature';
-import { adjustCreatureForStat } from './data/statAdjusters';
+import { randomCreature, suggestName } from './data/randomCreature';import { adjustCreatureForStat } from './data/statAdjusters';
 import type { StatKey } from './data/statAdjusters';
 import type { TournamentState } from './data/tournament';
 import { TOURNAMENT_ORDER, scoreArena, difficultyFor } from './data/tournament';
@@ -63,6 +61,7 @@ import { sounds, isMuted, setMuted, startAmbient } from './sounds';
 import './App.css';
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
+type StageView = 'creature' | ArenaId;
 
 const arenaTabs: { id: ArenaId; label: string }[] = [
   { id: 'chase', label: '🦌 Chase' },
@@ -72,23 +71,15 @@ const arenaTabs: { id: ArenaId; label: string }[] = [
   { id: 'deep', label: '🌊 Deep' },
   { id: 'maze', label: '🧩 Maze' },
 ];
-
 export default function App() {
   const [creature, setCreatureRaw] = useState<Creature>(defaultCreature);
   const [undoStack, setUndoStack] = useState<Creature[]>([]);
 
   function setCreature(next: Creature | ((prev: Creature) => Creature)) {
-    // Functional setter — `creature` from closure can be stale right after an
-    // arena finishes (multiple state updates batch around the same render),
-    // which previously made a brain-tier bump appear to "revert" if the user
-    // clicked + while React was still settling.
     setCreatureRaw((prev) => {
       let resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(prev) : next;
       if (resolved === prev) return prev;
       setUndoStack((s) => [...s.slice(-19), prev]);
-      // If the user changed a trait but inherited the previous shape (e.g. tweaked
-      // a slider on a loaded-from-dex octopus), the bespoke silhouette no longer
-      // matches what they built — strip it so the generic morph kicks back in.
       if (resolved.shape && resolved.shape === prev.shape) {
         const traitsChanged =
           resolved.sizeUnit !== prev.sizeUnit ||
@@ -107,7 +98,6 @@ export default function App() {
       return resolved;
     });
   }
-
   function undo() {
     setUndoStack((s) => {
       if (s.length === 0) return s;
@@ -120,9 +110,12 @@ export default function App() {
   const stats = useMemo(() => computeStats(creature), [creature]);
   const [insight, setInsight] = useState<Insight | null>(null);
   const [arenaId, setArenaId] = useState<ArenaId>('chase');
+  const [view, setView] = useState<StageView>('creature');
+  const [stageMax, setStageMax] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const [showEvolve, setShowEvolve] = useState(false);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
-  const [fullscreen, setFullscreen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [generation, setGeneration] = useState(1);
   const [tournament, setTournament] = useState<TournamentState | null>(null);
@@ -139,7 +132,6 @@ export default function App() {
   const [lineageId, setLineageId] = useState<string | null>(() => recordRoot(defaultCreature));
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const toastTimers = useRef<number[]>([]);
-
   function pushToasts(items: Achievement[]) {
     if (items.length === 0) return;
     setToasts((prev) => [...prev, ...items]);
@@ -183,15 +175,12 @@ export default function App() {
       /* ignore */
     }
   }
-
   useEffect(() => {
     const got = checkCreatureAchievements(creature, sizeToMass(creature.sizeUnit));
     if (got.length > 0) pushToasts(got);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creature]);
 
-  // Ambient habitat audio — re-keys whenever bodyPlan changes. Muted state
-  // is respected internally.
   useEffect(() => {
     const habitat =
       creature.bodyPlan === 'mammal' ? 'meadow' :
@@ -208,15 +197,26 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generation]);
 
+  // Close the More menu when clicking outside it.
+  useEffect(() => {
+    if (!showMore) return;
+    const handler = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setShowMore(false);
+      }
+    };
+    window.addEventListener('mousedown', handler);
+    return () => window.removeEventListener('mousedown', handler);
+  }, [showMore]);
   const effectiveArenaId: ArenaId = tournament ? TOURNAMENT_ORDER[tournament.round - 1] : arenaId;
   const effectiveGeneration = tournament ? tournament.generation : generation;
+  // In a tournament the stage is forced to the current arena; otherwise honour the view tab.
+  const showCreatureView = !tournament && view === 'creature';
 
   const finish = (r: ArenaResult) => {
     recordArena(r);
     const arenaGot = checkArenaWin(r);
     if (arenaGot.length > 0) pushToasts(arenaGot);
-    // Stats badges might have just unlocked (e.g. dive depth, drought days,
-    // maze speed, hunt streak, tests-run thresholds).
     const statsGot = checkStatsAchievements();
     if (statsGot.length > 0) pushToasts(statsGot);
     if (r.arena === 'chase' && r.won) {
@@ -278,10 +278,10 @@ export default function App() {
     else sounds.lose();
     setInsight(i);
   };
-
   function startTournament() {
     setTournament({ round: 1, results: [], phase: 'playing', generation: 1 });
     setGeneration(1);
+    setView('chase');
     sounds.start();
     const a = tryUnlock('tournament-run');
     if (a) pushToasts([a]);
@@ -324,6 +324,12 @@ export default function App() {
 
   function pickArena(id: ArenaId) {
     setArenaId(id);
+    setView(id);
+    sounds.click();
+  }
+
+  function pickCreature() {
+    setView('creature');
     sounds.click();
   }
 
@@ -357,7 +363,6 @@ export default function App() {
       sounds.click();
     }
   }
-
   function renderArena() {
     const id = effectiveArenaId;
     const gen = effectiveGeneration;
@@ -370,124 +375,141 @@ export default function App() {
     return null;
   }
 
-  if (fullscreen) {
-    return (
-      <div className="fullscreen">
-        <header className="fs-header">
-          <button className="header-btn" type="button" onClick={() => { setFullscreen(false); sounds.click(); }}>
-            ← Back to builder
-          </button>
-          <div className="fs-creature">
-            <strong>🦎 {creature.name} <span className="gen-badge">🧬 Gen {generation}</span></strong>
-            <span>{stats.massKg < 1 ? `${Math.round(stats.massKg * 1000)} g` : `${stats.massKg < 10 ? stats.massKg.toFixed(1) : Math.round(stats.massKg)} kg`} · {stats.topSpeedKmh} km/h · {stats.enduranceKm} km · cold {Math.round(stats.coldTolerance)}</span>
-          </div>
-          <div className="fs-arena-tabs">
-            {arenaTabs.map((t) => {
-              const fit = arenaFitFor(t.id, creature);
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`arena-tab arena-fit-${fit.fit}${arenaId === t.id ? ' active' : ''}`}
-                  onClick={() => pickArena(t.id)}
-                  title={`${fit.fit === 'great' ? 'Great fit' : fit.fit === 'ok' ? 'Workable' : 'Tough match'} — ${fit.reason}`}
-                >
-                  <span className="arena-fit-dot">{fitEmoji(fit.fit)}</span> {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </header>
-        <div className="fs-stage">{renderArena()}</div>
-        {insight && (
-          <InsightCard
-            insight={insight}
-            onClose={() => setInsight(null)}
-            onEvolve={insight.won ? openEvolveFromInsight : undefined}
-          />
-        )}
-        {showEvolve && (
-          <EvolveModal
-            parent={creature}
-            onPick={(c) => { setCreature(c); setShowEvolve(false); sounds.click(); }}
-            onClose={() => setShowEvolve(false)}
-          />
-        )}
-      </div>
-    );
+  function closeMore() {
+    setShowMore(false);
   }
 
+  function moreItem(label: string, onClick: () => void) {
+    return (
+      <button
+        key={label}
+        type="button"
+        className="more-item"
+        onClick={() => { onClick(); closeMore(); sounds.click(); }}
+      >
+        {label}
+      </button>
+    );
+  }
   return (
-    <div className="app">
+    <div className={`app${stageMax ? ' app-max' : ''}`}>
       <header>
         <div className="header-title">
           <h1>🦎 Critter Forge</h1>
           <span className="sub">design a creature — real biology decides if it survives</span>
         </div>
         <div className="header-actions">
-          <button className="header-btn" type="button" onClick={doRandom} title="Random creature">🎲 Random</button>
-          <button className="header-btn" type="button" onClick={doSuggestName} title="Suggest a name based on traits">✏️ Name</button>
-          <button className="header-btn" type="button" onClick={undo} disabled={undoStack.length === 0} title={`Undo last change (${undoStack.length})`}>↶ Undo</button>
-          <button className="header-btn" type="button" onClick={doReset} title="Reset to default">↺ Reset</button>
-          <button className="header-btn" type="button" onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? '🔇' : '🔊'}
-          </button>
+          <div className="header-group" role="group" aria-label="Quick actions">
+            <button
+              className="header-icon"
+              type="button"
+              onClick={doRandom}
+              title="Random creature"
+              aria-label="Random creature"
+            >🎲</button>
+            <button
+              className="header-icon"
+              type="button"
+              onClick={undo}
+              disabled={undoStack.length === 0}
+              title={`Undo last change (${undoStack.length})`}
+              aria-label="Undo"
+            >↶</button>
+            <button
+              className="header-icon"
+              type="button"
+              onClick={doReset}
+              title="Reset to default"
+              aria-label="Reset"
+            >↺</button>
+            <button
+              className="header-icon"
+              type="button"
+              onClick={toggleMute}
+              title={muted ? 'Unmute' : 'Mute'}
+              aria-label={muted ? 'Unmute' : 'Mute'}
+            >{muted ? '🔇' : '🔊'}</button>
+          </div>
           {!tournament ? (
-            <button className="header-btn header-btn-primary" type="button" onClick={startTournament} title="Run a full tournament">🏆 Tournament</button>
+            <button
+              className="header-btn header-btn-primary"
+              type="button"
+              onClick={startTournament}
+              title="Run a full tournament"
+            >🏆 Tournament</button>
           ) : (
-            <button className="header-btn header-btn-primary" type="button" onClick={exitTournament} title="Leave tournament">🚪 Exit</button>
+            <button
+              className="header-btn header-btn-primary"
+              type="button"
+              onClick={exitTournament}
+              title="Leave tournament"
+            >🚪 Exit</button>
           )}
-          <button className="header-btn" type="button" onClick={() => { setShowDex(true); sounds.click(); }} title="Real-animal dex">📖 Dex</button>
-          <button className="header-btn" type="button" onClick={() => { setShowCompare(true); sounds.click(); }} title="Compare two creatures side by side">⚖️</button>
-          <button className="header-btn" type="button" onClick={() => { setShowBattle(true); sounds.click(); }} title="Pit two creatures in a battle">⚔️</button>
-          <button className="header-btn" type="button" onClick={() => { setShowBracket(true); sounds.click(); }} title="Battle bracket — 4 or 8 creatures, single elimination">🥇</button>
-          <button className="header-btn" type="button" onClick={() => { setShowLineage(true); sounds.click(); }} title="Lineage timeline">📈</button>
-          <button className="header-btn" type="button" onClick={() => { setShowQuests(true); sounds.click(); }} title="Design quests">🎯</button>
-          <button className="header-btn" type="button" onClick={() => { setShowDaily(true); sounds.click(); }} title="Today's challenge">📅</button>
-          <button className="header-btn" type="button" onClick={() => { setShowProfile(true); sounds.click(); }} title="Your profile">👤</button>
-          <button className="header-btn" type="button" onClick={() => { setShowAchievements(true); sounds.click(); }} title="Achievements">🏅</button>
-          <button className="header-btn" type="button" onClick={shareLink} title="Copy a shareable link to your creature">🔗 Share</button>
-          <button className="header-btn" type="button" onClick={() => { exportCreatureCard(creature, stats); sounds.click(); }} title="Export creature as a PNG image">📸</button>
-          <button className="header-btn" type="button" onClick={() => { setShowAbout(true); sounds.click(); }} title="About this game">ℹ About</button>
+          <button
+            className="header-btn"
+            type="button"
+            onClick={shareLink}
+            title="Copy a shareable link to your creature"
+          >🔗 Share</button>
+          <div className="header-more-wrap" ref={moreRef}>
+            <button
+              className="header-btn header-more-trigger"
+              type="button"
+              onClick={() => setShowMore(!showMore)}
+              aria-expanded={showMore}
+              aria-haspopup="menu"
+              title="More"
+            >⋯ More</button>
+            {showMore && (
+              <div className="header-more-menu" role="menu">
+                {moreItem('📖 Dex', () => setShowDex(true))}
+                {moreItem('⚖️ Compare', () => setShowCompare(true))}
+                {moreItem('⚔️ Battle', () => setShowBattle(true))}
+                {moreItem('🥇 Bracket', () => setShowBracket(true))}
+                {moreItem('📈 Lineage', () => setShowLineage(true))}
+                {moreItem('🎯 Quests', () => setShowQuests(true))}
+                {moreItem('📅 Daily', () => setShowDaily(true))}
+                {moreItem('👤 Profile', () => setShowProfile(true))}
+                {moreItem('🏅 Achievements', () => setShowAchievements(true))}
+                <div className="more-divider" />
+                {moreItem('✏️ Suggest name', doSuggestName)}
+                {moreItem('📸 Export PNG', () => exportCreatureCard(creature, stats))}
+                <div className="more-divider" />
+                {moreItem('ℹ About', () => setShowAbout(true))}
+              </div>
+            )}
+          </div>
         </div>
       </header>
       <main>
-        <section className="col col-build">
+        <aside className="rail">
           <Builder creature={creature} onChange={setCreature} />
-        </section>
+        </aside>
 
-        <section className="col col-creature">
-          <div className="creature-stage creature-stage-habitat">
-            <CreatureStage creature={creature} xray={xray} />
-            <button
-              className="xray-toggle"
-              type="button"
-              onClick={() => { setXray(!xray); sounds.click(); }}
-              title={xray ? 'Hide x-ray' : 'Show x-ray (bones + organs)'}
-            >
-              {xray ? '🐾 Skin' : '🦴 X-ray'}
-            </button>
-          </div>
-          <div className="creature-name">
-            <span className="gen-badge">🧬 Gen {generation}</span>
-            {creature.name}
-          </div>
-          <StatsPanel creature={creature} stats={stats} onAdjust={adjustStat} />
-          <FoodEconomyPanel creature={creature} stats={stats} />
-        </section>
-
-        <section className="col col-game">
+        <section className="stage">
           {tournament ? (
             <TournamentHUD t={tournament} />
           ) : (
-            <div className="arena-tabs">
+            <div className="stage-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={view === 'creature'}
+                className={`stage-tab stage-tab-creature${view === 'creature' ? ' active' : ''}`}
+                onClick={pickCreature}
+              >
+                🦎 Creature
+              </button>
               {arenaTabs.map((t) => {
                 const fit = arenaFitFor(t.id, creature);
+                const isActive = view === t.id;
                 return (
                   <button
                     key={t.id}
                     type="button"
-                    className={`arena-tab arena-fit-${fit.fit}${arenaId === t.id ? ' active' : ''}`}
+                    role="tab"
+                    aria-selected={isActive}
+                    className={`stage-tab arena-fit-${fit.fit}${isActive ? ' active' : ''}`}
                     onClick={() => pickArena(t.id)}
                     title={`${fit.fit === 'great' ? 'Great fit' : fit.fit === 'ok' ? 'Workable' : 'Tough match'} — ${fit.reason}`}
                   >
@@ -495,44 +517,78 @@ export default function App() {
                   </button>
                 );
               })}
+              <span className="stage-tabs-spacer" />
               <button
                 type="button"
-                className="arena-expand"
-                onClick={() => { setFullscreen(true); sounds.click(); }}
-                title="Play in fullscreen"
+                className="stage-tab stage-max-toggle"
+                onClick={() => { setStageMax(!stageMax); sounds.click(); }}
+                title={stageMax ? 'Restore layout' : 'Maximize stage'}
+                aria-label={stageMax ? 'Restore layout' : 'Maximize stage'}
               >
-                ⛶
+                {stageMax ? '⤡' : '⛶'}
               </button>
             </div>
           )}
 
-          {renderArena()}
-
-          {!tournament && <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />}
+          <div className="stage-content">
+            {showCreatureView ? (
+              <div className="stage-creature">
+                <div className="creature-stage creature-stage-habitat">
+                  <CreatureStage creature={creature} xray={xray} />
+                  <button
+                    className="xray-toggle"
+                    type="button"
+                    onClick={() => { setXray(!xray); sounds.click(); }}
+                    title={xray ? 'Hide x-ray' : 'Show x-ray (bones + organs)'}
+                  >
+                    {xray ? '🐾 Skin' : '🦴 X-ray'}
+                  </button>
+                </div>
+                <div className="creature-name">
+                  <span className="gen-badge">🧬 Gen {generation}</span>
+                  {creature.name}
+                </div>
+                <div className="creature-info">
+                  <div className="creature-info-stats">
+                    <StatsPanel creature={creature} stats={stats} onAdjust={adjustStat} />
+                  </div>
+                  <div className="creature-info-food">
+                    <FoodEconomyPanel creature={creature} stats={stats} />
+                    <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="stage-arena">
+                {renderArena()}
+              </div>
+            )}
+          </div>
         </section>
       </main>
-
-      <AlbumPanel
-        current={creature}
-        onLoad={(c, fromBreed) => {
-          setCreature(c);
-          sounds.click();
-          if (fromBreed) {
-            recordBred();
-            const newId = lineageId ? recordEvolve(lineageId, c, [`Bred offspring`]) : recordRoot(c);
-            setLineageId(newId);
-          } else {
-            const newId = recordRoot(c);
-            setLineageId(newId);
-          }
-        }}
-        onSaved={(count) => {
-          sounds.save();
-          recordSaved(count);
-          const got = checkSaveAchievements(count);
-          if (got.length > 0) pushToasts(got);
-        }}
-      />
+      <div className="album-dock">
+        <AlbumPanel
+          current={creature}
+          onLoad={(c, fromBreed) => {
+            setCreature(c);
+            sounds.click();
+            if (fromBreed) {
+              recordBred();
+              const newId = lineageId ? recordEvolve(lineageId, c, [`Bred offspring`]) : recordRoot(c);
+              setLineageId(newId);
+            } else {
+              const newId = recordRoot(c);
+              setLineageId(newId);
+            }
+          }}
+          onSaved={(count) => {
+            sounds.save();
+            recordSaved(count);
+            const got = checkSaveAchievements(count);
+            if (got.length > 0) pushToasts(got);
+          }}
+        />
+      </div>
 
       {insight && (
         <InsightCard
@@ -566,7 +622,6 @@ export default function App() {
           onClose={() => setShowEvolve(false)}
         />
       )}
-
       {tournament?.phase === 'between-rounds' && (
         <BetweenRounds
           t={tournament}

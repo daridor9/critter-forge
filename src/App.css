@@ -3065,3 +3065,394 @@ h2 {
   background: linear-gradient(90deg, var(--accent), var(--accent-light));
   border-radius: 999px;
 }
+
+
+/* ============================================================
+   Layout v2 — header consolidation + tabbed creature/arena stage
+   ============================================================
+   Appended override layer. The polish layer above this re-declared
+   `.app`, `header`, `main`, `.col`, etc.; we re-declare them again
+   here so the new structure wins.
+
+   Class taxonomy:
+     .app              outer wrapper
+     .app-max          modifier — stage maximized, rail hidden
+     .header-title     left side of header (h1 + sub)
+     .header-actions   right side of header (button cluster)
+     .header-group     segmented icon button cluster
+     .header-icon      icon button inside a header-group
+     .header-more-wrap popover trigger + menu wrapper
+     .header-more-menu floating menu
+     .more-item        single menu row
+     .more-divider     hairline between menu groups
+     .rail             builder column (left)
+     .stage            tabbed creature/arena column (right)
+     .stage-tabs       tab strip
+     .stage-tab        single tab (also carries .arena-fit-* state)
+     .stage-tab-creature  the Creature tab specifically
+     .stage-content    body of the stage
+     .stage-creature   layout for Creature view (habitat + info)
+     .stage-arena      layout for an arena view
+     .creature-info    grid of stats + food/compare on Creature view
+     .album-dock       always-visible album row at the bottom
+   ============================================================ */
+.app {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 22px;
+  margin-bottom: 16px;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.header-title h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.1;
+}
+.header-title .sub {
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.header-group {
+  display: inline-flex;
+  align-items: stretch;
+  background: white;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0;
+  box-shadow: var(--shadow-1);
+}
+.header-icon {
+  width: 32px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--fg-dim);
+  transition: background 0.12s, color 0.12s, transform 0.08s;
+  padding: 0;
+}
+.header-icon:hover:not(:disabled) {
+  background: var(--bg-deep);
+  color: var(--accent);
+}
+.header-icon:active:not(:disabled) {
+  transform: scale(0.94);
+}
+.header-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.header-more-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.header-more-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-3);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: more-menu-in 0.12s ease-out;
+}
+@keyframes more-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.more-item {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.more-item:hover {
+  background: var(--bg-deep);
+  color: var(--accent);
+}
+.more-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 6px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.rail {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-1);
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.stage {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  box-shadow: var(--shadow-1);
+  min-height: 540px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.stage-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-soft);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.stage-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1.5px solid var(--line);
+  background: white;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-dim);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s, color 0.12s, background 0.12s, transform 0.08s, box-shadow 0.15s;
+}
+.stage-tab:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.stage-tab.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: white;
+  border-color: var(--accent-deep);
+  box-shadow: 0 2px 8px rgba(224, 123, 91, 0.35);
+}
+.stage-tab-creature.active {
+  /* Creature tab uses the blue accent to distinguish it from arenas */
+  background: linear-gradient(135deg, var(--accent2), var(--accent2-deep));
+  border-color: var(--accent2-deep);
+  box-shadow: 0 2px 8px rgba(91, 159, 224, 0.35);
+}
+.stage-tab .arena-fit-dot {
+  font-size: 11px;
+  line-height: 1;
+}
+.stage-tab.arena-fit-great:not(.active) {
+  border-color: var(--success);
+  color: #2f7c3a;
+}
+.stage-tab.arena-fit-tough:not(.active) {
+  border-color: #d4a55c;
+  color: #8a6526;
+}
+
+.stage-tabs-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stage-max-toggle {
+  border-color: var(--line);
+  color: var(--fg-dim);
+  padding: 7px 11px;
+  font-size: 14px;
+}
+.stage-max-toggle:hover:not(.active) {
+  color: var(--accent2);
+  border-color: var(--accent2);
+}
+.stage-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.stage-creature {
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  gap: 4px;
+}
+.stage-creature .creature-stage {
+  height: 340px;
+  margin-bottom: 0;
+}
+.stage-creature .creature-name {
+  padding: 6px 0 10px;
+}
+
+.creature-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.creature-info-stats { min-width: 0; }
+.creature-info-food {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+/* The Compare panel was originally inside .col-game and inherited a panel
+   background from it. Inside .creature-info-food we now wrap it so it stays
+   readable next to the StatsPanel. */
+.creature-info-food .compare {
+  background: #fafaf3;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.stage-arena {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  min-height: 0;
+}
+.stage-arena .arena {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.app-max .rail {
+  display: none;
+}
+.app-max main {
+  grid-template-columns: 1fr;
+}
+.app-max .stage {
+  min-height: calc(100vh - 180px);
+}
+.app-max .stage-creature .creature-stage {
+  height: 460px;
+}
+.album-dock {
+  margin-top: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-1);
+}
+
+/* The album internally renders its own .album wrapper; in the new dock we
+   strip its outer box so it sits flush inside .album-dock. */
+.album-dock .album {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* ---------- Responsive ---------- */
+
+/* Narrow desktop / large tablet: stack the rail above the stage. */
+@media (max-width: 980px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  .rail {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .creature-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Phone: tighter padding, header wraps, tabs scroll horizontally. */
+@media (max-width: 640px) {
+  .app {
+    padding: 10px;
+  }
+  header {
+    padding: 12px 14px;
+  }
+  .header-title h1 {
+    font-size: 22px;
+  }
+  .header-title .sub {
+    font-size: 12px;
+  }
+  .stage-creature .creature-stage {
+    height: 240px;
+  }
+  .stage-tab {
+    padding: 6px 11px;
+    font-size: 12px;
+  }
+  .header-icon {
+    width: 30px;
+    height: 28px;
+  }
+  .header-more-menu {
+    right: 0;
+    left: auto;
+    min-width: 180px;
+  }
+}
