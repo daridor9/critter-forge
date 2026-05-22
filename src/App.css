@@ -4212,6 +4212,45 @@ main {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(224, 123, 91, 0.18);
 }
+.portrait-upload-box {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.portrait-upload-btn {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.portrait-upload-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.portrait-upload-box .portrait-hint {
+  margin: 0;
+}
+.portrait-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+  color: var(--fg-dim);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.portrait-divider::before,
+.portrait-divider::after {
+  content: "";
+  height: 1px;
+  background: var(--line);
+}
 
 .portrait-preview {
   margin-top: 10px;
@@ -4265,6 +4304,9 @@ main {
 
 @media (max-width: 640px) {
   .portrait-saved {
+    grid-template-columns: 1fr;
+  }
+  .portrait-upload-box {
     grid-template-columns: 1fr;
   }
 }

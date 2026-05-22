@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import type { Creature } from '../types';
 import { generatePortraitPrompt } from '../utils/portraitPrompt';
 import { getPortrait, setPortrait, removePortrait } from '../data/portraits';
@@ -17,6 +17,8 @@ interface Props {
 // in localStorage. Portraits persist between sessions in the same browser.
 // ─────────────────────────────────────────────────────────────────────────
 
+const MAX_UPLOAD_BYTES = 2.5 * 1024 * 1024;
+
 export function PortraitModal({ creature, onClose }: Props) {
   const [prompt, setPrompt] = useState(() => generatePortraitPrompt(creature));
   const [url, setUrl] = useState('');
@@ -24,6 +26,7 @@ export function PortraitModal({ creature, onClose }: Props) {
   const [copied, setCopied] = useState(false);
   const [previewError, setPreviewError] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   // Regenerate the prompt whenever the creature changes (parent passes a new
   // one if the user closes & reopens after editing).
@@ -32,6 +35,7 @@ export function PortraitModal({ creature, onClose }: Props) {
     setSavedUrl(getPortrait(creature));
     setUrl('');
     setPreviewError(false);
+    setUploadError('');
   }, [creature]);
 
   function handleCopy() {
@@ -56,6 +60,36 @@ export function PortraitModal({ creature, onClose }: Props) {
     setPortrait(creature, trimmed);
     setSavedUrl(trimmed);
     setUrl('');
+  }
+
+  function handleUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    setUploadError('');
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Choose a PNG, JPG, WEBP, or GIF image.');
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setUploadError('That image is too large for browser storage. Try an image under 2.5 MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+      if (!dataUrl.startsWith('data:image/')) {
+        setUploadError('Could not read that image file.');
+        return;
+      }
+      setPortrait(creature, dataUrl);
+      setSavedUrl(dataUrl);
+      setUrl('');
+      setPreviewError(false);
+    };
+    reader.onerror = () => setUploadError('Could not read that image file.');
+    reader.readAsDataURL(file);
   }
 
   function handleRemove() {
@@ -99,7 +133,7 @@ export function PortraitModal({ creature, onClose }: Props) {
           ) : (
             <p className="dedication">
               No portrait yet for this critter. Copy the prompt below, paste it into any AI image generator,
-              then paste the resulting image URL back here to save it.
+              then upload the image from your device or paste the resulting image URL back here.
               Portraits live in your browser and persist across sessions.
             </p>
           )}
@@ -144,6 +178,15 @@ export function PortraitModal({ creature, onClose }: Props) {
 
           <div className="portrait-section">
             <h3>3 — {savedUrl ? 'Replace the saved portrait' : 'Save your portrait'}</h3>
+            <div className="portrait-upload-box">
+              <label className="btn portrait-upload-btn">
+                🖼 Upload image
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleUpload} />
+              </label>
+              <p className="portrait-hint">Pick a portrait from this device. It saves to this browser for this creature.</p>
+            </div>
+            {uploadError && <p className="portrait-error">{uploadError}</p>}
+            <div className="portrait-divider"><span>or paste a hosted image URL</span></div>
             <div className="portrait-url-row">
               <input
                 type="text"
@@ -180,9 +223,9 @@ export function PortraitModal({ creature, onClose }: Props) {
           <details className="portrait-howto">
             <summary>Tip: where to host images that other devices can see</summary>
             <p>
-              Saving the URL only works on the browser you saved it on, and only if the URL stays alive.
-              For a portrait you want to keep long-term, upload the image to a free image host
-              (Imgur, GitHub user-content, your own static hosting) and use the direct image URL.
+              Uploaded portraits are stored in this browser. Pasted URLs also work, but only if the URL stays alive.
+              For a portrait you want to use on every device, upload the image to a free image host
+              (Imgur, GitHub user-content, your own static hosting) and paste the direct image URL.
               For a portrait that should ship with the game, save the PNG into <code>public/portraits/</code>
               in the repo and reference it as <code>/critter-forge/portraits/your-file.png</code>.
             </p>
