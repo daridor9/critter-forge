@@ -845,8 +845,368 @@ export function QuadrupedXray({ creature, massKg }: XrayProps) {
   );
 }
 
+// ─── Crocodile ───────────────────────────────────────────────────────────
+// Long armored skull, 4-chamber heart (unique among reptiles),
+// powerful jaw, sprawling stance.
+export function CrocodileXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg, 0.6); // cold-blooded
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      {/* low elongated body */}
+      <ellipse cx="200" cy="178" rx="135" ry="36" fill="rgba(160,180,220,0.18)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
+
+      {/* long spine */}
+      <line x1="78" y1="175" x2="322" y2="178" stroke={BONE} strokeWidth="2.2" opacity="0.9" />
+
+      {/* armored back plates (osteoderms) */}
+      <g fill={BONE} opacity="0.85">
+        {[-0.32, -0.18, -0.05, 0.08, 0.2, 0.32].map((off) => (
+          <polygon key={off}
+            points={`${200 + 240 * off - 5} 168 ${200 + 240 * off} 158 ${200 + 240 * off + 5} 168`} />
+        ))}
+      </g>
+
+      {/* tail vertebrae trailing right */}
+      <g fill="none" stroke={BONE} strokeWidth="1.4" opacity="0.85">
+        <path d="M 322 178 Q 348 188 372 202" />
+        {[330, 345, 360].map((x, i) => <ellipse key={i} cx={x} cy={181 + i * 3} rx="3.5" ry="2.5" />)}
+      </g>
+
+      {/* long jaw / skull */}
+      <path d="M 78 175 L 18 178 L 18 188 L 78 188 Z" fill="none" stroke={BONE} strokeWidth="1.6" />
+      {/* teeth (top + bottom interlocking) */}
+      <g fill="white" stroke="#9aa6b0" strokeWidth="0.4">
+        {[28, 38, 48, 58, 68].map((x) => (
+          <g key={x}>
+            <polygon points={`${x - 2} 178 ${x} 184 ${x + 2} 178`} />
+            <polygon points={`${x - 2} 185 ${x} 179 ${x + 2} 185`} />
+          </g>
+        ))}
+      </g>
+
+      {/* short sprawling legs */}
+      {[125, 175, 235, 285].map((x, i) => (
+        <g key={x}>
+          <line x1={x} y1="200" x2={x + (i % 2 === 0 ? -10 : 10)} y2="218" stroke={BONE} strokeWidth="1.6" />
+          <line x1={x + (i % 2 === 0 ? -10 : 10)} y1="218" x2={x + (i % 2 === 0 ? -16 : 16)} y2="228" stroke={BONE} strokeWidth="1.3" />
+        </g>
+      ))}
+
+      {/* 4-chamber heart — uniquely among reptiles, crocodiles have one */}
+      <ellipse cx="160" cy="180" rx="11" ry="9" fill={HEART} opacity="0.92"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+      <text x="160" y="183" fontSize="6" textAnchor="middle" fill="white" opacity="0.85">4-ch</text>
+
+      {/* small lungs */}
+      <ellipse cx="195" cy="170" rx="14" ry="7" fill={LUNG} opacity="0.5" />
+      <ellipse cx="225" cy="170" rx="14" ry="7" fill={LUNG} opacity="0.5" />
+
+      {/* brain (small) */}
+      <ellipse cx="65" cy="180" rx={4 * bs} ry={3 * bs} fill={BRAIN} opacity="0.9" />
+
+      <HeartLabel x={160} y={208} bpm={heartRate(massKg)} />
+      <Caption text="4-chamber heart (rare in reptiles) · 200 M years old design" />
+    </g>
+  );
+}
+
+// ─── Chameleon ───────────────────────────────────────────────────────────
+// Turret eye sockets, prehensile-tail spine, projectile-tongue muscle.
+export function ChameleonXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg, 0.6); // cold-blooded
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      {/* hump-backed body */}
+      <path d="M 100 200 Q 180 130 280 165 Q 300 200 280 215 Q 180 230 100 215 Z"
+        fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.45)" strokeWidth="1" />
+
+      {/* arched spine with extension into prehensile tail */}
+      <path d="M 100 200 Q 180 145 280 175 Q 320 195 350 230 Q 365 245 360 270 Q 355 280 345 275 Q 350 260 340 250"
+        stroke={BONE} strokeWidth="2" fill="none" />
+
+      {/* vertebrae along the spine + curled tail */}
+      <g fill="none" stroke={BONE} strokeWidth="0.9" opacity="0.7">
+        {Array.from({ length: 14 }).map((_, i) => {
+          const t = i / 13;
+          const x = 100 + t * 180;
+          const y = 200 + 50 * Math.sin(t * Math.PI) * -1;
+          return <line key={i} x1={x - 3} y1={y + 4} x2={x + 3} y2={y - 4} />;
+        })}
+      </g>
+
+      {/* skull */}
+      <ellipse cx="290" cy="170" rx="18" ry="14" fill="none" stroke={BONE} strokeWidth="1.5" />
+
+      {/* TURRET EYE SOCKETS — chameleon's most famous feature, independently aimed */}
+      <g>
+        <circle cx="278" cy="160" r="7" fill="none" stroke={BONE} strokeWidth="1.4" />
+        <circle cx="278" cy="160" r="3.5" fill={BRAIN} opacity="0.85" />
+        <circle cx="302" cy="162" r="7" fill="none" stroke={BONE} strokeWidth="1.4" />
+        <circle cx="302" cy="162" r="3.5" fill={BRAIN} opacity="0.85" />
+        {/* small sight cones showing independent aim */}
+        <path d="M 278 160 L 268 145 L 270 140" stroke="#ffe48a" strokeWidth="0.7" fill="none" opacity="0.6" strokeDasharray="2 2" />
+        <path d="M 302 162 L 322 168 L 326 178" stroke="#ffe48a" strokeWidth="0.7" fill="none" opacity="0.6" strokeDasharray="2 2" />
+      </g>
+
+      {/* PROJECTILE TONGUE — coiled muscle that fires 2× body length */}
+      <g>
+        <path d="M 308 175 q 12 8 6 16 q -8 6 0 14" stroke={MUSCLE} strokeWidth="2.6" fill="none" strokeLinecap="round" opacity="0.85" />
+        <text x="320" y="170" fontSize="6" fill="white" opacity="0.85">tongue</text>
+      </g>
+
+      {/* gripping feet bones (zygodactyl — toes split 2+3) */}
+      {[150, 230].map((x) => (
+        <g key={x}>
+          <line x1={x} y1="220" x2={x} y2="234" stroke={BONE} strokeWidth="1.5" />
+          {/* opposing toes */}
+          <line x1={x} y1="234" x2={x - 6} y2="244" stroke={BONE} strokeWidth="1.1" />
+          <line x1={x} y1="234" x2={x - 3} y2="246" stroke={BONE} strokeWidth="1.1" />
+          <line x1={x} y1="234" x2={x + 3} y2="246" stroke={BONE} strokeWidth="1.1" />
+          <line x1={x} y1="234" x2={x + 6} y2="244" stroke={BONE} strokeWidth="1.1" />
+        </g>
+      ))}
+
+      {/* small heart */}
+      <ellipse cx="195" cy="195" rx="6" ry="5" fill={HEART} opacity="0.9"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+
+      {/* brain */}
+      <ellipse cx="290" cy="168" rx={5 * bs} ry={4 * bs} fill={BRAIN} opacity="0.85" />
+
+      <HeartLabel x={195} y={218} bpm={heartRate(massKg)} />
+      <Caption text="Turret eyes (aim separately) · 2× body-length tongue · gripping toes" />
+    </g>
+  );
+}
+
+// ─── Raptor ──────────────────────────────────────────────────────────────
+// Bipedal hunter — sickle claw on the second toe, feathered arms,
+// long stiff tail for balance.
+export function RaptorXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg, 0.7);
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      {/* body outline (bipedal) */}
+      <ellipse cx="200" cy="160" rx="38" ry="46" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.45)" strokeWidth="1" />
+
+      {/* spine + long stiff balancing tail */}
+      <path d="M 200 120 Q 200 160 215 200 Q 230 220 280 232 Q 320 240 360 244"
+        stroke={BONE} strokeWidth="2.2" fill="none" />
+      {/* tail vertebrae */}
+      <g fill="none" stroke={BONE} strokeWidth="1" opacity="0.7">
+        {Array.from({ length: 12 }).map((_, i) => {
+          const t = (i + 1) / 12;
+          const x = 225 + t * 130;
+          const y = 215 + t * 28;
+          return <line key={i} x1={x - 3} y1={y - 1} x2={x + 3} y2={y + 1} />;
+        })}
+      </g>
+
+      {/* skull */}
+      <ellipse cx="200" cy="120" rx="13" ry="10" fill="none" stroke={BONE} strokeWidth="1.5" />
+      {/* jaw with teeth */}
+      <path d="M 195 124 L 220 130 L 195 132 Z" fill="none" stroke={BONE} strokeWidth="1.2" />
+      <g fill="white" stroke="#888" strokeWidth="0.3">
+        {[200, 207, 214].map((x) => <polygon key={x} points={`${x - 1.5} 130 ${x} 134 ${x + 1.5} 130`} />)}
+      </g>
+
+      {/* ribs */}
+      <g stroke={BONE} strokeWidth="1.2" fill="none" opacity="0.8">
+        {[-0.3, -0.1, 0.1, 0.3].map((off) => (
+          <path key={off} d={`M 200 ${145 + off * 35} Q ${200 + 20} ${152 + off * 35} ${200 + 18} ${170 + off * 35}`} />
+        ))}
+      </g>
+
+      {/* feathered arms (small bones) */}
+      <g stroke={BONE} strokeWidth="1.4" fill="none">
+        <line x1="180" y1="155" x2="155" y2="185" />
+        <line x1="155" y1="185" x2="145" y2="210" />
+        <line x1="220" y1="155" x2="225" y2="185" />
+        <line x1="225" y1="185" x2="220" y2="205" />
+      </g>
+      {/* feather hints */}
+      <g stroke="#ddd" strokeWidth="0.7" fill="none" opacity="0.5">
+        <path d="M 155 185 L 145 190" />
+        <path d="M 150 198 L 138 200" />
+        <path d="M 225 185 L 235 190" />
+      </g>
+
+      {/* powerful legs */}
+      {[185, 215].map((x) => (
+        <g key={x}>
+          <line x1={x} y1="205" x2={x - 5} y2="240" stroke={BONE} strokeWidth="2" />
+          <line x1={x - 5} y1="240" x2={x + 3} y2="270" stroke={BONE} strokeWidth="1.8" />
+          {/* normal toes */}
+          <line x1={x + 3} y1="270" x2={x + 8} y2="278" stroke={BONE} strokeWidth="1.2" />
+          <line x1={x + 3} y1="270" x2={x - 4} y2="278" stroke={BONE} strokeWidth="1.2" />
+          {/* SICKLE CLAW — the famous one, raised off the ground */}
+          <path d={`M ${x + 3} 270 q -2 -10 -10 -12 q 4 6 6 14`}
+            stroke="#fff" strokeWidth="1.8" fill="#ffeb8a" opacity="0.9" />
+        </g>
+      ))}
+      <text x="200" y="290" textAnchor="middle" fontSize="7" fill="#ffeb8a" opacity="0.9" fontWeight="700">sickle claws</text>
+
+      {/* heart */}
+      <ellipse cx="200" cy="165" rx="8" ry="6" fill={HEART} opacity="0.92"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+
+      {/* brain — big for a dinosaur */}
+      <ellipse cx="200" cy="120" rx={6 * bs} ry={4.5 * bs} fill={BRAIN} opacity="0.9" />
+
+      <HeartLabel x={200} y={45} bpm={heartRate(massKg)} />
+      <Caption text="Pack hunter · sickle claw on toe 2 · feathered (despite Jurassic Park)" />
+    </g>
+  );
+}
+
+// ─── Triceratops ─────────────────────────────────────────────────────────
+// Three horns, huge bony frill, parrot-like beak, massive ribcage.
+export function TriceratopsXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg, 0.8);
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      {/* body */}
+      <ellipse cx="190" cy="170" rx="110" ry="48" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.45)" strokeWidth="1" />
+
+      {/* spine */}
+      <line x1="100" y1="145" x2="290" y2="148" stroke={BONE} strokeWidth="2.4" />
+
+      {/* huge bony frill (drawn behind head) */}
+      <path d="M 300 100 Q 360 130 360 195 Q 340 215 300 215 Z"
+        fill="none" stroke={BONE} strokeWidth="2" opacity="0.9" />
+      {/* frill ridges */}
+      <g stroke={BONE} strokeWidth="1" fill="none" opacity="0.6">
+        {[0.2, 0.4, 0.6, 0.8].map((t) => (
+          <path key={t} d={`M 300 ${100 + (215 - 100) * t} Q ${330} ${150 + 30 * t} ${360} ${195 - 95 * (1 - t)}`} />
+        ))}
+      </g>
+
+      {/* skull — large with frill base */}
+      <ellipse cx="310" cy="160" rx="32" ry="22" fill="none" stroke={BONE} strokeWidth="1.8" />
+
+      {/* THREE HORNS — two brow + one nose */}
+      <g fill="none" stroke="#fff5d8" strokeWidth="3" strokeLinecap="round">
+        <path d="M 305 145 L 320 105" />
+        <path d="M 318 148 L 338 110" />
+        <path d="M 322 168 L 348 172" />
+      </g>
+
+      {/* parrot beak */}
+      <path d="M 332 178 Q 348 185 332 192 Z" fill={BONE} stroke="#888" strokeWidth="0.6" />
+
+      {/* massive ribcage */}
+      <g stroke={BONE} strokeWidth="1.3" fill="none" opacity="0.85">
+        {[-0.4, -0.25, -0.1, 0.05, 0.2].map((off) => {
+          const x = 190 + 220 * off;
+          return <path key={off} d={`M ${x} 148 Q ${x + 6} 195 ${x - 4} 218`} />;
+        })}
+      </g>
+
+      {/* columnar leg bones */}
+      {[120, 165, 220, 265].map((x) => (
+        <rect key={x} x={x - 5} y={215} width="10" height="42" rx="3" fill="none" stroke={BONE} strokeWidth="1.6" opacity="0.9" />
+      ))}
+
+      {/* small tail */}
+      <path d="M 100 145 Q 70 158 50 175" stroke={BONE} strokeWidth="1.5" fill="none" />
+
+      {/* small brain inside enormous skull */}
+      <ellipse cx="304" cy="160" rx={7 * bs} ry={5 * bs} fill={BRAIN} opacity="0.9" />
+
+      {/* heart */}
+      <ellipse cx="170" cy="175" rx="13" ry="10" fill={HEART} opacity="0.92"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+
+      <HeartLabel x={170} y={205} bpm={heartRate(massKg)} />
+      <Caption text="Three horns · 2 m bony frill · parrot beak · 6-ton browser" />
+    </g>
+  );
+}
+
+// ─── Stegosaurus ─────────────────────────────────────────────────────────
+// Plates along the back, spiked tail (thagomizer), walnut-sized brain.
+export function StegosaurusXray({ creature, massKg }: XrayProps) {
+  const beat = beatPeriodFor(massKg, 0.7);
+  const bs = brainScaleFor(creature.brainTier);
+  return (
+    <g>
+      {/* body — hump-backed */}
+      <path d="M 90 200 Q 200 130 320 200 Q 320 218 240 218 Q 200 218 90 218 Z"
+        fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.45)" strokeWidth="1" />
+
+      {/* spine arching over hump */}
+      <path d="M 100 195 Q 200 140 320 195" stroke={BONE} strokeWidth="2.2" fill="none" />
+
+      {/* PLATES along the back — staggered double row */}
+      <g fill="none" stroke="#fff" strokeWidth="2" strokeLinejoin="round">
+        {[0.15, 0.3, 0.45, 0.6, 0.75].map((t, i) => {
+          const x = 100 + t * 220;
+          const baseY = 195 - 55 * Math.sin(t * Math.PI);
+          const height = 18 + (i === 2 ? 6 : 0); // middle plate biggest
+          return (
+            <g key={t}>
+              <path d={`M ${x - 8} ${baseY} L ${x} ${baseY - height} L ${x + 8} ${baseY} Z`} fill={BONE} opacity="0.7" />
+            </g>
+          );
+        })}
+      </g>
+
+      {/* tail with THAGOMIZER — 4 spikes */}
+      <path d="M 320 200 Q 355 215 380 230" stroke={BONE} strokeWidth="1.8" fill="none" />
+      <g fill={BONE} stroke="#888" strokeWidth="0.6">
+        <polygon points="375 232 388 220 386 234" />
+        <polygon points="380 238 394 230 392 244" />
+        <polygon points="370 238 380 252 376 242" />
+        <polygon points="375 245 386 256 378 250" />
+      </g>
+      <text x="378" y="270" textAnchor="middle" fontSize="6" fill="white" opacity="0.85" fontWeight="600">thagomizer</text>
+
+      {/* skull — tiny */}
+      <ellipse cx="92" cy="200" rx="14" ry="9" fill="none" stroke={BONE} strokeWidth="1.5" />
+      {/* beak */}
+      <path d="M 78 202 L 70 205 L 78 208 Z" fill="none" stroke={BONE} strokeWidth="1" />
+
+      {/* ribs */}
+      <g stroke={BONE} strokeWidth="1.2" fill="none" opacity="0.8">
+        {[0.1, 0.25, 0.4, 0.55, 0.7].map((t) => {
+          const x = 100 + t * 220;
+          return <path key={t} d={`M ${x} ${165 - 30 * Math.sin(t * Math.PI)} Q ${x + 4} 205 ${x - 2} 220`} />;
+        })}
+      </g>
+
+      {/* legs — back legs longer than front (hump posture) */}
+      <g stroke={BONE} strokeWidth="1.8" fill="none">
+        <line x1="135" y1="218" x2="135" y2="252" />
+        <line x1="160" y1="218" x2="160" y2="252" />
+        <line x1="250" y1="218" x2="252" y2="262" />
+        <line x1="280" y1="218" x2="282" y2="262" />
+      </g>
+
+      {/* heart */}
+      <ellipse cx="175" cy="195" rx="13" ry="10" fill={HEART} opacity="0.92"
+        style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
+
+      {/* WALNUT BRAIN — emphasized small */}
+      <ellipse cx="92" cy="198" rx={2.5 * bs} ry={2 * bs} fill={BRAIN} opacity="0.95" />
+      <text x="92" y="178" fontSize="6" textAnchor="middle" fill="white" opacity="0.85">🌰 walnut-brain</text>
+
+      <HeartLabel x={175} y={228} bpm={heartRate(massKg)} />
+      <Caption text="17 back plates · spiked thagomizer tail · brain ≈ a walnut" />
+    </g>
+  );
+}
+
 // ─── Registry ────────────────────────────────────────────────────────────
 export const BESPOKE_XRAYS: Record<string, ComponentType<XrayProps>> = {
+  crocodile: CrocodileXray,
+  chameleon: ChameleonXray,
+  raptor: RaptorXray,
+  triceratops: TriceratopsXray,
+  stegosaurus: StegosaurusXray,
   octopus: OctopusXray,
   whale: WhaleXray,
   dolphin: DolphinXray,

@@ -1746,9 +1746,245 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   triceratops: TriceratopsShape,
   stegosaurus: StegosaurusShape,
   pterodactyl: PterodactylShape,
+  tiger: TigerShape,
+  trex: TRexShape,
+  jellyfish: JellyfishShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
   if (!name || name === 'default') return null;
   return BESPOKE_SHAPES[name] ?? null;
+}
+
+// ─── Tiger ──────────────────────────────────────────────────────────────
+// Like a big cat with bold black stripes on orange.
+export function TigerShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="265" rx="150" ry="6" fill="rgba(0,0,0,0.18)" />
+
+      {/* legs */}
+      <rect x="120" y="190" width="22" height="68" rx="6" fill={colors.shade} />
+      <rect x="158" y="190" width="22" height="68" rx="6" fill={colors.main} />
+      <rect x="240" y="190" width="22" height="68" rx="6" fill={colors.shade} />
+      <rect x="278" y="190" width="22" height="68" rx="6" fill={colors.main} />
+
+      {/* body */}
+      <ellipse cx="200" cy="180" rx="115" ry="48" fill={colors.shade} />
+      <ellipse cx="200" cy="175" rx="110" ry="42" fill={colors.main} />
+      <ellipse cx="200" cy="195" rx="100" ry="20" fill={colors.light} opacity="0.7" />
+
+      {/* black stripes on body */}
+      <g fill="#1a1a1a" opacity="0.85">
+        {[-0.3, -0.15, 0, 0.15, 0.3].map((off) => (
+          <path key={off} d={`M ${200 + 200 * off - 3} 148 q -2 25 0 50 q 6 -2 6 -10 q -2 -20 -3 -40 z`} />
+        ))}
+      </g>
+
+      {/* tail */}
+      <path d="M 85 175 Q 50 160 30 145" stroke={colors.shade} strokeWidth="14" fill="none" strokeLinecap="round" />
+      <path d="M 85 175 Q 50 160 30 145" stroke={colors.main} strokeWidth="10" fill="none" strokeLinecap="round" />
+      <g stroke="#1a1a1a" strokeWidth="2.5" fill="none" opacity="0.85">
+        <line x1="60" y1="167" x2="65" y2="155" />
+        <line x1="42" y1="158" x2="48" y2="146" />
+      </g>
+
+      {/* head */}
+      <circle cx="310" cy="160" r="42" fill={colors.shade} />
+      <circle cx="310" cy="160" r="38" fill={colors.main} />
+      <ellipse cx="305" cy="178" rx="28" ry="14" fill={colors.light} opacity="0.6" />
+
+      {/* head stripes */}
+      <g stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round" fill="none">
+        <path d="M 300 130 q -3 8 -2 16" />
+        <path d="M 312 125 q -1 9 0 18" />
+        <path d="M 324 130 q 3 8 2 16" />
+        <path d="M 282 145 q -3 6 -2 12" />
+        <path d="M 338 145 q 3 6 2 12" />
+      </g>
+
+      {/* ears */}
+      <ellipse cx="288" cy="128" rx="9" ry="11" fill={colors.shade} transform="rotate(-25 288 128)" />
+      <ellipse cx="288" cy="130" rx="5" ry="7" fill="#f4b8b8" transform="rotate(-25 288 130)" />
+      <ellipse cx="332" cy="128" rx="9" ry="11" fill={colors.shade} transform="rotate(25 332 128)" />
+      <ellipse cx="332" cy="130" rx="5" ry="7" fill="#f4b8b8" transform="rotate(25 332 130)" />
+
+      {/* eyes */}
+      <g className="eye-blink" style={{ transformOrigin: '296px 160px' }}>
+        <circle cx="296" cy="160" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="297" cy="160" rx="2.5" ry="4" fill="#f5a040" />
+        <ellipse cx="297" cy="160" rx="1" ry="3" fill="#1a1a1a" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '324px 160px' }}>
+        <circle cx="324" cy="160" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="325" cy="160" rx="2.5" ry="4" fill="#f5a040" />
+        <ellipse cx="325" cy="160" rx="1" ry="3" fill="#1a1a1a" />
+      </g>
+
+      {/* nose + mouth + fangs */}
+      <ellipse cx="310" cy="176" rx="5" ry="3.5" fill="#1a1a1a" />
+      <path d="M 310 180 Q 305 188 300 185 M 310 180 Q 315 188 320 185" stroke="#1a1a1a" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <polygon points="304 185 306 192 308 185" fill="white" stroke="#888" strokeWidth="0.4" />
+      <polygon points="312 185 314 192 316 185" fill="white" stroke="#888" strokeWidth="0.4" />
+
+      {/* whiskers */}
+      <g stroke="white" strokeWidth="0.6" opacity="0.7">
+        <line x1="296" y1="178" x2="270" y2="174" />
+        <line x1="296" y1="182" x2="268" y2="184" />
+        <line x1="324" y1="178" x2="350" y2="174" />
+        <line x1="324" y1="182" x2="352" y2="184" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── T-Rex ──────────────────────────────────────────────────────────────
+// Bipedal apex theropod — massive head, tiny arms, long counterbalancing tail.
+export function TRexShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="270" x2="380" y2="270" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      <ellipse cx="200" cy="273" rx="130" ry="6" fill="rgba(0,0,0,0.2)" />
+
+      {/* long tail */}
+      <path d="M 200 175 Q 280 140 360 175 Q 380 200 360 210" stroke={colors.shade} strokeWidth="34" fill="none" strokeLinecap="round" />
+      <path d="M 200 175 Q 280 140 360 175 Q 380 200 360 210" stroke={colors.main} strokeWidth="26" fill="none" strokeLinecap="round" />
+
+      {/* powerful hind legs */}
+      <path d="M 178 178 Q 168 215 158 268 L 192 268 Q 198 220 196 200 Z" fill={colors.shade} />
+      <path d="M 175 188 Q 168 220 162 264 L 188 264 Q 192 222 192 200 Z" fill={colors.main} />
+      <ellipse cx="155" cy="268" rx="20" ry="6" fill="#3a2118" />
+      <g stroke="#1a1a1a" strokeWidth="1.5" fill="none" strokeLinecap="round">
+        <line x1="140" y1="270" x2="138" y2="278" />
+        <line x1="148" y1="270" x2="146" y2="280" />
+      </g>
+
+      <path d="M 218 178 Q 222 215 230 268 L 264 268 Q 254 220 240 200 Z" fill={colors.shade} />
+      <path d="M 220 188 Q 226 222 232 264 L 258 264 Q 252 222 240 200 Z" fill={colors.main} />
+      <ellipse cx="263" cy="268" rx="20" ry="6" fill="#3a2118" />
+
+      {/* body (S-curved torso) */}
+      <ellipse cx="195" cy="170" rx="65" ry="48" fill={colors.shade} />
+      <ellipse cx="195" cy="165" rx="60" ry="42" fill={colors.main} />
+      <ellipse cx="195" cy="180" rx="55" ry="20" fill={colors.light} opacity="0.6" />
+
+      {/* tiny arms */}
+      <g stroke={colors.shade} strokeWidth="6" fill="none" strokeLinecap="round">
+        <path d="M 168 165 q -10 6 -8 16" />
+        <path d="M 222 165 q 10 6 8 16" />
+      </g>
+      <g fill="#1a1a1a">
+        <circle cx="160" cy="182" r="1.4" />
+        <circle cx="163" cy="184" r="1.4" />
+        <circle cx="230" cy="182" r="1.4" />
+        <circle cx="233" cy="184" r="1.4" />
+      </g>
+
+      {/* HUGE head */}
+      <ellipse cx="145" cy="125" rx="62" ry="32" fill={colors.shade} />
+      <ellipse cx="145" cy="120" rx="58" ry="28" fill={colors.main} />
+      <ellipse cx="135" cy="115" rx="36" ry="14" fill={colors.light} opacity="0.55" />
+
+      {/* jaw */}
+      <path d="M 92 132 Q 145 156 198 132 Q 198 142 145 162 Q 92 142 92 132 Z" fill={colors.shade} />
+      <path d="M 100 134 Q 145 152 190 134 Q 190 140 145 156 Q 100 140 100 134 Z" fill="#5a3838" />
+
+      {/* MANY teeth */}
+      <g fill="white" stroke="#888" strokeWidth="0.4">
+        {[100, 112, 124, 136, 148, 160, 172, 184].map((x) => (
+          <polygon key={x} points={`${x - 2} 138 ${x} 150 ${x + 2} 138`} />
+        ))}
+        {[105, 117, 129, 141, 153, 165, 177].map((x) => (
+          <polygon key={x} points={`${x - 2} 152 ${x} 142 ${x + 2} 152`} />
+        ))}
+      </g>
+
+      {/* eye */}
+      <g className="eye-blink" style={{ transformOrigin: '160px 110px' }}>
+        <circle cx="160" cy="110" r="7" fill="white" stroke="#222" strokeWidth="0.7" />
+        <ellipse cx="161" cy="110" rx="3" ry="5" fill="#d6a040" />
+        <ellipse cx="161" cy="110" rx="1.2" ry="4" fill="#1a1a1a" />
+      </g>
+
+      {/* nostrils */}
+      <ellipse cx="100" cy="120" rx="3" ry="2" fill="#1a1a1a" />
+    </svg>
+  );
+}
+
+// ─── Jellyfish ──────────────────────────────────────────────────────────
+// Translucent bell with trailing tentacles.
+export function JellyfishShape({ colors }: { colors: ColorOverride }) {
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
+
+      {/* bubbles */}
+      <g fill="white" opacity="0.55">
+        <circle cx="60" cy="40" r="2.5" />
+        <circle cx="320" cy="60" r="3" />
+        <circle cx="100" cy="80" r="1.8" />
+        <circle cx="280" cy="40" r="2" />
+      </g>
+
+      {/* tentacles — long and wavy */}
+      <g stroke={colors.shade} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.85">
+        {[140, 160, 180, 200, 220, 240, 260].map((x) => (
+          <path key={x} d={`M ${x} 175 q -8 30 0 60 q 8 30 0 60`} />
+        ))}
+      </g>
+      <g stroke={colors.main} strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.65">
+        {[140, 160, 180, 200, 220, 240, 260].map((x) => (
+          <path key={x} d={`M ${x} 175 q -8 30 0 60 q 8 30 0 60`} />
+        ))}
+      </g>
+
+      {/* short frilly tentacles */}
+      <g stroke={colors.shade} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.8">
+        {[150, 175, 200, 225, 250].map((x) => (
+          <path key={x} d={`M ${x} 170 q 0 14 ${(x % 30) - 15} 28`} />
+        ))}
+      </g>
+
+      {/* BELL — translucent dome */}
+      <path d="M 110 175 Q 200 70 290 175 Z" fill={colors.shade} opacity="0.7" />
+      <path d="M 118 172 Q 200 80 282 172 Z" fill={colors.main} opacity="0.85" />
+      <path d="M 130 168 Q 200 92 270 168 Z" fill={colors.light} opacity="0.65" />
+      {/* highlight */}
+      <ellipse cx="175" cy="120" rx="44" ry="22" fill="white" opacity="0.4" />
+
+      {/* bell ridges */}
+      <g stroke={colors.shade} strokeWidth="1.2" fill="none" opacity="0.5">
+        <path d="M 145 168 Q 150 130 165 100" />
+        <path d="M 180 168 Q 182 120 188 90" />
+        <path d="M 220 168 Q 218 120 212 90" />
+        <path d="M 255 168 Q 250 130 235 100" />
+      </g>
+
+      {/* hint of inner organs (radial gonads) */}
+      <g fill={colors.cheek} opacity="0.7">
+        <ellipse cx="180" cy="140" rx="10" ry="14" />
+        <ellipse cx="220" cy="140" rx="10" ry="14" />
+        <ellipse cx="200" cy="125" rx="10" ry="14" />
+      </g>
+
+      {/* bell rim */}
+      <ellipse cx="200" cy="175" rx="92" ry="6" fill={colors.shade} opacity="0.65" />
+
+      {/* eye-spots (jellyfish actually have ocelli at the bell edge) */}
+      <circle cx="120" cy="173" r="2" fill="#1a1a1a" />
+      <circle cx="280" cy="173" r="2" fill="#1a1a1a" />
+
+      <ellipse cx="200" cy="285" rx="100" ry="4" fill="rgba(0,0,0,0.15)" />
+    </svg>
+  );
 }

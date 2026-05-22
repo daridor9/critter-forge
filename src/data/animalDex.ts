@@ -7,7 +7,8 @@ export type DexShape =
   | 'mouse' | 'hummingbird' | 'bat'
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
-  | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl';
+  | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
+  | 'tiger' | 'trex' | 'jellyfish';
 
 export interface DexAnimal {
   name: string;
@@ -48,6 +49,9 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Triceratops':     { main: '#7a9258', shade: '#42622a', light: '#9ab078', cheek: '#a8b88a' },
   'Stegosaurus':     { main: '#6a8a6a', shade: '#385a3c', light: '#92ac90', cheek: '#a4b8a4' },
   'Pterodactyl':     { main: '#9a8458', shade: '#5a4828', light: '#bca080', cheek: '#caaa90' },
+  'Tiger':           { main: '#e08838', shade: '#a85820', light: '#f0a868', cheek: '#f0b890', pattern: '#1a1a1a' },
+  'T-Rex':           { main: '#6a6850', shade: '#3a3828', light: '#8e8a70', cheek: '#9e9080' },
+  'Jellyfish':       { main: '#9ec4e0', shade: '#5a8ab0', light: '#cee0ef', cheek: '#e8b8d0' },
 };
 
 const make = (
@@ -139,6 +143,12 @@ export const ANIMAL_DEX: DexAnimal[] = [
     'Plate-backed herbivore. Spiked tail (the thagomizer) for defence. Brain the size of a walnut.', 'stegosaurus'),
   make('Pterodactyl', '🦅', 5, 'bird', false, 0, 1, 0, 2, ['wings'],
     'Flying reptile, not a dinosaur. Wingspan ~1 m. Long toothless beak, head crest. Glided more than flapped.', 'pterodactyl'),
+  make('Tiger', '🐯', 220, 'mammal', true, 2, 2, 1, 2, ['camouflage'],
+    'Largest cat alive. Bold stripes break the silhouette in dappled jungle light. Solitary ambush hunter — drags prey twice its mass.', 'tiger'),
+  make('T-Rex', '🦖', 8000, 'reptile', false, 2, 2, 1, 2, [],
+    'King of the cretaceous. Skull 1.5 m long with 30-cm teeth. Bite force ~57,000 N — strongest of any land animal ever. Arms shockingly tiny.', 'trex'),
+  make('Jellyfish', '🪼', 1, 'fish', false, 0, 0, 0, 0, ['venom'],
+    'Older than dinosaurs by 400 million years. 95% water, no brain, no heart, no bones. Stinging cells fire in milliseconds.', 'jellyfish'),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {
