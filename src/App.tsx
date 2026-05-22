@@ -17,7 +17,7 @@ import { AlbumPanel } from './components/AlbumPanel';
 import { AchievementToast } from './components/AchievementToast';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
-import { recordRoot, recordEvolve } from './data/lineage';
+import { recordRoot, recordEvolve, recordBreed } from './data/lineage';
 import { arenaFitFor, fitEmoji } from './data/arenaFit';
 import {
   recordArena,
@@ -598,16 +598,20 @@ export default function App() {
       <div className="album-dock">
         <AlbumPanel
           current={creature}
-          onLoad={(c, fromBreed) => {
+          currentLineageId={lineageId}
+          onLoad={(c, meta) => {
             setCreature(c);
             sounds.click();
-            if (fromBreed) {
+            if (meta?.kind === 'breed') {
               recordBred();
-              const newId = lineageId ? recordEvolve(lineageId, c, [`Bred offspring`]) : recordRoot(c);
+              recordGeneration();
+              const [p1Id, p2Id] = meta.parentLineageIds ?? [null, null];
+              const changes = meta.changes && meta.changes.length > 0 ? meta.changes : [`Bred offspring`];
+              const newId = p1Id && p2Id ? recordBreed(p1Id, p2Id, c, changes) : lineageId ? recordEvolve(lineageId, c, changes) : recordRoot(c);
               setLineageId(newId);
+              setGeneration((g) => g + 1);
             } else {
-              const newId = recordRoot(c);
-              setLineageId(newId);
+              setLineageId(meta?.lineageId ?? recordRoot(c));
             }
           }}
           onSaved={(count) => {

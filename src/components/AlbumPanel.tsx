@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { BreedModal } from './BreedModal';
+import type { BreedResult } from '../data/breeding';
 
 interface SavedCreature {
   id: string;
   name: string;
   creature: Creature;
   savedAt: number;
+  lineageId?: string | null;
   notes?: string;
 }
 
@@ -32,11 +34,12 @@ function genId(): string {
 
 interface Props {
   current: Creature;
-  onLoad: (c: Creature, fromBreed?: boolean) => void;
+  currentLineageId: string | null;
+  onLoad: (c: Creature, meta?: { kind?: 'album' | 'breed'; lineageId?: string | null; parentLineageIds?: [string | null, string | null]; changes?: string[] }) => void;
   onSaved?: (count: number) => void;
 }
 
-export function AlbumPanel({ current, onLoad, onSaved }: Props) {
+export function AlbumPanel({ current, currentLineageId, onLoad, onSaved }: Props) {
   const [items, setItems] = useState<SavedCreature[]>(() => loadAlbum());
   const [justSavedId, setJustSavedId] = useState<string | null>(null);
   const [breedMode, setBreedMode] = useState(false);
@@ -55,7 +58,7 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
     const id = genId();
     const next: SavedCreature[] = [
       ...items,
-      { id, name: current.name || `Critter #${items.length + 1}`, creature: current, savedAt: Date.now() },
+      { id, name: current.name || `Critter #${items.length + 1}`, creature: current, savedAt: Date.now(), lineageId: currentLineageId },
     ];
     setItems(next);
     writeAlbum(next);
@@ -76,7 +79,7 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
 
   function handleCardClick(item: SavedCreature) {
     if (!breedMode) {
-      onLoad(item.creature);
+      onLoad(item.creature, { kind: 'album', lineageId: item.lineageId ?? null });
       return;
     }
     if (pickedIds.includes(item.id)) {
@@ -93,8 +96,14 @@ export function AlbumPanel({ current, onLoad, onSaved }: Props) {
     }
   }
 
-  function onPickOffspring(c: Creature) {
-    onLoad(c, true);
+  function onPickOffspring(result: BreedResult) {
+    const p1 = items.find((i) => i.id === pickedIds[0]);
+    const p2 = items.find((i) => i.id === pickedIds[1]);
+    onLoad(result.creature, {
+      kind: 'breed',
+      parentLineageIds: [p1?.lineageId ?? null, p2?.lineageId ?? null],
+      changes: result.notes,
+    });
     setBreedPair(null);
     setBreedMode(false);
     setPickedIds([]);

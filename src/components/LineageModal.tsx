@@ -155,6 +155,7 @@ function ComparisonCard({ parent, child, parentGen, childGen }: { parent: Lineag
   const changedCount = rows.filter((r) => r.status !== 'same').length;
   const kindEmoji = child.kind === 'evolve' ? '🥚' : child.kind === 'breed' ? '👨‍👩‍👧' : '🌱';
   const kindLabel = child.kind === 'evolve' ? 'Evolved' : child.kind === 'breed' ? 'Bred' : 'Started';
+  const secondParent = child.kind === 'breed' && child.parentIds.length === 2 ? getNode(child.parentIds[1]) : null;
   const breedNote = child.kind === 'breed' && child.parentIds.length === 2
     ? `from ${child.parentIds.map((pid) => getNode(pid)?.creature.name ?? '?').join(' + ')}`
     : null;
@@ -167,8 +168,11 @@ function ComparisonCard({ parent, child, parentGen, childGen }: { parent: Lineag
           {changedCount === 0 ? 'identical' : `${changedCount} change${changedCount === 1 ? '' : 's'}`}
         </span>
       </div>
-      <div className="lineage-compare">
-        <Portrait creature={parent.creature} gen={parentGen} sublabel="parent" />
+      <div className={secondParent ? 'lineage-compare lineage-compare-breed' : 'lineage-compare'}>
+        <div className="lineage-parent-pair">
+          <Portrait creature={parent.creature} gen={parentGen} sublabel={secondParent ? 'parent A' : 'parent'} />
+          {secondParent && <Portrait creature={secondParent.creature} gen={parentGen} sublabel="parent B" />}
+        </div>
         <div className="lineage-arrow-mid">
           <div className="lineage-arrow-emoji">{kindEmoji}</div>
           <div className="lineage-arrow-line">→</div>
