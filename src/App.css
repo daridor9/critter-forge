@@ -3515,3 +3515,222 @@ main {
   .anatomy-toggle-label { display: none; }
   .anatomy-toggle-btn { padding: 4px 7px; }
 }
+
+/* ============================================================
+   Lineage modal: parent + child comparison view
+   ============================================================
+   Replaces the older horizontal-chain rendering. Each non-root
+   generation is a card with parent | child portraits + a
+   trait-by-trait diff. Color-coded markers say which traits
+   were inherited (🟢), mutated (🟠), gained (🔵), or lost (🔴).
+   ============================================================ */
+
+.lineage-modal {
+  /* The comparison cards are wider than the old chain so the modal needs
+     more room. Match the dex modal width. */
+  max-width: 920px;
+}
+
+.lineage-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lineage-gen-card {
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-1);
+}
+.lineage-gen-card.lineage-gen-root {
+  background: linear-gradient(135deg, #fff8e8, #fae6c8);
+  border-color: var(--accent-light);
+}
+
+.lineage-gen-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.lineage-gen-kind {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.lineage-gen-note {
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+.lineage-gen-stat {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  background: var(--bg-deep);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.lineage-compare {
+  display: grid;
+  grid-template-columns: 1fr 50px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.lineage-compare-single {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.lineage-portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.lineage-portrait-thumb {
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(#fff, #faf4e0);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 0 12px rgba(120, 90, 50, 0.06);
+}
+.lineage-portrait-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-top: 6px;
+}
+.lineage-portrait-sub {
+  font-size: 10.5px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.lineage-gen-pill {
+  background: linear-gradient(135deg, #8a6bbe, var(--accent2));
+  color: white;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.lineage-arrow-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+}
+.lineage-arrow-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+.lineage-arrow-line {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* Trait diff table: rows of [marker] [label] [parent val] [→] [child val] */
+.lineage-trait-table {
+  display: grid;
+  grid-template-columns: 22px 1fr 1fr 24px 1fr;
+  gap: 6px 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+}
+.lineage-trait-row {
+  display: contents;
+}
+.lineage-trait-row .trait-marker {
+  text-align: center;
+  font-size: 11px;
+  line-height: 1;
+  user-select: none;
+}
+.lineage-trait-row .trait-label {
+  color: var(--fg);
+  font-weight: 600;
+}
+.lineage-trait-row .trait-parent {
+  text-align: right;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+.lineage-trait-row .trait-mid {
+  text-align: center;
+  color: var(--fg-dim);
+  font-weight: 700;
+  font-size: 11px;
+}
+.lineage-trait-row .trait-child {
+  text-align: left;
+  color: var(--fg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.lineage-trait-row .trait-none {
+  color: var(--fg-dim);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Row tints — very subtle so the table stays readable */
+.lineage-trait-row.trait-same .trait-parent,
+.lineage-trait-row.trait-same .trait-child {
+  color: var(--fg-dim);
+  font-weight: 400;
+}
+.lineage-trait-row.trait-changed .trait-child {
+  color: #b8780f;
+  font-weight: 700;
+}
+.lineage-trait-row.trait-new .trait-child {
+  color: #2f7fc8;
+  font-weight: 700;
+}
+.lineage-trait-row.trait-lost .trait-parent {
+  color: #b8302f;
+  text-decoration: line-through;
+}
+
+.lineage-narration {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: var(--panel-soft);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+}
+.lineage-narration strong {
+  color: var(--fg);
+}
+
+@media (max-width: 640px) {
+  /* On phones, collapse the side-by-side portraits to a stack. The trait
+     table also gets tighter rows. */
+  .lineage-compare {
+    grid-template-columns: 1fr;
+  }
+  .lineage-arrow-mid {
+    transform: rotate(90deg);
+    margin: 4px 0;
+  }
+  .lineage-trait-table {
+    grid-template-columns: 22px 1fr 90px 18px 90px;
+    font-size: 12px;
+  }
+}
