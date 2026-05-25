@@ -1978,6 +1978,41 @@ h2 {
 .preset-row:hover {
   background: #fff4ee;
 }
+.preset-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.preset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.preset-chip:hover:not(:disabled) {
+  border-color: var(--accent2);
+  color: var(--accent2-deep);
+  transform: translateY(-1px);
+}
+.preset-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.preset-chip-featured {
+  background: linear-gradient(135deg, #fff4ef, #eef9f5);
+  border-color: var(--accent-light);
+  color: var(--accent-deep);
+}
 .load-hint {
   color: var(--accent);
   font-size: 10px;

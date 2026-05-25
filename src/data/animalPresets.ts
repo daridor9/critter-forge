@@ -8,6 +8,24 @@ export interface AnimalPreset {
 
 export const animalPresets: AnimalPreset[] = [
   {
+    name: 'Foxkit',
+    emoji: '🦊',
+    creature: {
+      name: 'Foxkit',
+      sizeUnit: 39,
+      bodyPlan: 'mammal',
+      warmBlooded: true,
+      legTier: 2,
+      brainTier: 2,
+      defenseTier: 1,
+      sensorTier: 2,
+      hybrids: [],
+      shape: 'foxkit',
+      colors: { main: '#f58f76', shade: '#bc5844', light: '#ffd4b6', cheek: '#ffad9a', pattern: '#7b3528' },
+      adaptations: ['oversized ears', 'bushy balancing tail', 'springy runner legs', 'cream chest fur'],
+    },
+  },
+  {
     name: 'Cheetah',
     emoji: '🐆',
     creature: {

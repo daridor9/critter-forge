@@ -20,7 +20,22 @@ export function ComparePanel({ stats, onLoadPreset }: Props) {
   return (
     <div className="compare">
       <h2>vs. real animals</h2>
-      <p className="compare-help-top">Click any row to load that animal as your creature.</p>
+      <p className="compare-help-top">Load a preset or click any marked animal row.</p>
+      <div className="preset-strip" aria-label="Creature presets">
+        {animalPresets.map((preset) => (
+          <button
+            key={preset.name}
+            type="button"
+            className={preset.name === 'Foxkit' ? 'preset-chip preset-chip-featured' : 'preset-chip'}
+            onClick={() => onLoadPreset?.(preset.creature)}
+            disabled={!onLoadPreset}
+            title={`Load ${preset.name}`}
+          >
+            <span>{preset.emoji}</span>
+            {preset.name}
+          </button>
+        ))}
+      </div>
       <table>
         <thead>
           <tr>

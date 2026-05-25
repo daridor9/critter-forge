@@ -3,7 +3,7 @@ import type { ColorOverride } from '../components/CreatureSVG';
 
 export type DexShape =
   | 'default' | 'snake' | 'octopus' | 'whale' | 'dolphin' | 'penguin'
-  | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'polarbear'
+  | 'lion' | 'cheetah' | 'snowleopard' | 'wolf' | 'foxkit' | 'polarbear'
   | 'mouse' | 'hummingbird' | 'bat' | 'sloth' | 'kangaroo'
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
@@ -26,6 +26,7 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Bat':             { main: '#5a4a3e', shade: '#2e2418', light: '#7a685a', cheek: '#a06a76' },
   'Cheetah':         { main: '#d4a060', shade: '#a8783c', light: '#e8c690', cheek: '#f0b890', pattern: '#1a1a1a' },
   'Wolf':            { main: '#8a8580', shade: '#5a5550', light: '#b0aba4', cheek: '#bcb5ae' },
+  'Foxkit':          { main: '#f58f76', shade: '#bc5844', light: '#ffd4b6', cheek: '#ffad9a', pattern: '#7b3528' },
   'Lion':            { main: '#d4a040', shade: '#a87820', light: '#e6c065', cheek: '#f0b890' },
   'Polar bear':      { main: '#f4f4f0', shade: '#b8b8b0', light: '#ffffff', cheek: '#ffd8d8' },
   'Snow leopard':    { main: '#d8d2c4', shade: '#9a948a', light: '#ede8de', cheek: '#f4d8c8', pattern: '#3a3530' },
@@ -101,6 +102,9 @@ export const ANIMAL_DEX: DexAnimal[] = [
     'Fastest land animal: 110 km/h. Holds top speed ~30 seconds before overheating. Black tear stripes shade the eyes from glare.', 'cheetah'),
   make('Wolf', '🐺', 40, 'mammal', true, 1, 2, 1, 1, [],
     'Wins by stamina, not speed. Long snout, pointed ears, bushy tail. Trots all day until prey collapses.', 'wolf'),
+  make('Foxkit', '🦊', 5.5, 'mammal', true, 2, 2, 1, 2, [],
+    'Recreated from your portrait: oversized ears, bright binocular eyes, springy runner legs, cream chest fur, and a curled balancing tail.', 'foxkit',
+    ['oversized ears', 'bushy balancing tail', 'springy runner legs', 'cream chest fur']),
   make('Lion', '🦁', 190, 'mammal', true, 1, 2, 1, 2, [],
     'Pride hunter. Males grow huge dark manes that signal genes + protect the neck. Females do most of the killing.', 'lion'),
   make('Polar bear', '🐻‍❄️', 450, 'mammal', true, 1, 1, 2, 2, ['thick-fur'],

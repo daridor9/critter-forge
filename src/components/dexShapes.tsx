@@ -1728,6 +1728,7 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   cheetah: CheetahShape,
   snowleopard: SnowLeopardShape,
   wolf: WolfShape,
+  foxkit: FoxkitShape,
   polarbear: PolarBearShape,
   mouse: MouseShape,
   hummingbird: HummingbirdShape,
@@ -2101,6 +2102,130 @@ export function JellyfishShape({ colors }: { colors: ColorOverride }) {
       <circle cx="280" cy="173" r="2" fill="#1a1a1a" />
 
       <ellipse cx="200" cy="285" rx="100" ry="4" fill="rgba(0,0,0,0.15)" />
+    </svg>
+  );
+}
+
+// ─── Foxkit ─────────────────────────────────────────────────────────────
+// Recreated from the uploaded portrait: peach watercolor fox, huge ears,
+// cream chest ruff, bright eyes, springy runner pose, curled fluffy tail.
+export function FoxkitShape({ colors }: { colors: ColorOverride }) {
+  const OUT = '#2a1713';
+  const cream = colors.light;
+  const dark = colors.shade;
+  const main = colors.main;
+  const blush = colors.cheek;
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <ellipse cx="215" cy="266" rx="136" ry="12" fill="rgba(64,34,24,0.14)" />
+
+      {/* curled tail behind the body */}
+      <path
+        d="M 272 135 C 315 72 380 96 365 144 C 354 180 315 183 333 140 C 343 112 309 103 287 141 C 278 156 268 159 259 151"
+        fill={main}
+        stroke={OUT}
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M 300 120 C 331 89 369 104 355 141 C 346 164 324 164 331 143 C 338 123 319 114 302 135"
+        fill={cream}
+        opacity="0.72"
+      />
+      <g stroke={dark} strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6">
+        <path d="M 286 135 q 22 -34 58 -25" />
+        <path d="M 302 151 q 28 -8 42 -29" />
+        <path d="M 274 144 q 16 5 31 1" />
+      </g>
+
+      {/* rear legs */}
+      <path d="M 250 176 C 282 188 296 216 318 228" stroke={OUT} strokeWidth="17" strokeLinecap="round" fill="none" />
+      <path d="M 250 176 C 282 188 296 216 318 228" stroke={main} strokeWidth="12" strokeLinecap="round" fill="none" />
+      <ellipse cx="322" cy="230" rx="18" ry="8" fill={main} stroke={OUT} strokeWidth="3" transform="rotate(15 322 230)" />
+      <path d="M 224 183 C 238 207 238 229 247 252" stroke={OUT} strokeWidth="16" strokeLinecap="round" fill="none" />
+      <path d="M 224 183 C 238 207 238 229 247 252" stroke={main} strokeWidth="11" strokeLinecap="round" fill="none" />
+      <ellipse cx="248" cy="255" rx="15" ry="8" fill={main} stroke={OUT} strokeWidth="3" transform="rotate(40 248 255)" />
+
+      {/* body */}
+      <ellipse cx="210" cy="150" rx="76" ry="48" fill={main} stroke={OUT} strokeWidth="4" transform="rotate(-5 210 150)" />
+      <path d="M 151 132 C 180 112 223 110 264 132 C 235 128 193 139 162 157 Z" fill="#ffb194" opacity="0.42" />
+      <path d="M 163 175 C 190 194 231 197 261 174 C 230 190 193 188 163 175 Z" fill={dark} opacity="0.3" />
+
+      {/* front legs in running pose */}
+      <path d="M 158 174 C 129 196 111 226 87 256" stroke={OUT} strokeWidth="17" strokeLinecap="round" fill="none" />
+      <path d="M 158 174 C 129 196 111 226 87 256" stroke={main} strokeWidth="12" strokeLinecap="round" fill="none" />
+      <ellipse cx="84" cy="259" rx="20" ry="9" fill={main} stroke={OUT} strokeWidth="3" transform="rotate(-24 84 259)" />
+      <path d="M 181 178 C 165 209 147 239 129 267" stroke={OUT} strokeWidth="18" strokeLinecap="round" fill="none" />
+      <path d="M 181 178 C 165 209 147 239 129 267" stroke={main} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <ellipse cx="127" cy="270" rx="21" ry="10" fill={main} stroke={OUT} strokeWidth="3" transform="rotate(-18 127 270)" />
+
+      {/* neck and fluffy cream ruff */}
+      <path d="M 139 119 C 123 143 126 175 153 195 C 157 174 170 144 190 126 Z" fill={main} stroke={OUT} strokeWidth="4" />
+      <path
+        d="M 128 135 L 145 146 L 137 157 L 156 161 L 148 176 L 169 172 L 162 193 L 188 174 L 199 140 Z"
+        fill={cream}
+        stroke={OUT}
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+
+      {/* head */}
+      <g transform="rotate(-8 120 102)">
+        <path d="M 61 53 L 37 6 C 29 -9 18 -4 16 15 C 13 43 26 69 49 83 Z" fill={main} stroke={OUT} strokeWidth="4" />
+        <path d="M 161 53 L 184 6 C 192 -9 203 -4 205 15 C 208 43 195 69 172 83 Z" fill={main} stroke={OUT} strokeWidth="4" />
+        <path d="M 56 54 L 37 17 C 51 26 63 43 67 63 Z" fill={cream} opacity="0.82" />
+        <path d="M 166 54 L 185 17 C 171 26 159 43 155 63 Z" fill={cream} opacity="0.82" />
+
+        <path
+          d="M 44 92 C 47 47 78 30 111 32 C 150 35 177 61 175 101 C 173 139 141 160 103 158 C 65 156 42 132 44 92 Z"
+          fill={main}
+          stroke={OUT}
+          strokeWidth="4"
+        />
+        <path d="M 58 114 C 80 93 130 92 159 114 C 145 145 76 146 58 114 Z" fill={cream} opacity="0.92" />
+        <path d="M 48 90 C 35 94 24 106 21 121 C 37 116 51 113 64 108 Z" fill={main} stroke={OUT} strokeWidth="3" />
+
+        <g className="eye-blink" style={{ transformOrigin: '86px 89px' }}>
+          <ellipse cx="84" cy="89" rx="15" ry="21" fill="#fff8e8" stroke={OUT} strokeWidth="3" />
+          <ellipse cx="88" cy="92" rx="8" ry="14" fill="#9a4a20" />
+          <ellipse cx="91" cy="90" rx="4" ry="10" fill="#22120e" />
+          <circle cx="84" cy="80" r="4" fill="white" />
+        </g>
+        <g className="eye-blink" style={{ transformOrigin: '136px 89px' }}>
+          <ellipse cx="136" cy="89" rx="15" ry="21" fill="#fff8e8" stroke={OUT} strokeWidth="3" />
+          <ellipse cx="132" cy="92" rx="8" ry="14" fill="#9a4a20" />
+          <ellipse cx="129" cy="90" rx="4" ry="10" fill="#22120e" />
+          <circle cx="136" cy="80" r="4" fill="white" />
+        </g>
+
+        <ellipse cx="111" cy="121" rx="9" ry="6" fill="#2b1713" />
+        <ellipse cx="108" cy="118" rx="3" ry="2" fill="#fff" opacity="0.5" />
+        <path d="M 111 126 q -2 10 -13 12" stroke={OUT} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M 111 126 q 4 10 19 8" stroke={OUT} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <ellipse cx="67" cy="111" rx="9" ry="6" fill={blush} opacity="0.55" />
+        <ellipse cx="153" cy="111" rx="9" ry="6" fill={blush} opacity="0.55" />
+
+        {/* scruffy cheek and forehead tufts */}
+        <g fill={main} stroke={OUT} strokeWidth="2" strokeLinejoin="round">
+          <path d="M 73 45 l 10 -19 l 8 20" />
+          <path d="M 92 39 l 13 -18 l 4 22" />
+          <path d="M 116 42 l 18 -16 l -2 22" />
+          <path d="M 45 111 l -18 9 l 21 5" />
+          <path d="M 170 111 l 18 9 l -21 5" />
+        </g>
+      </g>
+
+      {/* watercolor fur strokes */}
+      <g stroke={dark} strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.48">
+        <path d="M 170 126 q 22 -12 46 -8" />
+        <path d="M 181 142 q 34 -11 70 2" />
+        <path d="M 152 165 q 24 18 58 17" />
+        <path d="M 260 134 q 18 13 26 29" />
+        <path d="M 71 249 q 12 7 30 2" />
+        <path d="M 111 265 q 18 8 34 -2" />
+      </g>
     </svg>
   );
 }

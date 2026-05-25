@@ -583,7 +583,7 @@ export default function App() {
                       onStartTournament={startTournament}
                     />
                     <FoodEconomyPanel creature={creature} stats={stats} />
-                    <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); sounds.click(); }} />
+                    <ComparePanel stats={stats} onLoadPreset={(c) => { setCreature(c); setView('creature'); setAnatomyLayer('skin'); sounds.click(); }} />
                   </div>
                 </div>
               </div>
@@ -601,6 +601,8 @@ export default function App() {
           currentLineageId={lineageId}
           onLoad={(c, meta) => {
             setCreature(c);
+            setView('creature');
+            setAnatomyLayer('skin');
             sounds.click();
             if (meta?.kind === 'breed') {
               recordBred();
@@ -678,7 +680,7 @@ export default function App() {
         {showDex && (
           <DexModal
             current={creature}
-            onLoad={(c) => { setCreature(c); setShowDex(false); sounds.click(); }}
+            onLoad={(c) => { setCreature(c); setView('creature'); setAnatomyLayer('skin'); setShowDex(false); sounds.click(); }}
             onClose={() => setShowDex(false)}
           />
         )}
