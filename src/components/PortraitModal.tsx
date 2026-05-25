@@ -112,6 +112,18 @@ export function PortraitModal({ creature, onClose }: Props) {
           <button className="about-close" type="button" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="about-content portrait-content">
+          <div className="portrait-upload-hero">
+            <div>
+              <strong>{savedUrl ? 'Replace portrait from this device' : 'Add a portrait from this device'}</strong>
+              <span>PNG, JPG, WEBP, or GIF under 2.5 MB. Saved for this creature in this browser.</span>
+            </div>
+            <label className="btn portrait-upload-btn portrait-upload-main">
+              🖼 Upload portrait
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleUpload} />
+            </label>
+          </div>
+          {uploadError && <p className="portrait-error">{uploadError}</p>}
+
           {savedUrl ? (
             <div className="portrait-saved">
               <div className="portrait-saved-image">
@@ -185,7 +197,6 @@ export function PortraitModal({ creature, onClose }: Props) {
               </label>
               <p className="portrait-hint">Pick a portrait from this device. It saves to this browser for this creature.</p>
             </div>
-            {uploadError && <p className="portrait-error">{uploadError}</p>}
             <div className="portrait-divider"><span>or paste a hosted image URL</span></div>
             <div className="portrait-url-row">
               <input

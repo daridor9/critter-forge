@@ -547,9 +547,9 @@ export default function App() {
                     type="button"
                     className="portrait-launch-btn"
                     onClick={() => { setShowPortrait(true); sounds.click(); }}
-                    title="View AI portrait of this critter"
+                    title="Upload or view a portrait of this critter"
                   >
-                    ✨ <span className="portrait-launch-label">Portrait</span>
+                    🖼 <span className="portrait-launch-label">Upload portrait</span>
                   </button>
                   <div className="anatomy-toggle" role="tablist" aria-label="Anatomy layer">
                     {(['skin', 'muscles', 'anatomy'] as const).map((id) => (

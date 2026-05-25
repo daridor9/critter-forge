@@ -26,6 +26,7 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
   const effLayer: AnatomyLayer = layer ?? (xray ? 'anatomy' : 'skin');
   const isXray = effLayer !== 'skin';
   const footY = FOOT_Y[creature.bodyPlan];
+  const skinScale = stageBodyScale(creature);
 
   // If this creature was loaded straight from the dex (and not yet mutated),
   // render the bespoke canonical shape so an octopus actually looks like an
@@ -100,10 +101,18 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
       ) : effLayer === 'muscles' ? (
         <MusclesView creature={creature} cx={W / 2} footY={footY} />
       ) : (
-        <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={1} animate="breathe" />
+        <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={skinScale} animate="breathe" />
       )}
     </svg>
   );
+}
+
+function stageBodyScale(creature: Creature): number {
+  const m = sizeToMass(creature.sizeUnit);
+  const logM = Math.log10(Math.max(0.01, m));
+  const sizeT = Math.max(0, Math.min(1, (logM + 2) / 7));
+  if (creature.bodyPlan === 'fish') return 1.18 + (1 - sizeT) * 0.28;
+  return 1.08 + (1 - sizeT) * 0.38;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -418,16 +427,33 @@ function AnatomyLabel({ x1, y1, x2, y2, text, color, anchor = 'end' }: { x1: num
 // MusclesView — body silhouette filled with muscle tone, with visible
 // striated muscle groups (shoulder, hip, jaw, abdomen).
 // ─────────────────────────────────────────────────────────────────────────
-const MUSCLE_DEEP = '#a83a4a';
-const MUSCLE_MID = '#c45a68';
-const MUSCLE_LIGHT = '#e08a92';
+const MUSCLE_DEEP = '#8f263b';
+const MUSCLE_MID = '#d25a6b';
+const MUSCLE_LIGHT = '#f1a1a8';
+const MUSCLE_LINE = '#5a1528';
 
 function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; footY: number }) {
   const M = getAnatomyMetrics(creature, cx, footY, { presentation: true });
   const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, beatPeriod, m } = M;
+  const bellyY = cy + bodyH * 0.18;
+  const shoulder = { x: cx - bodyW * 0.23, y: cy - bodyH * 0.04 };
+  const hip = { x: cx + bodyW * 0.24, y: cy + bodyH * 0.08 };
 
   return (
     <g>
+      <defs>
+        <linearGradient id="muscleBody" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={MUSCLE_LIGHT} />
+          <stop offset="44%" stopColor={MUSCLE_MID} />
+          <stop offset="100%" stopColor={MUSCLE_DEEP} />
+        </linearGradient>
+        <pattern id="muscleGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f4c6c9" strokeWidth="0.45" opacity="0.55" />
+        </pattern>
+      </defs>
+      <rect width={W} height={H} fill="#fff5f2" />
+      <rect width={W} height={H} fill="url(#muscleGrid)" />
+
       {/* Title strip matching anatomy view (slightly muted to read as a
           'second page' of the same textbook) */}
       <text
@@ -451,20 +477,33 @@ function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; 
         {m < 0.1 ? `${(m * 1000).toFixed(0)} g` : m < 10 ? `${m.toFixed(1)} kg` : `${Math.round(m)} kg`} · {creature.bodyPlan}{creature.warmBlooded ? '' : ' (cold-blooded)'}
       </text>
 
+      {/* Ground shadow and outer silhouette so the creature still reads as a
+          character, not just a flat biology blob. */}
+      <ellipse cx={cx + bodyW * 0.04} cy={cy + bodyH * 0.58 + legLen} rx={bodyW * 0.62} ry="8" fill="#4f1a25" opacity="0.18" />
+      <ellipse cx={cx + 3} cy={cy + 3} rx={bodyW / 2 + 7} ry={bodyH / 2 + 6} fill="#5a1528" opacity="0.16" />
+      <circle cx={headCx + 3} cy={headCy + 3} r={headR + 4} fill="#5a1528" opacity="0.14" />
+
       {/* Body in muscle tone */}
-      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill={MUSCLE_MID} stroke={MUSCLE_DEEP} strokeWidth="1" />
-      <circle cx={headCx} cy={headCy} r={headR} fill={MUSCLE_MID} stroke={MUSCLE_DEEP} strokeWidth="1" />
+      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill="url(#muscleBody)" stroke={MUSCLE_LINE} strokeWidth="2.2" />
+      <circle cx={headCx} cy={headCy} r={headR} fill="url(#muscleBody)" stroke={MUSCLE_LINE} strokeWidth="2" />
 
       {/* Highlight along top for sheen */}
-      <ellipse cx={cx - bodyW * 0.05} cy={cy - bodyH * 0.22} rx={bodyW * 0.3} ry={bodyH * 0.12} fill={MUSCLE_LIGHT} opacity="0.55" />
+      <ellipse cx={cx - bodyW * 0.08} cy={cy - bodyH * 0.24} rx={bodyW * 0.32} ry={bodyH * 0.12} fill="#ffd4d6" opacity="0.62" />
+
+      {/* Curved anatomical bands give the body readable volume. */}
+      <g fill="none" stroke={MUSCLE_LINE} strokeWidth="1" opacity="0.42">
+        {[-0.28, -0.14, 0, 0.14, 0.28].map((off) => (
+          <path key={off} d={`M ${cx + bodyW * off} ${cy - bodyH * 0.42} Q ${cx + bodyW * (off + 0.1)} ${cy} ${cx + bodyW * off} ${cy + bodyH * 0.42}`} />
+        ))}
+      </g>
 
       {/* Striated muscle group patches with fiber lines */}
-      <MuscleGroup x={cx - bodyW * 0.2} y={cy - bodyH * 0.05} w={bodyW * 0.22} h={bodyH * 0.34} angle={-15} fibers={5} label="pectoral" />
-      <MuscleGroup x={cx + bodyW * 0.18} y={cy + bodyH * 0.05} w={bodyW * 0.22} h={bodyH * 0.36} angle={12} fibers={5} label="gluteal" />
-      <MuscleGroup x={cx} y={cy + bodyH * 0.15} w={bodyW * 0.4} h={bodyH * 0.18} angle={0} fibers={6} label="abdominal" />
+      <MuscleGroup x={shoulder.x} y={shoulder.y} w={bodyW * 0.25} h={bodyH * 0.38} angle={-16} fibers={6} label="pectoral" />
+      <MuscleGroup x={hip.x} y={hip.y} w={bodyW * 0.25} h={bodyH * 0.38} angle={12} fibers={6} label="gluteal" />
+      <MuscleGroup x={cx} y={bellyY} w={bodyW * 0.46} h={bodyH * 0.2} angle={0} fibers={7} label="abdominal" />
 
       {/* Jaw muscle on head */}
-      <MuscleGroup x={headCx - headR * 0.15} y={headCy + headR * 0.35} w={headR * 0.7} h={headR * 0.4} angle={8} fibers={3} label="masseter" />
+      <MuscleGroup x={headCx - headR * 0.12} y={headCy + headR * 0.32} w={headR * 0.78} h={headR * 0.42} angle={8} fibers={4} label="masseter" />
 
       {/* Legs as muscle bundles with quadriceps fibers */}
       {legXs.map((x, i) => {
@@ -472,14 +511,14 @@ function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; 
         const footYY = hipY + legLen;
         return (
           <g key={`leg-m-${i}`}>
-            <rect x={x - bodyW * 0.04} y={hipY} width={bodyW * 0.08} height={legLen} fill={MUSCLE_MID} stroke={MUSCLE_DEEP} strokeWidth="0.6" rx="3" />
+            <rect x={x - bodyW * 0.05} y={hipY} width={bodyW * 0.1} height={legLen} fill="url(#muscleBody)" stroke={MUSCLE_LINE} strokeWidth="1.1" rx="5" />
             {/* Quadriceps fiber lines */}
-            <g stroke={MUSCLE_DEEP} strokeWidth="0.5" opacity="0.55">
+            <g stroke={MUSCLE_LINE} strokeWidth="0.7" opacity="0.58">
               {[0.2, 0.4, 0.6, 0.8].map((t) => (
-                <line key={t} x1={x - bodyW * 0.03} y1={hipY + legLen * t} x2={x + bodyW * 0.03} y2={hipY + legLen * (t + 0.08)} />
+                <line key={t} x1={x - bodyW * 0.04} y1={hipY + legLen * t} x2={x + bodyW * 0.04} y2={hipY + legLen * (t + 0.08)} />
               ))}
             </g>
-            <ellipse cx={x} cy={footYY} rx={bodyW * 0.05} ry={bodyH * 0.025} fill={MUSCLE_DEEP} />
+            <ellipse cx={x} cy={footYY} rx={bodyW * 0.06} ry={bodyH * 0.03} fill={MUSCLE_LINE} />
           </g>
         );
       })}
@@ -492,13 +531,13 @@ function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; 
       <circle
         cx={cx - bodyW * 0.18} cy={cy - bodyH * 0.05}
         r={Math.max(3, bodyW * 0.05)}
-        fill="#d64558" opacity="0.5"
+        fill="#ff334f" opacity="0.72"
         style={{ animation: `heartbeat ${beatPeriod}s ease-in-out infinite`, transformOrigin: `${cx - bodyW * 0.18}px ${cy - bodyH * 0.05}px`, transformBox: 'fill-box' }}
       />
 
-      <g fill="#5a1a24" fontSize="10" fontFamily="ui-rounded, system-ui, sans-serif">
-        <text x="14" y={H - 14}>muscle view</text>
-        <text x={W - 14} y={H - 14} textAnchor="end" opacity="0.6">skin removed</text>
+      <g fill="#5a1a24" fontSize="10" fontFamily="ui-rounded, system-ui, sans-serif" fontWeight="700">
+        <text x="14" y={H - 14}>muscle map</text>
+        <text x={W - 14} y={H - 14} textAnchor="end" opacity="0.65">skin hidden</text>
       </g>
     </g>
   );
@@ -507,8 +546,9 @@ function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; 
 function MuscleGroup({ x, y, w, h, angle, fibers, label: _label }: { x: number; y: number; w: number; h: number; angle: number; fibers: number; label: string }) {
   return (
     <g transform={`rotate(${angle} ${x} ${y})`}>
-      <ellipse cx={x} cy={y} rx={w / 2} ry={h / 2} fill={MUSCLE_DEEP} opacity="0.55" />
-      <g stroke={MUSCLE_DEEP} strokeWidth="0.6" opacity="0.7">
+      <ellipse cx={x} cy={y} rx={w / 2} ry={h / 2} fill="#b8324a" opacity="0.72" stroke={MUSCLE_LINE} strokeWidth="0.8" />
+      <ellipse cx={x - w * 0.12} cy={y - h * 0.14} rx={w * 0.22} ry={h * 0.18} fill="#ffb5b8" opacity="0.45" />
+      <g stroke="#ffe2df" strokeWidth="0.75" opacity="0.9">
         {Array.from({ length: fibers }).map((_, i) => {
           const t = (i + 1) / (fibers + 1);
           const fy = y - h / 2 + t * h;
