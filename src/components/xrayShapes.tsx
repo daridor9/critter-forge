@@ -72,11 +72,20 @@ export function OctopusXray({ creature, massKg }: XrayProps) {
       {/* mantle outline */}
       <ellipse cx="200" cy="125" rx="86" ry="70" fill="rgba(160,180,220,0.18)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
 
-      {/* tentacles (no bones — just muscle outlines) */}
+      {/* tentacles (no bones — JUST MUSCLE. The entire octopus body is
+          muscle, no skeleton at all. Draw layered red strands underneath
+          the outline to show that.) */}
       {tentacles.map((t, i) => (
-        <path key={i} d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
-          stroke="rgba(180,200,240,0.45)" strokeWidth="14" fill="none" strokeLinecap="round" />
+        <g key={i}>
+          <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
+            stroke={MUSCLE} strokeWidth="11" fill="none" strokeLinecap="round" opacity="0.55" />
+          <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
+            stroke="rgba(180,200,240,0.45)" strokeWidth="14" fill="none" strokeLinecap="round" />
+        </g>
       ))}
+      {/* mantle muscle ring around the central brain (real octopi pull
+          themselves through tight gaps by squeezing this) */}
+      <ellipse cx="200" cy="148" rx="44" ry="10" fill={MUSCLE} opacity="0.45" />
       {/* nerve cord down each tentacle */}
       {tentacles.map((t, i) => (
         <path key={`n${i}`} d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
@@ -168,6 +177,11 @@ export function WhaleXray({ creature, massKg }: XrayProps) {
         ))}
       </g>
 
+      {/* HUGE FLUKE-DRIVE MUSCLE — runs the length of the tail.
+          Drives the entire whale through the water with vertical strokes. */}
+      <ellipse cx="320" cy="170" rx="60" ry="14" fill={MUSCLE} opacity="0.45" />
+      <ellipse cx="320" cy="180" rx="60" ry="10" fill={MUSCLE} opacity="0.4" />
+
       {/* fluke bones (flat) */}
       <path d="M 385 160 L 398 130 L 398 188 Z" stroke={BONE} strokeWidth="1.2" fill="none" opacity="0.6" />
 
@@ -242,6 +256,12 @@ export function DolphinXray({ creature, massKg }: XrayProps) {
       <ellipse cx="210" cy="160" rx="22" ry="11" fill={LUNG} opacity="0.5" />
       <ellipse cx="250" cy="160" rx="22" ry="11" fill={LUNG} opacity="0.5" />
 
+      {/* EPAXIAL MUSCLES — myoglobin-rich tail muscle runs from mid-body
+          down to the fluke. Storing 10× more oxygen than human muscle is
+          how dolphins hold their breath for dives. */}
+      <ellipse cx="280" cy="168" rx="46" ry="10" fill={MUSCLE} opacity="0.5" />
+      <ellipse cx="310" cy="170" rx="22" ry="6" fill={MUSCLE} opacity="0.45" />
+
       {/* fluke vertebrae */}
       <g fill="none" stroke={BONE} strokeWidth="1.1" opacity="0.7">
         {[325, 335, 345].map((x, i) => <ellipse key={i} cx={x} cy={168 + i * 1.5} rx="3" ry="2.4" />)}
@@ -264,6 +284,12 @@ export function SharkXray({ creature, massKg }: XrayProps) {
       {/* body outline */}
       <path d="M 60 175 Q 100 138 200 138 Q 290 138 340 168 Q 290 200 200 200 Q 100 200 60 175 Z"
         fill="rgba(160,180,220,0.18)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
+
+      {/* LATERAL RED MUSCLE BAND — sharks have a thin strip of dark red
+          aerobic muscle along each side (uniquely warm in some species),
+          used for sustained swimming. White muscle does the burst attacks. */}
+      <path d="M 90 168 Q 200 158 320 170" stroke={MUSCLE} strokeWidth="6" fill="none" opacity="0.55" strokeLinecap="round" />
+      <path d="M 110 178 Q 200 172 310 182" stroke={MUSCLE} strokeWidth="4" fill="none" opacity="0.4" strokeLinecap="round" />
 
       {/* CARTILAGE — drawn dashed/grey to distinguish from real bone */}
       <path d="M 90 170 Q 200 158 320 172" stroke={CARTILAGE} strokeWidth="3" fill="none" strokeDasharray="4 3" opacity="0.85" />
@@ -329,7 +355,18 @@ export function SnakeXray({ creature, massKg }: XrayProps) {
       <path d="M 30 175 Q 80 130 130 175 Q 180 220 230 175 Q 280 130 330 175 Q 360 200 380 180"
         stroke={BONE} strokeWidth="2" fill="none" />
 
-      {/* SO many ribs — draw 30 along the curve */}
+      {/* SEGMENTAL MUSCLES — each pair of vertebrae has its own muscle
+          slab. Snakes propel themselves by contracting these in waves. */}
+      <g fill={MUSCLE} opacity="0.45">
+        {Array.from({ length: 15 }).map((_, i) => {
+          const t = (i + 0.5) / 15;
+          const x = 30 + t * 350;
+          const baseY = 175 + 45 * Math.sin(t * Math.PI * 3) * (t < 0.95 ? 1 : 0.4);
+          return <ellipse key={i} cx={x} cy={baseY} rx="8" ry="11" />;
+        })}
+      </g>
+
+      {/* SO many ribs — draw 30 along the curve (over the muscle) */}
       <g stroke={BONE} strokeWidth="1" fill="none" opacity="0.85">
         {Array.from({ length: 30 }).map((_, i) => {
           const t = i / 29;
@@ -407,6 +444,12 @@ export function TortoiseXray({ creature, massKg }: XrayProps) {
       {/* small lungs against the shell ceiling */}
       <ellipse cx="170" cy="150" rx="22" ry="8" fill={LUNG} opacity="0.45" />
       <ellipse cx="230" cy="150" rx="22" ry="8" fill={LUNG} opacity="0.45" />
+
+      {/* LIMB RETRACTOR MUSCLES — tucked inside the shell, pull the legs
+          and head back in when threatened. Strong but slow. */}
+      <ellipse cx="125" cy="190" rx="10" ry="14" fill={MUSCLE} opacity="0.5" />
+      <ellipse cx="275" cy="190" rx="10" ry="14" fill={MUSCLE} opacity="0.5" />
+      <ellipse cx="290" cy="195" rx="14" ry="6" fill={MUSCLE} opacity="0.4" />
 
       <HeartLabel x={180} y={205} bpm={heartRate(massKg)} />
       <Caption text="Shell = fused ribs + spine · lives 150+ years" />
@@ -518,6 +561,11 @@ export function BatXray({ creature, massKg }: XrayProps) {
       {/* spine */}
       <line x1="200" y1="140" x2="200" y2="200" stroke={BONE} strokeWidth="1.8" />
 
+      {/* PECTORALIS — flight muscles dominate the bat body. Up to 25%
+          of total body mass is flight muscle, driving 10+ wingbeats/sec. */}
+      <ellipse cx="190" cy="172" rx="6" ry="20" fill={MUSCLE} opacity="0.55" />
+      <ellipse cx="210" cy="172" rx="6" ry="20" fill={MUSCLE} opacity="0.55" />
+
       {/* tiny skull */}
       <ellipse cx="200" cy="140" rx="9" ry="7" fill="none" stroke={BONE} strokeWidth="1.4" />
 
@@ -578,6 +626,13 @@ export function MouseXray({ creature, massKg }: XrayProps) {
           return <path key={off} d={`M ${x} 170 Q ${x + 2} 188 ${x - 2} 202`} />;
         })}
       </g>
+
+      {/* TINY HINDLEG + JAW MUSCLES — proportionally enormous incisor-
+          jaw muscle lets a mouse gnaw through wood; the hind-leg muscle
+          powers their 30 cm vertical leap (4× their body length). */}
+      <ellipse cx="175" cy="194" rx="6" ry="9" fill={MUSCLE} opacity="0.55" />
+      <ellipse cx="225" cy="194" rx="6" ry="9" fill={MUSCLE} opacity="0.55" />
+      <ellipse cx="238" cy="174" rx="5" ry="4" fill={MUSCLE} opacity="0.55" />
 
       {/* legs */}
       {[175, 225].map((x) => (
@@ -746,6 +801,12 @@ export function PenguinXray({ creature, massKg }: XrayProps) {
         })}
       </g>
 
+      {/* FLIPPER MUSCLES — penguins repurposed pectoralis for paddling
+          underwater. Different fiber composition vs flying birds — more
+          slow-twitch for sustained dives, denser than air-flight muscle. */}
+      <ellipse cx="175" cy="180" rx="9" ry="26" fill={MUSCLE} opacity="0.55" />
+      <ellipse cx="225" cy="180" rx="9" ry="26" fill={MUSCLE} opacity="0.55" />
+
       {/* flipper-wing bones (fused, paddle-like) */}
       <g stroke={BONE} strokeWidth="1.6" fill="none" strokeLinecap="round">
         <line x1="160" y1="158" x2="115" y2="200" />
@@ -813,6 +874,36 @@ export function QuadrupedXray({ creature, massKg }: XrayProps) {
         })}
       </g>
 
+      {/* MUSCLES — chest (pectoralis) and hindquarters (gluteus / biceps
+          femoris). Reds drawn first, bones overlay them. Sprinters like
+          cheetah get a more pronounced hindquarter; gorilla gets bigger
+          shoulders. */}
+      {!isUpright && (
+        <g>
+          {/* powerful hind-leg quadriceps + glute, drawn behind the back legs */}
+          <ellipse cx="125" cy="195" rx="20" ry="14" fill={MUSCLE} opacity="0.55" />
+          <ellipse cx="125" cy="195" rx="14" ry="9" fill={MUSCLE} opacity="0.7" />
+          {/* shoulder / triceps */}
+          <ellipse cx="252" cy="180" rx="18" ry="11" fill={MUSCLE} opacity="0.5" />
+          {/* pectoralis along the chest under the ribs */}
+          <ellipse cx="200" cy="195" rx="36" ry="6" fill={MUSCLE} opacity="0.45" />
+          {/* striation hints */}
+          <g stroke={MUSCLE} strokeWidth="0.6" opacity="0.7">
+            <line x1="118" y1="184" x2="142" y2="208" />
+            <line x1="115" y1="190" x2="138" y2="214" />
+            <line x1="247" y1="172" x2="262" y2="190" />
+          </g>
+        </g>
+      )}
+      {isUpright && (
+        <g>
+          {/* huge gorilla shoulder + chest muscles */}
+          <ellipse cx="172" cy="158" rx="14" ry="22" fill={MUSCLE} opacity="0.55" />
+          <ellipse cx="228" cy="158" rx="14" ry="22" fill={MUSCLE} opacity="0.55" />
+          <ellipse cx="200" cy="175" rx="22" ry="14" fill={MUSCLE} opacity="0.45" />
+        </g>
+      )}
+
       {/* legs */}
       {(isUpright ? [180, 220] : [135, 170, 235, 270]).map((x) => (
         <g key={x}>
@@ -871,6 +962,15 @@ export function CrocodileXray({ creature, massKg }: XrayProps) {
       <g fill="none" stroke={BONE} strokeWidth="1.4" opacity="0.85">
         <path d="M 322 178 Q 348 188 372 202" />
         {[330, 345, 360].map((x, i) => <ellipse key={i} cx={x} cy={181 + i * 3} rx="3.5" ry="2.5" />)}
+      </g>
+
+      {/* MASSIVE JAW MUSCLE — masseter + pterygoid. Bite force 16,000 N
+          (a lion bites at 4,000). The muscle bulges behind the eye. */}
+      <ellipse cx="92" cy="170" rx="16" ry="12" fill={MUSCLE} opacity="0.6" />
+      <ellipse cx="92" cy="170" rx="10" ry="7" fill={MUSCLE} opacity="0.75" />
+      <g stroke={MUSCLE} strokeWidth="0.7" opacity="0.7">
+        <line x1="80" y1="166" x2="104" y2="166" />
+        <line x1="80" y1="172" x2="104" y2="172" />
       </g>
 
       {/* long jaw / skull */}
@@ -1034,6 +1134,18 @@ export function RaptorXray({ creature, massKg }: XrayProps) {
         <path d="M 225 185 L 235 190" />
       </g>
 
+      {/* DRUMSTICK MUSCLES — gastrocnemius + thigh. Raptor and T-Rex
+          packed enormous power into the hind limbs (T-Rex thigh was
+          half a ton of muscle on a 7-ton body). */}
+      {[185, 215].map((x) => (
+        <g key={`m${x}`}>
+          <ellipse cx={x - 2} cy="218" rx="11" ry="16" fill={MUSCLE} opacity="0.5" />
+          <ellipse cx={x - 2} cy="218" rx="6" ry="11" fill={MUSCLE} opacity="0.65" />
+          {/* lower drumstick / calf */}
+          <ellipse cx={x + 1} cy="252" rx="6" ry="11" fill={MUSCLE} opacity="0.45" />
+        </g>
+      ))}
+
       {/* powerful legs */}
       {[185, 215].map((x) => (
         <g key={x}>
@@ -1098,6 +1210,15 @@ export function TriceratopsXray({ creature, massKg }: XrayProps) {
       {/* parrot beak */}
       <path d="M 332 178 Q 348 185 332 192 Z" fill={BONE} stroke="#888" strokeWidth="0.6" />
 
+      {/* MASSIVE NECK + JAW MUSCLES — held up a 2 m frilled skull.
+          The temporalis (chewing) was huge for grinding tough plants. */}
+      <ellipse cx="284" cy="166" rx="22" ry="14" fill={MUSCLE} opacity="0.55" />
+      <ellipse cx="306" cy="172" rx="14" ry="9" fill={MUSCLE} opacity="0.6" />
+      <g stroke={MUSCLE} strokeWidth="0.8" opacity="0.7">
+        <line x1="278" y1="156" x2="298" y2="156" />
+        <line x1="276" y1="170" x2="296" y2="172" />
+      </g>
+
       {/* massive ribcage */}
       <g stroke={BONE} strokeWidth="1.3" fill="none" opacity="0.85">
         {[-0.4, -0.25, -0.1, 0.05, 0.2].map((off) => {
@@ -1154,6 +1275,11 @@ export function StegosaurusXray({ creature, massKg }: XrayProps) {
           );
         })}
       </g>
+
+      {/* TAIL DRIVE MUSCLE — base of the tail had a thick muscular base
+          (caudofemoralis) to swing the thagomizer like a club. */}
+      <ellipse cx="318" cy="208" rx="22" ry="11" fill={MUSCLE} opacity="0.55" />
+      <ellipse cx="340" cy="216" rx="14" ry="7" fill={MUSCLE} opacity="0.45" />
 
       {/* tail with THAGOMIZER — 4 spikes */}
       <path d="M 320 200 Q 355 215 380 230" stroke={BONE} strokeWidth="1.8" fill="none" />

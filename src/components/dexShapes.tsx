@@ -1756,6 +1756,7 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   cow: CowShape,
   horse: HorseShape,
   pig: PigShape,
+  giraffe: GiraffeShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -2885,6 +2886,145 @@ export function PigShape({ colors }: { colors: ColorOverride }) {
         <circle cx="318" cy="158" r="4" fill="white" stroke="#222" strokeWidth="0.5" />
         <circle cx="319" cy="158" r="2.4" fill="#1a1208" />
         <circle cx="320" cy="156" r="0.9" fill="white" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── Giraffe ────────────────────────────────────────────────────────────
+// Tallest land animal. Long curved neck (only 7 vertebrae, like every
+// mammal, but each vertebra is huge), spotted hide, ossicones on the
+// head, tiny tufted tail, long thin legs.
+export function GiraffeShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const cheek = colors.cheek;
+  const spot = colors.pattern ?? '#6a4828';
+  const ossicone = '#5a3a18';
+  const hoof = '#2a1a08';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow under the body */}
+      <ellipse cx="180" cy="266" rx="110" ry="6" fill="rgba(0,0,0,0.18)" />
+
+      {/* LONG LEGS — drawn before body so body covers the tops */}
+      {[120, 152, 220, 252].map((x, i) => (
+        <g key={x}>
+          <rect x={x - 7} y="180" width="14" height="82" rx="3" fill={i % 2 === 0 ? shade : main} />
+          {/* knee marker */}
+          <ellipse cx={x} cy="220" rx="8" ry="4" fill={shade} opacity="0.55" />
+          {/* hoof */}
+          <rect x={x - 8} y="252" width="16" height="10" rx="2" fill={hoof} />
+        </g>
+      ))}
+
+      {/* TAIL — short with dark tuft */}
+      <path d="M 80 180 Q 60 196 56 218" stroke={shade} strokeWidth="5" fill="none" strokeLinecap="round" />
+      <ellipse cx="56" cy="222" rx="5" ry="9" fill={spot} />
+
+      {/* BODY — relatively small relative to the neck */}
+      <ellipse cx="170" cy="170" rx="100" ry="34" fill={shade} />
+      <ellipse cx="170" cy="166" rx="96" ry="30" fill={main} />
+      <ellipse cx="170" cy="184" rx="86" ry="14" fill={light} opacity="0.6" />
+
+      {/* SHOULDER HUMP — giraffes have a noticeable forequarter rise */}
+      <ellipse cx="240" cy="148" rx="32" ry="22" fill={shade} />
+      <ellipse cx="240" cy="146" rx="28" ry="18" fill={main} />
+
+      {/* LONG CURVED NECK rising up and to the right */}
+      <path d="M 230 162
+               Q 264 110 296 72
+               Q 320 50 332 36
+               L 348 48
+               Q 332 66 312 92
+               Q 286 130 252 178 Z"
+        fill={shade} />
+      <path d="M 234 162
+               Q 264 114 294 78
+               Q 318 56 330 42
+               L 342 50
+               Q 328 68 310 94
+               Q 286 130 252 174 Z"
+        fill={main} />
+
+      {/* SPOTS — irregular polygon shapes on body and neck (Reticulated pattern hints) */}
+      <g fill={spot}>
+        {/* body spots */}
+        <polygon points="110 152 130 148 138 162 128 178 112 172" />
+        <polygon points="146 162 162 156 172 172 160 188 148 184" />
+        <polygon points="184 158 198 152 212 162 206 180 192 184" />
+        <polygon points="218 168 232 162 244 176 236 192 222 192" />
+        <polygon points="158 188 170 184 180 196 170 208 158 204" opacity="0.85" />
+        <polygon points="194 188 210 184 220 196 214 208 198 210" opacity="0.85" />
+        {/* shoulder hump */}
+        <polygon points="232 134 246 130 254 146 244 158 232 152" />
+        {/* neck spots */}
+        <polygon points="246 144 260 140 268 154 258 166 248 162" />
+        <polygon points="264 122 278 118 286 132 276 144 266 140" />
+        <polygon points="282 100 296 96 304 110 294 122 282 116" />
+        <polygon points="300 78 314 74 322 88 312 100 302 96" />
+        <polygon points="318 56 330 54 336 66 326 76 318 70" />
+      </g>
+
+      {/* HEAD — small, elongated, at the top of the neck */}
+      <path d="M 320 32
+               Q 348 28 360 42
+               Q 364 56 358 64
+               Q 340 70 328 64
+               Q 316 54 320 32 Z"
+        fill={shade} />
+      <path d="M 322 36
+               Q 346 32 356 44
+               Q 360 54 354 62
+               Q 340 66 330 62
+               Q 320 54 322 36 Z"
+        fill={main} />
+
+      {/* MUZZLE — pink/light tip */}
+      <ellipse cx="358" cy="58" rx="6" ry="4" fill={cheek} />
+      <ellipse cx="361" cy="58" rx="1.5" ry="1" fill="#5a2828" />
+      {/* mouth */}
+      <path d="M 354 62 Q 358 64 362 62" stroke="#3a1a08" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+
+      {/* OSSICONES — small horn-bumps on the head (the giraffe signature) */}
+      <g>
+        <ellipse cx="332" cy="22" rx="2.6" ry="8" fill={ossicone} />
+        <circle cx="332" cy="14" r="3.4" fill="#3a2a14" />
+        <ellipse cx="344" cy="22" rx="2.6" ry="8" fill={ossicone} />
+        <circle cx="344" cy="14" r="3.4" fill="#3a2a14" />
+      </g>
+
+      {/* TALL EARS — wide at the base */}
+      <path d="M 322 30 L 308 16 L 322 22 Z" fill={shade} />
+      <path d="M 322 28 L 314 20 L 322 24 Z" fill="#f4b8a8" opacity="0.85" />
+      <path d="M 354 30 L 368 16 L 354 22 Z" fill={shade} />
+      <path d="M 354 28 L 362 20 L 354 24 Z" fill="#f4b8a8" opacity="0.85" />
+
+      {/* EYE — large, kind */}
+      <g className="eye-blink" style={{ transformOrigin: '332px 46px' }}>
+        <ellipse cx="332" cy="46" rx="4" ry="5" fill="white" stroke="#222" strokeWidth="0.5" />
+        <ellipse cx="332" cy="46" rx="2.8" ry="4" fill="#1a1208" />
+        <circle cx="333" cy="44" r="1" fill="white" />
+        {/* long eyelashes */}
+        <line x1="328" y1="42" x2="326" y2="39" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
+        <line x1="330" y1="41" x2="329" y2="38" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
+        <line x1="332" y1="40.5" x2="332" y2="37" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
+      </g>
+
+      {/* MANE — short dark hair running down the back of the neck */}
+      <path d="M 336 40 Q 320 80 300 110 Q 280 140 256 168"
+        stroke={spot} strokeWidth="3.5" fill="none" strokeLinecap="round" opacity="0.85" />
+      <g stroke={spot} strokeWidth="0.8" fill="none" opacity="0.55" strokeLinecap="round">
+        <path d="M 332 50 q -2 4 -4 6" />
+        <path d="M 322 70 q -2 4 -4 6" />
+        <path d="M 308 92 q -2 4 -4 6" />
+        <path d="M 292 116 q -2 4 -4 6" />
+        <path d="M 276 142 q -2 4 -4 6" />
       </g>
     </svg>
   );
