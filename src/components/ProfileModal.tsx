@@ -1,6 +1,22 @@
 import { loadProfile } from '../data/profile';
 import { loadPointsState, getLeaderboard, getCreaturePoints, creatureHash } from '../data/points';
+import { buildLeaderboard, loadRoster } from '../data/family';
 import type { Creature } from '../types';
+import type { MakerStamp } from '../data/family';
+
+interface AlbumEntry {
+  name: string;
+  creature: Creature;
+  maker?: MakerStamp | null;
+}
+
+function loadAlbumForLeaderboard(): AlbumEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem('critter-forge:album') || '[]');
+  } catch {
+    return [];
+  }
+}
 
 interface Props {
   onClose: () => void;
@@ -114,6 +130,48 @@ export function ProfileModal({ onClose, currentCreature }: Props) {
             </table>
           )}
           <p className="profile-foot"><small>Global total across all your creatures: <strong>{pts.totalPoints}</strong> pts</small></p>
+
+          {loadRoster().members.length > 0 && (() => {
+            const album = loadAlbumForLeaderboard();
+            const standings = buildLeaderboard(album, (c) => getCreaturePoints(c)?.totalPoints ?? 0);
+            return (
+              <>
+                <h3>👥 Family standings</h3>
+                <p className="profile-empty" style={{ fontStyle: 'normal' }}>
+                  Each family member's tagged creatures, summed.
+                </p>
+                {standings.length === 0 ? (
+                  <p className="profile-empty">No tagged saves yet. Switch to a family member in 👥 Family, then save a creature.</p>
+                ) : (
+                  <table className="profile-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Saved</th>
+                        <th>Top critter</th>
+                        <th>Points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {standings.map((s, i) => (
+                        <tr key={s.member.id}>
+                          <td>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</td>
+                          <td>
+                            <span className="family-leader-emoji" style={{ background: s.member.color }}>{s.member.emoji}</span>
+                            <strong style={{ marginLeft: '4px' }}>{s.member.name}</strong>
+                          </td>
+                          <td>{s.creaturesSaved}</td>
+                          <td>{s.topCreatureName ? <>{s.topCreatureName} <small>· {s.topCreaturePoints} pts</small></> : <span className="profile-dim">—</span>}</td>
+                          <td className="points-total">{s.totalCreaturePoints}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </>
+            );
+          })()}
 
           <div className="profile-grid">
             <ProfileBlock label="Tests run" value={p.testsRun} />

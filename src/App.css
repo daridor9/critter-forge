@@ -3359,6 +3359,222 @@ h2 {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* ─── Family roster ──────────────────────────────────────────────────── */
+
+.family-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--accent);
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform 0.1s ease;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.family-pill:hover { transform: translateY(-1px); }
+.family-pill-emoji {
+  width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+.family-pill-name { font-size: 12px; }
+.family-pill-empty {
+  background: rgba(194, 85, 65, 0.15);
+  color: #8a3030;
+  border-color: #d4a040;
+}
+
+.family-modal { max-width: 620px; }
+
+.family-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+.family-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #fbf8f1;
+}
+.family-row.active {
+  background: linear-gradient(135deg, #fff4cf, #fff8e0);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.05) inset;
+}
+.family-row.editing {
+  background: #f8f4e8;
+  flex-direction: column;
+  align-items: stretch;
+}
+.family-emoji {
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 20px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  flex-shrink: 0;
+}
+.family-name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 15px;
+}
+.family-badge {
+  background: #5cc46a;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.family-row-actions {
+  display: flex;
+  gap: 6px;
+}
+.btn-small {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+.btn-secondary-small {
+  background: white;
+  color: var(--accent);
+}
+.btn-danger-small {
+  background: white;
+  color: #b04040;
+  border-color: #b04040;
+}
+
+.family-add {
+  background: #fbf8f1;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.family-add-row {
+  display: block;
+  margin-bottom: 8px;
+}
+.family-add-row > span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg-dim);
+  display: block;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.family-add-row input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  font: inherit;
+  font-size: 14px;
+}
+.family-emoji-picker {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.family-emoji-opt {
+  width: 32px; height: 32px;
+  font-size: 18px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background: white;
+  cursor: pointer;
+}
+.family-emoji-opt.selected {
+  border-color: var(--accent);
+  background: #fff4ee;
+}
+.family-color-picker {
+  display: flex;
+  gap: 6px;
+}
+.family-color-opt {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.family-color-opt.selected {
+  border-color: #333;
+  box-shadow: 0 0 0 2px white inset;
+}
+.family-add-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.family-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.family-editor input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  font: inherit;
+}
+
+/* Maker tag on album cards */
+.album-maker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  border: 1px solid;
+  align-self: flex-start;
+}
+.album-maker-emoji { font-size: 11px; }
+
+.family-leader-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  color: white;
+  font-size: 13px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  vertical-align: middle;
+}
 .profile-prey {
   display: flex;
   gap: 10px;

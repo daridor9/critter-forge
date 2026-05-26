@@ -3,6 +3,8 @@ import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { BreedModal } from './BreedModal';
 import type { BreedResult } from '../data/breeding';
+import { activeStamp } from '../data/family';
+import type { MakerStamp } from '../data/family';
 
 interface SavedCreature {
   id: string;
@@ -11,6 +13,7 @@ interface SavedCreature {
   savedAt: number;
   lineageId?: string | null;
   notes?: string;
+  maker?: MakerStamp | null;
 }
 
 const KEY = 'critter-forge:album';
@@ -58,7 +61,14 @@ export function AlbumPanel({ current, currentLineageId, onLoad, onSaved }: Props
     const id = genId();
     const next: SavedCreature[] = [
       ...items,
-      { id, name: current.name || `Critter #${items.length + 1}`, creature: current, savedAt: Date.now(), lineageId: currentLineageId },
+      {
+        id,
+        name: current.name || `Critter #${items.length + 1}`,
+        creature: current,
+        savedAt: Date.now(),
+        lineageId: currentLineageId,
+        maker: activeStamp(),
+      },
     ];
     setItems(next);
     writeAlbum(next);
@@ -163,6 +173,12 @@ export function AlbumPanel({ current, currentLineageId, onLoad, onSaved }: Props
                   <CreatureSVG creature={item.creature} />
                 </button>
                 <div className="album-name" title={item.name}>{item.name}</div>
+                {item.maker && (
+                  <div className="album-maker" style={{ background: item.maker.color, borderColor: item.maker.color }}>
+                    <span className="album-maker-emoji">{item.maker.emoji}</span>
+                    <span className="album-maker-name">by {item.maker.name}</span>
+                  </div>
+                )}
                 {!breedMode && (
                   <>
                     {isEditing ? (

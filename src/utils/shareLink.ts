@@ -1,36 +1,78 @@
 import type { Creature } from '../types';
+import type { MakerStamp } from '../data/family';
 
-export function encodeCreature(c: Creature): string {
+// A share link encodes the creature plus the maker stamp of whoever
+// sent it (and, optionally, a battle challenge — Wave 2).
+export interface ShareBundle {
+  c: Creature;
+  m?: MakerStamp | null;
+}
+
+function encode(obj: unknown): string {
   try {
-    const json = JSON.stringify(c);
-    return btoa(unescape(encodeURIComponent(json)));
+    return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
   } catch {
     return '';
   }
 }
 
-export function decodeCreature(hash: string): Creature | null {
+function decode<T>(hash: string): T | null {
   try {
-    const json = decodeURIComponent(escape(atob(hash)));
-    const obj = JSON.parse(json);
-    if (typeof obj !== 'object' || !obj || !obj.bodyPlan || !Array.isArray(obj.hybrids)) return null;
-    return obj as Creature;
+    return JSON.parse(decodeURIComponent(escape(atob(hash)))) as T;
   } catch {
     return null;
   }
 }
 
-export function buildShareLink(c: Creature): string {
-  const hash = encodeCreature(c);
-  const base = window.location.origin + window.location.pathname;
-  return `${base}#c=${hash}`;
+// Back-compat: old links just encoded a Creature directly. Detect by
+// the presence of `bodyPlan` on the decoded payload.
+export function encodeCreature(c: Creature): string {
+  return encode(c);
 }
 
-export function readCreatureFromHash(): Creature | null {
+export function decodeCreature(hash: string): Creature | null {
+  const obj = decode<Record<string, unknown>>(hash);
+  if (!obj || typeof obj !== 'object') return null;
+  if (typeof (obj as { bodyPlan?: unknown }).bodyPlan === 'string') {
+    return obj as unknown as Creature;
+  }
+  return null;
+}
+
+export function buildShareLink(c: Creature, maker?: MakerStamp | null): string {
+  const bundle: ShareBundle = { c, m: maker ?? null };
+  const hash = encode(bundle);
+  const base = window.location.origin + window.location.pathname;
+  return `${base}#s=${hash}`;
+}
+
+export interface ReadShareResult {
+  creature: Creature;
+  maker: MakerStamp | null;
+}
+
+export function readShareFromHash(): ReadShareResult | null {
   const h = window.location.hash;
-  const match = h.match(/[#&]c=([^&]+)/);
-  if (!match) return null;
-  return decodeCreature(match[1]);
+  // New shape: #s=... (bundle).
+  const sMatch = h.match(/[#&]s=([^&]+)/);
+  if (sMatch) {
+    const bundle = decode<ShareBundle>(sMatch[1]);
+    if (bundle && bundle.c && typeof bundle.c.bodyPlan === 'string') {
+      return { creature: bundle.c, maker: bundle.m ?? null };
+    }
+  }
+  // Legacy shape: #c=... (creature only).
+  const cMatch = h.match(/[#&]c=([^&]+)/);
+  if (cMatch) {
+    const c = decodeCreature(cMatch[1]);
+    if (c) return { creature: c, maker: null };
+  }
+  return null;
+}
+
+// Back-compat helper for any caller still using the old name.
+export function readCreatureFromHash(): Creature | null {
+  return readShareFromHash()?.creature ?? null;
 }
 
 export function clearCreatureHash(): void {

@@ -48,7 +48,9 @@ import {
   checkGenAchievements,
   checkStatsAchievements,
 } from './data/achievements';
-import { buildShareLink, readCreatureFromHash, clearCreatureHash } from './utils/shareLink';
+import { buildShareLink, readShareFromHash, clearCreatureHash } from './utils/shareLink';
+import { activeStamp, loadRoster } from './data/family';
+import type { MakerStamp } from './data/family';
 import { sizeToMass } from './physics';
 import { sounds, isMuted, setMuted, stopAmbient } from './sounds';
 import './App.css';
@@ -65,6 +67,7 @@ const LineageModal = lazy(() => import('./components/LineageModal').then((m) => 
 const PortraitModal = lazy(() => import('./components/PortraitModal').then((m) => ({ default: m.PortraitModal })));
 const ProfileModal = lazy(() => import('./components/ProfileModal').then((m) => ({ default: m.ProfileModal })));
 const QuestsModal = lazy(() => import('./components/QuestsModal').then((m) => ({ default: m.QuestsModal })));
+const FamilyModal = lazy(() => import('./components/FamilyModal').then((m) => ({ default: m.FamilyModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
 type StageView = 'creature' | ArenaId;
@@ -176,6 +179,20 @@ export default function App() {
   const [showDex, setShowDex] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showFamily, setShowFamily] = useState(false);
+  // Bump on roster change so the header pill rerenders.
+  const [familyTick, setFamilyTick] = useState(0);
+  const activePlayer = useMemo(() => {
+    void familyTick;
+    return loadRoster().members.find((m) => m.id === loadRoster().activeId) ?? null;
+  }, [familyTick]);
+  // First-launch: prompt to add a family member if the roster is empty.
+  useEffect(() => {
+    if (loadRoster().members.length === 0) {
+      const t = setTimeout(() => setShowFamily(true), 700);
+      return () => clearTimeout(t);
+    }
+  }, []);
   const [showQuests, setShowQuests] = useState(false);
   const [showDaily, setShowDaily] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
@@ -216,21 +233,22 @@ export default function App() {
   }
 
   useEffect(() => {
-    const fromHash = readCreatureFromHash();
+    const fromHash = readShareFromHash();
     if (fromHash) {
-      setCreature(fromHash);
+      setCreature(fromHash.creature);
       clearCreatureHash();
       recordSharedImport();
-      const t: Achievement = { id: '_imp', emoji: '🌐', name: 'Imported a shared creature', description: 'It\'s saved to your album as community.' };
+      const fromWhom = fromHash.maker ? `from ${fromHash.maker.emoji} ${fromHash.maker.name}` : 'community import';
+      const t: Achievement = { id: '_imp', emoji: '🌐', name: `Shared creature imported (${fromWhom})`, description: 'Saved to your album with the sender\'s maker tag.' };
       pushToasts([t]);
-      autoSaveShared(fromHash);
+      autoSaveShared(fromHash.creature, fromHash.maker);
     }
     const first = tryUnlock('first-creature');
     if (first) pushToasts([first]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function autoSaveShared(c: Creature): void {
+  function autoSaveShared(c: Creature, maker: MakerStamp | null): void {
     try {
       const key = 'critter-forge:album';
       const items = JSON.parse(localStorage.getItem(key) || '[]');
@@ -240,6 +258,7 @@ export default function App() {
         name: `🌐 ${c.name}`,
         creature: c,
         savedAt: Date.now(),
+        maker: maker ?? null,
       });
       localStorage.setItem(key, JSON.stringify(items));
     } catch {
@@ -369,11 +388,13 @@ export default function App() {
   }
 
   async function shareLink() {
-    const url = buildShareLink(creature);
+    const maker = activeStamp();
+    const url = buildShareLink(creature, maker);
     try {
       await navigator.clipboard.writeText(url);
       sounds.save();
-      const t: Achievement = { id: '_', emoji: '🔗', name: 'Link copied to clipboard', description: 'Share with a friend!' };
+      const subtitle = maker ? `Tagged "by ${maker.name}". Share with a friend!` : 'Share with a friend!';
+      const t: Achievement = { id: '_', emoji: '🔗', name: 'Link copied to clipboard', description: subtitle };
       pushToasts([t]);
     } catch {
       window.prompt('Copy this link:', url);
@@ -479,6 +500,27 @@ export default function App() {
           <h1>🦎 Critter Forge</h1>
           <span className="sub">design a creature — real biology decides if it survives</span>
         </div>
+        {activePlayer ? (
+          <button
+            type="button"
+            className="family-pill"
+            onClick={() => setShowFamily(true)}
+            style={{ borderColor: activePlayer.color, background: activePlayer.color + '22' }}
+            title="Switch active player"
+          >
+            <span className="family-pill-emoji" style={{ background: activePlayer.color }}>{activePlayer.emoji}</span>
+            <span className="family-pill-name">{activePlayer.name}</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="family-pill family-pill-empty"
+            onClick={() => setShowFamily(true)}
+            title="Add a family member"
+          >
+            👥 + Add player
+          </button>
+        )}
         <div className="header-actions">
           <div className="header-group" role="group" aria-label="Quick actions">
             <button
@@ -551,6 +593,7 @@ export default function App() {
                 {moreItem('🎯 Quests', () => setShowQuests(true))}
                 {moreItem('📅 Daily', () => setShowDaily(true))}
                 {moreItem('👤 Profile', () => setShowProfile(true))}
+                {moreItem('👥 Family', () => setShowFamily(true))}
                 {moreItem('🏅 Achievements', () => setShowAchievements(true))}
                 <div className="more-divider" />
                 {moreItem('✏️ Suggest name', doSuggestName)}
@@ -759,6 +802,7 @@ export default function App() {
         )}
         {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
         {showProfile && <ProfileModal currentCreature={creature} onClose={() => setShowProfile(false)} />}
+        {showFamily && <FamilyModal onClose={() => setShowFamily(false)} onChange={() => setFamilyTick((n) => n + 1)} />}
         {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
         {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
         {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
