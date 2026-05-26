@@ -1757,6 +1757,8 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   horse: HorseShape,
   pig: PigShape,
   giraffe: GiraffeShape,
+  rooster: RoosterShape,
+  donkey: DonkeyShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -3025,6 +3027,313 @@ export function GiraffeShape({ colors }: { colors: ColorOverride }) {
         <path d="M 308 92 q -2 4 -4 6" />
         <path d="M 292 116 q -2 4 -4 6" />
         <path d="M 276 142 q -2 4 -4 6" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── Rooster ────────────────────────────────────────────────────────────
+// Side-view facing right. Iconic features: tall red COMB on top of the
+// head, dangling red WATTLES under the chin, bright yellow beak, long
+// curved SICKLE TAIL FEATHERS, sharp leg spur, golden hackles ringing
+// the neck.
+export function RoosterShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;       // deep red body
+  const shade = colors.shade;     // dark red shadow
+  const hackle = colors.light;    // golden hackle / saddle feathers
+  const beak = colors.cheek;      // yellow beak / legs
+  const comb = '#e03038';
+  const combDark = '#8a1a1a';
+  const tail = '#3a2a4a';         // iridescent dark-green tail
+  const tailHi = '#5a8a4a';
+  const claw = '#3a1808';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="120" ry="6" fill="rgba(0,0,0,0.18)" />
+
+      {/* LONG SICKLE TAIL FEATHERS — the rooster's headline silhouette */}
+      <g>
+        {/* dark inner tail */}
+        <path d="M 90 180 Q 30 100 20 60 Q 50 80 80 130" fill={tail} />
+        <path d="M 90 180 Q 30 110 26 78 Q 56 100 86 150" fill={tailHi} opacity="0.85" />
+        {/* curved sickle plumes */}
+        <path d="M 95 170 Q 50 130 30 80" stroke={tail} strokeWidth="6" fill="none" strokeLinecap="round" />
+        <path d="M 95 170 Q 50 130 30 80" stroke={tailHi} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.85" />
+        <path d="M 100 180 Q 60 150 40 110" stroke={tail} strokeWidth="6" fill="none" strokeLinecap="round" />
+        <path d="M 105 190 Q 70 170 50 140" stroke={tail} strokeWidth="5" fill="none" strokeLinecap="round" />
+        {/* feather barbs */}
+        <g stroke={tailHi} strokeWidth="0.7" fill="none" opacity="0.7">
+          <line x1="50" y1="130" x2="44" y2="124" />
+          <line x1="35" y1="100" x2="29" y2="94" />
+          <line x1="22" y1="80" x2="17" y2="74" />
+        </g>
+      </g>
+
+      {/* LEGS — scaly yellow, two strong claws */}
+      <g>
+        {/* far leg */}
+        <rect x="178" y="198" width="9" height="44" fill={beak} />
+        <g stroke={shade} strokeWidth="0.6" opacity="0.8" fill="none">
+          <line x1="178" y1="208" x2="187" y2="208" />
+          <line x1="178" y1="218" x2="187" y2="218" />
+          <line x1="178" y1="228" x2="187" y2="228" />
+        </g>
+        {/* foot + toes */}
+        <g stroke={claw} strokeWidth="1.5" fill={beak} strokeLinecap="round">
+          <line x1="183" y1="242" x2="173" y2="252" />
+          <line x1="183" y1="242" x2="183" y2="254" />
+          <line x1="183" y1="242" x2="193" y2="252" />
+          <line x1="183" y1="242" x2="172" y2="246" />
+        </g>
+        {/* SPUR — the defensive feature, sharp keratin on the inside */}
+        <path d="M 175 230 L 165 232 L 174 240 Z" fill={claw} stroke="#1a1208" strokeWidth="0.4" />
+
+        {/* near leg */}
+        <rect x="212" y="200" width="9" height="42" fill={beak} />
+        <g stroke={shade} strokeWidth="0.6" opacity="0.8" fill="none">
+          <line x1="212" y1="210" x2="221" y2="210" />
+          <line x1="212" y1="220" x2="221" y2="220" />
+          <line x1="212" y1="230" x2="221" y2="230" />
+        </g>
+        <g stroke={claw} strokeWidth="1.5" fill={beak} strokeLinecap="round">
+          <line x1="217" y1="242" x2="207" y2="252" />
+          <line x1="217" y1="242" x2="217" y2="254" />
+          <line x1="217" y1="242" x2="227" y2="252" />
+          <line x1="217" y1="242" x2="206" y2="246" />
+        </g>
+      </g>
+
+      {/* PLUMP ROUND BODY */}
+      <ellipse cx="190" cy="180" rx="90" ry="48" fill={shade} />
+      <ellipse cx="190" cy="174" rx="84" ry="44" fill={main} />
+      <ellipse cx="190" cy="194" rx="74" ry="22" fill={hackle} opacity="0.5" />
+
+      {/* WING — folded against the side, with feather hatch lines */}
+      <path d="M 130 158
+               Q 170 152 220 168
+               Q 220 192 180 198
+               Q 140 192 128 178 Z"
+        fill={shade} />
+      <path d="M 136 162
+               Q 170 156 214 170
+               Q 214 188 180 192
+               Q 144 188 134 178 Z"
+        fill={main} />
+      <g stroke={shade} strokeWidth="0.8" fill="none" opacity="0.7" strokeLinecap="round">
+        <path d="M 140 168 Q 170 162 208 174" />
+        <path d="M 140 178 Q 170 174 210 184" />
+        <path d="M 144 188 Q 170 186 200 190" />
+      </g>
+      {/* primary flight feathers along the wing edge */}
+      <g fill={tail} opacity="0.85">
+        <path d="M 198 184 Q 210 188 220 196 L 214 194 Z" />
+        <path d="M 184 188 Q 198 192 210 200 L 200 198 Z" />
+      </g>
+
+      {/* NECK — arching up to the head, with GOLDEN HACKLES */}
+      <path d="M 252 158
+               Q 268 130 290 110
+               Q 312 110 318 130
+               L 308 154
+               Q 286 162 268 168 Z"
+        fill={shade} />
+      <path d="M 256 160
+               Q 270 134 290 114
+               Q 308 114 314 132
+               L 304 150
+               Q 286 158 270 166 Z"
+        fill={main} />
+      {/* golden hackle feathers — small overlapping pointed scales */}
+      <g fill={hackle} stroke={shade} strokeWidth="0.4">
+        {[
+          [270, 132], [280, 124], [290, 118], [300, 122], [308, 130],
+          [266, 144], [276, 138], [286, 132], [296, 134], [306, 142],
+          [262, 156], [272, 150], [282, 146], [294, 148], [304, 154],
+        ].map(([cx, cy], i) => (
+          <path key={i} d={`M ${cx} ${cy} L ${cx + 3} ${cy + 5} L ${cx - 3} ${cy + 5} Z`} />
+        ))}
+      </g>
+
+      {/* HEAD */}
+      <ellipse cx="310" cy="106" rx="22" ry="18" fill={shade} />
+      <ellipse cx="310" cy="104" rx="19" ry="15" fill={main} />
+      <ellipse cx="306" cy="100" rx="9" ry="6" fill={hackle} opacity="0.45" />
+
+      {/* COMB — the iconic red zigzag crest on top of the head */}
+      <g>
+        <path d="M 296 90 Q 300 76 308 80 Q 312 74 318 80 Q 322 72 326 80 L 326 92 Q 312 96 296 92 Z"
+          fill={comb} />
+        <path d="M 298 88 Q 302 78 308 82 Q 312 76 318 82 Q 322 76 324 82" stroke={combDark} strokeWidth="1" fill="none" />
+        {/* highlight */}
+        <ellipse cx="312" cy="84" rx="6" ry="2" fill="#f06868" opacity="0.7" />
+      </g>
+
+      {/* WATTLES — twin red hanging flaps under the chin */}
+      <g fill={comb}>
+        <ellipse cx="312" cy="124" rx="5" ry="8" />
+        <ellipse cx="320" cy="126" rx="4.5" ry="7" />
+      </g>
+      <g fill={combDark} opacity="0.5">
+        <ellipse cx="312" cy="128" rx="3" ry="3" />
+      </g>
+
+      {/* BEAK — bright orange/yellow, hooked */}
+      <path d="M 330 102
+               L 346 104
+               L 330 110 Z"
+        fill={beak} stroke="#a8780a" strokeWidth="0.6" />
+      <path d="M 330 110 L 344 110 L 330 114 Z" fill={beak} stroke="#a8780a" strokeWidth="0.5" />
+
+      {/* EYE — alert and round */}
+      <g className="eye-blink" style={{ transformOrigin: '318px 102px' }}>
+        <circle cx="318" cy="102" r="4" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="319" cy="102" r="2.4" fill="#8a4818" />
+        <circle cx="320" cy="100" r="1" fill="#1a1208" />
+        <circle cx="321" cy="99" r="0.5" fill="white" />
+      </g>
+
+      {/* ear-hole patch */}
+      <ellipse cx="306" cy="110" rx="3" ry="2" fill={hackle} opacity="0.7" />
+    </svg>
+  );
+}
+
+// ─── Donkey ─────────────────────────────────────────────────────────────
+// Side-view facing right. Compact mammal with VERY LONG EARS (the donkey
+// signature), upright stiff mane (not flowing like a horse), the iconic
+// dark "donkey cross" stripe along the spine and across the shoulders,
+// white muzzle ring, and a tail with hair only at the tuft end.
+export function DonkeyShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;        // body grey
+  const shade = colors.shade;      // dark grey
+  const light = colors.light;      // pale belly
+  const muzzle = colors.cheek;     // white muzzle / eye ring
+  const cross = colors.pattern ?? '#3a342a';  // donkey-cross stripe
+  const hoof = '#1a1208';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="146" ry="7" fill="rgba(0,0,0,0.18)" />
+
+      {/* TAIL — thin, with hair only at the tuft (distinct from horse) */}
+      <line x1="80" y1="180" x2="58" y2="218" stroke={shade} strokeWidth="6" strokeLinecap="round" />
+      <line x1="80" y1="180" x2="58" y2="218" stroke={main} strokeWidth="3" strokeLinecap="round" />
+      <ellipse cx="56" cy="228" rx="8" ry="12" fill={cross} />
+      <g stroke={cross} strokeWidth="0.6" opacity="0.85">
+        <line x1="52" y1="236" x2="48" y2="246" />
+        <line x1="56" y1="240" x2="56" y2="252" />
+        <line x1="60" y1="236" x2="64" y2="248" />
+      </g>
+
+      {/* LEGS — slimmer than horse */}
+      {[110, 142, 232, 264].map((x, i) => (
+        <g key={x}>
+          <rect x={x - 6} y="190" width="12" height="68" rx="3" fill={i % 2 === 0 ? shade : main} />
+          {/* lower leg darker — donkeys often have darker stockings */}
+          <rect x={x - 6} y="232" width="12" height="20" fill={cross} opacity="0.55" />
+          {/* hoof */}
+          <rect x={x - 7} y="252" width="14" height="10" rx="2" fill={hoof} />
+        </g>
+      ))}
+
+      {/* SLEEK BODY */}
+      <ellipse cx="180" cy="172" rx="105" ry="40" fill={shade} />
+      <ellipse cx="180" cy="168" rx="100" ry="36" fill={main} />
+      {/* pale belly */}
+      <ellipse cx="180" cy="190" rx="92" ry="18" fill={light} opacity="0.85" />
+
+      {/* THE DONKEY CROSS — dark stripe along the spine plus a
+          perpendicular stripe across the shoulders. Real donkeys
+          have this; mythology says it appeared after Jesus rode one. */}
+      {/* spine stripe */}
+      <path d="M 80 170 Q 180 138 282 158" stroke={cross} strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.85" />
+      {/* shoulder cross-stripe */}
+      <path d="M 220 148 L 220 200" stroke={cross} strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.85" />
+
+      {/* SHOULDER BULGE */}
+      <ellipse cx="222" cy="148" rx="22" ry="18" fill={shade} />
+      <ellipse cx="222" cy="146" rx="18" ry="14" fill={main} />
+
+      {/* UPRIGHT STIFF MANE — short and bristly, runs along the top
+          of the neck. Donkeys do NOT have flowing horse manes. */}
+      <g fill={cross}>
+        <polygon points="232 138 234 122 236 138" />
+        <polygon points="244 134 246 116 248 134" />
+        <polygon points="256 130 258 112 260 130" />
+        <polygon points="268 126 270 108 272 126" />
+        <polygon points="280 124 282 106 284 124" />
+        <polygon points="290 124 292 108 294 124" />
+      </g>
+      {/* base of mane along spine */}
+      <path d="M 226 138 Q 260 124 296 124" stroke={cross} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+      {/* MUSCULAR NECK arching up */}
+      <path d="M 232 158
+               Q 246 124 286 116
+               Q 308 116 318 132
+               L 314 156
+               Q 286 154 264 162
+               Q 244 160 232 158 Z"
+        fill={shade} />
+      <path d="M 236 160
+               Q 248 128 286 120
+               Q 304 120 314 134
+               L 310 152
+               Q 286 152 266 158
+               Q 248 158 236 160 Z"
+        fill={main} />
+
+      {/* HEAD — short rounded */}
+      <path d="M 298 116
+               Q 332 116 348 134
+               Q 354 152 344 168
+               Q 328 174 312 170
+               Q 296 158 298 116 Z"
+        fill={shade} />
+      <path d="M 302 120
+               Q 330 120 344 136
+               Q 348 150 340 164
+               Q 326 170 312 166
+               Q 300 154 302 120 Z"
+        fill={main} />
+
+      {/* WHITE MUZZLE RING — donkeys have a distinct pale ring around
+          the mouth and nose. */}
+      <ellipse cx="340" cy="156" rx="16" ry="13" fill={muzzle} opacity="0.85" />
+      <ellipse cx="338" cy="154" rx="13" ry="10" fill="#fff" opacity="0.6" />
+      {/* nostril */}
+      <ellipse cx="346" cy="154" rx="2.5" ry="3" fill="#5a3828" />
+      {/* mouth */}
+      <path d="M 338 162 Q 344 168 350 164" stroke="#3a1a08" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* VERY LONG EARS — the donkey signature, MUCH taller than a
+          horse's. Drawn as tall pointed paddles. */}
+      <ellipse cx="304" cy="78" rx="6.5" ry="32" fill={shade} transform="rotate(-18 304 78)" />
+      <ellipse cx="304" cy="80" rx="3.5" ry="26" fill="#e8b8a8" transform="rotate(-18 304 80)" opacity="0.85" />
+      <ellipse cx="324" cy="76" rx="6.5" ry="34" fill={shade} transform="rotate(8 324 76)" />
+      <ellipse cx="324" cy="78" rx="3.5" ry="28" fill="#e8b8a8" transform="rotate(8 324 78)" opacity="0.85" />
+      {/* darker ear tips */}
+      <ellipse cx="294" cy="48" rx="3" ry="6" fill={cross} transform="rotate(-18 294 48)" />
+      <ellipse cx="328" cy="44" rx="3" ry="6" fill={cross} transform="rotate(8 328 44)" />
+
+      {/* EYE with white ring */}
+      <ellipse cx="324" cy="140" rx="8" ry="6" fill={muzzle} opacity="0.7" />
+      <g className="eye-blink" style={{ transformOrigin: '324px 140px' }}>
+        <ellipse cx="324" cy="140" rx="5" ry="4" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="324" cy="140" rx="3.5" ry="3.5" fill="#3a2a14" />
+        <circle cx="325" cy="138" r="1.2" fill="white" />
+        {/* eyelash */}
+        <line x1="320" y1="136" x2="318" y2="133" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
+        <line x1="323" y1="135" x2="322" y2="132" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
       </g>
     </svg>
   );

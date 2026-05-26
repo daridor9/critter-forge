@@ -8,7 +8,8 @@ export type DexShape =
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
-  | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow' | 'horse' | 'pig' | 'giraffe';
+  | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow' | 'horse' | 'pig' | 'giraffe'
+  | 'rooster' | 'donkey';
 
 export interface DexAnimal {
   name: string;
@@ -59,6 +60,8 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Horse':           { main: '#a06438', shade: '#6a3818', light: '#c48868', cheek: '#d8aa90', pattern: '#3a1a08' },
   'Pig':             { main: '#f5b8a8', shade: '#c48070', light: '#ffd0c0', cheek: '#f08090' },
   'Giraffe':         { main: '#d8a868', shade: '#a87838', light: '#f0d8b0', cheek: '#e8c8a8', pattern: '#6a4828' },
+  'Rooster':         { main: '#c84030', shade: '#8a2818', light: '#f0a060', cheek: '#f8d050', pattern: '#1a1a1a' },
+  'Donkey':          { main: '#9a948a', shade: '#5a544a', light: '#cec8be', cheek: '#e8e0d4', pattern: '#3a342a' },
 };
 
 const make = (
@@ -196,6 +199,12 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Giraffe', '🦒', 1200, 'mammal', true, 2, 1, 1, 2, [],
     'Tallest land animal — 5-6 m. Still only 7 neck vertebrae like every mammal, but each one is huge. Heart weighs 11 kg and pumps at 280 mm Hg — needed to push blood up 2 m to the brain. Tongue is dark blue-purple, 50 cm long, prehensile.', 'giraffe',
     ['7 giant neck vertebrae', '11 kg heart', '50 cm prehensile tongue']),
+  make('Rooster', '🐓', 3, 'bird', true, 1, 0, 1, 2, [],
+    'Domesticated jungle fowl. Sharp leg SPURS for fighting — males duel for hens. Tall red comb + dangling wattles regulate body temperature (the bigger and redder, the healthier). Crows at dawn at ~90 dB.', 'rooster',
+    ['leg spurs', 'crowing call', 'temperature-regulating comb']),
+  make('Donkey', '🐴', 250, 'mammal', true, 1, 2, 1, 2, [],
+    'Smarter than horses and famously stubborn — a "stubborn" donkey is one that has assessed the situation and decided NO. Long ears regulate heat and pick up sound 60 km away. The dark "donkey cross" on the back is real anatomy. Carries up to 30% of body weight all day.', 'donkey',
+    ['enormous heat-radiating ears', 'donkey-cross stripe', 'big-brain stubbornness']),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {
