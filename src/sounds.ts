@@ -1,10 +1,10 @@
 const MUTE_KEY = 'critter-forge:muted';
 
 let ctx: AudioContext | null = null;
-let muted = false;
+let muted = true;
 
 try {
-  muted = localStorage.getItem(MUTE_KEY) === '1';
+  muted = localStorage.getItem(MUTE_KEY) !== '0';
 } catch {
   /* ignore */
 }

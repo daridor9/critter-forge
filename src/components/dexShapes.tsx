@@ -1752,6 +1752,7 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   tiger: TigerShape,
   trex: TRexShape,
   jellyfish: JellyfishShape,
+  sheep: SheepShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -2225,6 +2226,148 @@ export function FoxkitShape({ colors }: { colors: ColorOverride }) {
         <path d="M 260 134 q 18 13 26 29" />
         <path d="M 71 249 q 12 7 30 2" />
         <path d="M 111 265 q 18 8 34 -2" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── Sheep (ram) ────────────────────────────────────────────────────────
+// Cloud-shaped fluffy fleece, dark face + legs, big curled ram horns.
+export function SheepShape({ colors }: { colors: ColorOverride }) {
+  const wool = colors.main;
+  const woolShade = colors.shade;
+  const woolHi = colors.light;
+  const face = '#3a2a1e';
+  const faceLite = '#5a4a36';
+  const horn = '#c8a070';
+  const hornDark = '#8a6238';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="195" cy="265" rx="120" ry="6" fill="rgba(0,0,0,0.18)" />
+
+      {/* legs — slim and dark */}
+      <rect x="128" y="194" width="10" height="64" rx="3" fill={face} />
+      <rect x="158" y="194" width="10" height="64" rx="3" fill={faceLite} />
+      <rect x="226" y="194" width="10" height="64" rx="3" fill={face} />
+      <rect x="256" y="194" width="10" height="64" rx="3" fill={faceLite} />
+      {/* hooves */}
+      <ellipse cx="133" cy="260" rx="7" ry="3" fill="#1a1208" />
+      <ellipse cx="163" cy="260" rx="7" ry="3" fill="#1a1208" />
+      <ellipse cx="231" cy="260" rx="7" ry="3" fill="#1a1208" />
+      <ellipse cx="261" cy="260" rx="7" ry="3" fill="#1a1208" />
+
+      {/* FLEECE BODY — many overlapping bumps for a cloud-of-wool silhouette */}
+      <g fill={woolShade}>
+        <circle cx="115" cy="180" r="32" />
+        <circle cx="150" cy="160" r="36" />
+        <circle cx="190" cy="155" r="38" />
+        <circle cx="230" cy="160" r="36" />
+        <circle cx="265" cy="180" r="32" />
+        <circle cx="130" cy="200" r="28" />
+        <circle cx="170" cy="205" r="30" />
+        <circle cx="210" cy="205" r="30" />
+        <circle cx="250" cy="200" r="28" />
+      </g>
+      <g fill={wool}>
+        <circle cx="118" cy="177" r="28" />
+        <circle cx="150" cy="157" r="32" />
+        <circle cx="190" cy="152" r="34" />
+        <circle cx="230" cy="157" r="32" />
+        <circle cx="262" cy="177" r="28" />
+        <circle cx="130" cy="197" r="24" />
+        <circle cx="170" cy="202" r="26" />
+        <circle cx="210" cy="202" r="26" />
+        <circle cx="250" cy="197" r="24" />
+      </g>
+      {/* highlights on top */}
+      <g fill={woolHi} opacity="0.7">
+        <circle cx="148" cy="145" r="14" />
+        <circle cx="188" cy="138" r="16" />
+        <circle cx="228" cy="145" r="14" />
+        <circle cx="116" cy="168" r="10" />
+        <circle cx="262" cy="168" r="10" />
+      </g>
+      {/* little curls — small swirls suggesting fleece texture */}
+      <g stroke={woolShade} strokeWidth="1.2" fill="none" opacity="0.65" strokeLinecap="round">
+        {[
+          [135, 188, 6], [165, 175, 7], [200, 170, 7], [235, 175, 7], [255, 188, 6],
+          [148, 210, 5], [185, 215, 5], [218, 215, 5], [245, 210, 5],
+        ].map(([cx, cy, r], i) => (
+          <path key={i} d={`M ${cx - r} ${cy} a ${r} ${r} 0 1 1 ${r * 2} 0 a ${r * 0.55} ${r * 0.55} 0 1 0 ${-r * 1.1} 0`} />
+        ))}
+      </g>
+
+      {/* tail tuft */}
+      <circle cx="92" cy="172" r="14" fill={woolShade} />
+      <circle cx="92" cy="170" r="11" fill={wool} />
+
+      {/* HEAD — dark face poking out to the right */}
+      <ellipse cx="310" cy="178" rx="32" ry="36" fill={face} />
+      <ellipse cx="310" cy="183" rx="26" ry="30" fill={faceLite} opacity="0.55" />
+      {/* dark muzzle */}
+      <ellipse cx="328" cy="195" rx="14" ry="10" fill={face} />
+      {/* nose */}
+      <ellipse cx="338" cy="195" rx="4" ry="3" fill="#1a1208" />
+      {/* mouth */}
+      <path d="M 338 200 Q 332 206 326 202" stroke="#1a1208" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* ears (small floppy) */}
+      <ellipse cx="290" cy="148" rx="11" ry="6" fill={face} transform="rotate(-22 290 148)" />
+      <ellipse cx="290" cy="148" rx="6" ry="3" fill="#a06a76" transform="rotate(-22 290 148)" opacity="0.85" />
+
+      {/* CURLED RAM HORNS — the headline feature.
+          Spiral path on each side using arcs. */}
+      <g fill="none" stroke={hornDark} strokeWidth="11" strokeLinecap="round">
+        {/* left horn — sweeps back, curls under and forward */}
+        <path d="M 296 152
+                 Q 270 130 252 152
+                 Q 240 178 268 188
+                 Q 290 192 296 178" />
+        {/* right horn — mirrors */}
+        <path d="M 324 152
+                 Q 350 130 364 156
+                 Q 372 184 346 192
+                 Q 322 192 320 178" />
+      </g>
+      <g fill="none" stroke={horn} strokeWidth="7" strokeLinecap="round">
+        <path d="M 296 152
+                 Q 270 130 252 152
+                 Q 240 178 268 188
+                 Q 290 192 296 178" />
+        <path d="M 324 152
+                 Q 350 130 364 156
+                 Q 372 184 346 192
+                 Q 322 192 320 178" />
+      </g>
+      {/* horn ridges — short cross-strokes give the spiral keratin look */}
+      <g stroke={hornDark} strokeWidth="1.3" fill="none" opacity="0.85" strokeLinecap="round">
+        <path d="M 290 148 q -4 6 0 12" />
+        <path d="M 275 138 q -4 6 0 12" />
+        <path d="M 258 148 q -4 6 0 12" />
+        <path d="M 253 168 q -4 6 0 12" />
+        <path d="M 264 182 q -4 6 0 12" />
+        <path d="M 330 148 q 4 6 0 12" />
+        <path d="M 345 138 q 4 6 0 12" />
+        <path d="M 362 152 q 4 6 0 12" />
+        <path d="M 368 172 q 4 6 0 12" />
+        <path d="M 355 188 q 4 6 0 12" />
+      </g>
+
+      {/* eyes — sheep have horizontal slit pupils */}
+      <g className="eye-blink" style={{ transformOrigin: '298px 178px' }}>
+        <ellipse cx="298" cy="178" rx="5" ry="4" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="298" cy="178" rx="3.5" ry="2" fill="#7a5028" />
+        <rect x="296" y="177" width="4" height="1.5" fill="#1a1208" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '318px 178px' }}>
+        <ellipse cx="318" cy="178" rx="5" ry="4" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="318" cy="178" rx="3.5" ry="2" fill="#7a5028" />
+        <rect x="316" y="177" width="4" height="1.5" fill="#1a1208" />
       </g>
     </svg>
   );

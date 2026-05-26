@@ -49,7 +49,7 @@ import {
 } from './data/achievements';
 import { buildShareLink, readCreatureFromHash, clearCreatureHash } from './utils/shareLink';
 import { sizeToMass } from './physics';
-import { sounds, isMuted, setMuted, startAmbient } from './sounds';
+import { sounds, isMuted, setMuted, stopAmbient } from './sounds';
 import './App.css';
 
 const AboutModal = lazy(() => import('./components/AboutModal').then((m) => ({ default: m.AboutModal })));
@@ -190,14 +190,8 @@ export default function App() {
   }, [creature]);
 
   useEffect(() => {
-    const habitat =
-      creature.bodyPlan === 'mammal' ? 'meadow' :
-      creature.bodyPlan === 'reptile' ? 'rocky' :
-      creature.bodyPlan === 'bird' ? 'sky' : 'underwater';
-    if (!muted) startAmbient(habitat);
-    return () => { /* don't stop on every re-render */ };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creature.bodyPlan, muted]);
+    stopAmbient();
+  }, []);
 
   useEffect(() => {
     const got = checkGenAchievements(generation);

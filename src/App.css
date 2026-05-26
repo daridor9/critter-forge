@@ -4560,7 +4560,6 @@ header::before {
   border-color: var(--accent2-deep);
   box-shadow: 0 3px 12px rgba(46, 143, 163, 0.28);
 }
-
 main {
   grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
   gap: 18px;

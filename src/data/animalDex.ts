@@ -8,7 +8,7 @@ export type DexShape =
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
-  | 'tiger' | 'trex' | 'jellyfish';
+  | 'tiger' | 'trex' | 'jellyfish' | 'sheep';
 
 export interface DexAnimal {
   name: string;
@@ -54,6 +54,7 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Tiger':           { main: '#e08838', shade: '#a85820', light: '#f0a868', cheek: '#f0b890', pattern: '#1a1a1a' },
   'T-Rex':           { main: '#6a6850', shade: '#3a3828', light: '#8e8a70', cheek: '#9e9080' },
   'Jellyfish':       { main: '#9ec4e0', shade: '#5a8ab0', light: '#cee0ef', cheek: '#e8b8d0' },
+  'Sheep':           { main: '#f4eedc', shade: '#c4b896', light: '#fff8e8', cheek: '#e8c8c8' },
 };
 
 const make = (
@@ -176,6 +177,9 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Jellyfish', '🪼', 1, 'fish', false, 0, 0, 0, 0, ['venom'],
     'Older than dinosaurs by 400 million years. 95% water, no brain, no heart, no bones. Stinging cells fire in milliseconds.', 'jellyfish',
     ['stinging cells', 'nerve net', 'gelatinous body']),
+  make('Sheep', '🐏', 80, 'mammal', true, 1, 1, 1, 1, ['thick-fur'],
+    'Domesticated ~10,000 years ago. Ram horns curl backward in a spiral — keratin that keeps growing, can reach 50 cm. Wool fleece insulates against -20°C. Horizontal-slit pupils give nearly 360° vision.', 'sheep',
+    ['curled keratin horns', 'wool fleece', 'horizontal-slit pupils']),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {
