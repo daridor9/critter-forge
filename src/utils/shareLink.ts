@@ -1,11 +1,14 @@
 import type { Creature } from '../types';
 import type { MakerStamp } from '../data/family';
+import type { Venue } from '../data/battle';
 
 // A share link encodes the creature plus the maker stamp of whoever
-// sent it (and, optionally, a battle challenge — Wave 2).
+// sent it. Optionally a "challenge" can be attached — a pre-set battle
+// venue that opens the BattleModal directly when the recipient lands.
 export interface ShareBundle {
   c: Creature;
   m?: MakerStamp | null;
+  ch?: { v: Venue };
 }
 
 function encode(obj: unknown): string {
@@ -39,8 +42,9 @@ export function decodeCreature(hash: string): Creature | null {
   return null;
 }
 
-export function buildShareLink(c: Creature, maker?: MakerStamp | null): string {
+export function buildShareLink(c: Creature, maker?: MakerStamp | null, challengeVenue?: Venue): string {
   const bundle: ShareBundle = { c, m: maker ?? null };
+  if (challengeVenue) bundle.ch = { v: challengeVenue };
   const hash = encode(bundle);
   const base = window.location.origin + window.location.pathname;
   return `${base}#s=${hash}`;
@@ -49,6 +53,7 @@ export function buildShareLink(c: Creature, maker?: MakerStamp | null): string {
 export interface ReadShareResult {
   creature: Creature;
   maker: MakerStamp | null;
+  challengeVenue: Venue | null;
 }
 
 export function readShareFromHash(): ReadShareResult | null {
@@ -58,14 +63,18 @@ export function readShareFromHash(): ReadShareResult | null {
   if (sMatch) {
     const bundle = decode<ShareBundle>(sMatch[1]);
     if (bundle && bundle.c && typeof bundle.c.bodyPlan === 'string') {
-      return { creature: bundle.c, maker: bundle.m ?? null };
+      return {
+        creature: bundle.c,
+        maker: bundle.m ?? null,
+        challengeVenue: bundle.ch?.v ?? null,
+      };
     }
   }
   // Legacy shape: #c=... (creature only).
   const cMatch = h.match(/[#&]c=([^&]+)/);
   if (cMatch) {
     const c = decodeCreature(cMatch[1]);
-    if (c) return { creature: c, maker: null };
+    if (c) return { creature: c, maker: null, challengeVenue: null };
   }
   return null;
 }

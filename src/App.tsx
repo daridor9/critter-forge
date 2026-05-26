@@ -51,6 +51,7 @@ import {
 import { buildShareLink, readShareFromHash, clearCreatureHash } from './utils/shareLink';
 import { activeStamp, loadRoster } from './data/family';
 import type { MakerStamp } from './data/family';
+import type { Venue } from './data/battle';
 import { sizeToMass } from './physics';
 import { sounds, isMuted, setMuted, stopAmbient } from './sounds';
 import './App.css';
@@ -68,6 +69,7 @@ const PortraitModal = lazy(() => import('./components/PortraitModal').then((m) =
 const ProfileModal = lazy(() => import('./components/ProfileModal').then((m) => ({ default: m.ProfileModal })));
 const QuestsModal = lazy(() => import('./components/QuestsModal').then((m) => ({ default: m.QuestsModal })));
 const FamilyModal = lazy(() => import('./components/FamilyModal').then((m) => ({ default: m.FamilyModal })));
+const ShareModal = lazy(() => import('./components/ShareModal').then((m) => ({ default: m.ShareModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
 type StageView = 'creature' | ArenaId;
@@ -180,6 +182,11 @@ export default function App() {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showFamily, setShowFamily] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  // Incoming challenge: when a share link arrives with a pre-set venue,
+  // remember the opponent creature so we can offer to start the battle
+  // right after the import toast.
+  const [incomingChallenge, setIncomingChallenge] = useState<{ opponent: Creature; venue: Venue; from: MakerStamp | null } | null>(null);
   // Bump on roster change so the header pill rerenders.
   const [familyTick, setFamilyTick] = useState(0);
   const activePlayer = useMemo(() => {
@@ -235,13 +242,33 @@ export default function App() {
   useEffect(() => {
     const fromHash = readShareFromHash();
     if (fromHash) {
-      setCreature(fromHash.creature);
       clearCreatureHash();
       recordSharedImport();
-      const fromWhom = fromHash.maker ? `from ${fromHash.maker.emoji} ${fromHash.maker.name}` : 'community import';
-      const t: Achievement = { id: '_imp', emoji: '🌐', name: `Shared creature imported (${fromWhom})`, description: 'Saved to your album with the sender\'s maker tag.' };
-      pushToasts([t]);
       autoSaveShared(fromHash.creature, fromHash.maker);
+      const fromWhom = fromHash.maker ? `from ${fromHash.maker.emoji} ${fromHash.maker.name}` : 'community import';
+      if (fromHash.challengeVenue) {
+        // Battle challenge — keep the player's current creature as the
+        // home fighter, store the visitor as the opponent. We don't
+        // overwrite the local creature so the player can pick which of
+        // their own builds to send into the fight.
+        setIncomingChallenge({
+          opponent: fromHash.creature,
+          venue: fromHash.challengeVenue,
+          from: fromHash.maker,
+        });
+        const t: Achievement = {
+          id: '_chal',
+          emoji: '⚔️',
+          name: `Battle challenge ${fromWhom}!`,
+          description: `${fromHash.creature.name} wants to fight in ${fromHash.challengeVenue}. Saved to album — accept below.`,
+        };
+        pushToasts([t]);
+      } else {
+        // Regular import — adopt the creature as the active one.
+        setCreature(fromHash.creature);
+        const t: Achievement = { id: '_imp', emoji: '🌐', name: `Shared creature imported (${fromWhom})`, description: 'Saved to your album with the sender\'s maker tag.' };
+        pushToasts([t]);
+      }
     }
     const first = tryUnlock('first-creature');
     if (first) pushToasts([first]);
@@ -387,7 +414,10 @@ export default function App() {
     if (a) pushToasts([a]);
   }
 
-  async function shareLink() {
+  // Legacy quick-copy share — superseded by ShareModal, kept around as
+  // a fallback callable from console / future contexts. Underscore-
+  // prefixed to satisfy the unused-binding lint.
+  async function _shareLink() {
     const maker = activeStamp();
     const url = buildShareLink(creature, maker);
     try {
@@ -400,6 +430,7 @@ export default function App() {
       window.prompt('Copy this link:', url);
     }
   }
+  void _shareLink;
 
   function continueTournament() {
     if (!tournament) return;
@@ -571,8 +602,8 @@ export default function App() {
           <button
             className="header-btn"
             type="button"
-            onClick={shareLink}
-            title="Copy a shareable link to your creature"
+            onClick={() => { setShowShare(true); sounds.click(); }}
+            title="Share creature (QR code + challenge mode)"
           >🔗 Share</button>
           <div className="header-more-wrap" ref={moreRef}>
             <button
@@ -803,6 +834,13 @@ export default function App() {
         {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
         {showProfile && <ProfileModal currentCreature={creature} onClose={() => setShowProfile(false)} />}
         {showFamily && <FamilyModal onClose={() => setShowFamily(false)} onChange={() => setFamilyTick((n) => n + 1)} />}
+        {showShare && (
+          <ShareModal
+            creature={creature}
+            maker={activeStamp()}
+            onClose={() => setShowShare(false)}
+          />
+        )}
         {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
         {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
         {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}
@@ -817,6 +855,39 @@ export default function App() {
           {toasts.map((a, i) => (
             <AchievementToast key={`${a.id}-${i}`} name={a.name} emoji={a.emoji} />
           ))}
+        </div>
+      )}
+
+      {incomingChallenge && (
+        <div className="challenge-banner">
+          <div className="challenge-banner-emoji">⚔️</div>
+          <div className="challenge-banner-text">
+            <strong>
+              {incomingChallenge.from ? `${incomingChallenge.from.emoji} ${incomingChallenge.from.name}` : 'Someone'}
+              {' '}challenges you!
+            </strong>
+            <div>
+              <em>{incomingChallenge.opponent.name}</em> wants to fight in <strong>{incomingChallenge.venue}</strong>.
+              {' '}Pick your fighter and open ⚔️ Battle.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setShowBattle(true);
+              setIncomingChallenge(null);
+            }}
+          >
+            ⚔️ Accept
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setIncomingChallenge(null)}
+          >
+            Dismiss
+          </button>
         </div>
       )}
     </div>

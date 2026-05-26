@@ -3575,6 +3575,142 @@ h2 {
   text-shadow: 0 1px 1px rgba(0,0,0,0.3);
   vertical-align: middle;
 }
+
+/* ─── Share modal ────────────────────────────────────────────────────── */
+.share-modal { max-width: 640px; }
+.share-creature-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 14px;
+  border-bottom: 1px solid var(--line);
+}
+.share-thumb {
+  width: 110px; height: 90px;
+  background: #f4eed8;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.share-meta { flex: 1; }
+.share-name { margin: 0 0 6px; font-size: 18px; }
+.share-maker {
+  font-size: 11px;
+  display: inline-flex !important;
+}
+.share-no-maker {
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin: 0;
+  font-style: italic;
+}
+.share-challenge-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  background: linear-gradient(135deg, #fff4cf, #ffe9a0);
+  border: 1px solid #d4a040;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  color: #5a4828;
+}
+.share-challenge-toggle input { margin: 0; }
+.share-venue-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.share-venue-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg-dim);
+}
+.share-payload {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.share-qr {
+  text-align: center;
+}
+.share-qr-svg {
+  width: 200px; height: 200px;
+  margin: 0 auto;
+  background: white;
+  padding: 4px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.share-qr-svg svg {
+  width: 100%; height: 100%;
+}
+.share-qr-fail {
+  font-size: 12px;
+  color: #b04040;
+  background: rgba(214, 90, 90, 0.1);
+  padding: 12px;
+  border-radius: 6px;
+}
+.share-qr-help {
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin: 6px 0 0;
+}
+.share-url-block { display: flex; flex-direction: column; gap: 8px; }
+.share-url {
+  width: 100%;
+  height: 80px;
+  padding: 6px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fbf8f1;
+  resize: none;
+}
+.share-url-help {
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin: 0;
+}
+
+/* ─── Challenge accept banner ────────────────────────────────────────── */
+.challenge-banner {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #fff4cf, #ffe9a0);
+  border: 2px solid #d4a040;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  z-index: 2500;
+  max-width: 92vw;
+}
+.challenge-banner-emoji {
+  font-size: 30px;
+  animation: bob-breathe 1.2s ease-in-out infinite;
+}
+.challenge-banner-text { flex: 1; font-size: 13px; color: #5a4828; }
+.challenge-banner-text strong { color: #8a3030; }
+
+@media (max-width: 640px) {
+  .share-payload { grid-template-columns: 1fr; }
+  .share-qr-svg { width: 180px; height: 180px; }
+}
 .profile-prey {
   display: flex;
   gap: 10px;

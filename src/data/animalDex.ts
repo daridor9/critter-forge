@@ -9,7 +9,7 @@ export type DexShape =
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
   | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow' | 'horse' | 'pig' | 'giraffe'
-  | 'rooster' | 'donkey';
+  | 'rooster' | 'donkey' | 'rhino';
 
 export interface DexAnimal {
   name: string;
@@ -62,6 +62,7 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Giraffe':         { main: '#d8a868', shade: '#a87838', light: '#f0d8b0', cheek: '#e8c8a8', pattern: '#6a4828' },
   'Rooster':         { main: '#c84030', shade: '#8a2818', light: '#f0a060', cheek: '#f8d050', pattern: '#1a1a1a' },
   'Donkey':          { main: '#9a948a', shade: '#5a544a', light: '#cec8be', cheek: '#e8e0d4', pattern: '#3a342a' },
+  'Rhino':           { main: '#9a8e80', shade: '#6a5e50', light: '#bcb0a2', cheek: '#c4a890', pattern: '#3a342a' },
 };
 
 const make = (
@@ -205,6 +206,9 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Donkey', '🐴', 250, 'mammal', true, 1, 2, 1, 2, [],
     'Smarter than horses and famously stubborn — a "stubborn" donkey is one that has assessed the situation and decided NO. Long ears regulate heat and pick up sound 60 km away. The dark "donkey cross" on the back is real anatomy. Carries up to 30% of body weight all day.', 'donkey',
     ['enormous heat-radiating ears', 'donkey-cross stripe', 'big-brain stubbornness']),
+  make('Rhino', '🦏', 2300, 'mammal', true, 1, 1, 2, 1, [],
+    '2nd-biggest land animal after the elephant. The front horn is keratin (same as fingernails), no bone — and grows up to 1.5 m. Skin armor folds 2 cm thick. Charges at 50 km/h despite the bulk. Sees poorly but smells in 360°.', 'rhino',
+    ['keratin horn', '2 cm armor skin', 'square mouth for grazing']),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {

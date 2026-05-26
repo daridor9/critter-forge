@@ -1,7 +1,10 @@
 import type { Creature } from '../types';
 import type { CreatureStats } from '../physics';
+import type { MakerStamp } from '../data/family';
+import { activeStamp } from '../data/family';
+import { getCreaturePoints } from '../data/points';
 
-export async function exportCreatureCard(creature: Creature, stats: CreatureStats): Promise<void> {
+export async function exportCreatureCard(creature: Creature, stats: CreatureStats, makerOverride?: MakerStamp | null): Promise<void> {
   const svgEl = document.querySelector('.creature-stage-habitat svg') as SVGElement | null;
   if (!svgEl) {
     alert('Could not find creature image to export.');
@@ -41,6 +44,27 @@ export async function exportCreatureCard(creature: Creature, stats: CreatureStat
   ctx.fillStyle = '#7a6964';
   ctx.fillText('design a creature — real biology decides if it survives', 32, 85);
 
+  // Maker badge (bottom-right of the header strip) — "by 🐯 Adam".
+  const maker = makerOverride ?? activeStamp();
+  if (maker) {
+    const badge = `${maker.emoji} by ${maker.name}`;
+    ctx.font = 'bold 18px ui-rounded, system-ui, sans-serif';
+    const w = ctx.measureText(badge).width + 28;
+    const bx = W - 32 - w;
+    const by = 32;
+    // pill background
+    ctx.fillStyle = maker.color;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(bx, by, w, 36, 18);
+    } else {
+      ctx.rect(bx, by, w, 36);
+    }
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(badge, bx + 14, by + 24);
+  }
+
   await new Promise<void>((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -75,9 +99,17 @@ export async function exportCreatureCard(creature: Creature, stats: CreatureStat
   ctx.fillStyle = '#2a2120';
   ctx.fillText(statRow, 32, 700);
 
+  // Points line — only if this creature has any awards.
+  const cp = getCreaturePoints(creature);
+  if (cp && cp.totalPoints > 0) {
+    ctx.font = 'bold 16px ui-rounded, system-ui, sans-serif';
+    ctx.fillStyle = '#8a5a00';
+    ctx.fillText(`🏅 ${cp.totalPoints} pts · ${cp.awards.length} win${cp.awards.length !== 1 ? 's' : ''}`, 32, 722);
+  }
+
   ctx.font = '12px ui-rounded, system-ui, sans-serif';
   ctx.fillStyle = '#888';
-  ctx.fillText('daridor9.github.io/critter-forge', 32, 735);
+  ctx.fillText('daridor9.github.io/critter-forge', 32, 745);
 
   const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!blob) {

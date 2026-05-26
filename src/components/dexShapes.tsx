@@ -1759,6 +1759,7 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   giraffe: GiraffeShape,
   rooster: RoosterShape,
   donkey: DonkeyShape,
+  rhino: RhinoShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -3335,6 +3336,160 @@ export function DonkeyShape({ colors }: { colors: ColorOverride }) {
         <line x1="320" y1="136" x2="318" y2="133" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
         <line x1="323" y1="135" x2="322" y2="132" stroke="#1a1a1a" strokeWidth="0.8" strokeLinecap="round" />
       </g>
+    </svg>
+  );
+}
+
+// ─── Rhinoceros ─────────────────────────────────────────────────────────
+// Side-view facing right. White rhinoceros profile — TWO horns (front
+// big, rear smaller), armored skin folds across the body, small pointed
+// ears, columnar legs with three toes, short tufted tail.
+export function RhinoShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const cheek = colors.cheek;
+  const fold = colors.pattern ?? '#3a342a';
+  const horn = '#e6dac0';
+  const hornShade = '#a89878';
+  const hoof = '#1a1208';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow under the heavy body */}
+      <ellipse cx="200" cy="266" rx="160" ry="8" fill="rgba(0,0,0,0.22)" />
+
+      {/* SHORT TUFTED TAIL */}
+      <path d="M 78 178 Q 60 192 56 218" stroke={shade} strokeWidth="6" fill="none" strokeLinecap="round" />
+      <path d="M 78 178 Q 60 192 56 218" stroke={main} strokeWidth="3" fill="none" strokeLinecap="round" />
+      <ellipse cx="56" cy="222" rx="6" ry="9" fill={fold} />
+
+      {/* COLUMNAR LEGS — short, very thick, ending in 3-toe stumps */}
+      {[112, 148, 244, 280].map((x, i) => (
+        <g key={x}>
+          {/* upper thigh */}
+          <rect x={x - 12} y="186" width="24" height="44" rx="5" fill={shade} />
+          {/* lower leg */}
+          <rect x={x - 11} y="186" width="22" height="44" rx="4" fill={i % 2 === 0 ? main : shade} />
+          {/* skin folds at the knee */}
+          <path d={`M ${x - 11} 208 Q ${x} 210 ${x + 11} 208`} stroke={fold} strokeWidth="1.5" fill="none" opacity="0.7" />
+          {/* base of the foot pad */}
+          <rect x={x - 13} y="226" width="26" height="14" rx="4" fill={shade} />
+          {/* three-toe nails */}
+          <rect x={x - 11} y="240" width="6" height="8" rx="1.5" fill={hoof} />
+          <rect x={x - 3} y="240" width="6" height="8" rx="1.5" fill={hoof} />
+          <rect x={x + 5} y="240" width="6" height="8" rx="1.5" fill={hoof} />
+        </g>
+      ))}
+
+      {/* MASSIVE BARREL BODY */}
+      <ellipse cx="185" cy="170" rx="125" ry="50" fill={shade} />
+      <ellipse cx="185" cy="166" rx="120" ry="46" fill={main} />
+      <ellipse cx="185" cy="186" rx="108" ry="22" fill={light} opacity="0.55" />
+
+      {/* SHOULDER HUMP (white rhinos have a pronounced one) */}
+      <ellipse cx="235" cy="138" rx="34" ry="22" fill={shade} />
+      <ellipse cx="235" cy="136" rx="30" ry="18" fill={main} />
+
+      {/* SKIN FOLDS / ARMORED PLATING — thick body wrinkles */}
+      <g stroke={fold} strokeWidth="2" fill="none" opacity="0.7" strokeLinecap="round">
+        {/* vertical fold behind the shoulder */}
+        <path d="M 188 132 Q 184 170 188 210" />
+        {/* fold in front of the haunch */}
+        <path d="M 110 160 Q 108 184 112 208" />
+        {/* horizontal belly fold */}
+        <path d="M 100 198 Q 180 206 270 196" />
+        {/* upper-back wrinkles */}
+        <path d="M 130 148 Q 140 152 150 148" />
+        <path d="M 250 142 Q 258 146 268 142" />
+        {/* neck folds */}
+        <path d="M 252 154 Q 258 162 254 172" />
+        <path d="M 268 152 Q 274 162 270 174" />
+      </g>
+
+      {/* NECK joining body to head */}
+      <path d="M 260 152
+               Q 274 130 296 124
+               Q 314 130 318 144
+               L 312 162
+               Q 296 168 280 170
+               Q 266 168 260 162 Z"
+        fill={shade} />
+      <path d="M 264 154
+               Q 276 134 296 128
+               Q 312 134 314 144
+               L 308 160
+               Q 296 164 282 166
+               Q 270 164 264 162 Z"
+        fill={main} />
+
+      {/* HEAD — broad, square jaw */}
+      <path d="M 296 128
+               Q 332 122 354 140
+               Q 364 158 354 178
+               Q 332 188 308 184
+               Q 290 172 296 128 Z"
+        fill={shade} />
+      <path d="M 300 132
+               Q 330 126 350 142
+               Q 358 158 350 174
+               Q 332 184 312 180
+               Q 294 170 300 132 Z"
+        fill={main} />
+
+      {/* CHEEK / JAW shadow */}
+      <ellipse cx="332" cy="168" rx="20" ry="10" fill={cheek} opacity="0.4" />
+
+      {/* TWO HORNS — front large, rear smaller. Drawn as upward-curving
+          cones with shading. */}
+      {/* front horn (the big one) */}
+      <path d="M 348 120
+               Q 358 88 362 60
+               Q 366 80 366 116
+               Q 358 124 348 120 Z"
+        fill={hornShade} />
+      <path d="M 348 120
+               Q 358 90 362 64
+               Q 364 86 362 114
+               Q 356 122 348 120 Z"
+        fill={horn} />
+      {/* horn ridges */}
+      <g stroke={hornShade} strokeWidth="0.7" opacity="0.85" fill="none">
+        <path d="M 350 110 Q 356 110 360 108" />
+        <path d="M 351 100 Q 357 100 361 98" />
+        <path d="M 353 88 Q 358 88 362 86" />
+      </g>
+
+      {/* rear horn (smaller, behind the big one) */}
+      <path d="M 326 122
+               Q 322 100 324 86
+               Q 330 100 332 122 Z"
+        fill={hornShade} />
+      <path d="M 327 122
+               Q 324 102 326 90
+               Q 330 102 331 122 Z"
+        fill={horn} />
+
+      {/* SMALL POINTED EARS — perched on top of the head */}
+      <path d="M 308 116 L 306 96 L 318 110 Z" fill={shade} />
+      <path d="M 308 114 L 310 102 L 316 110 Z" fill="#e8a8a8" opacity="0.85" />
+      <path d="M 324 110 L 326 92 L 334 108 Z" fill={shade} />
+      <path d="M 324 108 L 328 98 L 332 108 Z" fill="#e8a8a8" opacity="0.85" />
+
+      {/* SMALL ALERT EYE */}
+      <g className="eye-blink" style={{ transformOrigin: '320px 150px' }}>
+        <ellipse cx="320" cy="150" rx="4" ry="3" fill="white" stroke="#222" strokeWidth="0.5" />
+        <ellipse cx="320" cy="150" rx="2.4" ry="2.2" fill="#1a1208" />
+        <circle cx="321" cy="149" r="0.7" fill="white" />
+      </g>
+
+      {/* BROAD MOUTH / NOSTRILS */}
+      <ellipse cx="352" cy="168" rx="6" ry="3" fill={fold} opacity="0.6" />
+      <path d="M 340 178 Q 350 184 358 178" stroke="#3a1a08" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <ellipse cx="356" cy="170" rx="1.5" ry="2" fill="#3a1a08" />
     </svg>
   );
 }
