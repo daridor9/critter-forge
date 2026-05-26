@@ -1825,51 +1825,195 @@ export function SlothShape({ colors }: { colors: ColorOverride }) {
 }
 
 // ─── Kangaroo ───────────────────────────────────────────────────────────
-// Hopping macropod: giant hind legs, long counterbalance tail, tiny forearms.
+// Hopping macropod, side-view facing right:
+//   - massive hind legs folded under (calf nearly horizontal on the ground)
+//   - thick tail trailing back forming a tripod with the legs
+//   - tall upright torso with light cream belly
+//   - tiny tucked-up forearms with little paws
+//   - long muzzle, tall pointed ears
+//   - joey peeking out of the pouch
 export function KangarooShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const belly = '#fbeed3';     // characteristic light belly
+  const bellyShade = '#e6cea0';
+  const innerEar = '#e09080';
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
-      <line x1="20" y1="266" x2="380" y2="266" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
-      <ellipse cx="205" cy="270" rx="146" ry="7" fill="rgba(0,0,0,0.18)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
 
-      <path d="M 155 194 Q 90 212 45 246 Q 95 242 158 224" fill={colors.shade} />
-      <path d="M 152 197 Q 96 215 58 240 Q 102 236 156 218" fill={colors.main} />
+      {/* shadow under the tripod */}
+      <ellipse cx="190" cy="266" rx="170" ry="6" fill="rgba(0,0,0,0.18)" />
 
-      <path d="M 210 190 Q 194 224 162 256 L 232 256 Q 238 225 228 196 Z" fill={colors.shade} />
-      <path d="M 214 194 Q 202 224 176 252 L 230 252 Q 232 226 224 200 Z" fill={colors.main} />
-      <ellipse cx="178" cy="260" rx="44" ry="9" fill={colors.shade} transform="rotate(-4 178 260)" />
+      {/* THICK TAIL trailing left — counterbalance + tripod support */}
+      <path d="M 110 248
+               Q 50 246 24 240
+               Q 14 232 24 224
+               Q 50 218 120 224
+               Q 158 232 168 248 Z"
+        fill={shade} />
+      <path d="M 116 244
+               Q 60 242 36 236
+               Q 28 230 36 224
+               Q 58 220 120 226
+               Q 154 234 162 244 Z"
+        fill={main} />
+      {/* small tail tip */}
+      <circle cx="22" cy="234" r="6" fill={shade} />
 
-      <path d="M 250 188 Q 258 224 290 256 L 354 256 Q 312 228 270 196 Z" fill={colors.shade} />
-      <path d="M 252 194 Q 262 224 294 252 L 340 252 Q 306 230 272 202 Z" fill={colors.main} />
-      <ellipse cx="316" cy="260" rx="42" ry="9" fill={colors.shade} transform="rotate(5 316 260)" />
-
-      <ellipse cx="215" cy="170" rx="66" ry="82" fill={colors.shade} transform="rotate(-10 215 170)" />
-      <ellipse cx="213" cy="164" rx="58" ry="75" fill={colors.main} transform="rotate(-10 213 164)" />
-      <ellipse cx="220" cy="188" rx="34" ry="48" fill={colors.light} opacity="0.62" transform="rotate(-8 220 188)" />
-
-      <path d="M 250 135 Q 276 154 282 190" stroke={colors.shade} strokeWidth="11" fill="none" strokeLinecap="round" />
-      <path d="M 250 135 Q 274 154 279 188" stroke={colors.main} strokeWidth="7" fill="none" strokeLinecap="round" />
-      <path d="M 240 145 Q 254 166 246 191" stroke={colors.shade} strokeWidth="8" fill="none" strokeLinecap="round" />
-
-      <path d="M 242 105 Q 268 80 296 86 Q 314 94 310 116 Q 300 136 266 130 Q 248 126 242 105 Z" fill={colors.shade} />
-      <path d="M 247 106 Q 270 86 294 91 Q 306 98 302 114 Q 294 128 268 124 Q 252 121 247 106 Z" fill={colors.main} />
-      <ellipse cx="286" cy="118" rx="18" ry="10" fill={colors.light} opacity="0.5" />
-
-      <ellipse cx="270" cy="66" rx="8" ry="29" fill={colors.shade} transform="rotate(-18 270 66)" />
-      <ellipse cx="290" cy="66" rx="8" ry="29" fill={colors.shade} transform="rotate(12 290 66)" />
-      <ellipse cx="270" cy="68" rx="4" ry="20" fill="#e0a58a" transform="rotate(-18 270 68)" opacity="0.8" />
-      <ellipse cx="290" cy="68" rx="4" ry="20" fill="#e0a58a" transform="rotate(12 290 68)" opacity="0.8" />
-
-      <g className="eye-blink" style={{ transformOrigin: '294px 102px' }}>
-        <circle cx="294" cy="102" r="5.5" fill="white" stroke="#222" strokeWidth="0.5" />
-        <circle cx="295" cy="102" r="3" fill="#1a1a1a" />
-        <circle cx="296" cy="100" r="1.1" fill="white" />
+      {/* BIG HIND LEG — far (rear) leg, drawn first so the near leg overlaps it */}
+      {/* thigh — thick, angled back */}
+      <ellipse cx="170" cy="200" rx="46" ry="28" fill={shade} transform="rotate(-15 170 200)" />
+      {/* shank — long and folded forward (kangaroos crouch on long feet) */}
+      <path d="M 132 222
+               Q 158 232 230 248
+               L 232 258
+               Q 158 258 130 252 Z"
+        fill={shade} />
+      <path d="M 138 226
+               Q 162 234 226 248
+               L 228 254
+               Q 162 254 138 250 Z"
+        fill={main} />
+      {/* claw nails on the long foot */}
+      <g fill="#3a2118">
+        <polygon points="228 252 240 252 236 258" />
+        <polygon points="218 251 230 251 226 257" />
       </g>
-      <ellipse cx="305" cy="111" rx="4.5" ry="3" fill="#1a1a1a" />
-      <path d="M 301 118 Q 294 123 286 120" stroke="#3a2118" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <path d="M 225 188 Q 242 198 256 184" stroke="#8a5530" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7" />
+
+      {/* near hind leg (slightly forward and lighter) */}
+      <ellipse cx="178" cy="206" rx="42" ry="26" fill={main} transform="rotate(-12 178 206)" />
+      <path d="M 144 226
+               Q 170 232 232 246
+               L 234 256
+               Q 170 256 142 252 Z"
+        fill={main} />
+      <ellipse cx="230" cy="252" rx="14" ry="5" fill={shade} />
+
+      {/* HAUNCH/RUMP — round, joining tail base to upper body */}
+      <ellipse cx="180" cy="178" rx="60" ry="52" fill={shade} />
+      <ellipse cx="178" cy="172" rx="54" ry="46" fill={main} />
+
+      {/* UPRIGHT TORSO — leans slightly forward */}
+      <path d="M 178 130
+               Q 218 124 232 146
+               Q 240 178 226 208
+               Q 200 222 168 216
+               Q 144 192 150 158
+               Q 158 134 178 130 Z"
+        fill={shade} />
+      <path d="M 184 134
+               Q 218 130 228 150
+               Q 234 178 222 204
+               Q 198 216 172 210
+               Q 152 190 156 162
+               Q 164 138 184 134 Z"
+        fill={main} />
+
+      {/* LIGHT CREAM BELLY — runs from chest down to pouch */}
+      <path d="M 178 156
+               Q 200 154 214 168
+               Q 220 192 206 212
+               Q 188 218 170 212
+               Q 158 192 164 172
+               Q 168 158 178 156 Z"
+        fill={bellyShade} />
+      <path d="M 180 160
+               Q 200 158 212 170
+               Q 216 190 204 208
+               Q 188 214 172 210
+               Q 162 192 168 174
+               Q 172 162 180 160 Z"
+        fill={belly} />
+
+      {/* POUCH — pocket cut into belly with JOEY peeking out */}
+      <path d="M 174 196
+               Q 196 192 208 200
+               Q 206 220 188 222
+               Q 172 218 174 196 Z"
+        fill={bellyShade} />
+      <path d="M 178 200
+               Q 198 196 206 204
+               Q 200 218 188 220
+               Q 176 216 178 200 Z"
+        fill="#3a2a1e" opacity="0.85" />
+      {/* joey head */}
+      <ellipse cx="195" cy="203" rx="11" ry="9" fill={shade} />
+      <ellipse cx="195" cy="203" rx="9" ry="7" fill={main} />
+      {/* joey ears */}
+      <ellipse cx="190" cy="195" rx="2.5" ry="5" fill={shade} transform="rotate(-15 190 195)" />
+      <ellipse cx="200" cy="195" rx="2.5" ry="5" fill={shade} transform="rotate(15 200 195)" />
+      {/* joey eye */}
+      <circle cx="198" cy="203" r="1.6" fill="#1a1a1a" />
+      <circle cx="198.4" cy="202.4" r="0.6" fill="white" />
+      {/* joey nose */}
+      <ellipse cx="203" cy="207" rx="1.6" ry="1" fill="#1a1208" />
+
+      {/* TINY FORELIMBS — folded against chest with little paws */}
+      <path d="M 218 158
+               Q 234 168 232 184
+               Q 224 188 220 184
+               Q 214 174 216 162 Z"
+        fill={shade} />
+      <path d="M 220 160
+               Q 232 168 230 182
+               Q 224 184 222 180
+               Q 218 172 220 162 Z"
+        fill={main} />
+      {/* paws/claws */}
+      <g fill="#3a2118">
+        <circle cx="232" cy="184" r="1.4" />
+        <circle cx="229" cy="186" r="1.2" />
+        <circle cx="226" cy="187" r="1.1" />
+      </g>
+
+      {/* NECK + LONG SNOUT HEAD */}
+      <path d="M 200 122
+               Q 218 110 240 110
+               Q 268 116 280 132
+               Q 286 144 282 156
+               Q 274 168 254 168
+               Q 230 162 214 150
+               Q 198 138 200 122 Z"
+        fill={shade} />
+      <path d="M 206 124
+               Q 224 114 240 114
+               Q 264 120 274 134
+               Q 278 144 274 154
+               Q 266 162 252 162
+               Q 230 158 216 148
+               Q 204 138 206 124 Z"
+        fill={main} />
+      {/* lighter cheek/jaw */}
+      <ellipse cx="260" cy="150" rx="18" ry="8" fill={light} opacity="0.55" />
+
+      {/* TALL POINTED EARS — the headline feature */}
+      <ellipse cx="222" cy="92" rx="8" ry="26" fill={shade} transform="rotate(-22 222 92)" />
+      <ellipse cx="222" cy="94" rx="4" ry="20" fill={innerEar} transform="rotate(-22 222 94)" opacity="0.85" />
+      <ellipse cx="248" cy="88" rx="8" ry="28" fill={shade} transform="rotate(8 248 88)" />
+      <ellipse cx="248" cy="90" rx="4" ry="22" fill={innerEar} transform="rotate(8 248 90)" opacity="0.85" />
+
+      {/* EYE (the far one is hidden behind muzzle) */}
+      <g className="eye-blink" style={{ transformOrigin: '244px 134px' }}>
+        <circle cx="244" cy="134" r="5.5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="245" cy="134" r="3.4" fill="#1a1a1a" />
+        <circle cx="246" cy="132" r="1.2" fill="white" />
+      </g>
+
+      {/* nose at the tip of the muzzle */}
+      <ellipse cx="280" cy="146" rx="5" ry="3.5" fill="#1a1208" />
+      {/* nostril hint */}
+      <ellipse cx="279" cy="145" rx="1.4" ry="0.9" fill="#5a3828" />
+      {/* mouth */}
+      <path d="M 278 155 Q 272 160 264 158" stroke="#3a2118" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      {/* whisker hints */}
+      <g stroke="#5a3828" strokeWidth="0.6" opacity="0.55">
+        <line x1="266" y1="152" x2="252" y2="152" />
+        <line x1="266" y1="156" x2="250" y2="158" />
+      </g>
     </svg>
   );
 }
