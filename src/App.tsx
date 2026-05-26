@@ -17,7 +17,7 @@ import { AlbumPanel } from './components/AlbumPanel';
 import { AchievementToast } from './components/AchievementToast';
 import { checkQuests, getTodayQuest, markDailyComplete } from './data/quests';
 import { exportCreatureCard } from './utils/exportCreature';
-import { recordRoot, recordEvolve, recordBreed } from './data/lineage';
+import { recordRoot, recordEvolve, recordBreed, getNode } from './data/lineage';
 import { arenaFitFor, fitEmoji } from './data/arenaFit';
 import {
   recordArena,
@@ -77,8 +77,50 @@ const arenaTabs: { id: ArenaId; label: string }[] = [
   { id: 'deep', label: '🌊 Deep' },
   { id: 'maze', label: '🧩 Maze' },
 ];
+// ─── Session persistence ────────────────────────────────────────────────
+// The current creature + its lineage-chain pointer used to live in React
+// state only, so a page reload wiped both. That made the 📈 Lineage
+// modal show "no history" even after evolving / breeding. These keys
+// round-trip both across reloads so the family tree survives.
+const CREATURE_PERSIST_KEY = 'critter-forge:current-creature';
+const LINEAGE_PERSIST_KEY = 'critter-forge:current-lineage-id';
+
+function loadPersistedCreature(): Creature | null {
+  try {
+    const raw = localStorage.getItem(CREATURE_PERSIST_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.sizeUnit !== 'number') return null;
+    return parsed as Creature;
+  } catch {
+    return null;
+  }
+}
+function savePersistedCreature(c: Creature): void {
+  try {
+    localStorage.setItem(CREATURE_PERSIST_KEY, JSON.stringify(c));
+  } catch {
+    /* ignore quota */
+  }
+}
+function loadPersistedLineageId(): string | null {
+  try {
+    return localStorage.getItem(LINEAGE_PERSIST_KEY);
+  } catch {
+    return null;
+  }
+}
+function savePersistedLineageId(id: string | null): void {
+  try {
+    if (id) localStorage.setItem(LINEAGE_PERSIST_KEY, id);
+    else localStorage.removeItem(LINEAGE_PERSIST_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function App() {
-  const [creature, setCreatureRaw] = useState<Creature>(defaultCreature);
+  const [creature, setCreatureRaw] = useState<Creature>(() => loadPersistedCreature() ?? defaultCreature);
   const [undoStack, setUndoStack] = useState<Creature[]>([]);
 
   function setCreature(next: Creature | ((prev: Creature) => Creature)) {
@@ -86,6 +128,10 @@ export default function App() {
       let resolved = typeof next === 'function' ? (next as (p: Creature) => Creature)(prev) : next;
       if (resolved === prev) return prev;
       setUndoStack((s) => [...s.slice(-19), prev]);
+      // Persist the new creature so it survives a page reload (and the
+      // family tree can still walk back to it).
+      // Note: we save AFTER the trait-strip below, so the strip needs to
+      // happen first. Saving is repeated at the bottom of the function.
       if (resolved.shape && resolved.shape === prev.shape) {
         const traitsChanged =
           resolved.sizeUnit !== prev.sizeUnit ||
@@ -101,6 +147,7 @@ export default function App() {
           resolved = { ...resolved, shape: undefined, colors: undefined, adaptations: undefined };
         }
       }
+      savePersistedCreature(resolved);
       return resolved;
     });
   }
@@ -109,6 +156,7 @@ export default function App() {
       if (s.length === 0) return s;
       const prev = s[s.length - 1];
       setCreatureRaw(prev);
+      savePersistedCreature(prev);
       sounds.click();
       return s.slice(0, -1);
     });
@@ -138,7 +186,21 @@ export default function App() {
   // Anatomy layer for the creature view: skin (default), muscles, or anatomy
   // (skeleton + organs, biology-textbook style).
   const [anatomyLayer, setAnatomyLayer] = useState<'skin' | 'muscles' | 'anatomy'>('skin');
-  const [lineageId, setLineageId] = useState<string | null>(() => recordRoot(defaultCreature));
+  // Lineage pointer — restore from localStorage if the stored id still
+  // resolves to a node in the lineage map; otherwise plant a new root.
+  const [lineageId, setLineageIdRaw] = useState<string | null>(() => {
+    const persisted = loadPersistedLineageId();
+    if (persisted && getNode(persisted)) return persisted;
+    // Use whatever creature we just restored (or default if first run)
+    // so the new root reflects the actual starting point, not the literal default.
+    const startCreature = loadPersistedCreature() ?? defaultCreature;
+    return recordRoot(startCreature);
+  });
+  // Wrap the setter so every change writes through to localStorage.
+  function setLineageId(id: string | null): void {
+    setLineageIdRaw(id);
+    savePersistedLineageId(id);
+  }
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const toastTimers = useRef<number[]>([]);
   function pushToasts(items: Achievement[]) {
