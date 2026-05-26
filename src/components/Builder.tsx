@@ -1,6 +1,7 @@
 import type { Creature, BodyPlan, Tier, BrainTier, Hybrid } from '../types';
 import { isHybridValid } from '../physics';
 import { hybridCatalog, MAX_HYBRIDS } from '../data/hybrids';
+import { HYBRID_UNLOCKS, isUnlockableHybrid, isHybridUnlocked, loadPointsState } from '../data/points';
 
 interface Props {
   creature: Creature;
@@ -82,6 +83,8 @@ export function Builder({ creature, onChange }: Props) {
 function HybridSection({ creature, onChange }: { creature: Creature; onChange: (h: Hybrid[]) => void }) {
   const picked = creature.hybrids;
   const atMax = picked.length >= MAX_HYBRIDS;
+  const totalPoints = loadPointsState().totalPoints;
+  const unlockCost = (id: string) => HYBRID_UNLOCKS.find((u) => u.id === id)?.cost;
 
   function toggle(h: Hybrid) {
     if (picked.includes(h)) {
@@ -97,31 +100,40 @@ function HybridSection({ creature, onChange }: { creature: Creature; onChange: (
         <h3>Hybrid traits</h3>
         <span className="hybrids-count">{picked.length}/{MAX_HYBRIDS}</span>
       </div>
-      <p className="hybrids-help">Pick up to {MAX_HYBRIDS} special powers borrowed from real animals. Each has a cost.</p>
+      <p className="hybrids-help">
+        Pick up to {MAX_HYBRIDS} special powers borrowed from real animals. Each has a cost.
+        Mythic hybrids 🔥🪨⚡🐉 unlock with 🏅 points — you have {totalPoints}.
+      </p>
       <div className="hybrid-grid">
         {hybridCatalog.map((h) => {
           const selected = picked.includes(h.id);
           const validity = isHybridValid(h.id, creature);
-          const disabled = !validity.valid || (!selected && atMax);
-          const title = selected
-            ? h.fact
-            : !validity.valid
-              ? `${h.fact}\n\n⚠ ${validity.reason}`
-              : atMax
-                ? `${h.fact}\n\n(already at ${MAX_HYBRIDS}/2 — deselect one first)`
-                : h.fact;
+          const unlockable = isUnlockableHybrid(h.id);
+          const locked = unlockable && !isHybridUnlocked(h.id);
+          const cost = unlockable ? unlockCost(h.id) : undefined;
+          const disabled = locked || !validity.valid || (!selected && atMax);
+          const title = locked
+            ? `${h.fact}\n\n🔒 Unlocks at ${cost} 🏅 points (you have ${totalPoints})`
+            : selected
+              ? h.fact
+              : !validity.valid
+                ? `${h.fact}\n\n⚠ ${validity.reason}`
+                : atMax
+                  ? `${h.fact}\n\n(already at ${MAX_HYBRIDS}/2 — deselect one first)`
+                  : h.fact;
           return (
             <button
               key={h.id}
               type="button"
-              className={`hybrid-chip${selected ? ' selected' : ''}${disabled ? ' disabled' : ''}`}
+              className={`hybrid-chip${selected ? ' selected' : ''}${disabled ? ' disabled' : ''}${locked ? ' locked' : ''}${unlockable ? ' mythic' : ''}`}
               onClick={() => !disabled && toggle(h.id)}
               title={title}
               aria-disabled={disabled}
             >
               <span className="hybrid-emoji">{h.emoji}</span>
               <span className="hybrid-name">{h.name}</span>
-              {!validity.valid && <span className="hybrid-warn">{validity.reason}</span>}
+              {locked && <span className="hybrid-lock">🔒 {cost} pts</span>}
+              {!locked && !validity.valid && <span className="hybrid-warn">{validity.reason}</span>}
             </button>
           );
         })}

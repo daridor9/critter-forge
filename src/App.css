@@ -1319,6 +1319,68 @@ h2 {
   margin: 6px 0;
 }
 
+.bracket-rules {
+  background: linear-gradient(135deg, #fff4cf, #ffe9a0);
+  border: 1px solid #d4a040;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #5a4828;
+}
+.bracket-pick-cell.ineligible {
+  border-color: #d65a5a;
+  background: rgba(214, 90, 90, 0.08);
+}
+.bracket-pick-points {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a5a00;
+}
+.bracket-pick-points.short {
+  color: #c25541;
+}
+.bracket-pick-points small {
+  font-weight: 500;
+}
+.bracket-warn {
+  background: rgba(214, 90, 90, 0.1);
+  border: 1px solid #d65a5a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 4px 0;
+  font-size: 12px;
+  color: #8a3030;
+}
+
+/* locked / mythic hybrid chips */
+.hybrid-chip.mythic {
+  background: linear-gradient(135deg, #fff4cf, #ffe9a0);
+  border-color: #d4a040;
+}
+.hybrid-chip.mythic.selected {
+  background: linear-gradient(135deg, #f5a040, #d65a5a);
+  color: white;
+  border-color: #d65a5a;
+}
+.hybrid-chip.locked {
+  opacity: 0.55;
+  background: linear-gradient(135deg, #f0eada, #ddd4be);
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+.hybrid-chip .hybrid-lock {
+  font-size: 10px;
+  color: #8a5a00;
+  font-weight: 700;
+  display: block;
+  margin-top: 2px;
+}
+
 .bracket-pick-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

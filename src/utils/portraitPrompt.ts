@@ -56,6 +56,11 @@ const HYBRID_PHRASES: Record<Hybrid, string> = {
   'thick-fur': 'a thick fluffy winter coat that puffs around the neck',
   gills: 'delicate gill ruffles behind the head',
   symbiosis: 'a tiny adorable symbiotic partner creature riding on its back',
+  // Mythic / unlockable hybrids
+  firebreath: 'glowing ember markings around the jaw with wisps of warm smoke',
+  stoneskin: 'rough overlapping rocky plates layered over the body like armor',
+  hypersonic: 'streaks of soft motion-blur trailing behind, with bright speed-lines',
+  dragon: 'iridescent scales, small horns, leathery dragon wings and faint smoke from the nose',
 };
 
 function bodyPlanNoun(creature: Creature): string {

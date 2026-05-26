@@ -283,3 +283,65 @@ export function hasEarned(creature: Creature, challengeKey: string): boolean {
   if (!entry) return false;
   return entry.awards.some((a) => a.challengeKey === challengeKey);
 }
+
+// ─── Hybrid unlocks ─────────────────────────────────────────────────────
+// Mythic hybrids unlock at global point thresholds. Once total points
+// across all creatures crosses a threshold, the hybrid becomes available
+// in the Builder for every future creature.
+
+export interface HybridUnlock {
+  id: 'firebreath' | 'stoneskin' | 'hypersonic' | 'dragon';
+  emoji: string;
+  name: string;
+  cost: number;
+  blurb: string;
+}
+
+export const HYBRID_UNLOCKS: HybridUnlock[] = [
+  { id: 'firebreath', emoji: '🔥', name: 'Fire breath', cost: 10,   blurb: '+brawl damage, scares prey in Chase' },
+  { id: 'stoneskin',  emoji: '🪨', name: 'Stone skin',  cost: 30,   blurb: 'Big defense without the speed penalty' },
+  { id: 'hypersonic', emoji: '⚡', name: 'Hypersonic',  cost: 150,  blurb: '+25% top speed, beats most prey' },
+  { id: 'dragon',     emoji: '🐉', name: 'Dragon mode', cost: 500,  blurb: 'Wings + fire + scales + brain — all in one' },
+];
+
+const UNLOCKABLE_IDS = new Set(HYBRID_UNLOCKS.map((u) => u.id));
+
+export function isUnlockableHybrid(id: string): boolean {
+  return UNLOCKABLE_IDS.has(id as HybridUnlock['id']);
+}
+
+export function unlockedHybridIds(): Set<string> {
+  const total = loadPointsState().totalPoints;
+  return new Set(
+    HYBRID_UNLOCKS.filter((h) => total >= h.cost).map((h) => h.id),
+  );
+}
+
+export function isHybridUnlocked(id: string): boolean {
+  if (!UNLOCKABLE_IDS.has(id as HybridUnlock['id'])) return true; // base 9 are always free
+  return unlockedHybridIds().has(id);
+}
+
+export function nextHybridUnlock(): HybridUnlock | null {
+  const total = loadPointsState().totalPoints;
+  return HYBRID_UNLOCKS.find((h) => total < h.cost) ?? null;
+}
+
+// ─── Bracket entry fees + champion bonus ────────────────────────────────
+// Bracket tournaments require every entrant to clear a minimum personal
+// score; the champion earns a fat reward.
+
+export interface BracketRules {
+  minPointsPerEntrant: number;
+  championBonus: number;
+}
+
+export function bracketRules(size: 4 | 8): BracketRules {
+  return size === 8
+    ? { minPointsPerEntrant: 25, championBonus: 200 }
+    : { minPointsPerEntrant: 10, championBonus: 50 };
+}
+
+export function getCreatureTotal(c: Creature): number {
+  return getCreaturePoints(c)?.totalPoints ?? 0;
+}

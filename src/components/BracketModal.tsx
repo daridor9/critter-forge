@@ -14,7 +14,7 @@ import type { Venue } from '../data/battle';
 import { VENUE_META } from '../data/battle';
 import { recordBattle } from '../data/profile';
 import { tryUnlock, checkStatsAchievements } from '../data/achievements';
-import { awardPoints, pointsForBattleWin } from '../data/points';
+import { awardPoints, pointsForBattleWin, bracketRules, getCreatureTotal, creatureHash } from '../data/points';
 
 interface SavedCreature {
   id: string;
@@ -70,11 +70,31 @@ export function BracketModal({ current, onClose }: Props) {
     setPicks(Array.from({ length: n }, (_, i) => Math.min(i, sources.length - 1)));
   }
 
+  // Bracket entry rules — per-creature minimum and a champion bonus.
+  const rules = useMemo(() => bracketRules(size), [size]);
+
+  // Auto-seed: each pick is shown with its point total; the bracket
+  // sorts entrants by total descending so the top scorer is #1 seed.
+  const seededEntries = useMemo(() => {
+    return picks
+      .map((idx) => {
+        const c = sources[idx].creature;
+        return { idx, creature: c, label: sources[idx].label, total: getCreatureTotal(c) };
+      })
+      .sort((a, b) => b.total - a.total);
+  }, [picks, sources]);
+
+  const allEligible = seededEntries.every((e) => e.total >= rules.minPointsPerEntrant);
+  // Same creature can't be entered twice — would deadlock the points dedup.
+  const uniqueHashes = new Set(seededEntries.map((e) => creatureHash(e.creature)));
+  const allUnique = uniqueHashes.size === seededEntries.length;
+
   function start() {
-    const entrants: BracketEntrant[] = picks.map((idx, seed) => ({
+    if (!allEligible || !allUnique) return;
+    const entrants: BracketEntrant[] = seededEntries.map((e, seed) => ({
       seed,
-      label: sources[idx].label,
-      creature: sources[idx].creature,
+      label: e.label,
+      creature: e.creature,
     }));
     setBracket(buildBracket(entrants, venuePolicy));
     setStep('running');
@@ -126,12 +146,28 @@ export function BracketModal({ current, onClose }: Props) {
     finishBracket(cur);
   }
 
-  function finishBracket(_b: Bracket) {
+  function finishBracket(b: Bracket) {
     setStep('done');
     // Unlock bracket-champion badge + any stats-driven badges that this
     // burst of battles just crossed.
     tryUnlock('bracket-champ');
     checkStatsAchievements();
+    // Champion bonus — fat one-time award keyed by the full bracket lineup
+    // hash so the same matchup can't be re-run for the same payout.
+    const champ = bracketChampion(b);
+    if (champ) {
+      const lineupKey = b.entrants
+        .map((e) => creatureHash(e.creature))
+        .sort()
+        .join('|');
+      awardPoints(
+        champ.creature,
+        `bracket-champ-${b.size}-${lineupKey}`,
+        bracketRules(b.size).championBonus,
+        bracketRules(b.size).championBonus,
+        `${b.size}-creature bracket champion`,
+      );
+    }
   }
 
   function reset() {
@@ -167,31 +203,55 @@ export function BracketModal({ current, onClose }: Props) {
                 </div>
               </div>
 
-              <h3>Seed the bracket</h3>
-              <div className="bracket-pick-grid">
-                {picks.map((idx, seed) => (
-                  <div key={seed} className="bracket-pick-cell">
-                    <div className="bracket-pick-seed">#{seed + 1}</div>
-                    <select
-                      value={idx}
-                      onChange={(e) => {
-                        const next = [...picks];
-                        next[seed] = Number(e.target.value);
-                        setPicks(next);
-                      }}
-                      className="compare-picker"
-                    >
-                      {sources.map((s, i) => (
-                        <option key={i} value={i}>{s.label}</option>
-                      ))}
-                    </select>
-                    <div className="bracket-pick-thumb"><CreatureSVG creature={sources[idx].creature} /></div>
-                  </div>
-                ))}
+              <div className="bracket-rules">
+                <span>🏅 <strong>Entry fee:</strong> each entrant needs ≥ <strong>{rules.minPointsPerEntrant} pts</strong> to compete.</span>
+                <span>🏆 <strong>Champion bonus:</strong> winner takes <strong>+{rules.championBonus} pts</strong>.</span>
+                <span>📊 Entrants auto-seed by their point total — top scorer is #1.</span>
               </div>
 
+              <h3>Pick the entrants</h3>
+              <div className="bracket-pick-grid">
+                {picks.map((idx, slot) => {
+                  const c = sources[idx].creature;
+                  const total = getCreatureTotal(c);
+                  const eligible = total >= rules.minPointsPerEntrant;
+                  return (
+                    <div key={slot} className={`bracket-pick-cell${eligible ? '' : ' ineligible'}`}>
+                      <select
+                        value={idx}
+                        onChange={(e) => {
+                          const next = [...picks];
+                          next[slot] = Number(e.target.value);
+                          setPicks(next);
+                        }}
+                        className="compare-picker"
+                      >
+                        {sources.map((s, i) => {
+                          const t = getCreatureTotal(s.creature);
+                          return <option key={i} value={i}>{s.label} · {t} pts</option>;
+                        })}
+                      </select>
+                      <div className="bracket-pick-thumb"><CreatureSVG creature={c} /></div>
+                      <div className={`bracket-pick-points${eligible ? '' : ' short'}`}>
+                        🏅 {total} pts
+                        {!eligible && <small> · need {rules.minPointsPerEntrant}</small>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {!allUnique && (
+                <p className="bracket-warn">⚠ Two entrants share the same exact configuration — please pick distinct creatures.</p>
+              )}
+              {!allEligible && (
+                <p className="bracket-warn">⚠ Some entrants are below the {rules.minPointsPerEntrant}-pt entry fee. Win arenas or 1-v-1 battles to qualify them.</p>
+              )}
+
               <div className="battle-controls">
-                <button className="btn" type="button" onClick={start}>🏆 Start tournament</button>
+                <button className="btn" type="button" onClick={start} disabled={!allEligible || !allUnique}>
+                  🏆 Start tournament
+                </button>
               </div>
             </>
           )}

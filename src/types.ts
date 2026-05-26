@@ -15,7 +15,13 @@ export type Hybrid =
   | 'antifreeze'
   | 'thick-fur'
   | 'gills'
-  | 'symbiosis';
+  | 'symbiosis'
+  // Unlockable hybrids — gated behind point totals. See data/points.ts
+  // HYBRID_UNLOCKS for costs and data/hybrids.ts catalog for facts.
+  | 'firebreath'
+  | 'stoneskin'
+  | 'hypersonic'
+  | 'dragon';
 
 // When a creature is loaded straight from the dex, it carries the bespoke
 // shape name, palette, and factual adaptations so the main stage can render

@@ -62,6 +62,33 @@ export const hybridCatalog: HybridInfo[] = [
     emoji: '🤝',
     fact: 'Clownfish in anemones, oxpeckers on buffalo, gut bacteria — cooperation rivals competition as a survival strategy.',
   },
+  // ─── Unlockable (mythic) hybrids ────────────────────────────────────
+  // Real animals don't do these — they're earned by playing, gated behind
+  // global point totals in data/points.ts HYBRID_UNLOCKS.
+  {
+    id: 'firebreath',
+    name: 'Fire breath',
+    emoji: '🔥',
+    fact: 'No real animal breathes fire, but the Bombardier Beetle sprays a 100°C jet of quinones at 500 pulses/sec. Close enough.',
+  },
+  {
+    id: 'stoneskin',
+    name: 'Stone skin',
+    emoji: '🪨',
+    fact: 'Pangolins wear overlapping keratin scales; tortoise shells fuse ribs into armor. Stone skin extends the pattern — full defense without slowing you down.',
+  },
+  {
+    id: 'hypersonic',
+    name: 'Hypersonic',
+    emoji: '⚡',
+    fact: 'Real top: peregrine falcon 390 km/h in a dive. Hypersonic blows past that — speed cheats the square-cube limit.',
+  },
+  {
+    id: 'dragon',
+    name: 'Dragon mode',
+    emoji: '🐉',
+    fact: 'The legendary apex. Wings, fire, scales, big brain — every mythic upgrade rolled into one. Costs almost as much food as it grants in glory.',
+  },
 ];
 
 export const MAX_HYBRIDS = 2;
