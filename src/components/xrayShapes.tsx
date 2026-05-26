@@ -631,77 +631,258 @@ export function ElephantXray({ creature, massKg }: XrayProps) {
 export function BatXray({ creature, massKg }: XrayProps) {
   const beat = beatPeriodFor(massKg, 1);
   const bs = brainScaleFor(creature.brainTier);
+
+  // Geometry shared between bones and muscles so they line up exactly.
+  const SHOULDER_L = { x: 178, y: 162 };
+  const ELBOW_L    = { x: 138, y: 134 };
+  const WRIST_L    = { x: 110, y: 130 };
+  const SHOULDER_R = { x: 222, y: 162 };
+  const ELBOW_R    = { x: 262, y: 134 };
+  const WRIST_R    = { x: 290, y: 130 };
+
+  // Left wing finger tips
+  const FINGERS_L = [
+    { x: 78, y: 96 },     // thumb-side wing-leading finger
+    { x: 78, y: 132 },
+    { x: 88, y: 168 },
+    { x: 104, y: 196 },
+  ];
+  const FINGERS_R = [
+    { x: 322, y: 96 },
+    { x: 322, y: 132 },
+    { x: 312, y: 168 },
+    { x: 296, y: 196 },
+  ];
+
   return (
     <g>
-      {/* tiny body */}
-      <ellipse cx="200" cy="170" rx="22" ry="32" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
+      {/* body — slightly larger than before so muscle detail can read */}
+      <ellipse cx="200" cy="174" rx="30" ry="44" fill="rgba(160,180,220,0.22)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
 
-      {/* wing membranes (faint) */}
-      <path d="M 200 155 L 90 110 L 100 175 L 200 175 Z" fill="rgba(140,150,200,0.18)" stroke="rgba(180,200,240,0.4)" strokeWidth="0.8" />
-      <path d="M 200 155 L 310 110 L 300 175 L 200 175 Z" fill="rgba(140,150,200,0.18)" stroke="rgba(180,200,240,0.4)" strokeWidth="0.8" />
+      {/* wing membranes (faint) — span from finger tip down to body */}
+      <path d={`M ${SHOULDER_L.x} ${SHOULDER_L.y} L ${FINGERS_L[0].x} ${FINGERS_L[0].y} L ${FINGERS_L[1].x} ${FINGERS_L[1].y} L ${FINGERS_L[2].x} ${FINGERS_L[2].y} L ${FINGERS_L[3].x} ${FINGERS_L[3].y} L 200 200 Z`}
+        fill="rgba(140,150,200,0.16)" stroke="rgba(180,200,240,0.35)" strokeWidth="0.7" />
+      <path d={`M ${SHOULDER_R.x} ${SHOULDER_R.y} L ${FINGERS_R[0].x} ${FINGERS_R[0].y} L ${FINGERS_R[1].x} ${FINGERS_R[1].y} L ${FINGERS_R[2].x} ${FINGERS_R[2].y} L ${FINGERS_R[3].x} ${FINGERS_R[3].y} L 200 200 Z`}
+        fill="rgba(140,150,200,0.16)" stroke="rgba(180,200,240,0.35)" strokeWidth="0.7" />
 
-      {/* arm bone */}
-      <line x1="200" y1="160" x2="155" y2="135" stroke={BONE} strokeWidth="2" />
-      <line x1="200" y1="160" x2="245" y2="135" stroke={BONE} strokeWidth="2" />
+      {/* ─── MUSCLE LAYER ──── drawn before the bones so bones overlay
+          on top. A bat is essentially a flying chest: pectoralis +
+          supracoracoideus make up roughly 25% of total body mass. */}
 
-      {/* FINGERS — elongated digits supporting the wing membrane */}
-      <g stroke={BONE} strokeWidth="1.4" fill="none" strokeLinecap="round">
-        {/* left wing fingers */}
-        <line x1="155" y1="135" x2="90" y2="110" />
-        <line x1="155" y1="135" x2="98" y2="135" />
-        <line x1="155" y1="135" x2="105" y2="160" />
-        <line x1="155" y1="135" x2="115" y2="175" />
-        {/* right wing fingers */}
-        <line x1="245" y1="135" x2="310" y2="110" />
-        <line x1="245" y1="135" x2="302" y2="135" />
-        <line x1="245" y1="135" x2="295" y2="160" />
-        <line x1="245" y1="135" x2="285" y2="175" />
+      {/* SUPRACORACOIDEUS — the UPSTROKE muscle. Sits deep, beneath the
+          pectoralis. The tendon loops up and over the shoulder joint
+          (a unique pulley-like arrangement). Drawn as a smaller mass
+          on either side of the lower keel. */}
+      <path d="M 192 196 Q 200 200 208 196 Q 210 210 200 212 Q 190 210 192 196 Z"
+        fill={MUSCLE_DARK} opacity="0.55" />
+      <text x="200" y="222" fontSize="5.5" textAnchor="middle" fill="white" opacity="0.65">supracoracoid (upstroke)</text>
+
+      {/* PECTORALIS MAJOR — the dominant chest muscle, drives the
+          DOWNSTROKE. Massive fan running from the keel to a tendon
+          attaching to the upper arm bone (humerus). Drawn as two
+          huge fans, one for each wing. */}
+      {/* left fan — from keel out to the left shoulder (178, 162) */}
+      <path d="M 199 152
+               Q 200 150 178 158
+               Q 184 200 199 210
+               Q 196 196 199 168 Z"
+        fill={MUSCLE} opacity="0.7" />
+      <path d="M 199 158 Q 188 168 184 196 Q 196 204 199 196 Z" fill={MUSCLE_DARK} opacity="0.4" />
+      {/* left fan striations — converge toward the shoulder */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.9" strokeLinecap="round" fill="none">
+        <path d={`M 198 156 L ${SHOULDER_L.x - 4} ${SHOULDER_L.y + 2}`} />
+        <path d={`M 198 168 L ${SHOULDER_L.x - 2} ${SHOULDER_L.y + 4}`} />
+        <path d={`M 198 182 L ${SHOULDER_L.x + 1} ${SHOULDER_L.y + 4}`} />
+        <path d={`M 198 196 L ${SHOULDER_L.x + 4} ${SHOULDER_L.y + 4}`} />
+      </g>
+      {/* right fan — mirror */}
+      <path d="M 201 152
+               Q 200 150 222 158
+               Q 216 200 201 210
+               Q 204 196 201 168 Z"
+        fill={MUSCLE} opacity="0.7" />
+      <path d="M 201 158 Q 212 168 216 196 Q 204 204 201 196 Z" fill={MUSCLE_DARK} opacity="0.4" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.9" strokeLinecap="round" fill="none">
+        <path d={`M 202 156 L ${SHOULDER_R.x + 4} ${SHOULDER_R.y + 2}`} />
+        <path d={`M 202 168 L ${SHOULDER_R.x + 2} ${SHOULDER_R.y + 4}`} />
+        <path d={`M 202 182 L ${SHOULDER_R.x - 1} ${SHOULDER_R.y + 4}`} />
+        <path d={`M 202 196 L ${SHOULDER_R.x - 4} ${SHOULDER_R.y + 4}`} />
       </g>
 
-      {/* knuckle joints */}
-      <g fill={BONE} opacity="0.9">
-        <circle cx="155" cy="135" r="2" />
-        <circle cx="245" cy="135" r="2" />
+      {/* PECTORALIS TENDONS — pale yellow cords attaching to each
+          humerus (upper arm) just past the shoulder. */}
+      <path d={`M ${SHOULDER_L.x - 2} ${SHOULDER_L.y + 2} L ${SHOULDER_L.x + 4} ${SHOULDER_L.y - 2}`} stroke={TENDON} strokeWidth="2" strokeLinecap="round" />
+      <path d={`M ${SHOULDER_R.x + 2} ${SHOULDER_R.y + 2} L ${SHOULDER_R.x - 4} ${SHOULDER_R.y - 2}`} stroke={TENDON} strokeWidth="2" strokeLinecap="round" />
+
+      {/* DELTOID — small cap over each shoulder joint, stabilizes the
+          arm during the stroke transition. */}
+      <ellipse cx={SHOULDER_L.x - 2} cy={SHOULDER_L.y - 4} rx="6" ry="5" fill={MUSCLE} opacity="0.6" />
+      <ellipse cx={SHOULDER_R.x + 2} cy={SHOULDER_R.y - 4} rx="6" ry="5" fill={MUSCLE} opacity="0.6" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.5" opacity="0.85" fill="none">
+        <line x1={SHOULDER_L.x - 7} y1={SHOULDER_L.y - 4} x2={SHOULDER_L.x + 1} y2={SHOULDER_L.y - 4} />
+        <line x1={SHOULDER_R.x + 7} y1={SHOULDER_R.y - 4} x2={SHOULDER_R.x - 1} y2={SHOULDER_R.y - 4} />
       </g>
+
+      {/* BICEPS / TRICEPS — bulge along the humerus (between shoulder
+          and elbow). Bats flex/extend the wing partly through these. */}
+      <BatArmMuscle a={SHOULDER_L} b={ELBOW_L} side="L" />
+      <BatArmMuscle a={SHOULDER_R} b={ELBOW_R} side="R" />
+
+      {/* FOREARM MUSCLE — between elbow and wrist. Controls the
+          terminal finger spread + membrane tension. */}
+      <BatForearmMuscle a={ELBOW_L} b={WRIST_L} />
+      <BatForearmMuscle a={ELBOW_R} b={WRIST_R} />
+
+      {/* FINGER-FLEXOR STRIATIONS — tiny diagonal hatch marks along
+          the proximal finger bones, where small flexor muscles tune
+          the wing-membrane tension at each beat. */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.5" opacity="0.7" strokeLinecap="round">
+        {FINGERS_L.map((f, i) => (
+          <g key={`fl-${i}`}>
+            <line x1={WRIST_L.x + (f.x - WRIST_L.x) * 0.15} y1={WRIST_L.y + (f.y - WRIST_L.y) * 0.15}
+                  x2={WRIST_L.x + (f.x - WRIST_L.x) * 0.30 + 1} y2={WRIST_L.y + (f.y - WRIST_L.y) * 0.30 - 1} />
+            <line x1={WRIST_L.x + (f.x - WRIST_L.x) * 0.30} y1={WRIST_L.y + (f.y - WRIST_L.y) * 0.30}
+                  x2={WRIST_L.x + (f.x - WRIST_L.x) * 0.45 + 1} y2={WRIST_L.y + (f.y - WRIST_L.y) * 0.45 - 1} />
+          </g>
+        ))}
+        {FINGERS_R.map((f, i) => (
+          <g key={`fr-${i}`}>
+            <line x1={WRIST_R.x + (f.x - WRIST_R.x) * 0.15} y1={WRIST_R.y + (f.y - WRIST_R.y) * 0.15}
+                  x2={WRIST_R.x + (f.x - WRIST_R.x) * 0.30 - 1} y2={WRIST_R.y + (f.y - WRIST_R.y) * 0.30 - 1} />
+            <line x1={WRIST_R.x + (f.x - WRIST_R.x) * 0.30} y1={WRIST_R.y + (f.y - WRIST_R.y) * 0.30}
+                  x2={WRIST_R.x + (f.x - WRIST_R.x) * 0.45 - 1} y2={WRIST_R.y + (f.y - WRIST_R.y) * 0.45 - 1} />
+          </g>
+        ))}
+      </g>
+
+      {/* ─── SKELETON OVERLAY ──── */}
 
       {/* spine */}
-      <line x1="200" y1="140" x2="200" y2="200" stroke={BONE} strokeWidth="1.8" />
+      <line x1="200" y1="138" x2="200" y2="218" stroke={BONE} strokeWidth="1.8" />
 
-      {/* PECTORALIS — flight muscles dominate the bat body. Up to 25%
-          of total body mass is flight muscle, driving 10+ wingbeats/sec.
-          Drawn as fanning teardrops on either side of the keel. */}
-      <path d="M 184 154 Q 198 156 200 196 Q 192 200 188 196 Q 178 178 184 154 Z" fill={MUSCLE} opacity="0.6" />
-      <path d="M 216 154 Q 202 156 200 196 Q 208 200 212 196 Q 222 178 216 154 Z" fill={MUSCLE} opacity="0.6" />
-      <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.85" fill="none" strokeLinecap="round">
-        <path d="M 188 158 L 196 194" />
-        <path d="M 192 158 L 198 194" />
-        <path d="M 212 158 L 204 194" />
-        <path d="M 208 158 L 202 194" />
+      {/* arm bones (humerus) */}
+      <line x1={SHOULDER_L.x} y1={SHOULDER_L.y} x2={ELBOW_L.x} y2={ELBOW_L.y} stroke={BONE} strokeWidth="2.2" />
+      <line x1={SHOULDER_R.x} y1={SHOULDER_R.y} x2={ELBOW_R.x} y2={ELBOW_R.y} stroke={BONE} strokeWidth="2.2" />
+      {/* forearm bones (radius/ulna) */}
+      <line x1={ELBOW_L.x} y1={ELBOW_L.y} x2={WRIST_L.x} y2={WRIST_L.y} stroke={BONE} strokeWidth="1.9" />
+      <line x1={ELBOW_R.x} y1={ELBOW_R.y} x2={WRIST_R.x} y2={WRIST_R.y} stroke={BONE} strokeWidth="1.9" />
+
+      {/* FINGERS — elongated digits supporting the wing membrane */}
+      <g stroke={BONE} strokeWidth="1.3" fill="none" strokeLinecap="round">
+        {FINGERS_L.map((f, i) => (
+          <line key={`bl-${i}`} x1={WRIST_L.x} y1={WRIST_L.y} x2={f.x} y2={f.y} />
+        ))}
+        {FINGERS_R.map((f, i) => (
+          <line key={`br-${i}`} x1={WRIST_R.x} y1={WRIST_R.y} x2={f.x} y2={f.y} />
+        ))}
       </g>
-      <path d="M 196 198 L 200 204" stroke={TENDON} strokeWidth="1.2" strokeLinecap="round" />
 
-      {/* tiny skull */}
-      <ellipse cx="200" cy="140" rx="9" ry="7" fill="none" stroke={BONE} strokeWidth="1.4" />
+      {/* joints */}
+      <g fill={BONE} opacity="0.95">
+        <circle cx={SHOULDER_L.x} cy={SHOULDER_L.y} r="2.2" />
+        <circle cx={SHOULDER_R.x} cy={SHOULDER_R.y} r="2.2" />
+        <circle cx={ELBOW_L.x} cy={ELBOW_L.y} r="1.8" />
+        <circle cx={ELBOW_R.x} cy={ELBOW_R.y} r="1.8" />
+        <circle cx={WRIST_L.x} cy={WRIST_L.y} r="1.6" />
+        <circle cx={WRIST_R.x} cy={WRIST_R.y} r="1.6" />
+      </g>
+
+      {/* KEEL STERNUM — pronounced bony ridge where the pectoralis
+          attaches. Bats and flying birds both have one. */}
+      <path d="M 196 154 L 200 218 L 204 154 Z" fill={BONE} opacity="0.7" stroke="#bbb" strokeWidth="0.4" />
+      <text x="208" y="200" fontSize="5" fill="white" opacity="0.7">keel</text>
+
+      {/* RIBCAGE — short, curved */}
+      <g stroke={BONE} strokeWidth="0.9" fill="none" opacity="0.7">
+        <path d="M 200 160 Q 215 168 220 184" />
+        <path d="M 200 168 Q 218 174 223 188" />
+        <path d="M 200 178 Q 218 184 222 198" />
+        <path d="M 200 160 Q 185 168 180 184" />
+        <path d="M 200 168 Q 182 174 177 188" />
+        <path d="M 200 178 Q 182 184 178 198" />
+      </g>
+
+      {/* skull */}
+      <ellipse cx="200" cy="138" rx="10" ry="8" fill="none" stroke={BONE} strokeWidth="1.4" />
 
       {/* large brain (sonar processing) */}
       <ellipse cx="200" cy="138" rx={6 * bs} ry={5 * bs} fill={BRAIN} opacity="0.85" />
 
       {/* ears (huge, for echolocation) */}
-      <path d="M 194 132 Q 188 118 190 130" stroke={BONE} strokeWidth="1.2" fill="none" />
-      <path d="M 206 132 Q 212 118 210 130" stroke={BONE} strokeWidth="1.2" fill="none" />
+      <path d="M 194 130 Q 188 116 190 128" stroke={BONE} strokeWidth="1.2" fill="none" />
+      <path d="M 206 130 Q 212 116 210 128" stroke={BONE} strokeWidth="1.2" fill="none" />
 
-      {/* tiny fast heart */}
-      <ellipse cx="200" cy="170" rx="5" ry="4" fill={HEART} opacity="0.95"
+      {/* tiny fast heart — squeezed in between the pectoral fans */}
+      <ellipse cx="200" cy="178" rx="3.5" ry="3" fill={HEART} opacity="0.95"
         style={{ animation: `heartbeat ${beat}s ease-in-out infinite`, transformOrigin: 'center', transformBox: 'fill-box' }} />
 
       {/* echolocation pings from mouth */}
       <g stroke="#ffe48a" strokeWidth="0.9" fill="none" opacity="0.55" strokeDasharray="2 3">
-        <path d="M 200 152 Q 200 160 195 165" />
-        <path d="M 200 152 Q 200 165 188 172" />
+        <path d="M 200 148 Q 200 156 195 160" />
+        <path d="M 200 148 Q 200 162 188 168" />
       </g>
 
-      <HeartLabel x={200} y={208} bpm={heartRate(massKg)} />
-      <Caption text="Wings = elongated finger bones · echolocation brain" />
+      <HeartLabel x={200} y={232} bpm={heartRate(massKg)} />
+      <Caption text="Pectoralis is ~15% of body mass · downstroke + upstroke have separate muscles" />
+    </g>
+  );
+}
+
+// Helper: a muscle group along an arm bone (biceps + triceps swelling),
+// drawn parallel to the bone with striations.
+function BatArmMuscle({ a, b, side }: { a: { x: number; y: number }; b: { x: number; y: number }; side: 'L' | 'R' }) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy);
+  const nx = -dy / len; // perpendicular
+  const ny = dx / len;
+  const off = side === 'L' ? -5 : 5;
+  // midpoint of the bone
+  const mx = (a.x + b.x) / 2;
+  const my = (a.y + b.y) / 2;
+  // offset both sides of the bone for biceps + triceps
+  const px1 = mx + nx * off;
+  const py1 = my + ny * off;
+  const px2 = mx - nx * off;
+  const py2 = my - ny * off;
+  return (
+    <g>
+      {/* biceps bulge above the bone */}
+      <ellipse cx={px1} cy={py1} rx={len * 0.42} ry={3.6} fill={MUSCLE} opacity="0.6"
+        transform={`rotate(${Math.atan2(dy, dx) * 180 / Math.PI} ${px1} ${py1})`} />
+      {/* triceps bulge below */}
+      <ellipse cx={px2} cy={py2} rx={len * 0.42} ry={3.2} fill={MUSCLE} opacity="0.55"
+        transform={`rotate(${Math.atan2(dy, dx) * 180 / Math.PI} ${px2} ${py2})`} />
+      {/* striations along the bone */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.5" opacity="0.85" strokeLinecap="round">
+        {[0.25, 0.5, 0.75].map((t) => (
+          <line key={t}
+            x1={a.x + dx * t + nx * (off - 3)} y1={a.y + dy * t + ny * (off - 3)}
+            x2={a.x + dx * t + nx * (off + 3)} y2={a.y + dy * t + ny * (off + 3)} />
+        ))}
+      </g>
+    </g>
+  );
+}
+
+// Helper: forearm muscle (a smaller swelling between elbow and wrist).
+function BatForearmMuscle({ a, b }: { a: { x: number; y: number }; b: { x: number; y: number } }) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy);
+  const mx = a.x + dx * 0.5;
+  const my = a.y + dy * 0.5;
+  return (
+    <g>
+      <ellipse cx={mx} cy={my} rx={len * 0.42} ry="2.6" fill={MUSCLE} opacity="0.55"
+        transform={`rotate(${Math.atan2(dy, dx) * 180 / Math.PI} ${mx} ${my})`} />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.45" opacity="0.8">
+        {[0.3, 0.6].map((t) => (
+          <line key={t}
+            x1={a.x + dx * t - 2} y1={a.y + dy * t - 1}
+            x2={a.x + dx * t + 2} y2={a.y + dy * t + 1} />
+        ))}
+      </g>
     </g>
   );
 }
