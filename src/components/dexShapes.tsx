@@ -1753,6 +1753,7 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   trex: TRexShape,
   jellyfish: JellyfishShape,
   sheep: SheepShape,
+  cow: CowShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -2513,6 +2514,155 @@ export function SheepShape({ colors }: { colors: ColorOverride }) {
         <ellipse cx="318" cy="178" rx="3.5" ry="2" fill="#7a5028" />
         <rect x="316" y="177" width="4" height="1.5" fill="#1a1208" />
       </g>
+    </svg>
+  );
+}
+
+// ─── Cow (with horns) ──────────────────────────────────────────────────
+// Side-view, facing right. Iconic Holstein dairy-cow look with bold black
+// patches over white, pink muzzle and udder, floppy ears, and forward-then-
+// up curving horns that double as defensive weapons (defenseTier 2).
+export function CowShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;        // off-white body
+  const shade = colors.shade;      // ivory shadow
+  const light = colors.light;      // pure white highlights
+  const cheek = colors.cheek;      // pink (muzzle / udder)
+  const spot = colors.pattern ?? '#1a1a1a';
+  const horn = '#fff5d8';
+  const hornDark = '#a88848';
+  const hoof = '#1a1208';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="150" ry="7" fill="rgba(0,0,0,0.18)" />
+
+      {/* TAIL — long with dark tuft at the tip */}
+      <path d="M 80 175 Q 50 195 36 232" stroke={shade} strokeWidth="9" fill="none" strokeLinecap="round" />
+      <path d="M 80 175 Q 50 195 36 232" stroke={main} strokeWidth="6" fill="none" strokeLinecap="round" />
+      <ellipse cx="36" cy="240" rx="9" ry="11" fill={spot} />
+      <ellipse cx="34" cy="244" rx="4" ry="6" fill="#3a2a1a" />
+
+      {/* LEGS — sturdy and dark */}
+      <rect x="118" y="194" width="16" height="64" rx="4" fill={shade} />
+      <rect x="118" y="194" width="16" height="64" rx="4" fill={main} opacity="0.9" />
+      <rect x="118" y="248" width="16" height="12" rx="3" fill={spot} />
+      <ellipse cx="126" cy="262" rx="10" ry="3" fill={hoof} />
+
+      <rect x="150" y="194" width="16" height="64" rx="4" fill={main} />
+      <rect x="150" y="248" width="16" height="12" rx="3" fill={spot} />
+      <ellipse cx="158" cy="262" rx="10" ry="3" fill={hoof} />
+
+      <rect x="232" y="194" width="16" height="64" rx="4" fill={shade} />
+      <rect x="232" y="194" width="16" height="64" rx="4" fill={main} opacity="0.9" />
+      <rect x="232" y="248" width="16" height="12" rx="3" fill={spot} />
+      <ellipse cx="240" cy="262" rx="10" ry="3" fill={hoof} />
+
+      <rect x="264" y="194" width="16" height="64" rx="4" fill={main} />
+      <rect x="264" y="248" width="16" height="12" rx="3" fill={spot} />
+      <ellipse cx="272" cy="262" rx="10" ry="3" fill={hoof} />
+
+      {/* BIG BARREL BODY */}
+      <ellipse cx="195" cy="176" rx="120" ry="46" fill={shade} />
+      <ellipse cx="195" cy="172" rx="115" ry="42" fill={main} />
+      <ellipse cx="195" cy="186" rx="106" ry="22" fill={light} opacity="0.7" />
+
+      {/* BLACK COW SPOTS — irregular blobs in classic Holstein pattern */}
+      <g fill={spot}>
+        <path d="M 100 168 Q 88 158 92 144 Q 108 138 124 148 Q 132 166 116 178 Q 102 180 100 168 Z" />
+        <path d="M 160 192 Q 148 184 152 174 Q 168 168 184 178 Q 192 192 176 200 Q 162 200 160 192 Z" />
+        <path d="M 220 160 Q 212 148 220 138 Q 240 132 254 144 Q 262 162 248 174 Q 228 174 220 160 Z" />
+        <path d="M 270 192 Q 262 184 268 172 Q 284 168 296 178 Q 300 192 288 200 Q 274 202 270 192 Z" />
+        <path d="M 196 134 Q 188 124 200 118 Q 216 116 220 130 Q 216 142 202 142 Q 196 138 196 134 Z" />
+      </g>
+
+      {/* PINK UDDER — under the belly, between the back legs */}
+      <ellipse cx="210" cy="216" rx="22" ry="14" fill={cheek} />
+      <ellipse cx="208" cy="214" rx="18" ry="11" fill="#f4cad0" opacity="0.85" />
+      {/* teats */}
+      <g fill={cheek} stroke="#c08080" strokeWidth="0.6">
+        <ellipse cx="198" cy="226" rx="2.5" ry="4" />
+        <ellipse cx="208" cy="228" rx="2.5" ry="4" />
+        <ellipse cx="218" cy="226" rx="2.5" ry="4" />
+      </g>
+
+      {/* NECK joining body to head */}
+      <path d="M 290 160 Q 305 152 315 154 Q 320 172 310 188 Q 295 192 285 184 Z" fill={shade} />
+      <path d="M 292 162 Q 305 154 312 156 Q 316 170 308 184 Q 296 188 288 182 Z" fill={main} />
+
+      {/* HEAD — broad jaw */}
+      <path d="M 300 130
+               Q 332 122 358 134
+               Q 372 152 360 174
+               Q 340 184 312 178
+               Q 296 166 300 130 Z"
+        fill={shade} />
+      <path d="M 304 134
+               Q 332 126 354 138
+               Q 366 152 356 170
+               Q 338 180 314 174
+               Q 300 164 304 134 Z"
+        fill={main} />
+
+      {/* spot on the face — half-mask */}
+      <path d="M 312 134 Q 326 130 338 138 Q 340 152 326 156 Q 312 152 312 134 Z" fill={spot} />
+
+      {/* PINK MUZZLE (large, broad — defining cow feature) */}
+      <ellipse cx="358" cy="160" rx="20" ry="14" fill={cheek} />
+      <ellipse cx="356" cy="158" rx="16" ry="11" fill="#f0a8a8" opacity="0.85" />
+      {/* nostrils */}
+      <ellipse cx="362" cy="156" rx="2.5" ry="3" fill="#8a4040" />
+      <ellipse cx="370" cy="159" rx="2.5" ry="3" fill="#8a4040" />
+      {/* mouth */}
+      <path d="M 354 168 Q 358 174 366 172" stroke="#5a2828" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* HORNS — the headline feature. Curve out sideways then forward
+          and up to a sharp point. Drawn behind the head so the head
+          shape stays clean. */}
+      <g stroke={hornDark} strokeWidth="11" fill="none" strokeLinecap="round">
+        {/* left/back horn — curls up and back */}
+        <path d="M 322 122 Q 305 100 290 88 Q 280 84 274 90" />
+        {/* right/front horn — curls up and forward */}
+        <path d="M 338 122 Q 354 100 368 88 Q 378 84 384 90" />
+      </g>
+      <g stroke={horn} strokeWidth="7" fill="none" strokeLinecap="round">
+        <path d="M 322 122 Q 305 100 290 88 Q 280 84 274 90" />
+        <path d="M 338 122 Q 354 100 368 88 Q 378 84 384 90" />
+      </g>
+      {/* sharp tips */}
+      <polygon points="270 84 280 92 280 86" fill={horn} stroke={hornDark} strokeWidth="0.8" />
+      <polygon points="388 84 378 92 378 86" fill={horn} stroke={hornDark} strokeWidth="0.8" />
+      {/* keratin ridges */}
+      <g stroke={hornDark} strokeWidth="1.3" fill="none" opacity="0.75" strokeLinecap="round">
+        <path d="M 314 116 q 2 -4 4 -2" />
+        <path d="M 306 104 q 2 -4 4 -2" />
+        <path d="M 294 92 q 2 -4 4 -2" />
+        <path d="M 346 116 q -2 -4 -4 -2" />
+        <path d="M 354 104 q -2 -4 -4 -2" />
+        <path d="M 366 92 q -2 -4 -4 -2" />
+      </g>
+
+      {/* FLOPPY EARS — sticking out sideways below the horns */}
+      <ellipse cx="306" cy="134" rx="11" ry="6" fill={shade} transform="rotate(-30 306 134)" />
+      <ellipse cx="306" cy="134" rx="6" ry="3" fill="#f4a8a8" transform="rotate(-30 306 134)" opacity="0.85" />
+      <ellipse cx="354" cy="128" rx="11" ry="6" fill={shade} transform="rotate(20 354 128)" />
+      <ellipse cx="354" cy="128" rx="6" ry="3" fill="#f4a8a8" transform="rotate(20 354 128)" opacity="0.85" />
+
+      {/* EYES — big and round with long lashes */}
+      <g className="eye-blink" style={{ transformOrigin: '320px 148px' }}>
+        <ellipse cx="320" cy="148" rx="7" ry="6" fill="white" stroke="#222" strokeWidth="0.7" />
+        <ellipse cx="320" cy="148" rx="4" ry="5" fill="#3a2a18" />
+        <circle cx="321" cy="146" r="1.5" fill="white" />
+        {/* eyelash hints */}
+        <line x1="314" y1="142" x2="312" y2="139" stroke="#1a1a1a" strokeWidth="1" strokeLinecap="round" />
+        <line x1="318" y1="141" x2="317" y2="137" stroke="#1a1a1a" strokeWidth="1" strokeLinecap="round" />
+      </g>
+
+      {/* small white patch on the muzzle/chin */}
+      <ellipse cx="346" cy="172" rx="8" ry="4" fill={light} opacity="0.6" />
     </svg>
   );
 }

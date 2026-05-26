@@ -8,7 +8,7 @@ export type DexShape =
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
-  | 'tiger' | 'trex' | 'jellyfish' | 'sheep';
+  | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow';
 
 export interface DexAnimal {
   name: string;
@@ -55,6 +55,7 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'T-Rex':           { main: '#6a6850', shade: '#3a3828', light: '#8e8a70', cheek: '#9e9080' },
   'Jellyfish':       { main: '#9ec4e0', shade: '#5a8ab0', light: '#cee0ef', cheek: '#e8b8d0' },
   'Sheep':           { main: '#f4eedc', shade: '#c4b896', light: '#fff8e8', cheek: '#e8c8c8' },
+  'Cow':             { main: '#f4f0e8', shade: '#c8b8a8', light: '#ffffff', cheek: '#f4b8b8', pattern: '#1a1a1a' },
 };
 
 const make = (
@@ -180,6 +181,9 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Sheep', '🐏', 80, 'mammal', true, 1, 1, 1, 1, ['thick-fur'],
     'Domesticated ~10,000 years ago. Ram horns curl backward in a spiral — keratin that keeps growing, can reach 50 cm. Wool fleece insulates against -20°C. Horizontal-slit pupils give nearly 360° vision.', 'sheep',
     ['curled keratin horns', 'wool fleece', 'horizontal-slit pupils']),
+  make('Cow', '🐄', 650, 'mammal', true, 1, 1, 2, 1, [],
+    'Big horns + 650 kg of muscle = real defense. Four-chamber stomach ferments grass with bacteria. Sees almost 360° and can smell predators 10 km away. Domesticated cattle still carry the bull\'s defensive horns in many breeds.', 'cow',
+    ['forward-curving horns', '4-chamber stomach', '360° panoramic vision']),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {
