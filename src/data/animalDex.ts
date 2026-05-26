@@ -8,7 +8,7 @@ export type DexShape =
   | 'elephant' | 'gorilla' | 'camel' | 'ostrich' | 'eagle' | 'owl'
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
-  | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow';
+  | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow' | 'horse' | 'pig';
 
 export interface DexAnimal {
   name: string;
@@ -56,6 +56,8 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Jellyfish':       { main: '#9ec4e0', shade: '#5a8ab0', light: '#cee0ef', cheek: '#e8b8d0' },
   'Sheep':           { main: '#f4eedc', shade: '#c4b896', light: '#fff8e8', cheek: '#e8c8c8' },
   'Cow':             { main: '#f4f0e8', shade: '#c8b8a8', light: '#ffffff', cheek: '#f4b8b8', pattern: '#1a1a1a' },
+  'Horse':           { main: '#a06438', shade: '#6a3818', light: '#c48868', cheek: '#d8aa90', pattern: '#3a1a08' },
+  'Pig':             { main: '#f5b8a8', shade: '#c48070', light: '#ffd0c0', cheek: '#f08090' },
 };
 
 const make = (
@@ -184,6 +186,12 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Cow', '🐄', 650, 'mammal', true, 1, 1, 2, 1, [],
     'Big horns + 650 kg of muscle = real defense. Four-chamber stomach ferments grass with bacteria. Sees almost 360° and can smell predators 10 km away. Domesticated cattle still carry the bull\'s defensive horns in many breeds.', 'cow',
     ['forward-curving horns', '4-chamber stomach', '360° panoramic vision']),
+  make('Horse', '🐎', 500, 'mammal', true, 2, 1, 1, 2, [],
+    'Built to run — top speed 70 km/h and 40+ km of endurance. Eyes on the sides give nearly 350° vision. Tall pointed ears swivel independently to track sound. Domesticated ~6,000 years ago; reshaped human civilization.', 'horse',
+    ['runner legs', 'panoramic vision', 'swiveling ears']),
+  make('Pig', '🐖', 150, 'mammal', true, 1, 2, 1, 1, [],
+    'Smarter than dogs — pigs solve mirror puzzles and remember faces for years. Disk snout is a sense organ packed with 20,000 nerve endings; they root, smell truffles a metre underground, and feel temperature with it. Cloven hooves descend from same toe pattern as cows and deer.', 'pig',
+    ['disk snout (20k nerves)', 'cloven hooves', 'big-brain mammal']),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {

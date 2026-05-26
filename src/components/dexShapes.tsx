@@ -1754,6 +1754,8 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   jellyfish: JellyfishShape,
   sheep: SheepShape,
   cow: CowShape,
+  horse: HorseShape,
+  pig: PigShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -2663,6 +2665,227 @@ export function CowShape({ colors }: { colors: ColorOverride }) {
 
       {/* small white patch on the muzzle/chin */}
       <ellipse cx="346" cy="172" rx="8" ry="4" fill={light} opacity="0.6" />
+    </svg>
+  );
+}
+
+// ─── Horse ──────────────────────────────────────────────────────────────
+// Side-view chestnut horse — long sleek torso, four runner legs,
+// flowing mane and tail, white blaze down the muzzle, tall pointed ears.
+export function HorseShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const mane = colors.pattern ?? '#3a1a08';
+  const hoof = '#1a1208';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="156" ry="7" fill="rgba(0,0,0,0.18)" />
+
+      {/* FLOWING TAIL — left side */}
+      <path d="M 78 178 Q 36 196 24 250 Q 32 254 44 246 Q 54 232 70 224 Q 60 244 56 254 Q 64 256 78 246 Q 88 228 94 210"
+        fill={mane} stroke={mane} strokeWidth="1" />
+      <path d="M 84 180 Q 52 200 40 244 Q 50 246 60 238 Q 70 222 86 214"
+        fill="#5a2a14" opacity="0.85" />
+
+      {/* LEGS — long and slim, classic horse stance */}
+      {/* far back leg */}
+      <rect x="108" y="190" width="13" height="72" rx="4" fill={shade} />
+      <rect x="105" y="252" width="19" height="10" rx="3" fill={hoof} />
+      {/* near back leg */}
+      <rect x="140" y="192" width="14" height="70" rx="4" fill={main} />
+      <rect x="137" y="252" width="20" height="10" rx="3" fill={hoof} />
+      {/* far front leg */}
+      <rect x="230" y="190" width="13" height="72" rx="4" fill={shade} />
+      <rect x="227" y="252" width="19" height="10" rx="3" fill={hoof} />
+      {/* near front leg */}
+      <rect x="262" y="192" width="14" height="70" rx="4" fill={main} />
+      <rect x="259" y="252" width="20" height="10" rx="3" fill={hoof} />
+
+      {/* SLEEK BARREL TORSO */}
+      <ellipse cx="180" cy="172" rx="115" ry="42" fill={shade} />
+      <ellipse cx="180" cy="168" rx="110" ry="38" fill={main} />
+      <ellipse cx="180" cy="186" rx="100" ry="18" fill={light} opacity="0.6" />
+
+      {/* WITHERS hump (shoulder) */}
+      <ellipse cx="230" cy="138" rx="22" ry="14" fill={shade} />
+
+      {/* MUSCULAR NECK arching up to the head */}
+      <path d="M 244 148
+               Q 256 110 296 96
+               Q 322 92 332 110
+               L 326 138
+               Q 296 142 270 156
+               Q 252 160 244 158 Z"
+        fill={shade} />
+      <path d="M 248 150
+               Q 260 114 296 102
+               Q 318 100 326 114
+               L 322 134
+               Q 296 138 272 152
+               Q 256 156 248 156 Z"
+        fill={main} />
+
+      {/* MANE — flowing along the neck and behind the ears */}
+      <path d="M 256 134
+               Q 268 110 302 96
+               Q 318 96 328 108
+               Q 320 116 308 116
+               Q 290 114 278 124
+               Q 264 132 256 134 Z"
+        fill={mane} />
+      <path d="M 264 140 Q 280 130 300 124" stroke={mane} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.85" />
+      <path d="M 270 148 Q 286 138 304 134" stroke={mane} strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.75" />
+
+      {/* HEAD — long, narrow */}
+      <path d="M 308 100
+               Q 348 100 366 124
+               Q 376 144 368 162
+               Q 354 172 332 168
+               Q 314 158 308 140 Z"
+        fill={shade} />
+      <path d="M 312 104
+               Q 346 104 362 126
+               Q 370 142 362 158
+               Q 350 166 332 162
+               Q 316 152 312 138 Z"
+        fill={main} />
+
+      {/* WHITE BLAZE running down the muzzle */}
+      <path d="M 322 110 Q 332 130 340 156 Q 348 162 354 156 Q 350 130 338 108 Q 328 100 322 110 Z"
+        fill={light} opacity="0.85" />
+
+      {/* MUZZLE / nose pad */}
+      <ellipse cx="360" cy="156" rx="12" ry="8" fill="#5a3828" />
+      <ellipse cx="358" cy="154" rx="10" ry="6" fill="#7a4838" />
+      {/* nostril */}
+      <ellipse cx="362" cy="154" rx="3" ry="4" fill="#1a1208" />
+      {/* mouth */}
+      <path d="M 354 164 Q 360 170 366 166" stroke="#3a1a08" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* TALL POINTED EARS */}
+      <path d="M 312 96 L 304 70 L 320 82 Z" fill={shade} />
+      <path d="M 312 92 L 308 78 L 318 86 Z" fill="#f4a8a8" opacity="0.85" />
+      <path d="M 332 92 L 332 64 L 344 80 Z" fill={shade} />
+      <path d="M 334 88 L 334 74 L 342 82 Z" fill="#f4a8a8" opacity="0.85" />
+
+      {/* EYE — large and gentle */}
+      <g className="eye-blink" style={{ transformOrigin: '328px 128px' }}>
+        <ellipse cx="328" cy="128" rx="6" ry="5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="328" cy="128" rx="4" ry="4" fill="#3a1808" />
+        <circle cx="329" cy="126" r="1.4" fill="white" />
+        {/* eyelash hint */}
+        <line x1="324" y1="122" x2="322" y2="119" stroke="#1a1a1a" strokeWidth="1" strokeLinecap="round" />
+        <line x1="328" y1="121" x2="328" y2="118" stroke="#1a1a1a" strokeWidth="1" strokeLinecap="round" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── Pig ────────────────────────────────────────────────────────────────
+// Round chunky body, short stubby legs with cloven hooves, curly tail,
+// flat disk snout, floppy ears.
+export function PigShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const cheek = colors.cheek;
+  const hoof = '#3a1a14';
+  const snoutDark = '#a85060';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="140" ry="7" fill="rgba(0,0,0,0.18)" />
+
+      {/* CURLY TAIL — corkscrew at the back */}
+      <path d="M 84 178
+               Q 60 168 56 152
+               Q 56 144 64 144
+               Q 70 148 68 156
+               Q 66 162 60 162"
+        stroke={shade} strokeWidth="6" fill="none" strokeLinecap="round" />
+      <path d="M 84 178
+               Q 60 168 56 152
+               Q 56 144 64 144
+               Q 70 148 68 156
+               Q 66 162 60 162"
+        stroke={main} strokeWidth="4" fill="none" strokeLinecap="round" />
+
+      {/* SHORT STUBBY LEGS with cloven hooves */}
+      {[120, 152, 240, 272].map((x, i) => (
+        <g key={x}>
+          <rect x={x - 9} y="206" width="18" height="44" rx="4" fill={i % 2 === 0 ? shade : main} />
+          {/* hoof — cloven (split) */}
+          <rect x={x - 10} y="248" width="20" height="12" rx="2" fill={hoof} />
+          {/* hoof split line */}
+          <line x1={x} y1="248" x2={x} y2="260" stroke="#0a0500" strokeWidth="1.6" />
+        </g>
+      ))}
+
+      {/* ROUND CHUBBY BARREL BODY */}
+      <ellipse cx="190" cy="178" rx="115" ry="55" fill={shade} />
+      <ellipse cx="190" cy="174" rx="110" ry="50" fill={main} />
+      <ellipse cx="190" cy="194" rx="100" ry="24" fill={light} opacity="0.65" />
+      {/* belly highlight */}
+      <ellipse cx="190" cy="206" rx="80" ry="14" fill={cheek} opacity="0.35" />
+
+      {/* faint side-spots (a few darker speckles) */}
+      <g fill={shade} opacity="0.45">
+        <circle cx="148" cy="158" r="6" />
+        <circle cx="172" cy="192" r="5" />
+        <circle cx="220" cy="166" r="6" />
+        <circle cx="250" cy="186" r="5" />
+      </g>
+
+      {/* SHORT NECK + HEAD — almost merged with body */}
+      <ellipse cx="298" cy="172" rx="48" ry="42" fill={shade} />
+      <ellipse cx="298" cy="170" rx="44" ry="38" fill={main} />
+      <ellipse cx="298" cy="186" rx="38" ry="18" fill={light} opacity="0.55" />
+
+      {/* CHEEK PUFFS — pigs have prominent jowls */}
+      <ellipse cx="282" cy="194" rx="14" ry="10" fill={cheek} opacity="0.5" />
+
+      {/* DISK SNOUT (the signature feature) — flat circle on the front of the face */}
+      <ellipse cx="342" cy="170" rx="20" ry="22" fill={shade} />
+      <ellipse cx="340" cy="170" rx="17" ry="19" fill={cheek} />
+      <ellipse cx="338" cy="166" rx="12" ry="10" fill="#f8c8b8" opacity="0.6" />
+      {/* twin nostrils — round holes on the disk */}
+      <ellipse cx="344" cy="166" rx="3" ry="4" fill={snoutDark} />
+      <ellipse cx="344" cy="178" rx="3" ry="4" fill={snoutDark} />
+      <ellipse cx="343" cy="165" rx="1.2" ry="1.6" fill="#3a1820" />
+      <ellipse cx="343" cy="177" rx="1.2" ry="1.6" fill="#3a1820" />
+      {/* snout ridge separating snout from face */}
+      <path d="M 326 152 Q 332 170 326 188" stroke={shade} strokeWidth="1.2" fill="none" opacity="0.6" />
+
+      {/* SMILE */}
+      <path d="M 326 196 Q 336 202 348 196" stroke="#5a2020" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+
+      {/* FLOPPY TRIANGLE EARS — flop forward over the eyes */}
+      <path d="M 274 134 L 290 142 L 286 162 Q 278 158 274 134 Z" fill={shade} />
+      <path d="M 278 138 L 286 144 L 284 158 Q 280 154 278 138 Z" fill="#f0a08a" opacity="0.8" />
+      <path d="M 314 132 L 330 138 L 322 158 Q 312 154 314 132 Z" fill={shade} />
+      <path d="M 318 136 L 326 140 L 320 154 Q 314 150 318 136 Z" fill="#f0a08a" opacity="0.8" />
+
+      {/* EYES — small and beady */}
+      <g className="eye-blink" style={{ transformOrigin: '296px 160px' }}>
+        <circle cx="296" cy="160" r="4" fill="white" stroke="#222" strokeWidth="0.5" />
+        <circle cx="297" cy="160" r="2.4" fill="#1a1208" />
+        <circle cx="298" cy="158" r="0.9" fill="white" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '318px 158px' }}>
+        <circle cx="318" cy="158" r="4" fill="white" stroke="#222" strokeWidth="0.5" />
+        <circle cx="319" cy="158" r="2.4" fill="#1a1208" />
+        <circle cx="320" cy="156" r="0.9" fill="white" />
+      </g>
     </svg>
   );
 }
