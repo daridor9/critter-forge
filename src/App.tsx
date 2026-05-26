@@ -33,6 +33,7 @@ import { FoodEconomyPanel } from './components/FoodEconomyPanel';
 import { MissionBoard } from './components/MissionBoard';
 import { TournamentHUD, BetweenRounds, TournamentResults } from './components/TournamentUI';
 import { pickInsight } from './data/insights';
+import { awardPoints, pointsForArenaResult } from './data/points';
 import type { Insight, ArenaResult } from './data/insights';
 import { randomCreature, suggestName } from './data/randomCreature';import { adjustCreatureForStat } from './data/statAdjusters';
 import type { StatKey } from './data/statAdjusters';
@@ -221,6 +222,22 @@ export default function App() {
     if (arenaGot.length > 0) pushToasts(arenaGot);
     const statsGot = checkStatsAchievements();
     if (statsGot.length > 0) pushToasts(statsGot);
+
+    // Award points for the win — keyed by (creature config, challenge
+    // conditions). Same exact creature can't farm the same conditions
+    // twice; different prey / biome / strategy / generation = new key.
+    const ptsSpec = pointsForArenaResult(r, effectiveGeneration);
+    if (ptsSpec) {
+      const award = awardPoints(creature, ptsSpec.challengeKey, ptsSpec.points, ptsSpec.difficulty, ptsSpec.description);
+      if (award.awarded) {
+        pushToasts([{
+          id: `_pts-${ptsSpec.challengeKey}-${Date.now()}`,
+          emoji: '🏅',
+          name: `+${award.pointsThisAward} points · ${ptsSpec.description}`,
+          description: `Creature total: ${award.totalForCreature}`,
+        }]);
+      }
+    }
     if (r.arena === 'chase' && r.won) {
       if ('preyId' in r && r.preyId && 'reward' in r && typeof r.reward === 'number') {
         recordChaseCatch(r.preyId, r.reward);
@@ -679,7 +696,7 @@ export default function App() {
           />
         )}
         {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
-        {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+        {showProfile && <ProfileModal currentCreature={creature} onClose={() => setShowProfile(false)} />}
         {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}
         {showDaily && <DailyChallengeModal onClose={() => setShowDaily(false)} />}
         {showCompare && <CompareModal current={creature} onClose={() => setShowCompare(false)} />}

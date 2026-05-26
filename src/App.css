@@ -3236,6 +3236,67 @@ h2 {
   text-align: center;
   color: var(--fg-dim);
 }
+
+.points-current {
+  background: linear-gradient(135deg, #fff4cf, #ffe9a0);
+  border: 1px solid #d4a040;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.points-current-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.points-current-total {
+  font-size: 22px;
+  font-weight: 800;
+  color: #8a5a00;
+  font-variant-numeric: tabular-nums;
+}
+.points-current-sub {
+  font-size: 12px;
+  color: #6a4828;
+  margin-bottom: 6px;
+}
+.points-award-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+.points-award-list li {
+  display: flex;
+  gap: 8px;
+  padding: 3px 0;
+  border-top: 1px dashed rgba(106, 72, 40, 0.25);
+}
+.points-award-pts {
+  font-weight: 800;
+  color: #c25541;
+  min-width: 38px;
+  font-variant-numeric: tabular-nums;
+}
+.points-award-desc { color: #5a4828; }
+
+.points-sub-heading {
+  margin: 8px 0 6px;
+  font-size: 13px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.points-row-current {
+  background: rgba(255, 244, 207, 0.5);
+}
+.points-row-current strong {
+  color: #8a5a00;
+}
+.points-total {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .profile-prey {
   display: flex;
   gap: 10px;

@@ -7,6 +7,7 @@ import type { Venue, BattleStep, BattleResult } from '../data/battle';
 import { hybridCatalog } from '../data/hybrids';
 import { recordBattle } from '../data/profile';
 import { checkStatsAchievements } from '../data/achievements';
+import { awardPoints, pointsForBattleWin } from '../data/points';
 
 interface SavedCreature {
   id: string;
@@ -61,10 +62,24 @@ export function BattleModal({ current, onClose }: Props) {
   const cA = sources[aIdx].creature;
   const cB = sources[bIdx].creature;
 
+  function awardForBattle(r: ReturnType<typeof simulateBattle>) {
+    // Whoever won the matchup earns points; the exact pairing (config of
+    // both creatures + venue) is the dedup key, so the same match can't
+    // be farmed.
+    if (r.winner === 'A') {
+      const spec = pointsForBattleWin(cA, cB, venue);
+      awardPoints(cA, spec.challengeKey, spec.points, spec.difficulty, spec.description);
+    } else if (r.winner === 'B') {
+      const spec = pointsForBattleWin(cB, cA, venue);
+      awardPoints(cB, spec.challengeKey, spec.points, spec.difficulty, spec.description);
+    }
+  }
+
   function startBattle() {
     const r = simulateBattle(cA, cB, venue);
     recordBattle(venue, r.winner);
     checkStatsAchievements();
+    awardForBattle(r);
     setResult(r);
     setLogIdx(0);
     setStep('play');
@@ -75,6 +90,7 @@ export function BattleModal({ current, onClose }: Props) {
     const r = simulateBattle(cA, cB, venue);
     recordBattle(venue, r.winner);
     checkStatsAchievements();
+    awardForBattle(r);
     setResult(r);
     setLogIdx(0);
     setStep('play');

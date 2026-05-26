@@ -14,6 +14,7 @@ import type { Venue } from '../data/battle';
 import { VENUE_META } from '../data/battle';
 import { recordBattle } from '../data/profile';
 import { tryUnlock, checkStatsAchievements } from '../data/achievements';
+import { awardPoints, pointsForBattleWin } from '../data/points';
 
 interface SavedCreature {
   id: string;
@@ -79,6 +80,20 @@ export function BracketModal({ current, onClose }: Props) {
     setStep('running');
   }
 
+  function awardForMatch(b: Bracket, matchId: string) {
+    const m = b.matches.find((x) => x.id === matchId);
+    if (!m || !m.result || m.aSeed == null || m.bSeed == null) return;
+    const cA = b.entrants[m.aSeed].creature;
+    const cB = b.entrants[m.bSeed].creature;
+    if (m.result.winner === 'A') {
+      const spec = pointsForBattleWin(cA, cB, m.venue);
+      awardPoints(cA, spec.challengeKey, spec.points, spec.difficulty, spec.description);
+    } else if (m.result.winner === 'B') {
+      const spec = pointsForBattleWin(cB, cA, m.venue);
+      awardPoints(cB, spec.challengeKey, spec.points, spec.difficulty, spec.description);
+    }
+  }
+
   function playNext() {
     if (!bracket) return;
     const m = nextPlayableMatch(bracket);
@@ -87,9 +102,10 @@ export function BracketModal({ current, onClose }: Props) {
       return;
     }
     const updated = playMatch(bracket, m.id);
-    // Record the match in lifetime battle stats.
+    // Record the match in lifetime battle stats + award points.
     const justPlayed = updated.matches.find((x) => x.id === m.id);
     if (justPlayed?.result) recordBattle(m.venue, justPlayed.result.winner);
+    awardForMatch(updated, m.id);
     setBracket(updated);
     if (isBracketDone(updated)) finishBracket(updated);
   }
@@ -104,6 +120,7 @@ export function BracketModal({ current, onClose }: Props) {
       cur = playMatch(cur, m.id);
       const justPlayed = cur.matches.find((x) => x.id === m.id);
       if (justPlayed?.result) recordBattle(m.venue, justPlayed.result.winner);
+      awardForMatch(cur, m.id);
     }
     setBracket(cur);
     finishBracket(cur);

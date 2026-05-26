@@ -1,7 +1,10 @@
 import { loadProfile } from '../data/profile';
+import { loadPointsState, getLeaderboard, getCreaturePoints, creatureHash } from '../data/points';
+import type { Creature } from '../types';
 
 interface Props {
   onClose: () => void;
+  currentCreature?: Creature;
 }
 
 const ARENA_LABELS: Record<string, { emoji: string; label: string }> = {
@@ -34,8 +37,12 @@ function fmtRel(ts: number): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-export function ProfileModal({ onClose }: Props) {
+export function ProfileModal({ onClose, currentCreature }: Props) {
   const p = loadProfile();
+  const pts = loadPointsState();
+  const leaderboard = getLeaderboard(10);
+  const currentEntry = currentCreature ? getCreaturePoints(currentCreature) : null;
+  const currentHash = currentCreature ? creatureHash(currentCreature) : '';
   const winRate = p.testsRun > 0 ? Math.round((p.totalWins / p.testsRun) * 100) : 0;
   const arenas: string[] = ['chase', 'hunt', 'climb', 'drought', 'deep', 'maze'];
 
@@ -52,6 +59,61 @@ export function ProfileModal({ onClose }: Props) {
           <p className="dedication">
             Your lifetime stats. Everything tracked locally in this browser — clear localStorage to reset.
           </p>
+
+          <h3>🏅 Points</h3>
+          <p className="profile-empty" style={{ fontStyle: 'normal' }}>
+            Each creature configuration earns points for winning competitions. Different conditions (prey, biome, strategy, opponent) count as different challenges — the same exact build can't farm the same exact win twice.
+          </p>
+          {currentEntry ? (
+            <div className="points-current">
+              <div className="points-current-head">
+                <strong>🦎 {currentEntry.name}</strong>
+                <span className="points-current-total">{currentEntry.totalPoints} pts</span>
+              </div>
+              <div className="points-current-sub">{currentEntry.awards.length} win{currentEntry.awards.length !== 1 ? 's' : ''} earned</div>
+              {currentEntry.awards.length > 0 && (
+                <ul className="points-award-list">
+                  {currentEntry.awards.slice(-6).reverse().map((a) => (
+                    <li key={a.challengeKey}>
+                      <span className="points-award-pts">+{a.points}</span>
+                      <span className="points-award-desc">{a.description}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
+            <p className="profile-empty">
+              Your current creature hasn't won anything yet. Try an arena or a battle.
+            </p>
+          )}
+
+          <h4 className="points-sub-heading">Top scorers</h4>
+          {leaderboard.length === 0 ? (
+            <p className="profile-empty">No points scored yet.</p>
+          ) : (
+            <table className="profile-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Creature</th>
+                  <th>Wins</th>
+                  <th>Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.map((entry, i) => (
+                  <tr key={entry.hash} className={entry.hash === currentHash ? 'points-row-current' : ''}>
+                    <td>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</td>
+                    <td><strong>{entry.name}</strong>{entry.hash === currentHash && <small> · you</small>}</td>
+                    <td>{entry.awards.length}</td>
+                    <td className="points-total">{entry.totalPoints}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <p className="profile-foot"><small>Global total across all your creatures: <strong>{pts.totalPoints}</strong> pts</small></p>
 
           <div className="profile-grid">
             <ProfileBlock label="Tests run" value={p.testsRun} />
