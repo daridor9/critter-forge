@@ -16,6 +16,8 @@ interface XrayProps {
 }
 
 const BONE = '#ffffff';
+const MUSCLE_DARK = '#8a3838';
+const TENDON = '#f0e8c8';
 const BRAIN = '#c890e0';
 const HEART = '#ff5a78';
 const LUNG = '#7ab8e0';
@@ -72,20 +74,42 @@ export function OctopusXray({ creature, massKg }: XrayProps) {
       {/* mantle outline */}
       <ellipse cx="200" cy="125" rx="86" ry="70" fill="rgba(160,180,220,0.18)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
 
-      {/* tentacles (no bones — JUST MUSCLE. The entire octopus body is
-          muscle, no skeleton at all. Draw layered red strands underneath
-          the outline to show that.) */}
-      {tentacles.map((t, i) => (
-        <g key={i}>
-          <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
-            stroke={MUSCLE} strokeWidth="11" fill="none" strokeLinecap="round" opacity="0.55" />
-          <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
-            stroke="rgba(180,200,240,0.45)" strokeWidth="14" fill="none" strokeLinecap="round" />
-        </g>
-      ))}
-      {/* mantle muscle ring around the central brain (real octopi pull
-          themselves through tight gaps by squeezing this) */}
-      <ellipse cx="200" cy="148" rx="44" ry="10" fill={MUSCLE} opacity="0.45" />
+      {/* tentacles — entirely muscle, no bones. Each one shows:
+          1) a soft mantle outline (faint blue)
+          2) a thick MUSCLE core
+          3) a darker red INNER bundle running through
+          4) parallel longitudinal striations along the curve. */}
+      {tentacles.map((t, i) => {
+        const d = `M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`;
+        return (
+          <g key={i}>
+            <path d={d} stroke="rgba(180,200,240,0.45)" strokeWidth="15" fill="none" strokeLinecap="round" />
+            <path d={d} stroke={MUSCLE} strokeWidth="11" fill="none" strokeLinecap="round" opacity="0.65" />
+            <path d={d} stroke={MUSCLE_DARK} strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.55" />
+            {/* striation lines */}
+            <path d={d} stroke={MUSCLE_DARK} strokeWidth="0.9" fill="none" strokeLinecap="round"
+              strokeDasharray="6 3" opacity="0.75"
+              transform={`translate(-1.5 -1.5)`} />
+            <path d={d} stroke={MUSCLE_DARK} strokeWidth="0.9" fill="none" strokeLinecap="round"
+              strokeDasharray="6 3" opacity="0.6"
+              transform={`translate(1.5 1.5)`} />
+          </g>
+        );
+      })}
+      {/* MANTLE RING — circular muscle that squeezes the body through
+          gaps; striations radiate outward from the central brain. */}
+      <ellipse cx="200" cy="148" rx="50" ry="13" fill={MUSCLE} opacity="0.5" />
+      <ellipse cx="200" cy="148" rx="40" ry="9" fill={MUSCLE_DARK} opacity="0.4" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.85" fill="none" strokeLinecap="round">
+        {Array.from({ length: 14 }).map((_, k) => {
+          const a = (k / 14) * Math.PI * 2;
+          const x1 = 200 + Math.cos(a) * 22;
+          const y1 = 148 + Math.sin(a) * 6;
+          const x2 = 200 + Math.cos(a) * 46;
+          const y2 = 148 + Math.sin(a) * 12;
+          return <line key={k} x1={x1} y1={y1} x2={x2} y2={y2} />;
+        })}
+      </g>
       {/* nerve cord down each tentacle */}
       {tentacles.map((t, i) => (
         <path key={`n${i}`} d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`}
@@ -177,10 +201,29 @@ export function WhaleXray({ creature, massKg }: XrayProps) {
         ))}
       </g>
 
-      {/* HUGE FLUKE-DRIVE MUSCLE — runs the length of the tail.
-          Drives the entire whale through the water with vertical strokes. */}
-      <ellipse cx="320" cy="170" rx="60" ry="14" fill={MUSCLE} opacity="0.45" />
-      <ellipse cx="320" cy="180" rx="60" ry="10" fill={MUSCLE} opacity="0.4" />
+      {/* EPAXIAL + HYPAXIAL — fluke drive muscles above and below the
+          spine. Whales beat their flukes vertically with these. */}
+      <path d="M 260 160
+               Q 320 158 378 162
+               Q 380 168 378 172
+               Q 320 170 260 168 Z"
+        fill={MUSCLE} opacity="0.55" />
+      <path d="M 260 178
+               Q 320 178 378 178
+               Q 380 184 378 186
+               Q 320 188 260 184 Z"
+        fill={MUSCLE} opacity="0.5" />
+      <path d="M 270 163 Q 320 162 370 165" stroke={MUSCLE_DARK} strokeWidth="1.4" fill="none" opacity="0.55" />
+      <path d="M 270 184 Q 320 184 370 184" stroke={MUSCLE_DARK} strokeWidth="1.4" fill="none" opacity="0.55" />
+      {/* striations — short cross-fibers showing pull direction */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.7" strokeLinecap="round" fill="none">
+        {[270, 285, 300, 315, 330, 345, 360].map((x) => (
+          <g key={x}>
+            <line x1={x} y1="162" x2={x + 4} y2="170" />
+            <line x1={x} y1="178" x2={x + 4} y2="186" />
+          </g>
+        ))}
+      </g>
 
       {/* fluke bones (flat) */}
       <path d="M 385 160 L 398 130 L 398 188 Z" stroke={BONE} strokeWidth="1.2" fill="none" opacity="0.6" />
@@ -256,11 +299,20 @@ export function DolphinXray({ creature, massKg }: XrayProps) {
       <ellipse cx="210" cy="160" rx="22" ry="11" fill={LUNG} opacity="0.5" />
       <ellipse cx="250" cy="160" rx="22" ry="11" fill={LUNG} opacity="0.5" />
 
-      {/* EPAXIAL MUSCLES — myoglobin-rich tail muscle runs from mid-body
-          down to the fluke. Storing 10× more oxygen than human muscle is
-          how dolphins hold their breath for dives. */}
-      <ellipse cx="280" cy="168" rx="46" ry="10" fill={MUSCLE} opacity="0.5" />
-      <ellipse cx="310" cy="170" rx="22" ry="6" fill={MUSCLE} opacity="0.45" />
+      {/* EPAXIAL MUSCLES — myoglobin-rich tail muscle, dark red, runs
+          from mid-body down to the fluke. Stores 10× more O₂ than human
+          muscle. Striations show the fiber direction. */}
+      <path d="M 240 162
+               Q 290 158 340 168
+               Q 342 174 340 178
+               Q 290 172 240 174 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <path d="M 250 165 Q 290 162 335 170" stroke={MUSCLE_DARK} strokeWidth="2" fill="none" opacity="0.55" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.7" fill="none" strokeLinecap="round">
+        {[250, 270, 290, 310, 325].map((x) => (
+          <line key={x} x1={x} y1="161" x2={x + 4} y2="176" />
+        ))}
+      </g>
 
       {/* fluke vertebrae */}
       <g fill="none" stroke={BONE} strokeWidth="1.1" opacity="0.7">
@@ -285,11 +337,25 @@ export function SharkXray({ creature, massKg }: XrayProps) {
       <path d="M 60 175 Q 100 138 200 138 Q 290 138 340 168 Q 290 200 200 200 Q 100 200 60 175 Z"
         fill="rgba(160,180,220,0.18)" stroke="rgba(180,200,240,0.5)" strokeWidth="1" />
 
-      {/* LATERAL RED MUSCLE BAND — sharks have a thin strip of dark red
-          aerobic muscle along each side (uniquely warm in some species),
-          used for sustained swimming. White muscle does the burst attacks. */}
-      <path d="M 90 168 Q 200 158 320 170" stroke={MUSCLE} strokeWidth="6" fill="none" opacity="0.55" strokeLinecap="round" />
-      <path d="M 110 178 Q 200 172 310 182" stroke={MUSCLE} strokeWidth="4" fill="none" opacity="0.4" strokeLinecap="round" />
+      {/* LATERAL RED MUSCLE BAND — thin strip of slow-twitch aerobic
+          muscle (some sharks keep it 10°C warmer than surrounding water).
+          Drawn over a series of W-shaped myomeres, the segmental
+          muscle blocks that propel every fish + shark. */}
+      <path d="M 90 168 Q 200 158 320 170" stroke={MUSCLE} strokeWidth="7" fill="none" opacity="0.6" strokeLinecap="round" />
+      <path d="M 90 168 Q 200 158 320 170" stroke={MUSCLE_DARK} strokeWidth="3" fill="none" opacity="0.55" strokeLinecap="round" />
+      {/* myomere W-shaped segments along the side */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.9" fill="none" opacity="0.85" strokeLinecap="round">
+        {Array.from({ length: 12 }).map((_, i) => {
+          const t = (i + 0.5) / 12;
+          const x = 90 + t * 230;
+          const y = 162 + 6 * Math.sin(t * Math.PI);
+          return (
+            <path key={i} d={`M ${x - 10} ${y - 6} L ${x - 4} ${y + 4} L ${x} ${y - 4} L ${x + 4} ${y + 4} L ${x + 10} ${y - 6}`} />
+          );
+        })}
+      </g>
+      {/* belly white-muscle band — for burst attacks */}
+      <path d="M 110 182 Q 200 178 310 188" stroke={MUSCLE} strokeWidth="4" fill="none" opacity="0.3" strokeLinecap="round" />
 
       {/* CARTILAGE — drawn dashed/grey to distinguish from real bone */}
       <path d="M 90 170 Q 200 158 320 172" stroke={CARTILAGE} strokeWidth="3" fill="none" strokeDasharray="4 3" opacity="0.85" />
@@ -355,14 +421,45 @@ export function SnakeXray({ creature, massKg }: XrayProps) {
       <path d="M 30 175 Q 80 130 130 175 Q 180 220 230 175 Q 280 130 330 175 Q 360 200 380 180"
         stroke={BONE} strokeWidth="2" fill="none" />
 
-      {/* SEGMENTAL MUSCLES — each pair of vertebrae has its own muscle
-          slab. Snakes propel themselves by contracting these in waves. */}
-      <g fill={MUSCLE} opacity="0.45">
+      {/* SEGMENTAL (myomere) MUSCLES — paired W-shaped segments along
+          the spine. Snakes contract them in alternating waves to slither;
+          fish use the same arrangement. Each segment shows diagonal
+          fiber striations. */}
+      <g fill={MUSCLE} opacity="0.55">
         {Array.from({ length: 15 }).map((_, i) => {
           const t = (i + 0.5) / 15;
           const x = 30 + t * 350;
           const baseY = 175 + 45 * Math.sin(t * Math.PI * 3) * (t < 0.95 ? 1 : 0.4);
-          return <ellipse key={i} cx={x} cy={baseY} rx="8" ry="11" />;
+          // chevron shape — like a wide arrow pointing forward
+          return (
+            <path key={i}
+              d={`M ${x - 9} ${baseY - 11} L ${x + 3} ${baseY} L ${x - 9} ${baseY + 11} L ${x - 3} ${baseY} Z`} />
+          );
+        })}
+      </g>
+      <g fill={MUSCLE_DARK} opacity="0.45">
+        {Array.from({ length: 15 }).map((_, i) => {
+          const t = (i + 0.5) / 15;
+          const x = 30 + t * 350;
+          const baseY = 175 + 45 * Math.sin(t * Math.PI * 3) * (t < 0.95 ? 1 : 0.4);
+          return (
+            <path key={i}
+              d={`M ${x - 4} ${baseY - 7} L ${x + 1} ${baseY} L ${x - 4} ${baseY + 7} L ${x - 1} ${baseY} Z`} />
+          );
+        })}
+      </g>
+      {/* fiber striations */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.7" fill="none" strokeLinecap="round">
+        {Array.from({ length: 15 }).map((_, i) => {
+          const t = (i + 0.5) / 15;
+          const x = 30 + t * 350;
+          const baseY = 175 + 45 * Math.sin(t * Math.PI * 3) * (t < 0.95 ? 1 : 0.4);
+          return (
+            <g key={i}>
+              <line x1={x - 7} y1={baseY - 8} x2={x} y2={baseY - 2} />
+              <line x1={x - 7} y1={baseY + 8} x2={x} y2={baseY + 2} />
+            </g>
+          );
         })}
       </g>
 
@@ -447,9 +544,18 @@ export function TortoiseXray({ creature, massKg }: XrayProps) {
 
       {/* LIMB RETRACTOR MUSCLES — tucked inside the shell, pull the legs
           and head back in when threatened. Strong but slow. */}
-      <ellipse cx="125" cy="190" rx="10" ry="14" fill={MUSCLE} opacity="0.5" />
-      <ellipse cx="275" cy="190" rx="10" ry="14" fill={MUSCLE} opacity="0.5" />
-      <ellipse cx="290" cy="195" rx="14" ry="6" fill={MUSCLE} opacity="0.4" />
+      <path d="M 116 178 Q 134 178 138 200 Q 132 210 120 208 Q 112 198 116 178 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <path d="M 262 178 Q 286 178 286 200 Q 280 210 268 208 Q 258 198 262 178 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <path d="M 280 190 Q 300 188 304 198 Q 296 204 286 202 Z"
+        fill={MUSCLE} opacity="0.5" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.8" fill="none" strokeLinecap="round">
+        <path d="M 120 180 L 132 208" />
+        <path d="M 126 180 L 134 206" />
+        <path d="M 266 180 L 278 208" />
+        <path d="M 274 180 L 282 206" />
+      </g>
 
       <HeartLabel x={180} y={205} bpm={heartRate(massKg)} />
       <Caption text="Shell = fused ribs + spine · lives 150+ years" />
@@ -562,9 +668,17 @@ export function BatXray({ creature, massKg }: XrayProps) {
       <line x1="200" y1="140" x2="200" y2="200" stroke={BONE} strokeWidth="1.8" />
 
       {/* PECTORALIS — flight muscles dominate the bat body. Up to 25%
-          of total body mass is flight muscle, driving 10+ wingbeats/sec. */}
-      <ellipse cx="190" cy="172" rx="6" ry="20" fill={MUSCLE} opacity="0.55" />
-      <ellipse cx="210" cy="172" rx="6" ry="20" fill={MUSCLE} opacity="0.55" />
+          of total body mass is flight muscle, driving 10+ wingbeats/sec.
+          Drawn as fanning teardrops on either side of the keel. */}
+      <path d="M 184 154 Q 198 156 200 196 Q 192 200 188 196 Q 178 178 184 154 Z" fill={MUSCLE} opacity="0.6" />
+      <path d="M 216 154 Q 202 156 200 196 Q 208 200 212 196 Q 222 178 216 154 Z" fill={MUSCLE} opacity="0.6" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.85" fill="none" strokeLinecap="round">
+        <path d="M 188 158 L 196 194" />
+        <path d="M 192 158 L 198 194" />
+        <path d="M 212 158 L 204 194" />
+        <path d="M 208 158 L 202 194" />
+      </g>
+      <path d="M 196 198 L 200 204" stroke={TENDON} strokeWidth="1.2" strokeLinecap="round" />
 
       {/* tiny skull */}
       <ellipse cx="200" cy="140" rx="9" ry="7" fill="none" stroke={BONE} strokeWidth="1.4" />
@@ -627,12 +741,20 @@ export function MouseXray({ creature, massKg }: XrayProps) {
         })}
       </g>
 
-      {/* TINY HINDLEG + JAW MUSCLES — proportionally enormous incisor-
-          jaw muscle lets a mouse gnaw through wood; the hind-leg muscle
+      {/* HINDLEG + JAW MUSCLES — proportionally enormous incisor-jaw
+          muscle lets a mouse gnaw through wood; the hindleg muscle
           powers their 30 cm vertical leap (4× their body length). */}
-      <ellipse cx="175" cy="194" rx="6" ry="9" fill={MUSCLE} opacity="0.55" />
-      <ellipse cx="225" cy="194" rx="6" ry="9" fill={MUSCLE} opacity="0.55" />
-      <ellipse cx="238" cy="174" rx="5" ry="4" fill={MUSCLE} opacity="0.55" />
+      <path d="M 170 188 Q 182 188 182 202 Q 178 210 172 208 Q 166 198 170 188 Z" fill={MUSCLE} opacity="0.6" />
+      <path d="M 220 188 Q 232 188 232 202 Q 228 210 222 208 Q 216 198 220 188 Z" fill={MUSCLE} opacity="0.6" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.5" opacity="0.85" fill="none" strokeLinecap="round">
+        <path d="M 172 190 L 178 206" />
+        <path d="M 176 190 L 180 206" />
+        <path d="M 222 190 L 228 206" />
+        <path d="M 226 190 L 230 206" />
+      </g>
+      {/* jaw masseter behind the cheek */}
+      <ellipse cx="236" cy="174" rx="5" ry="4" fill={MUSCLE} opacity="0.6" />
+      <line x1="232" y1="173" x2="240" y2="175" stroke={MUSCLE_DARK} strokeWidth="0.5" opacity="0.8" />
 
       {/* legs */}
       {[175, 225].map((x) => (
@@ -801,11 +923,27 @@ export function PenguinXray({ creature, massKg }: XrayProps) {
         })}
       </g>
 
-      {/* FLIPPER MUSCLES — penguins repurposed pectoralis for paddling
-          underwater. Different fiber composition vs flying birds — more
-          slow-twitch for sustained dives, denser than air-flight muscle. */}
-      <ellipse cx="175" cy="180" rx="9" ry="26" fill={MUSCLE} opacity="0.55" />
-      <ellipse cx="225" cy="180" rx="9" ry="26" fill={MUSCLE} opacity="0.55" />
+      {/* FLIPPER PECTORALIS — penguins repurposed flight muscle for
+          underwater paddling. Slow-twitch fibers for sustained dives,
+          denser than air-flying birds. */}
+      <path d="M 170 152
+               Q 186 154 188 208
+               Q 180 214 172 210
+               Q 162 180 170 152 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <path d="M 230 152
+               Q 214 154 212 208
+               Q 220 214 228 210
+               Q 238 180 230 152 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.85" fill="none" strokeLinecap="round">
+        <path d="M 174 156 L 182 208" />
+        <path d="M 180 156 L 184 208" />
+        <path d="M 226 156 L 218 208" />
+        <path d="M 220 156 L 216 208" />
+      </g>
+      <path d="M 180 212 L 178 220" stroke={TENDON} strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M 220 212 L 222 220" stroke={TENDON} strokeWidth="1.4" strokeLinecap="round" />
 
       {/* flipper-wing bones (fused, paddle-like) */}
       <g stroke={BONE} strokeWidth="1.6" fill="none" strokeLinecap="round">
@@ -874,33 +1012,101 @@ export function QuadrupedXray({ creature, massKg }: XrayProps) {
         })}
       </g>
 
-      {/* MUSCLES — chest (pectoralis) and hindquarters (gluteus / biceps
-          femoris). Reds drawn first, bones overlay them. Sprinters like
-          cheetah get a more pronounced hindquarter; gorilla gets bigger
-          shoulders. */}
+      {/* MUSCLES — anatomically shaped, with parallel fiber striations
+          and tendons attaching to the bones. */}
       {!isUpright && (
         <g>
-          {/* powerful hind-leg quadriceps + glute, drawn behind the back legs */}
-          <ellipse cx="125" cy="195" rx="20" ry="14" fill={MUSCLE} opacity="0.55" />
-          <ellipse cx="125" cy="195" rx="14" ry="9" fill={MUSCLE} opacity="0.7" />
-          {/* shoulder / triceps */}
-          <ellipse cx="252" cy="180" rx="18" ry="11" fill={MUSCLE} opacity="0.5" />
-          {/* pectoralis along the chest under the ribs */}
-          <ellipse cx="200" cy="195" rx="36" ry="6" fill={MUSCLE} opacity="0.45" />
-          {/* striation hints */}
-          <g stroke={MUSCLE} strokeWidth="0.6" opacity="0.7">
-            <line x1="118" y1="184" x2="142" y2="208" />
-            <line x1="115" y1="190" x2="138" y2="214" />
-            <line x1="247" y1="172" x2="262" y2="190" />
+          {/* HINDQUARTER — biceps femoris / glute. Teardrop shape sweeping
+              from the hip down to a tendon at the back of the knee. */}
+          <path d="M 102 175
+                   Q 145 168 152 198
+                   Q 145 215 120 215
+                   Q 100 208 96 192
+                   Z"
+            fill={MUSCLE} opacity="0.65" />
+          {/* deeper red core where the muscle is thickest */}
+          <path d="M 112 182
+                   Q 138 178 144 198
+                   Q 138 210 122 210
+                   Q 108 204 108 194
+                   Z"
+            fill={MUSCLE_DARK} opacity="0.45" />
+          {/* fiber striations along the muscle's pull direction */}
+          <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.85" strokeLinecap="round" fill="none">
+            <path d="M 108 180 Q 122 192 138 210" />
+            <path d="M 102 188 Q 120 198 135 215" />
+            <path d="M 100 197 Q 118 207 132 218" />
+            <path d="M 112 175 Q 128 190 148 205" />
           </g>
+          {/* tendon connecting muscle to leg bone — pale yellow line */}
+          <path d="M 138 212 Q 142 222 138 232" stroke={TENDON} strokeWidth="2" fill="none" strokeLinecap="round" />
+
+          {/* PECTORALIS — chest. Fan shape radiating from sternum out to
+              the shoulder, with horizontal-ish fibers. */}
+          <path d="M 168 178
+                   Q 200 172 232 178
+                   Q 230 200 200 204
+                   Q 170 200 168 178
+                   Z"
+            fill={MUSCLE} opacity="0.55" />
+          <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.8" strokeLinecap="round" fill="none">
+            <path d="M 172 184 Q 200 182 228 184" />
+            <path d="M 174 192 Q 200 192 226 192" />
+            <path d="M 178 200 Q 200 200 222 200" />
+          </g>
+
+          {/* DELTOID / SHOULDER — short rounded muscle over the
+              shoulder joint, fibers radiating down toward the front leg. */}
+          <path d="M 246 168
+                   Q 268 172 268 188
+                   Q 264 200 248 198
+                   Q 238 192 240 178 Z"
+            fill={MUSCLE} opacity="0.6" />
+          <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.85" fill="none" strokeLinecap="round">
+            <path d="M 248 172 L 258 192" />
+            <path d="M 252 170 L 262 192" />
+            <path d="M 256 170 L 265 188" />
+          </g>
+          {/* shoulder tendon to front leg */}
+          <path d="M 256 198 Q 260 208 256 218" stroke={TENDON} strokeWidth="2" fill="none" strokeLinecap="round" />
         </g>
       )}
       {isUpright && (
         <g>
-          {/* huge gorilla shoulder + chest muscles */}
-          <ellipse cx="172" cy="158" rx="14" ry="22" fill={MUSCLE} opacity="0.55" />
-          <ellipse cx="228" cy="158" rx="14" ry="22" fill={MUSCLE} opacity="0.55" />
-          <ellipse cx="200" cy="175" rx="22" ry="14" fill={MUSCLE} opacity="0.45" />
+          {/* GORILLA pectoralis + deltoids — far bigger than typical
+              quadrupeds. Fibers run vertically. */}
+          {/* left shoulder mass */}
+          <path d="M 160 138
+                   Q 184 142 188 174
+                   Q 180 196 162 192
+                   Q 152 166 160 138 Z"
+            fill={MUSCLE} opacity="0.6" />
+          {/* darker core */}
+          <path d="M 168 148 Q 182 152 184 174 Q 178 190 168 188 Q 162 168 168 148 Z" fill={MUSCLE_DARK} opacity="0.4" />
+          <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.85" fill="none" strokeLinecap="round">
+            <path d="M 168 145 L 172 185" />
+            <path d="M 174 142 L 176 188" />
+            <path d="M 180 145 L 180 185" />
+          </g>
+          {/* right shoulder mass — mirror */}
+          <path d="M 240 138
+                   Q 216 142 212 174
+                   Q 220 196 238 192
+                   Q 248 166 240 138 Z"
+            fill={MUSCLE} opacity="0.6" />
+          <path d="M 232 148 Q 218 152 216 174 Q 222 190 232 188 Q 238 168 232 148 Z" fill={MUSCLE_DARK} opacity="0.4" />
+          <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.85" fill="none" strokeLinecap="round">
+            <path d="M 232 145 L 228 185" />
+            <path d="M 226 142 L 224 188" />
+            <path d="M 220 145 L 220 185" />
+          </g>
+          {/* central abdominal slab */}
+          <path d="M 188 178 Q 200 174 212 178 L 212 200 Q 200 204 188 200 Z"
+            fill={MUSCLE} opacity="0.45" />
+          <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.7" fill="none">
+            <line x1="195" y1="184" x2="205" y2="184" />
+            <line x1="195" y1="192" x2="205" y2="192" />
+          </g>
         </g>
       )}
 
@@ -964,14 +1170,24 @@ export function CrocodileXray({ creature, massKg }: XrayProps) {
         {[330, 345, 360].map((x, i) => <ellipse key={i} cx={x} cy={181 + i * 3} rx="3.5" ry="2.5" />)}
       </g>
 
-      {/* MASSIVE JAW MUSCLE — masseter + pterygoid. Bite force 16,000 N
-          (a lion bites at 4,000). The muscle bulges behind the eye. */}
-      <ellipse cx="92" cy="170" rx="16" ry="12" fill={MUSCLE} opacity="0.6" />
-      <ellipse cx="92" cy="170" rx="10" ry="7" fill={MUSCLE} opacity="0.75" />
-      <g stroke={MUSCLE} strokeWidth="0.7" opacity="0.7">
-        <line x1="80" y1="166" x2="104" y2="166" />
-        <line x1="80" y1="172" x2="104" y2="172" />
+      {/* MASSETER + PTERYGOID — the jaw-closing muscles. Anchor up on
+          the skull and pull the jaw shut with 16,000 N of force. */}
+      <path d="M 78 158
+               Q 110 154 110 178
+               Q 100 188 84 184
+               Q 72 174 78 158 Z"
+        fill={MUSCLE} opacity="0.65" />
+      <path d="M 84 162 Q 104 160 102 178 Q 92 184 86 180 Q 80 172 84 162 Z" fill={MUSCLE_DARK} opacity="0.45" />
+      {/* striations — fibers angle from skull down to jaw */}
+      <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.9" strokeLinecap="round" fill="none">
+        <path d="M 84 158 L 90 180" />
+        <path d="M 92 156 L 96 182" />
+        <path d="M 100 158 L 100 180" />
+        <path d="M 106 162 L 102 178" />
       </g>
+      {/* tendons attaching to the skull and jaw */}
+      <path d="M 80 156 L 78 160" stroke={TENDON} strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M 105 186 L 110 188" stroke={TENDON} strokeWidth="1.6" strokeLinecap="round" />
 
       {/* long jaw / skull */}
       <path d="M 78 175 L 18 178 L 18 188 L 78 188 Z" fill="none" stroke={BONE} strokeWidth="1.6" />
@@ -1134,15 +1350,34 @@ export function RaptorXray({ creature, massKg }: XrayProps) {
         <path d="M 225 185 L 235 190" />
       </g>
 
-      {/* DRUMSTICK MUSCLES — gastrocnemius + thigh. Raptor and T-Rex
-          packed enormous power into the hind limbs (T-Rex thigh was
-          half a ton of muscle on a 7-ton body). */}
+      {/* DRUMSTICK — gastrocnemius + thigh quadriceps. Massive in
+          theropods. Shape is a swelling teardrop with striations along
+          the leg, ending in an Achilles tendon at the heel. */}
       {[185, 215].map((x) => (
         <g key={`m${x}`}>
-          <ellipse cx={x - 2} cy="218" rx="11" ry="16" fill={MUSCLE} opacity="0.5" />
-          <ellipse cx={x - 2} cy="218" rx="6" ry="11" fill={MUSCLE} opacity="0.65" />
+          {/* upper thigh teardrop */}
+          <path d={`M ${x - 12} 204
+                    Q ${x + 8} 200 ${x + 6} 236
+                    Q ${x - 3} 240 ${x - 12} 232
+                    Q ${x - 16} 218 ${x - 12} 204 Z`}
+            fill={MUSCLE} opacity="0.6" />
+          <path d={`M ${x - 8} 210 Q ${x + 4} 208 ${x + 2} 234 Q ${x - 4} 236 ${x - 8} 228 Z`}
+            fill={MUSCLE_DARK} opacity="0.45" />
+          {/* fiber striations */}
+          <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.85" strokeLinecap="round" fill="none">
+            <path d={`M ${x - 10} 210 L ${x + 2} 234`} />
+            <path d={`M ${x - 6} 208 L ${x + 4} 234`} />
+            <path d={`M ${x - 2} 208 L ${x + 4} 232`} />
+          </g>
           {/* lower drumstick / calf */}
-          <ellipse cx={x + 1} cy="252" rx="6" ry="11" fill={MUSCLE} opacity="0.45" />
+          <path d={`M ${x - 6} 244 Q ${x + 8} 246 ${x + 4} 264 Q ${x - 3} 264 ${x - 6} 256 Z`}
+            fill={MUSCLE} opacity="0.55" />
+          <g stroke={MUSCLE_DARK} strokeWidth="0.6" opacity="0.75" strokeLinecap="round" fill="none">
+            <path d={`M ${x - 4} 246 L ${x + 2} 262`} />
+            <path d={`M ${x} 246 L ${x + 4} 262`} />
+          </g>
+          {/* Achilles tendon to ankle */}
+          <path d={`M ${x + 4} 263 L ${x + 6} 268`} stroke={TENDON} strokeWidth="1.6" strokeLinecap="round" />
         </g>
       ))}
 
@@ -1210,14 +1445,26 @@ export function TriceratopsXray({ creature, massKg }: XrayProps) {
       {/* parrot beak */}
       <path d="M 332 178 Q 348 185 332 192 Z" fill={BONE} stroke="#888" strokeWidth="0.6" />
 
-      {/* MASSIVE NECK + JAW MUSCLES — held up a 2 m frilled skull.
-          The temporalis (chewing) was huge for grinding tough plants. */}
-      <ellipse cx="284" cy="166" rx="22" ry="14" fill={MUSCLE} opacity="0.55" />
-      <ellipse cx="306" cy="172" rx="14" ry="9" fill={MUSCLE} opacity="0.6" />
-      <g stroke={MUSCLE} strokeWidth="0.8" opacity="0.7">
-        <line x1="278" y1="156" x2="298" y2="156" />
-        <line x1="276" y1="170" x2="296" y2="172" />
+      {/* NECK + JAW MUSCLES — held up a 2 m frilled skull. The
+          temporalis (chewing) was huge for grinding tough plants. */}
+      {/* trapezius / neck mass */}
+      <path d="M 252 156 Q 286 150 304 168 Q 290 184 264 180 Q 248 170 252 156 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <path d="M 260 162 Q 282 158 296 170 Q 286 178 268 176 Q 256 170 260 162 Z" fill={MUSCLE_DARK} opacity="0.45" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.8" opacity="0.85" strokeLinecap="round" fill="none">
+        <path d="M 256 160 L 292 172" />
+        <path d="M 256 168 L 296 174" />
+        <path d="M 258 176 L 294 178" />
       </g>
+      {/* temporalis at jaw hinge */}
+      <path d="M 296 162 Q 318 162 318 178 Q 310 188 298 184 Q 290 174 296 162 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.85" fill="none">
+        <path d="M 300 164 L 312 180" />
+        <path d="M 304 164 L 314 182" />
+        <path d="M 308 164 L 314 180" />
+      </g>
+      <path d="M 314 184 L 318 188" stroke={TENDON} strokeWidth="1.5" strokeLinecap="round" />
 
       {/* massive ribcage */}
       <g stroke={BONE} strokeWidth="1.3" fill="none" opacity="0.85">
@@ -1276,10 +1523,21 @@ export function StegosaurusXray({ creature, massKg }: XrayProps) {
         })}
       </g>
 
-      {/* TAIL DRIVE MUSCLE — base of the tail had a thick muscular base
-          (caudofemoralis) to swing the thagomizer like a club. */}
-      <ellipse cx="318" cy="208" rx="22" ry="11" fill={MUSCLE} opacity="0.55" />
-      <ellipse cx="340" cy="216" rx="14" ry="7" fill={MUSCLE} opacity="0.45" />
+      {/* CAUDOFEMORALIS — tail-base drive muscle that swung the
+          thagomizer like a club. Fibers run along the tail. */}
+      <path d="M 296 198
+               Q 326 200 350 214
+               Q 354 220 350 224
+               Q 326 220 296 214 Z"
+        fill={MUSCLE} opacity="0.6" />
+      <path d="M 306 204 Q 326 206 344 218" stroke={MUSCLE_DARK} strokeWidth="1.6" fill="none" opacity="0.55" />
+      <g stroke={MUSCLE_DARK} strokeWidth="0.7" opacity="0.85" fill="none" strokeLinecap="round">
+        <path d="M 302 200 L 320 218" />
+        <path d="M 314 200 L 332 220" />
+        <path d="M 326 204 L 344 222" />
+      </g>
+      {/* tendon out toward the thagomizer */}
+      <path d="M 350 222 L 360 228" stroke={TENDON} strokeWidth="1.5" strokeLinecap="round" />
 
       {/* tail with THAGOMIZER — 4 spikes */}
       <path d="M 320 200 Q 355 215 380 230" stroke={BONE} strokeWidth="1.8" fill="none" />
