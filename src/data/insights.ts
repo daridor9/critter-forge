@@ -12,7 +12,7 @@ export type ArenaResult =
   | { arena: 'climb'; won: boolean; reason: 'reached-top' | 'froze' | 'exhausted'; terrain?: 'alpine' | 'volcanic' | 'glacial' | 'aurora' }
   | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved'; daysSurvived: number; severity?: 'dry' | 'drought' | 'megadrought' | 'apocalypse' }
   | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught'; env?: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean'; strategy?: 'hide' | 'run' | 'fight'; difficulty?: 'normal' | 'tough' | 'apex' }
-  | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed'; maxDepth: number }
+  | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed' | 'crossed' | 'exhausted' | 'caught' | 'landed' | 'stalled' | 'no-wings'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number };
 
 export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature): Insight {
@@ -184,6 +184,19 @@ function pickDeep(r: Extract<ArenaResult, { arena: 'deep' }>, massKg: number, c?
         'and tissues that handle pressure without collapsing. Mammals and birds that dive evolved these ' +
         'tricks independently — a beautiful example of convergent evolution.';
     }
+    // Win text variants for swim / glide modes.
+    if (r.reason === 'crossed') {
+      return { id: 'deep-crossed', won: true, title: `Crossed ${r.maxDepth}m of open water!`, text:
+        'Surface swimmers win by streamlining and stamina. Aquatic body plans (fish, cetaceans) move tirelessly through water; ' +
+        'land animals tire fast — even strong swimmers like horses fade within a few hundred metres. ' +
+        'Migratory marlin cross thousands of km on the same trick: low drag + huge muscles.' };
+    }
+    if (r.reason === 'landed') {
+      return { id: 'deep-landed', won: true, title: `Glided ${r.maxDepth}m to landing!`, text:
+        'Albatrosses can glide for HOURS without flapping by reading wind layers over the ocean. ' +
+        'Frigatebirds stay airborne for two months. Light bones, long narrow wings, and a sharp eye for ' +
+        'updrafts let large birds cover huge distances for almost no energy cost. You used the same physics.' };
+    }
     return { id: 'deep-won', won: true, title: `Foraged at ${r.maxDepth}m!`, text };
   }
   if (r.reason === 'drowned') {
@@ -191,7 +204,36 @@ function pickDeep(r: Extract<ArenaResult, { arena: 'deep' }>, massKg: number, c?
       'Lung capacity scales roughly with body size. A mouse can\'t dive — too little oxygen storage. Either ' +
       'go bigger (whale-style), or add gills, or switch to a fish body plan to extract O₂ from water.' };
   }
-  return { id: 'deep-crushed', won: false, title: 'Crushed by pressure', text:
-    'Pressure doubles every 10m of depth. Soft tissues collapse. Armor (or whale-style blubber) is needed ' +
-    'past 100m — or use a fish body plan, which equalizes pressure naturally.' };
+  if (r.reason === 'crushed') {
+    return { id: 'deep-crushed', won: false, title: 'Crushed by pressure', text:
+      'Pressure doubles every 10m of depth. Soft tissues collapse. Armor (or whale-style blubber) is needed ' +
+      'past 100m — or use a fish body plan, which equalizes pressure naturally.' };
+  }
+  if (r.reason === 'exhausted') {
+    return { id: 'deep-exhausted', won: false, title: 'Tired in the water', text:
+      'Land animals burn through stamina fast in water — drag is ~800× greater than in air. ' +
+      'A fish body plan, gills, or simply more muscle mass (bigger size) lets you keep going. ' +
+      'Otters and beavers do it with thick fat reserves and a wide tail for propulsion.' };
+  }
+  if (r.reason === 'caught') {
+    return { id: 'deep-caught', won: false, title: 'A shark caught you mid-swim', text:
+      'Open water is patrolled by predators. Speed and agility matter — schooling fish stay safe through ' +
+      'sheer numbers; lone swimmers need to be faster than the shark (most aren\'t). Aquatic body plans ' +
+      'and longer legs would have helped.' };
+  }
+  if (r.reason === 'stalled') {
+    return { id: 'deep-stalled', won: false, title: 'Stalled and fell into the sea', text:
+      'Gliding needs lift — long thin wings, low body weight, or strong tailwinds. Heavy creatures with ' +
+      'short stubby wings (chickens, turkeys) glide only seconds before plunging. Try the wings hybrid ' +
+      'with a smaller body, or pick a calmer route with steady thermals.' };
+  }
+  if (r.reason === 'no-wings') {
+    return { id: 'deep-no-wings', won: false, title: 'No wings to glide with', text:
+      'Gliding requires either a bird body plan or the wings hybrid. Without lift surfaces you just fall — ' +
+      'flying squirrels and sugar gliders use skin flaps (patagia) between their limbs, which is what the ' +
+      'wings hybrid simulates. Add it and try again.' };
+  }
+  return { id: 'deep-generic', won: false, title: 'The ocean is unforgiving', text:
+    'Different routes demand different builds. Dive needs lungs and pressure resistance. Swim needs streamlining ' +
+    'and stamina. Glide needs wings and tailwind. Match the body to the challenge.' };
 }
