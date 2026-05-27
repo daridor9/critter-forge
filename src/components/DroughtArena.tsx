@@ -287,6 +287,34 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
         ))}
       </div>
 
+      {/* ACTIVITY PICKER — what the creature does each day. Switchable any
+          time during the run; this is the strategic core of the arena. */}
+      <div className="drought-activity-label">
+        <strong>What are you doing?</strong> <small>(switch any time during the run)</small>
+      </div>
+      <div className="prey-tabs">
+        {([
+          { id: 'forage' as const,  emoji: '🌿',   label: 'Forage food',    sub: '+food · -water',                title: 'Search for food. Finds lots of food but you burn through water in the sun.' },
+          { id: 'water' as const,   emoji: '💧',   label: 'Find water',     sub: '+water · -food',                title: 'Search for water. Finds lots of water but you skip eating, so food drains.' },
+          { id: 'shelter' as const, emoji: '🪨',   label: 'Shelter',        sub: 'both drains slow',              title: 'Hide in shade or cave. Both drains slash; nothing is found. Best in dust storm.' },
+          { id: 'both' as const,    emoji: '🌿💧', label: 'Split time',     sub: 'food + water, lower rate',      title: 'Split your time between food and water. Balanced but slower at each.' },
+        ]).map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            className={`prey-tab${activity === a.id ? ' active' : ''}`}
+            onClick={() => pickActivity(a.id)}
+            title={a.title}
+          >
+            <span className="prey-emoji">{a.emoji}</span>
+            <span className="prey-name">
+              {a.label}
+              <small> {a.sub}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="drought-sky" x1="0" y1="0" x2="0" y2="1">
@@ -578,26 +606,6 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           <button className="btn" onClick={start} type="button">
             Start the drought
           </button>
-        )}
-        {running && (
-          <div className="drought-activity-row">
-            {([
-              { id: 'forage' as const,  emoji: '🌿', label: 'Forage',  title: 'Search for food. Finds lots of food but you skip drinking — water drains fast.' },
-              { id: 'water' as const,   emoji: '💧', label: 'Water',   title: 'Search for water. Finds lots of water but you skip eating — food drains fast.' },
-              { id: 'shelter' as const, emoji: '🪨', label: 'Shelter', title: 'Hide in shade/cave. Slashes both drains. Best during dust storms or peak heat.' },
-              { id: 'both' as const,    emoji: '🌿💧', label: 'Split', title: 'Split your time between food and water — balanced but slower at each.' },
-            ]).map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={`btn ${activity === a.id ? '' : 'btn-secondary'}`}
-                onClick={() => pickActivity(a.id)}
-                title={a.title}
-              >
-                {a.emoji} {a.label}
-              </button>
-            ))}
-          </div>
         )}
         {running && (
           <button

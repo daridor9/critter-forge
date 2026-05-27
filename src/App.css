@@ -3994,15 +3994,15 @@ h2 {
 }
 .gauntlet-arena-wrap { padding: 0 0 8px; }
 .gauntlet-result { padding-top: 6px; }
-.drought-activity-row {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.drought-activity-row .btn {
-  padding: 6px 10px;
+.drought-activity-label {
+  text-align: center;
+  margin: 8px 0 4px;
   font-size: 13px;
+  color: var(--fg);
+}
+.drought-activity-label small {
+  color: var(--fg-dim);
+  margin-left: 4px;
 }
 .gauntlet-toggle {
   margin: 10px auto 6px;
