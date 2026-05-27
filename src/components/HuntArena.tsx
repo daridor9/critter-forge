@@ -154,7 +154,12 @@ const GROUND_Y = 170;
 export function HuntArena({ creature, stats, onFinish }: Props) {
   const [envId, setEnvId] = useState<EnvId>('forest');
   const [difficultyId, setDifficultyId] = useState<HuntDifficultyId>('normal');
-  const [done, setDone] = useState(false);
+  // Three-phase flow: 'choose' (pick strategy) → 'play' (animate the
+  // outcome for ~1.7s) → 'done' (insight card shows).
+  const [phase, setPhase] = useState<'choose' | 'play' | 'done'>('choose');
+  const [playingStrategy, setPlayingStrategy] = useState<Strategy | null>(null);
+  const [playWon, setPlayWon] = useState(false);
+  const [flashOn, setFlashOn] = useState(false);
 
   const diff = HUNT_DIFFICULTIES.find((d) => d.id === difficultyId) ?? HUNT_DIFFICULTIES[0];
 
@@ -177,11 +182,57 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     const luck = (Math.random() * 2 - 1) * LUCK_SWING;
     const adjustedMargin = result.margin + luck;
     const won = adjustedMargin > 0;
-    setDone(true);
-    onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy, difficulty: diff.id });
+    setPlayingStrategy(strategy);
+    setPlayWon(won);
+    setPhase('play');
+    // Mid-animation flash for fight + lost-hide collisions.
+    if (strategy === 'fight' || (!won && strategy === 'hide')) {
+      window.setTimeout(() => setFlashOn(true), 900);
+      window.setTimeout(() => setFlashOn(false), 1200);
+    }
+    // After the animation, settle to 'done' and report the outcome up.
+    window.setTimeout(() => {
+      setPhase('done');
+      onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy, difficulty: diff.id });
+    }, 1800);
   }
 
-  function reset() { setDone(false); }
+  function reset() {
+    setPhase('choose');
+    setPlayingStrategy(null);
+    setFlashOn(false);
+  }
+
+  const done = phase === 'done';
+  const playing = phase === 'play';
+
+  // Animated positions for creature + predator based on phase / strategy /
+  // outcome. Values are svg-coordinates (translateX). Plain numbers go
+  // into inline `transform: translateX(...)` with a CSS transition so the
+  // bodies actually slide.
+  const baseCreatureX = W * 0.28;
+  const basePredX = W * 0.72;
+  let creatureDX = 0;
+  let predDX = 0;
+  let creatureOpacity = 1;
+  let predOpacity = 1;
+  if (playing && playingStrategy === 'hide') {
+    // Creature crouches + fades (camouflage). Predator sweeps left,
+    // looking. If won, predator passes by; if lost, predator pounces.
+    creatureOpacity = 0.35;
+    predDX = playWon ? -160 : -(basePredX - baseCreatureX);
+  } else if (playing && playingStrategy === 'run') {
+    // Both dash left. Creature exits screen first if won, gets caught
+    // if lost.
+    creatureDX = playWon ? -(W * 0.45) : -(W * 0.32);
+    predDX = playWon ? -(W * 0.3) : -(W * 0.48);
+  } else if (playing && playingStrategy === 'fight') {
+    // Both close to center, then one retreats.
+    creatureDX = playWon ? 60 : 100;
+    predDX = playWon ? -160 : -100;
+    if (playWon) predOpacity = 0.45;     // predator fades on retreat
+    else creatureOpacity = 0.55;
+  }
 
   return (
     <div className="arena">
@@ -194,8 +245,8 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
             key={id}
             type="button"
             className={`prey-tab${envId === id ? ' active' : ''}`}
-            onClick={() => { setEnvId(id); setDone(false); }}
-            disabled={done}
+            onClick={() => { setEnvId(id); reset(); }}
+            disabled={done || playing}
             title={`${def.envName} — ${def.name}`}
           >
             <span className="prey-emoji">{def.envEmoji}</span>
@@ -210,8 +261,8 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
             key={d.id}
             type="button"
             className={`prey-tab${difficultyId === d.id ? ' active' : ''}`}
-            onClick={() => { setDifficultyId(d.id); setDone(false); }}
-            disabled={done}
+            onClick={() => { setDifficultyId(d.id); reset(); }}
+            disabled={done || playing}
             title={d.description}
           >
             <span className="prey-emoji">{d.emoji}</span>
@@ -275,36 +326,102 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
           </>
         )}
 
-        {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={W * 0.28 - 50} y={GROUND_Y - 80} width={100} height={80} animate="breathe" />
-        ) : (
-          <g transform={`translate(${W * 0.28} 0)`}>
-            <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="breathe" />
+        {/* AMBIENT LIVE DETAILS — birds, leaves, dust, etc. */}
+        <g>
+          {/* always 2-3 flapping bird silhouettes high in the sky */}
+          {[120, 200, 280].map((bx, i) => (
+            <g key={`bird-${i}`} transform={`translate(${bx} ${30 + i * 8})`} className="bird-wing" style={{ transformOrigin: 'center' }}>
+              <path d="M -6 0 Q -3 -3 0 0 Q 3 -3 6 0" stroke="#3a2a18" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+            </g>
+          ))}
+          {/* falling leaves in the forest */}
+          {envId === 'forest' && Array.from({ length: 8 }).map((_, i) => (
+            <g key={`leaf-${i}`} className="snowflake" style={{ animationDuration: `${4 + (i % 4)}s`, animationDelay: `-${i * 0.5}s` }}>
+              <ellipse cx={(i * 73 + 10) % W} cy={-10 + (i * 17) % 40} rx="3" ry="1.5" fill="#9a6a30" opacity="0.85" transform={`rotate(${(i * 37) % 90} ${(i * 73 + 10) % W} ${-10 + (i * 17) % 40})`} />
+            </g>
+          ))}
+          {/* sand puffs in desert */}
+          {envId === 'desert' && Array.from({ length: 12 }).map((_, i) => (
+            <circle key={`sand-${i}`} cx={((i * 53) % W)} cy={GROUND_Y + 6 + ((i * 19) % 12)} r={1.5 + (i % 3) * 0.4} fill="#e6c890" opacity="0.55" className="snowflake"
+              style={{ animationDuration: `${3 + (i % 2)}s`, animationDelay: `-${i * 0.3}s` }} />
+          ))}
+        </g>
+
+        {/* PLAYER CREATURE — animates left/away based on phase */}
+        <g
+          style={{
+            transition: playing ? 'transform 1.5s ease-in-out, opacity 0.6s ease-in-out' : 'none',
+            transform: `translateX(${creatureDX}px)`,
+            opacity: creatureOpacity,
+          }}
+        >
+          {hasBespokeShape(creature) ? (
+            <BespokeInScene creature={creature} x={W * 0.28 - 50} y={GROUND_Y - 80} width={100} height={80} animate="breathe" />
+          ) : (
+            <g transform={`translate(${W * 0.28} 0)`}>
+              <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="breathe" />
+            </g>
+          )}
+        </g>
+
+        {/* PREDATOR — animates toward/away based on phase */}
+        <g
+          style={{
+            transition: playing ? 'transform 1.5s ease-in-out, opacity 0.5s ease-in-out' : 'none',
+            transform: `translateX(${predDX}px)`,
+            opacity: predOpacity,
+          }}
+        >
+          <g transform={`translate(${W * 0.72} ${GROUND_Y - 10})`}>
+            <ellipse cx="0" cy="6" rx="34" ry="4" fill="rgba(0,0,0,0.25)" />
+            <text x="0" y="0" fontSize="56" textAnchor="middle">{p.emoji}</text>
+            <text x="0" y="22" fontSize="11" textAnchor="middle" fill="#333" fontWeight="700">{p.name}</text>
+          </g>
+        </g>
+
+        {/* COLLISION FLASH — appears briefly on a fight or a lost hide */}
+        {flashOn && (
+          <g>
+            <rect x="0" y="0" width={W} height={H} fill="white" opacity="0.55" />
+            {/* impact starburst at center */}
+            <g transform={`translate(${(baseCreatureX + basePredX) / 2 + (creatureDX + predDX) / 2} ${GROUND_Y - 40})`}>
+              {Array.from({ length: 10 }).map((_, i) => {
+                const a = (i / 10) * Math.PI * 2;
+                return <line key={i} x1={Math.cos(a) * 8} y1={Math.sin(a) * 8} x2={Math.cos(a) * 28} y2={Math.sin(a) * 28} stroke="#ffd040" strokeWidth="3" strokeLinecap="round" />;
+              })}
+              <text x="0" y="6" fontSize="22" textAnchor="middle">💥</text>
+            </g>
           </g>
         )}
 
-        <g transform={`translate(${W * 0.72} ${GROUND_Y - 10})`}>
-          <ellipse cx="0" cy="6" rx="34" ry="4" fill="rgba(0,0,0,0.25)" />
-          <text x="0" y="0" fontSize="56" textAnchor="middle">{p.emoji}</text>
-          <text x="0" y="22" fontSize="11" textAnchor="middle" fill="#333" fontWeight="700">{p.name}</text>
-        </g>
+        {/* PLAYING-PHASE OVERLAY — small caption explaining what's happening */}
+        {playing && playingStrategy && (
+          <g>
+            <rect x={W / 2 - 90} y="8" width="180" height="22" fill="rgba(255,255,255,0.92)" rx="11" stroke="#aaa" />
+            <text x={W / 2} y="23" textAnchor="middle" fontSize="12" fill="#333" fontWeight="700">
+              {playingStrategy === 'hide' && (playWon ? '🫥 holding still…' : '🫥 hiding… spotted!')}
+              {playingStrategy === 'run' && (playWon ? '🏃 sprinting away' : '🏃 chase is on…')}
+              {playingStrategy === 'fight' && (playWon ? '⚔️ standing ground' : '⚔️ they bite back!')}
+            </text>
+          </g>
+        )}
       </svg>
 
       <div className="strategy-row">
         <StrategyButton
           icon="🫥" name="Hide" onClick={() => play('hide')}
           score={hide.score} opp={hide.opp} oppLabel="perception" margin={hide.margin}
-          disabled={done}
+          disabled={done || playing}
         />
         <StrategyButton
           icon="🏃" name="Run" onClick={() => play('run')}
           score={run.score} opp={run.opp} oppLabel="speed" scoreSuffix=" km/h" margin={run.margin}
-          disabled={done}
+          disabled={done || playing}
         />
         <StrategyButton
           icon="⚔️" name="Fight" onClick={() => play('fight')}
           score={fight.score} opp={fight.opp} oppLabel="bite" margin={fight.margin}
-          disabled={done}
+          disabled={done || playing}
         />
       </div>
 

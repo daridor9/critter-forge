@@ -1,5 +1,32 @@
-import type { Creature, Tier, BrainTier, Hybrid } from '../types';
+import type { Creature, ShapeColors, Tier, BrainTier, Hybrid } from '../types';
 import { isHybridValid } from '../physics';
+
+// Average two RGB-hex colors. Returns a hex string. Falls back to the
+// first argument if either input isn't a valid 6-digit hex.
+function blendHex(a: string, b: string): string {
+  const ma = a.match(/^#([0-9a-f]{6})$/i);
+  const mb = b.match(/^#([0-9a-f]{6})$/i);
+  if (!ma || !mb) return a;
+  const va = parseInt(ma[1], 16);
+  const vb = parseInt(mb[1], 16);
+  const r = Math.round(((va >> 16) & 0xff) / 2 + ((vb >> 16) & 0xff) / 2);
+  const g = Math.round(((va >> 8) & 0xff) / 2 + ((vb >> 8) & 0xff) / 2);
+  const b2 = Math.round((va & 0xff) / 2 + (vb & 0xff) / 2);
+  return '#' + [r, g, b2].map((n) => n.toString(16).padStart(2, '0')).join('');
+}
+
+function blendColors(a?: ShapeColors, b?: ShapeColors): ShapeColors | undefined {
+  if (!a && !b) return undefined;
+  if (!a) return b;
+  if (!b) return a;
+  return {
+    main: blendHex(a.main, b.main),
+    shade: blendHex(a.shade, b.shade),
+    light: blendHex(a.light, b.light),
+    cheek: blendHex(a.cheek, b.cheek),
+    pattern: a.pattern && b.pattern ? blendHex(a.pattern, b.pattern) : a.pattern ?? b.pattern,
+  };
+}
 
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 const tier = (t: number): Tier => Math.max(0, Math.min(2, t)) as Tier;
@@ -119,6 +146,35 @@ export function breed(p1: Creature, p2: Creature): BreedResult {
     if (Math.random() < 0.5 && childHybrids.length < 2) childHybrids.push(h);
   }
 
+  // ─── Shape + colors: chimeric inheritance ──────────────────────────
+  // If at least one parent has a bespoke dex shape, the child inherits
+  // it (50/50 when both have one). Colors are always a 50/50 blend of
+  // both parents' palettes (or the lone parent's if only one has one).
+  // This is what makes offspring actually LOOK like a mix of the
+  // parents instead of reverting to the generic body morph.
+  let childShape: string | undefined;
+  let shapeSourceName: string | undefined;
+  if (p1.shape && p2.shape) {
+    const fromFirst = Math.random() < 0.5;
+    childShape = fromFirst ? p1.shape : p2.shape;
+    shapeSourceName = fromFirst ? p1.name : p2.name;
+  } else if (p1.shape) {
+    childShape = p1.shape;
+    shapeSourceName = p1.name;
+  } else if (p2.shape) {
+    childShape = p2.shape;
+    shapeSourceName = p2.name;
+  }
+  const childColors = blendColors(p1.colors, p2.colors);
+  if (childShape && shapeSourceName) {
+    genes.push({ label: 'Shape', value: childShape, source: shapeSourceName === p1.name ? 'parent1' : 'parent2', sourceName: shapeSourceName });
+    notes.push(`Shape: ${childShape} (from ${shapeSourceName})`);
+  }
+  if (childColors && p1.colors && p2.colors) {
+    genes.push({ label: 'Colors', value: 'blended', source: 'blend' });
+    notes.push(`Colors: blended ${p1.name} × ${p2.name}`);
+  }
+
   const child: Creature = {
     name: childName(p1, p2),
     sizeUnit: clamp(Math.round(sizeBlend)),
@@ -129,6 +185,8 @@ export function breed(p1: Creature, p2: Creature): BreedResult {
     defenseTier: defBase,
     sensorTier: senBase,
     hybrids: childHybrids,
+    shape: childShape,
+    colors: childColors,
   };
 
   child.hybrids = child.hybrids.filter((h) => isHybridValid(h, child).valid);
