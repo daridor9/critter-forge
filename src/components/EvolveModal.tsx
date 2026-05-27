@@ -35,12 +35,12 @@ function describeTierChange(label: string, names: readonly string[], from: numbe
   return `${label} ${names[from]} → ${names[to]} ${arrow}`;
 }
 
-interface Mutation {
+export interface Mutation {
   creature: Creature;
   changes: string[];
 }
 
-function mutate(parent: Creature): Mutation {
+export function mutate(parent: Creature): Mutation {
   const changes: string[] = [];
   let child = { ...parent };
   const numMutations = Math.random() < 0.7 ? 1 : 2;

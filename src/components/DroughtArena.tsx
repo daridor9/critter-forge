@@ -77,11 +77,11 @@ const DROUGHT_SEVERITIES: DroughtSeverity[] = [
     id: 'apocalypse',
     label: 'Dust storm',
     emoji: '🌪',
-    description: 'Red dust apocalypse. Almost nothing edible. Only the ancients survive.',
+    description: 'A red dust storm sweeps in. Find shelter to wait it out — exposed creatures lose food fast as sand abrades them.',
     sky: ['#d65a40', '#e89060'],
     ground: ['#a04828', '#5a2810'],
     sun: '#e03020', sunRayColor: '#a01010',
-    availFood: 7, daysGoal: 150,
+    availFood: 4, daysGoal: 30,           // realistic short storm + tight food
     rewardMult: 2.3, difficultyLabel: 'extreme',
     dustStorm: true,
     bones: true,
@@ -109,6 +109,11 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
 
   const [reserve, setReserve] = useState(R0);
   const [day, setDay] = useState(0);
+  // Sheltering applies during a dust storm — pauses food drain (the
+  // creature is hunkered down) but time still moves at half speed.
+  // Strategic choice: shelter through the worst, come out during lulls.
+  const [sheltered, setSheltered] = useState(false);
+  const shelteredRef = useRef(false);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -119,8 +124,16 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
   function reset() {
     reserveRef.current = R0;
     dayRef.current = 0;
+    shelteredRef.current = false;
     setReserve(R0);
     setDay(0);
+    setSheltered(false);
+  }
+
+  function toggleShelter() {
+    const next = !shelteredRef.current;
+    shelteredRef.current = next;
+    setSheltered(next);
   }
 
   function start() {
@@ -146,8 +159,15 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
     const netLossPerDay = Math.max(1, stats.foodKcalPerDay * foodMult - AVAIL_KCAL_PER_DAY);
 
     timerRef.current = window.setInterval(() => {
-      const daysElapsed = DAYS_PER_SEC * dt;
-      reserveRef.current -= netLossPerDay * daysElapsed;
+      // Shelter halves the day pace (the creature isn't doing much)
+      // and zeroes out food drain (no exposure cost). Coming out
+      // resumes normal cost. Only meaningful for the dust storm zone
+      // where exposure is dangerous.
+      const isSheltered = shelteredRef.current;
+      const paceMult = isSheltered ? 0.5 : 1;
+      const drainMult = isSheltered ? 0 : 1;
+      const daysElapsed = DAYS_PER_SEC * dt * paceMult;
+      reserveRef.current -= netLossPerDay * daysElapsed * drainMult;
       dayRef.current += daysElapsed;
       setReserve(reserveRef.current);
       setDay(dayRef.current);
@@ -395,9 +415,11 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           </g>
         )}
 
-        {/* DUST STORM — sweeping red dust particles + wall of dust */}
+        {/* DUST STORM — sweeping red dust particles + wall of dust.
+            When sheltered, the dust opacity drops (you're inside) and
+            a SHELTER ROCK draws over the creature. */}
         {env.dustStorm && (
-          <g fill="#a04020" opacity="0.45">
+          <g fill="#a04020" opacity={sheltered ? 0.2 : 0.45}>
             {Array.from({ length: 40 }).map((_, i) => (
               <circle
                 key={i}
@@ -408,11 +430,29 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
                 style={{ animationDuration: `${3 + (i % 3)}s`, animationDelay: `-${i * 0.3}s` }}
               />
             ))}
-            {/* sweeping dust waves at horizon */}
             <g fill="#7a3010" opacity="0.55">
               <ellipse cx={W * 0.3} cy={GROUND_Y - 4} rx="120" ry="10" />
               <ellipse cx={W * 0.7} cy={GROUND_Y - 6} rx="140" ry="12" />
             </g>
+          </g>
+        )}
+
+        {/* SHELTER ROCK — a stone overhang over the creature when
+            the player has taken cover. Renders ABOVE the creature
+            so it visibly hides them. */}
+        {env.dustStorm && sheltered && (
+          <g transform={`translate(${W / 2 - 30} ${GROUND_Y - 60})`}>
+            {/* rocky overhang */}
+            <path d="M -50 0 Q 0 -36 50 0 L 55 18 L -55 18 Z" fill="#6a4828" />
+            <path d="M -42 -2 Q 0 -32 42 -2 L 46 12 L -46 12 Z" fill="#8a6438" />
+            {/* rock texture lines */}
+            <g stroke="#3a2a14" strokeWidth="0.8" fill="none" opacity="0.6">
+              <path d="M -30 -14 q 10 -4 18 0" />
+              <path d="M 8 -16 q 10 -4 18 0" />
+              <path d="M -20 4 q 10 -2 20 0" />
+            </g>
+            {/* "Z Z Z" sheltering text */}
+            <text x="0" y="-10" fontSize="14" fill="#fff5d8" opacity="0.85" textAnchor="middle" fontWeight="700">sheltered</text>
           </g>
         )}
 
@@ -441,6 +481,18 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
         {!running && !done && (
           <button className="btn" onClick={start} type="button">
             Start the drought
+          </button>
+        )}
+        {running && env.dustStorm && (
+          <button
+            className={`btn ${sheltered ? 'btn-secondary' : ''}`}
+            onClick={toggleShelter}
+            type="button"
+            title={sheltered
+              ? 'Come out — time speeds up but food drains again.'
+              : 'Hide from the storm — pauses food drain (time still ticks at half speed).'}
+          >
+            {sheltered ? '☀️ Come out of shelter' : '🪨 Take shelter'}
           </button>
         )}
         {running && (

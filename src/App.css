@@ -3994,6 +3994,68 @@ h2 {
 }
 .gauntlet-arena-wrap { padding: 0 0 8px; }
 .gauntlet-result { padding-top: 6px; }
+.gauntlet-mutation-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #9b6dd4 0%, #c884a8 100%);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.gauntlet-evolve {
+  padding: 6px 0 4px;
+  text-align: center;
+}
+.gauntlet-evolve-sub {
+  color: var(--fg-dim);
+  font-size: 13px;
+  margin: 6px 0 14px;
+}
+.gauntlet-evolve .evolve-variants {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 0 12px;
+}
+.gauntlet-evolve .evolve-card {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: #fbfaf3;
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.gauntlet-evolve .evolve-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: var(--accent);
+}
+.gauntlet-evolve .evolve-thumb {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.gauntlet-evolve .evolve-name {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.gauntlet-evolve .evolve-changes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.gauntlet-evolve .evolve-change-none {
+  font-style: italic;
+}
 .profile-prey {
   display: flex;
   gap: 10px;

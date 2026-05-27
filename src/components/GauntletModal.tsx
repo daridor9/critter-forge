@@ -1,8 +1,9 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useMemo } from 'react';
 import type { Creature } from '../types';
-import type { CreatureStats } from '../physics';
+import { computeStats, type CreatureStats } from '../physics';
 import type { ArenaResult } from '../data/insights';
 import { CreatureSVG } from './CreatureSVG';
+import { mutate, type Mutation } from './EvolveModal';
 
 // Lazy-load the arenas we wrap.
 const ChaseArena   = lazy(() => import('./ChaseArena').then((m) => ({ default: m.ChaseArena })));
@@ -13,8 +14,9 @@ const DeepArena    = lazy(() => import('./DeepArena').then((m) => ({ default: m.
 const MazeArena    = lazy(() => import('./MazeArena').then((m) => ({ default: m.MazeArena })));
 
 // ─── 6-arena decathlon ──────────────────────────────────────────────────
-// One creature runs every arena in order. Each result is recorded.
-// Final ceremony shows wins/losses + total kcal + points.
+// One creature runs every arena in order. Between arenas the creature can
+// mutate (small bumps to traits) — like a fast-forward evolution under
+// gauntlet pressure. Each arena result is recorded.
 
 type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze';
 
@@ -38,13 +40,19 @@ interface GauntletStep {
   id: ArenaId;
   won: boolean;
   reward?: number;
+  mutated?: string;  // human-readable label of the new form, if it mutated before this round
 }
 
-export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props) {
-  const [step, setStep] = useState<'intro' | 'running' | 'done'>('intro');
+export function GauntletModal({ creature: initialCreature, stats: initialStats, onClose, onArenaResult }: Props) {
+  const [step, setStep] = useState<'intro' | 'running' | 'evolving' | 'done'>('intro');
   const [arenaIdx, setArenaIdx] = useState(0);
   const [results, setResults] = useState<GauntletStep[]>([]);
   const [totalKcal, setTotalKcal] = useState(0);
+  const [currentCreature, setCurrentCreature] = useState<Creature>(initialCreature);
+  const [currentStats, setCurrentStats] = useState<CreatureStats>(initialStats);
+  const [evolveVariants, setEvolveVariants] = useState<Mutation[]>([]);
+  const [pendingNextIdx, setPendingNextIdx] = useState(0);
+  const [pendingMutation, setPendingMutation] = useState<string | null>(null);
 
   const arena = ORDER[arenaIdx];
 
@@ -53,6 +61,9 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
     setArenaIdx(0);
     setResults([]);
     setTotalKcal(0);
+    setCurrentCreature(initialCreature);
+    setCurrentStats(initialStats);
+    setPendingMutation(null);
   }
 
   function handleArenaFinish(r: ArenaResult) {
@@ -62,16 +73,39 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
     onArenaResult?.(r);
 
     const reward = 'reward' in r && typeof r.reward === 'number' ? r.reward : 0;
-    const next: GauntletStep[] = [...results, { id: r.arena as ArenaId, won: r.won, reward }];
+    const next: GauntletStep[] = [...results, {
+      id: r.arena as ArenaId,
+      won: r.won,
+      reward,
+      mutated: pendingMutation ?? undefined,
+    }];
     setResults(next);
     setTotalKcal(totalKcal + reward);
+    setPendingMutation(null);
 
     if (arenaIdx + 1 >= ORDER.length) {
       setStep('done');
     } else {
-      // Brief intermission so the user can see what just happened.
-      window.setTimeout(() => setArenaIdx(arenaIdx + 1), 500);
+      // Mutation pause between rounds. Generate 3 variants of the current form
+      // (not the original) so traits compound across the gauntlet.
+      setEvolveVariants([mutate(currentCreature), mutate(currentCreature), mutate(currentCreature)]);
+      setPendingNextIdx(arenaIdx + 1);
+      window.setTimeout(() => setStep('evolving'), 500);
     }
+  }
+
+  function pickMutation(m: Mutation) {
+    setCurrentCreature(m.creature);
+    setCurrentStats(computeStats(m.creature));
+    setPendingMutation(m.creature.name + (m.changes.length > 0 ? ' — ' + m.changes.join(', ') : ''));
+    setArenaIdx(pendingNextIdx);
+    setStep('running');
+  }
+
+  function stayAsIs() {
+    setPendingMutation(null);
+    setArenaIdx(pendingNextIdx);
+    setStep('running');
   }
 
   function rankOf(wins: number, total: number): { title: string; emoji: string } {
@@ -85,6 +119,8 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
   }
 
   const wins = results.filter((r) => r.won).length;
+  const mutationCount = useMemo(() => results.filter((r) => r.mutated).length, [results]);
+  const nextArenaPreview = ORDER[pendingNextIdx];
 
   return (
     <div className="insight-overlay" onClick={onClose}>
@@ -99,14 +135,17 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
           <div className="gauntlet-strip">
             {ORDER.map((a, i) => {
               const result = results[i];
-              const isCurrent = step === 'running' && i === arenaIdx;
+              const isCurrent = (step === 'running' || step === 'evolving') && i === arenaIdx && step === 'running';
+              const isEvolvingNext = step === 'evolving' && i === pendingNextIdx;
               const upcoming = i > arenaIdx || step === 'intro';
               return (
-                <div key={a.id} className={`gauntlet-pip${isCurrent ? ' current' : ''}${result ? (result.won ? ' won' : ' lost') : ''}${upcoming && step !== 'intro' ? ' upcoming' : ''}`}>
+                <div key={a.id} className={`gauntlet-pip${isCurrent ? ' current' : ''}${isEvolvingNext ? ' current' : ''}${result ? (result.won ? ' won' : ' lost') : ''}${upcoming && step !== 'intro' ? ' upcoming' : ''}`}>
                   <div className="gauntlet-pip-emoji">{a.emoji}</div>
                   <div className="gauntlet-pip-label">{a.label}</div>
                   {result && <div className="gauntlet-pip-mark">{result.won ? '✓' : '✗'}</div>}
+                  {result?.mutated && <div className="gauntlet-pip-mark" title={result.mutated}>🧬</div>}
                   {isCurrent && step === 'running' && <div className="gauntlet-pip-mark">▶</div>}
+                  {isEvolvingNext && <div className="gauntlet-pip-mark">🧬</div>}
                 </div>
               );
             })}
@@ -115,12 +154,13 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
           {step === 'intro' && (
             <div className="gauntlet-intro">
               <div className="gauntlet-creature">
-                <div className="gauntlet-thumb"><CreatureSVG creature={creature} /></div>
-                <strong>{creature.name}</strong> will run all 6 arenas.
+                <div className="gauntlet-thumb"><CreatureSVG creature={initialCreature} /></div>
+                <strong>{initialCreature.name}</strong> will run all 6 arenas.
               </div>
               <p>
-                One creature, one continuous gauntlet. Win as many as you can — your kcal totals add up
-                and every win earns its normal points. A perfect 6/6 crowns you Decathlon Champion.
+                One lineage, one continuous gauntlet. Between each arena your creature gets a chance to
+                <strong> mutate</strong> — tiny adaptations that compound over six rounds. Win as many as you can —
+                kcal totals add up and every win earns its normal points. A perfect 6/6 crowns you Decathlon Champion.
               </p>
               <div className="battle-controls">
                 <button className="btn" type="button" onClick={start}>🏟 Start the gauntlet</button>
@@ -130,15 +170,48 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
 
           {step === 'running' && (
             <div className="gauntlet-arena-wrap">
-              <h3 className="gauntlet-arena-head">{arena.emoji} {arena.label} — round {arenaIdx + 1} / 6</h3>
+              <h3 className="gauntlet-arena-head">
+                {arena.emoji} {arena.label} — round {arenaIdx + 1} / 6
+                {pendingMutation && <span className="gauntlet-mutation-tag" title={pendingMutation}> · 🧬 mutated</span>}
+              </h3>
               <Suspense fallback={<div className="profile-empty">Loading…</div>}>
-                {arena.id === 'chase'   && <ChaseArena   creature={creature} stats={stats} onFinish={(o) => handleArenaFinish({ arena: 'chase',   ...o })} />}
-                {arena.id === 'hunt'    && <HuntArena    creature={creature} stats={stats} onFinish={(o) => handleArenaFinish({ arena: 'hunt',    ...o })} />}
-                {arena.id === 'climb'   && <ClimbArena   creature={creature} stats={stats} onFinish={(o) => handleArenaFinish({ arena: 'climb',   ...o })} />}
-                {arena.id === 'drought' && <DroughtArena creature={creature} stats={stats} onFinish={(o) => handleArenaFinish({ arena: 'drought', ...o })} />}
-                {arena.id === 'deep'    && <DeepArena    creature={creature} stats={stats} onFinish={(o) => handleArenaFinish({ arena: 'deep',    ...o })} />}
-                {arena.id === 'maze'    && <MazeArena    creature={creature} stats={stats} onFinish={(o) => handleArenaFinish({ arena: 'maze',    ...o })} />}
+                {arena.id === 'chase'   && <ChaseArena   creature={currentCreature} stats={currentStats} onFinish={(o) => handleArenaFinish({ arena: 'chase',   ...o })} />}
+                {arena.id === 'hunt'    && <HuntArena    creature={currentCreature} stats={currentStats} onFinish={(o) => handleArenaFinish({ arena: 'hunt',    ...o })} />}
+                {arena.id === 'climb'   && <ClimbArena   creature={currentCreature} stats={currentStats} onFinish={(o) => handleArenaFinish({ arena: 'climb',   ...o })} />}
+                {arena.id === 'drought' && <DroughtArena creature={currentCreature} stats={currentStats} onFinish={(o) => handleArenaFinish({ arena: 'drought', ...o })} />}
+                {arena.id === 'deep'    && <DeepArena    creature={currentCreature} stats={currentStats} onFinish={(o) => handleArenaFinish({ arena: 'deep',    ...o })} />}
+                {arena.id === 'maze'    && <MazeArena    creature={currentCreature} stats={currentStats} onFinish={(o) => handleArenaFinish({ arena: 'maze',    ...o })} />}
               </Suspense>
+            </div>
+          )}
+
+          {step === 'evolving' && (
+            <div className="gauntlet-evolve">
+              <h3 className="gauntlet-arena-head">🧬 Mutate before {nextArenaPreview?.emoji} {nextArenaPreview?.label}?</h3>
+              <p className="gauntlet-evolve-sub">
+                Pressure from the {ORDER[arenaIdx]?.label.toLowerCase()} just shaped your lineage.
+                Pick a mutation to face the next arena with — or stay as <strong>{currentCreature.name}</strong>.
+              </p>
+              <div className="evolve-variants">
+                {evolveVariants.map((v, i) => (
+                  <button key={i} className="evolve-card" type="button" onClick={() => pickMutation(v)}>
+                    <div className="evolve-thumb">
+                      <CreatureSVG creature={v.creature} />
+                    </div>
+                    <div className="evolve-name">{v.creature.name}</div>
+                    <ul className="evolve-changes">
+                      {v.changes.length > 0
+                        ? v.changes.map((c, j) => <li key={j}>{c}</li>)
+                        : <li className="evolve-change-none">(no visible change — same form)</li>}
+                    </ul>
+                  </button>
+                ))}
+              </div>
+              <div className="battle-controls">
+                <button className="btn btn-secondary" type="button" onClick={stayAsIs}>
+                  Stay as {currentCreature.name}
+                </button>
+              </div>
             </div>
           )}
 
@@ -149,8 +222,16 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
                 <div className="bracket-champion">
                   <div className="bracket-champion-icon">{rank.emoji}</div>
                   <div className="bracket-champion-name">{rank.title}</div>
-                  <div className="bracket-champion-sub">{wins} of {ORDER.length} arenas won</div>
-                  <div className="bracket-champion-thumb"><CreatureSVG creature={creature} /></div>
+                  <div className="bracket-champion-sub">
+                    {wins} of {ORDER.length} arenas won
+                    {mutationCount > 0 && <> · 🧬 {mutationCount} mutation{mutationCount === 1 ? '' : 's'}</>}
+                  </div>
+                  <div className="bracket-champion-thumb"><CreatureSVG creature={currentCreature} /></div>
+                  {currentCreature.name !== initialCreature.name && (
+                    <div className="bracket-champion-sub">
+                      Final form: <strong>{currentCreature.name}</strong> (started as {initialCreature.name})
+                    </div>
+                  )}
                 </div>
 
                 <table className="profile-table">
@@ -160,6 +241,7 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
                       <th>Arena</th>
                       <th>Result</th>
                       <th>kcal</th>
+                      <th>🧬</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -173,12 +255,14 @@ export function GauntletModal({ creature, stats, onClose, onArenaResult }: Props
                             {r?.won ? '✓ won' : '✗ lost'}
                           </td>
                           <td>{r?.reward ? r.reward.toLocaleString() : '—'}</td>
+                          <td title={r?.mutated ?? ''}>{r?.mutated ? '🧬' : ''}</td>
                         </tr>
                       );
                     })}
                     <tr className="profile-total-row">
                       <td colSpan={3}><strong>Total kcal earned</strong></td>
                       <td><strong>{totalKcal.toLocaleString()}</strong></td>
+                      <td></td>
                     </tr>
                   </tbody>
                 </table>
