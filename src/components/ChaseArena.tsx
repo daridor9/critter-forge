@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
 export type ChaseOutcome = {
   won: boolean;
@@ -500,9 +501,13 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
         </g>
 
         {running && <DustPuffs x={playerX - 22} y={GROUND_Y - 2} />}
-        <g transform={`translate(${playerX} 0)`}>
-          <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.55} animate="run" />
-        </g>
+        {hasBespokeShape(creature) ? (
+          <BespokeInScene creature={creature} x={playerX - 65} y={GROUND_Y - 100} width={130} height={100} animate="run" />
+        ) : (
+          <g transform={`translate(${playerX} 0)`}>
+            <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.55} animate="run" />
+          </g>
+        )}
       </svg>
       <div className="arena-controls">
         {!running && !done && (

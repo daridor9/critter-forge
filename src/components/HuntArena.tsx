@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import { sizeToMass } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
 export type HuntOutcome = {
   won: boolean;
@@ -230,9 +231,13 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
           </>
         )}
 
-        <g transform={`translate(${W * 0.28} 0)`}>
-          <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="breathe" />
-        </g>
+        {hasBespokeShape(creature) ? (
+          <BespokeInScene creature={creature} x={W * 0.28 - 50} y={GROUND_Y - 80} width={100} height={80} animate="breathe" />
+        ) : (
+          <g transform={`translate(${W * 0.28} 0)`}>
+            <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="breathe" />
+          </g>
+        )}
 
         <g transform={`translate(${W * 0.72} ${GROUND_Y - 10})`}>
           <ellipse cx="0" cy="6" rx="34" ry="4" fill="rgba(0,0,0,0.25)" />

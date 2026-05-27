@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
 export type MazeOutcome = {
   won: boolean;
@@ -405,11 +406,17 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
         <rect x={W - 68} y="13" width="56" height="10" fill="#eee" stroke="#999" />
         <rect x={W - 68} y="13" width={Math.max(0, 56 * energyLeft)} height="10" fill={energyLeft > 0 ? '#5cc46a' : '#c44'} />
 
-        {/* creature riding the chosen path */}
+        {/* creature riding the chosen path — use the bespoke shape
+            (octopus, tiger, etc.) if loaded from the dex, else the
+            generic morph with running legs. */}
         {chosenPath && (
-          <g transform={`translate(${pos.x} ${pos.y - 22})`}>
-            <CreatureBody creature={creature} cx={0} footY={22} scale={0.22} animate="run" />
-          </g>
+          hasBespokeShape(creature) ? (
+            <BespokeInScene creature={creature} x={pos.x - 26} y={pos.y - 30} width={52} height={40} animate="run" />
+          ) : (
+            <g transform={`translate(${pos.x} ${pos.y - 22})`}>
+              <CreatureBody creature={creature} cx={0} footY={22} scale={0.22} animate="run" />
+            </g>
+          )
         )}
       </svg>
 

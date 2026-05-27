@@ -1770,6 +1770,50 @@ export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOve
   return BESPOKE_SHAPES[name] ?? null;
 }
 
+// ─── BespokeInScene ─────────────────────────────────────────────────────
+// Drops a bespoke dex shape (Octopus, Tiger, etc.) into another SVG scene
+// (an arena) at a specific position + size, with the background stripped
+// via CSS (the .dex-bare class targets the BG rect by its 400×300 size
+// and the horizon line by its dash pattern). Uses <foreignObject> so we
+// can host the bespoke <svg> inside HTML where width/height behave normally.
+import type { Creature } from '../types';
+interface BespokeInSceneProps {
+  creature: Creature;
+  /** top-left corner of the placement box, in parent-SVG coordinates */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** optional CSS animation class — e.g. 'bob-run' or 'bob-breathe' */
+  animate?: 'run' | 'breathe' | 'none';
+  /** mirror horizontally (e.g. fleeing prey) */
+  facingRight?: boolean;
+}
+
+export function BespokeInScene({ creature, x, y, width, height, animate = 'none', facingRight = true }: BespokeInSceneProps) {
+  const Bespoke = getBespokeShape(creature.shape);
+  if (!Bespoke || !creature.colors) return null;
+  const animClass = animate === 'run' ? 'bob-run' : animate === 'breathe' ? 'bob-breathe' : '';
+  const flipStyle = facingRight ? undefined : { transform: 'scaleX(-1)', transformOrigin: 'center' };
+  return (
+    <foreignObject x={x} y={y} width={width} height={height} style={{ overflow: 'visible' }}>
+      <div
+        // SVG-inside-foreignObject in React: namespace handled automatically
+        className={`dex-bare ${animClass}`.trim()}
+        style={{ width: '100%', height: '100%', ...flipStyle }}
+      >
+        <Bespoke colors={creature.colors} />
+      </div>
+    </foreignObject>
+  );
+}
+
+// Convenience: returns whether this creature should render as a bespoke
+// shape (used by arenas to decide between BespokeInScene and CreatureBody).
+export function hasBespokeShape(creature: Creature): boolean {
+  return !!(getBespokeShape(creature.shape) && creature.colors);
+}
+
 // ─── Sloth ──────────────────────────────────────────────────────────────
 // Slow arboreal mammal: long hook claws, shaggy algae-green fur, sleepy face.
 export function SlothShape({ colors }: { colors: ColorOverride }) {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
 export type ClimbOutcome = { won: boolean; reason: 'reached-top' | 'froze' | 'exhausted' };
 
@@ -177,7 +178,11 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
           />
         ))}
 
-        <CreatureBody creature={creature} cx={cx - 4} footY={footY} scale={0.32} facingRight={true} animate="run" />
+        {hasBespokeShape(creature) ? (
+          <BespokeInScene creature={creature} x={cx - 50} y={footY - 80} width={100} height={80} animate="run" />
+        ) : (
+          <CreatureBody creature={creature} cx={cx - 4} footY={footY} scale={0.32} facingRight={true} animate="run" />
+        )}
 
         <rect x="6" y="6" width="260" height="22" fill="rgba(255,255,255,0.88)" rx="4" stroke="#bbb" />
         <text x="14" y="22" fontSize="11" fill="#333">energy</text>

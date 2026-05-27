@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
 export type DroughtOutcome = {
   won: boolean;
@@ -190,7 +191,11 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           fill={reserve > 0 ? '#e07b5b' : '#c44'}
         />
 
-        <CreatureBody creature={creature} cx={W / 2 - 30} footY={GROUND_Y} scale={0.35} animate="breathe" />
+        {hasBespokeShape(creature) ? (
+          <BespokeInScene creature={creature} x={W / 2 - 80} y={GROUND_Y - 90} width={110} height={90} animate="breathe" />
+        ) : (
+          <CreatureBody creature={creature} cx={W / 2 - 30} footY={GROUND_Y} scale={0.35} animate="breathe" />
+        )}
       </svg>
       <div className="arena-controls">
         {!running && !done && (

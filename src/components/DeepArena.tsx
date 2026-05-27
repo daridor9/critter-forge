@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
+import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
 export type DeepOutcome = {
   won: boolean;
@@ -182,9 +183,13 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           depth {Math.round(depth)} m
         </text>
 
-        <g transform={`translate(${W / 2} ${creatureY})`}>
-          <CreatureBody creature={creature} cx={0} footY={20} scale={0.32} animate="breathe" />
-        </g>
+        {hasBespokeShape(creature) ? (
+          <BespokeInScene creature={creature} x={W / 2 - 50} y={creatureY - 50} width={100} height={80} animate="breathe" />
+        ) : (
+          <g transform={`translate(${W / 2} ${creatureY})`}>
+            <CreatureBody creature={creature} cx={0} footY={20} scale={0.32} animate="breathe" />
+          </g>
+        )}
       </svg>
       <div className="arena-controls">
         {!running && !done && (
