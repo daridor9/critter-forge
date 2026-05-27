@@ -53,6 +53,7 @@ export function GauntletModal({ creature: initialCreature, stats: initialStats, 
   const [evolveVariants, setEvolveVariants] = useState<Mutation[]>([]);
   const [pendingNextIdx, setPendingNextIdx] = useState(0);
   const [pendingMutation, setPendingMutation] = useState<string | null>(null);
+  const [mutationsEnabled, setMutationsEnabled] = useState(true);
 
   const arena = ORDER[arenaIdx];
 
@@ -85,12 +86,15 @@ export function GauntletModal({ creature: initialCreature, stats: initialStats, 
 
     if (arenaIdx + 1 >= ORDER.length) {
       setStep('done');
-    } else {
+    } else if (mutationsEnabled) {
       // Mutation pause between rounds. Generate 3 variants of the current form
       // (not the original) so traits compound across the gauntlet.
       setEvolveVariants([mutate(currentCreature), mutate(currentCreature), mutate(currentCreature)]);
       setPendingNextIdx(arenaIdx + 1);
       window.setTimeout(() => setStep('evolving'), 500);
+    } else {
+      // Mutations disabled — straight to next arena.
+      window.setTimeout(() => setArenaIdx(arenaIdx + 1), 500);
     }
   }
 
@@ -158,10 +162,26 @@ export function GauntletModal({ creature: initialCreature, stats: initialStats, 
                 <strong>{initialCreature.name}</strong> will run all 6 arenas.
               </div>
               <p>
-                One lineage, one continuous gauntlet. Between each arena your creature gets a chance to
-                <strong> mutate</strong> — tiny adaptations that compound over six rounds. Win as many as you can —
-                kcal totals add up and every win earns its normal points. A perfect 6/6 crowns you Decathlon Champion.
+                One lineage, one continuous gauntlet. Win as many of the 6 arenas as you can — kcal
+                totals add up and every win earns its normal points. A perfect 6/6 crowns you Decathlon Champion.
               </p>
+              <div className="gauntlet-toggle">
+                <label className="gauntlet-toggle-row">
+                  <input
+                    type="checkbox"
+                    checked={mutationsEnabled}
+                    onChange={(e) => setMutationsEnabled(e.target.checked)}
+                  />
+                  <span>
+                    <strong>🧬 Mutations between rounds</strong>
+                    <small>
+                      {mutationsEnabled
+                        ? 'After each arena you pick 1 of 3 small mutations — or stay as-is. Traits compound across the gauntlet.'
+                        : 'Pure decathlon — your creature runs all 6 arenas unchanged.'}
+                    </small>
+                  </span>
+                </label>
+              </div>
               <div className="battle-controls">
                 <button className="btn" type="button" onClick={start}>🏟 Start the gauntlet</button>
               </div>

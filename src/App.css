@@ -3994,6 +3994,36 @@ h2 {
 }
 .gauntlet-arena-wrap { padding: 0 0 8px; }
 .gauntlet-result { padding-top: 6px; }
+.gauntlet-toggle {
+  margin: 10px auto 6px;
+  max-width: 480px;
+  padding: 10px 14px;
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.gauntlet-toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.gauntlet-toggle-row input[type="checkbox"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.gauntlet-toggle-row span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+.gauntlet-toggle-row small {
+  color: var(--fg-dim);
+  font-size: 12px;
+}
 .gauntlet-mutation-tag {
   display: inline-block;
   margin-left: 8px;
