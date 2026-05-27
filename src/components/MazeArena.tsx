@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { comboEffects, getActiveCombo } from '../data/hybridCombos';
 
 export type MazeOutcome = {
   won: boolean;
@@ -236,7 +237,8 @@ function staminaBudget(c: Creature, stats: CreatureStats): number {
   const brainBudget = c.brainTier * 22;     // tier 0=0, 1=22, 2=44, 3=66
   const sensorBudget = c.sensorTier * 6;
   const echoBudget = c.hybrids.includes('echolocation') ? 18 : 0;
-  return base + enduranceBudget + brainBudget + sensorBudget + echoBudget;
+  const comboBonus = comboEffects(c).mazeStaminaBonus ?? 0;
+  return base + enduranceBudget + brainBudget + sensorBudget + echoBudget + comboBonus;
 }
 
 function maxStepsFor(c: Creature, stats: CreatureStats): number {
@@ -382,6 +384,18 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
             (brain tier {creature.brainTier} · stamina lasts ~{Math.floor(maxSteps)} steps)
           </span>
         </div>
+        {(() => {
+          const combo = getActiveCombo(creature);
+          if (!combo || combo.effects.mazeStaminaBonus == null) return null;
+          return (
+            <div className="combo-badge">
+              <span className="combo-badge-emoji">{combo.emoji}</span>
+              <span className="combo-badge-text">
+                <strong>{combo.name}</strong> · +{combo.effects.mazeStaminaBonus} stamina
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">

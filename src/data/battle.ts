@@ -1,5 +1,6 @@
 import type { Creature } from '../types';
 import { computeStats } from '../physics';
+import { comboEffects } from './hybridCombos';
 
 // Pure battle simulation — pits two creatures against each other in one of
 // four venues and returns a turn-by-turn log + winner. The UI consumes the
@@ -33,13 +34,15 @@ const has = (c: Creature, h: string) => c.hybrids.includes(h as never);
 // wings chance to disengage.
 function powerFor(c: Creature): number {
   const s = computeStats(c);
+  const comboBonus = comboEffects(c).brawlPowerBonus ?? 0;
   return (
     Math.sqrt(s.massKg) * 6 +
     c.defenseTier * 8 +
     c.legTier * 4 +
     c.brainTier * 3 +
     (has(c, 'venom') ? 35 : 0) +
-    (has(c, 'electric') ? 45 : 0)
+    (has(c, 'electric') ? 45 : 0) +
+    comboBonus
   );
 }
 function maxHpFor(c: Creature): number {

@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { comboEffects } from '../data/hybridCombos';
 
 export type DroughtOutcome = {
   won: boolean;
@@ -141,7 +142,8 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
   useEffect(() => {
     if (!running) return;
     const dt = TICK_MS / 1000;
-    const netLossPerDay = Math.max(1, stats.foodKcalPerDay - AVAIL_KCAL_PER_DAY);
+    const foodMult = comboEffects(creature).droughtFoodMult ?? 1;
+    const netLossPerDay = Math.max(1, stats.foodKcalPerDay * foodMult - AVAIL_KCAL_PER_DAY);
 
     timerRef.current = window.setInterval(() => {
       const daysElapsed = DAYS_PER_SEC * dt;

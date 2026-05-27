@@ -1,6 +1,7 @@
 import type { Creature } from '../types';
 import type { ArenaResult } from './insights';
 import type { Venue } from './battle';
+import { comboEffects } from './hybridCombos';
 
 // ─── Per-creature points system ─────────────────────────────────────────
 //
@@ -95,6 +96,10 @@ export function awardPoints(
   difficulty: number,
   description: string,
 ): AwardResult {
+  // Apex combos (currently apex-dragon) multiply every points award.
+  const pointsMult = comboEffects(creature).pointsMultiplier ?? 1;
+  if (pointsMult !== 1) points = Math.round(points * pointsMult);
+
   const hash = creatureHash(creature);
   const state = load();
   const existing: CreaturePoints = state.byCreature[hash] ?? {

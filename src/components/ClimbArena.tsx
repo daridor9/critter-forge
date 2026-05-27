@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { comboEffects } from '../data/hybridCombos';
 
 export type ClimbOutcome = { won: boolean; reason: 'reached-top' | 'froze' | 'exhausted'; terrain?: ClimbTerrainId };
 
@@ -98,7 +99,8 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   const altGoal = env.altGoal + (generation - 1) * 100;
 
   const [altitude, setAltitude] = useState(0);
-  const [energy, setEnergy] = useState(E0);
+  const climbStart = E0 + (comboEffects(creature).climbBonus ?? 0);
+  const [energy, setEnergy] = useState(climbStart);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -108,9 +110,9 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
 
   function reset() {
     altRef.current = 0;
-    energyRef.current = E0;
+    energyRef.current = climbStart;
     setAltitude(0);
-    setEnergy(E0);
+    setEnergy(climbStart);
   }
 
   function start() {
@@ -399,7 +401,7 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
         <rect
           x="58"
           y="13"
-          width={Math.max(0, 200 * (energy / E0))}
+          width={Math.max(0, 200 * (energy / climbStart))}
           height="10"
           fill={energy > 0 ? '#5cc46a' : '#c44'}
         />

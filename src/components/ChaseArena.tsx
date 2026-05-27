@@ -4,6 +4,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { comboEffects, getActiveCombo } from '../data/hybridCombos';
 
 export type ChaseOutcome = {
   won: boolean;
@@ -464,7 +465,8 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
     if (!running) return;
     const dt = TICK_MS / 1000;
     const brainBonus = 1 + creature.brainTier * 0.04;
-    const topMps = (stats.topSpeedKmh / 3.6) * brainBonus;
+    const comboSpeedMult = comboEffects(creature).chaseSpeedMult ?? 1;
+    const topMps = (stats.topSpeedKmh / 3.6) * brainBonus * comboSpeedMult;
     const preyMps = preySpeedKmh / 3.6;
     const drainPerSec = 1.0 * (creature.warmBlooded ? 1 : 1.5);
 
@@ -517,6 +519,18 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
     <div className="arena">
       <h2>The Chase — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
       <p className="arena-help">{env.description} Catch the {prey.label.toLowerCase()} ({preySpeedKmh} km/h) before it covers {TRACK_M} m. <strong>Win: +{scaledReward.toLocaleString()} kcal.</strong></p>
+
+      {(() => {
+        const combo = getActiveCombo(creature);
+        const mult = combo?.effects.chaseSpeedMult;
+        if (!combo || mult == null) return null;
+        return (
+          <div className="combo-badge">
+            <span className="combo-badge-emoji">{combo.emoji}</span>
+            <span className="combo-badge-text"><strong>{combo.name}</strong> · ×{mult.toFixed(2)} speed</span>
+          </div>
+        );
+      })()}
 
       <div className="prey-tabs">
         {CHASE_BIOMES.map((b) => (

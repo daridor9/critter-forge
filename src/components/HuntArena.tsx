@@ -4,6 +4,7 @@ import { sizeToMass } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { comboEffects, getActiveCombo } from '../data/hybridCombos';
 
 export type HuntOutcome = {
   won: boolean;
@@ -96,6 +97,8 @@ function stealthScore(c: Creature): number {
   s += c.brainTier * 5;
   if (c.bodyPlan === 'fish') s -= 25;
   if (c.bodyPlan === 'bird') s += 8;
+  // Hybrid combo bonus (ambush-hunter, bat-sonar, etc.)
+  s += comboEffects(c).huntHideBonus ?? 0;
   return Math.max(0, Math.min(100, s));
 }
 
@@ -114,6 +117,8 @@ function fightPower(c: Creature, s: CreatureStats): number {
   if (c.legTier === 2) p += 8;
   if (c.legTier === 1) p += 4;
   if (c.sensorTier === 2) p += 6;
+  // Hybrid combo bonus (electric-eel, volcanic-breath, etc.)
+  p += comboEffects(c).huntFightBonus ?? 0;
   return Math.min(100, p);
 }
 
@@ -289,6 +294,22 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     <div className="arena">
       <h2>The Hunt — encounter <small className="arena-env">· {p.envName} · {diff.emoji} {diff.label} · ×{diff.rewardMult.toFixed(1)} reward</small></h2>
       <p className="arena-help">{p.envNote} <em>{diff.description}</em></p>
+
+      {(() => {
+        const combo = getActiveCombo(creature);
+        if (!combo) return null;
+        const e = combo.effects;
+        const bonusBits: string[] = [];
+        if (e.huntHideBonus) bonusBits.push(`+${e.huntHideBonus} hide`);
+        if (e.huntFightBonus) bonusBits.push(`+${e.huntFightBonus} fight`);
+        if (bonusBits.length === 0) return null;
+        return (
+          <div className="combo-badge">
+            <span className="combo-badge-emoji">{combo.emoji}</span>
+            <span className="combo-badge-text"><strong>{combo.name}</strong> · {bonusBits.join(' · ')}</span>
+          </div>
+        );
+      })()}
 
       <div className="prey-tabs">
         {(Object.entries(PREDATORS) as [EnvId, Predator][]).map(([id, def]) => (

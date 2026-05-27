@@ -3771,6 +3771,24 @@ h2 {
   .share-payload { grid-template-columns: 1fr; }
   .share-qr-svg { width: 180px; height: 180px; }
 }
+
+/* ─── Hybrid combo badge ─────────────────────────────────────────────── */
+.combo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #fff4cf, #ffe9a0);
+  border: 1px solid #d4a040;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 6px 0;
+  font-size: 12px;
+  color: #5a4828;
+}
+.combo-badge-emoji {
+  font-size: 18px;
+}
+.combo-badge-text strong { color: #8a5a00; }
 .profile-prey {
   display: flex;
   gap: 10px;

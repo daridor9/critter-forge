@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { comboEffects } from '../data/hybridCombos';
 
 export type DeepOutcome = {
   won: boolean;
@@ -102,7 +103,8 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
   // dive-adapted bonus so it stays survivable in the abyss with the right
   // build.
   const zoneBreathBonus = zone.id === 'abyss' ? 1.6 : zone.id === 'twilight' ? 1.25 : 1.0;
-  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus * (diveAdapted ? 2.8 : 1) * zoneBreathBonus;
+  const comboBreath = comboEffects(creature).deepBreathBonus ?? 1;
+  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus * (diveAdapted ? 2.8 : 1) * zoneBreathBonus * comboBreath;
   const pressureProof = aq || diveAdapted || creature.defenseTier === 2;
 
   const [depth, setDepth] = useState(0);
