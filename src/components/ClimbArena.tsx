@@ -236,12 +236,99 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
         <polygon points={`0,${H} 90,${H * 0.45} 180,${H * 0.6} 280,${H * 0.4} 380,${H * 0.55} 480,${H * 0.42} ${W},${H * 0.55} ${W},${H}`} fill={env.midMountain} opacity="0.85" />
         <polygon points={`0,${H} 120,${H * 0.55} 240,${H * 0.35} 360,${H * 0.5} ${W * 0.85},${H * 0.32} ${W},${H * 0.5} ${W},${H}`} fill="#e9eff2" />
 
-        <polygon points={`${W * 0.25},${H} ${W / 2},22 ${W * 0.75},${H}`} fill="url(#climb-rock)" />
-        <polygon points={`${W * 0.42},${H * 0.55} ${W / 2},22 ${W * 0.58},${H * 0.55}`} fill="#ffffff" />
-        <polygon points={`${W * 0.34},${H} ${W / 2},34 ${W * 0.66},${H}`} fill="#f3f6f8" opacity="0.75" />
+        {/* ─── TERRAIN-SPECIFIC PEAK SHAPE ────────────────────────── */}
 
-        <line x1={cx} y1="22" x2={cx} y2="6" stroke="#3a2118" strokeWidth="1.5" />
-        <polygon points={`${cx} 6 ${cx + 12} 10 ${cx} 14`} fill="#e07b5b" />
+        {env.id === 'alpine' && (
+          <g>
+            {/* classic triangular peak with snow cap */}
+            <polygon points={`${W * 0.25},${H} ${W / 2},22 ${W * 0.75},${H}`} fill="url(#climb-rock)" />
+            <polygon points={`${W * 0.42},${H * 0.55} ${W / 2},22 ${W * 0.58},${H * 0.55}`} fill="#ffffff" />
+            <polygon points={`${W * 0.34},${H} ${W / 2},34 ${W * 0.66},${H}`} fill="#f3f6f8" opacity="0.75" />
+            {/* climb path zigzag — dashed line up the peak */}
+            <polyline
+              points={`${cx + 60},${H - 10} ${cx - 50},${H * 0.7} ${cx + 40},${H * 0.5} ${cx - 30},${H * 0.32} ${cx},22`}
+              stroke="#8a4828" strokeWidth="1.4" fill="none" strokeDasharray="4 4" opacity="0.7" strokeLinecap="round"
+            />
+          </g>
+        )}
+
+        {env.id === 'volcanic' && (
+          <g>
+            {/* CINDER CONE — flat-topped with crater rim */}
+            <polygon points={`${W * 0.15},${H} ${W * 0.35},48 ${W * 0.65},48 ${W * 0.85},${H}`} fill="url(#climb-rock)" />
+            {/* crater interior — inset darker triangle */}
+            <polygon points={`${W * 0.35},48 ${W / 2},78 ${W * 0.65},48`} fill="#3a1808" />
+            {/* GLOWING LAVA in crater */}
+            <ellipse cx={W / 2} cy={66} rx="42" ry="6" fill="#ffd040" opacity="0.85" />
+            <ellipse cx={W / 2} cy={66} rx="28" ry="3" fill="#ff5020" />
+            {/* sulfur smoke wisps drifting up + sideways */}
+            <g opacity="0.6">
+              <g className="cloud" style={{ animationDuration: '40s' }}>
+                <ellipse cx={W / 2 - 8} cy="40" rx="14" ry="5" fill="#8a8478" />
+                <ellipse cx={W / 2 + 4} cy="32" rx="10" ry="4" fill="#9a948a" />
+                <ellipse cx={W / 2 - 16} cy="28" rx="8" ry="3" fill="#7a7468" />
+              </g>
+            </g>
+            {/* lava cracks down the cone sides */}
+            <g stroke="#ffd040" strokeWidth="1.2" fill="none" opacity="0.7" strokeLinecap="round">
+              <path d={`M ${W * 0.4},58 L ${W * 0.32},${H * 0.6} L ${W * 0.28},${H - 14}`} />
+              <path d={`M ${W * 0.6},58 L ${W * 0.68},${H * 0.55} L ${W * 0.72},${H - 14}`} />
+            </g>
+            {/* climb path spiraling around */}
+            <path
+              d={`M ${cx + 80},${H - 12} Q ${W * 0.75},${H * 0.7} ${cx},${H * 0.55} Q ${W * 0.3},${H * 0.5} ${W * 0.4},${H * 0.3} L ${cx},66`}
+              stroke="#1a0808" strokeWidth="1.4" fill="none" strokeDasharray="4 4" opacity="0.7" strokeLinecap="round"
+            />
+          </g>
+        )}
+
+        {env.id === 'glacial' && (
+          <g>
+            {/* TIERED ICE CLIFFS — 3 stacked steps */}
+            <polygon points={`0,${H} 0,${H * 0.75} ${W * 0.4},${H * 0.75} ${W * 0.4},${H * 0.5} ${W * 0.7},${H * 0.5} ${W * 0.7},${H * 0.28} ${W * 0.85},${H * 0.28} ${W * 0.85},${H * 0.1} ${W},${H * 0.1} ${W},${H}`}
+              fill="url(#climb-rock)" />
+            <polygon points={`0,${H * 0.75} ${W * 0.4},${H * 0.75} ${W * 0.4},${H * 0.78}`} fill="#dde4e8" />
+            <polygon points={`${W * 0.4},${H * 0.5} ${W * 0.7},${H * 0.5} ${W * 0.7},${H * 0.53} ${W * 0.4},${H * 0.53}`} fill="#dde4e8" />
+            <polygon points={`${W * 0.7},${H * 0.28} ${W * 0.85},${H * 0.28} ${W * 0.85},${H * 0.31} ${W * 0.7},${H * 0.31}`} fill="#dde4e8" />
+            <polygon points={`${W * 0.85},${H * 0.1} ${W},${H * 0.1} ${W},${H * 0.13} ${W * 0.85},${H * 0.13}`} fill="#ffffff" />
+            {/* crevasses (deep cracks in the steps) */}
+            <g stroke="#5a8aa8" strokeWidth="2" fill="none" opacity="0.65" strokeLinecap="round">
+              <path d={`M ${W * 0.2},${H * 0.85} L ${W * 0.22},${H * 0.95} L ${W * 0.19},${H}`} />
+              <path d={`M ${W * 0.55},${H * 0.6} L ${W * 0.57},${H * 0.7} L ${W * 0.54},${H * 0.75}`} />
+              <path d={`M ${W * 0.78},${H * 0.38} L ${W * 0.79},${H * 0.46}`} />
+            </g>
+            {/* climb-route stepping up the tiers */}
+            <polyline
+              points={`${W * 0.15},${H - 8} ${W * 0.35},${H * 0.78} ${W * 0.55},${H * 0.78} ${W * 0.55},${H * 0.55} ${W * 0.75},${H * 0.55} ${W * 0.75},${H * 0.33} ${W * 0.88},${H * 0.33} ${W * 0.88},${H * 0.13} ${cx},${H * 0.13}`}
+              stroke="#1a3a60" strokeWidth="1.4" fill="none" strokeDasharray="4 4" opacity="0.7" strokeLinecap="round"
+            />
+          </g>
+        )}
+
+        {env.id === 'aurora' && (
+          <g>
+            {/* TALL VERTICAL SPIRE */}
+            <polygon points={`${W * 0.4},${H} ${W * 0.46},22 ${W * 0.54},22 ${W * 0.6},${H}`} fill="url(#climb-rock)" />
+            <polygon points={`${W * 0.44},${H * 0.5} ${W * 0.5},22 ${W * 0.56},${H * 0.5}`} fill="#3a4258" />
+            {/* aurora bands wrapping behind the spire */}
+            <g opacity="0.75">
+              <path d={`M ${W * 0.0},${H * 0.3} q ${W * 0.25},${-H * 0.08} ${W * 0.5},0 t ${W * 0.5},0`} stroke="#7ae5b8" strokeWidth="9" fill="none" opacity="0.55" />
+              <path d={`M ${W * 0.0},${H * 0.42} q ${W * 0.25},${-H * 0.06} ${W * 0.5},0 t ${W * 0.5},0`} stroke="#c47ae5" strokeWidth="7" fill="none" opacity="0.4" />
+            </g>
+            {/* vertical climb route */}
+            <polyline
+              points={`${W * 0.5},${H - 10} ${W * 0.5},${H * 0.7} ${W * 0.48},${H * 0.5} ${W * 0.52},${H * 0.3} ${W * 0.5},22`}
+              stroke="#a8a0ce" strokeWidth="1.4" fill="none" strokeDasharray="4 4" opacity="0.75" strokeLinecap="round"
+            />
+          </g>
+        )}
+
+        {/* FLAG at the summit — position adapts by terrain */}
+        <line x1={cx} y1={env.id === 'volcanic' ? 66 : env.id === 'glacial' ? H * 0.13 : 22} x2={cx} y2={env.id === 'volcanic' ? 50 : env.id === 'glacial' ? H * 0.13 - 16 : 6} stroke="#3a2118" strokeWidth="1.5" />
+        <polygon
+          points={`${cx} ${env.id === 'volcanic' ? 50 : env.id === 'glacial' ? H * 0.13 - 16 : 6} ${cx + 12} ${env.id === 'volcanic' ? 54 : env.id === 'glacial' ? H * 0.13 - 12 : 10} ${cx} ${env.id === 'volcanic' ? 58 : env.id === 'glacial' ? H * 0.13 - 8 : 14}`}
+          fill="#e07b5b"
+        />
 
         {/* LAVA pool + glow at the base for volcanic terrain */}
         {env.lava && (

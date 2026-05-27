@@ -240,13 +240,17 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
   const baseCreatureX = W * 0.28;
   const basePredX = W * 0.72;
   let creatureDX = 0;
+  let creatureDY = 0;
   let predDX = 0;
   let creatureOpacity = 1;
   let predOpacity = 1;
   if (playing && playingStrategy === 'hide') {
-    // Creature crouches + fades (camouflage). Predator sweeps left,
-    // looking. If won, predator passes by; if lost, predator pounces.
-    creatureOpacity = 0.35;
+    // Creature CROUCHES (translateY +15) behind cover that pops in at
+    // its position, fades to 35% to suggest concealment. Predator
+    // sweeps left scanning. If won, predator passes by; if lost,
+    // predator pounces and creature pops back up exposed.
+    creatureOpacity = playWon ? 0.3 : 0.55;
+    creatureDY = playWon ? 18 : 6;        // duck down
     predDX = playWon ? -160 : -(basePredX - baseCreatureX);
   } else if (playing && playingStrategy === 'run') {
     // Both dash left. Creature exits screen first if won, gets caught
@@ -402,22 +406,156 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
           ))}
         </g>
 
-        {/* PLAYER CREATURE — animates left/away based on phase */}
+        {/* RUN motion streaks — drawn BEHIND the creature, originating
+            from its current x position and trailing right. */}
+        {playing && playingStrategy === 'run' && (
+          <g
+            style={{
+              transition: 'transform 1.5s ease-in-out',
+              transform: `translateX(${creatureDX}px)`,
+            }}
+          >
+            <g opacity="0.7">
+              {[0, 6, 14, 26, 40].map((dx, i) => (
+                <line
+                  key={i}
+                  x1={W * 0.28 + dx + 30}
+                  y1={GROUND_Y - 32 + (i % 2) * 6}
+                  x2={W * 0.28 + dx + 64}
+                  y2={GROUND_Y - 30 + (i % 2) * 6}
+                  stroke="#d6c098"
+                  strokeWidth={3 - i * 0.4}
+                  strokeLinecap="round"
+                  opacity={0.85 - i * 0.15}
+                />
+              ))}
+              {/* dust puffs trailing on the ground */}
+              {[0, 24, 50, 78].map((dx, i) => (
+                <ellipse
+                  key={`d-${i}`}
+                  cx={W * 0.28 + dx + 30}
+                  cy={GROUND_Y + 2}
+                  rx={6 + i * 2}
+                  ry={2}
+                  fill="#d6c098"
+                  opacity={0.6 - i * 0.12}
+                />
+              ))}
+            </g>
+          </g>
+        )}
+
+        {/* PLAYER CREATURE — animates left/away based on phase.
+            Hide adds a Y-down crouch; Run uses the same translateX but
+            with the run animation on the body. */}
         <g
           style={{
             transition: playing ? 'transform 1.5s ease-in-out, opacity 0.6s ease-in-out' : 'none',
-            transform: `translateX(${creatureDX}px)`,
+            transform: `translate(${creatureDX}px, ${creatureDY}px)`,
             opacity: creatureOpacity,
           }}
         >
           {hasBespokeShape(creature) ? (
-            <BespokeInScene creature={creature} x={W * 0.28 - 50} y={GROUND_Y - 80} width={100} height={80} animate="breathe" />
+            <BespokeInScene
+              creature={creature}
+              x={W * 0.28 - 50}
+              y={GROUND_Y - 80}
+              width={100}
+              height={80}
+              animate={playing && playingStrategy === 'run' ? 'run' : 'breathe'}
+            />
           ) : (
             <g transform={`translate(${W * 0.28} 0)`}>
-              <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.32} animate="breathe" />
+              <CreatureBody
+                creature={creature}
+                cx={0}
+                footY={GROUND_Y}
+                scale={0.32}
+                animate={playing && playingStrategy === 'run' ? 'run' : 'breathe'}
+              />
             </g>
           )}
         </g>
+
+        {/* HIDE COVER — biome-specific concealment that appears in
+            front of the creature when Hide is chosen. */}
+        {playing && playingStrategy === 'hide' && (
+          <g
+            style={{
+              transition: 'opacity 0.3s ease-in',
+              opacity: 0.95,
+            }}
+          >
+            {envId === 'forest' && (
+              <g transform={`translate(${W * 0.28 + 10} ${GROUND_Y - 20})`}>
+                {/* dense BUSH */}
+                <ellipse cx="-12" cy="0" rx="18" ry="14" fill="#3a5a22" />
+                <ellipse cx="8" cy="-4" rx="22" ry="16" fill="#4a7028" />
+                <ellipse cx="28" cy="2" rx="16" ry="12" fill="#3a5a22" />
+                <ellipse cx="-2" cy="-10" rx="14" ry="9" fill="#5a8a3a" opacity="0.85" />
+              </g>
+            )}
+            {envId === 'savanna' && (
+              <g transform={`translate(${W * 0.28 + 8} ${GROUND_Y - 16})`}>
+                {/* TALL GRASS clump */}
+                <g stroke="#a08a48" strokeWidth="2.5" strokeLinecap="round" fill="none">
+                  {[-12, -6, 0, 6, 12, 18, 24].map((x, i) => (
+                    <line key={i} x1={x} y1="14" x2={x + (i % 2 === 0 ? -2 : 2)} y2={-14 - (i % 3) * 2} />
+                  ))}
+                </g>
+                <g stroke="#7a6428" strokeWidth="1.5" strokeLinecap="round" fill="none">
+                  {[-9, -3, 3, 9, 15, 21].map((x, i) => (
+                    <line key={i} x1={x} y1="14" x2={x + (i % 2 === 0 ? -2 : 2)} y2={-10 - (i % 3) * 2} />
+                  ))}
+                </g>
+              </g>
+            )}
+            {envId === 'mountain' && (
+              <g transform={`translate(${W * 0.28 + 4} ${GROUND_Y - 20})`}>
+                {/* SNOW BOULDER */}
+                <ellipse cx="0" cy="6" rx="32" ry="18" fill="#aab4be" />
+                <ellipse cx="0" cy="4" rx="28" ry="14" fill="#dde4e8" />
+                {/* snow cap */}
+                <ellipse cx="0" cy="-6" rx="22" ry="6" fill="white" opacity="0.95" />
+              </g>
+            )}
+            {envId === 'desert' && (
+              <g transform={`translate(${W * 0.28 + 6} ${GROUND_Y - 18})`}>
+                {/* SAND DUNE */}
+                <ellipse cx="0" cy="10" rx="34" ry="14" fill="#a07a45" />
+                <ellipse cx="0" cy="6" rx="32" ry="12" fill="#c89a55" />
+                {/* a small cactus for extra cover */}
+                <rect x="-2" y="-12" width="4" height="20" rx="2" fill="#3f5e22" />
+                <ellipse cx="0" cy="-12" rx="3" ry="2" fill="#ffd140" />
+              </g>
+            )}
+            {envId === 'ocean' && (
+              <g transform={`translate(${W * 0.28 + 4} ${GROUND_Y - 16})`}>
+                {/* KELP / SEAWEED */}
+                <g stroke="#3a8848" strokeWidth="5" strokeLinecap="round" fill="none">
+                  <path d="M -10 14 q -3 -10 0 -22 q 3 -10 0 -22" />
+                  <path d="M 0 14 q -2 -8 0 -16 q 2 -10 0 -22" />
+                  <path d="M 10 14 q 3 -12 0 -22 q -3 -10 0 -22" />
+                </g>
+                <g stroke="#5aa868" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7">
+                  <path d="M -10 14 q -3 -10 0 -22 q 3 -10 0 -22" />
+                  <path d="M 0 14 q -2 -8 0 -16 q 2 -10 0 -22" />
+                </g>
+              </g>
+            )}
+            {/* a "..." thought bubble while hiding (won) or "!" if spotted */}
+            <text
+              x={W * 0.28 + 50}
+              y={GROUND_Y - 88}
+              fontSize="18"
+              fontWeight="700"
+              fill={playWon ? '#5a6a6a' : '#c25541'}
+              opacity={0.85}
+            >
+              {playWon ? '…' : '!'}
+            </text>
+          </g>
+        )}
 
         {/* PREDATOR — animates toward/away based on phase */}
         <g

@@ -233,6 +233,86 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
         <rect x="0" y="0" width={W} height={SURFACE_Y - 4} fill="#cfe8f1" />
         <rect x="0" y={SURFACE_Y - 4} width={W} height={H - SURFACE_Y + 4} fill="url(#deep-water)" />
 
+        {/* ─── ZONE-SPECIFIC LAYOUT — basin walls, open water, or trench ──── */}
+
+        {zone.id === 'reef' && (
+          <g>
+            {/* Coral REEF BASIN — left and right walls form a basin
+                that narrows toward the bottom. */}
+            <polygon
+              points={`0,${SURFACE_Y} 0,${H} 110,${H} 60,${SURFACE_Y + 60} 50,${SURFACE_Y + 30} 30,${SURFACE_Y + 10}`}
+              fill="#3a6850" opacity="0.85"
+            />
+            <polygon
+              points={`${W},${SURFACE_Y} ${W},${H} ${W - 110},${H} ${W - 60},${SURFACE_Y + 60} ${W - 50},${SURFACE_Y + 30} ${W - 30},${SURFACE_Y + 10}`}
+              fill="#3a6850" opacity="0.85"
+            />
+            {/* coral spires along the walls */}
+            <g>
+              {[30, 70, 90].map((y, i) => (
+                <ellipse key={`lcoral-${i}`} cx={20 + i * 12} cy={SURFACE_Y + y} rx="6" ry="14" fill="#e6708a" opacity="0.85" />
+              ))}
+              {[30, 70, 90].map((y, i) => (
+                <ellipse key={`rcoral-${i}`} cx={W - 20 - i * 12} cy={SURFACE_Y + y} rx="6" ry="14" fill="#9a60d0" opacity="0.85" />
+              ))}
+            </g>
+            {/* sun-dappled light bands on the walls */}
+            <g stroke="#ffe9a0" strokeWidth="1" opacity="0.55">
+              <line x1="40" y1={SURFACE_Y + 40} x2="100" y2={SURFACE_Y + 70} />
+              <line x1={W - 40} y1={SURFACE_Y + 40} x2={W - 100} y2={SURFACE_Y + 70} />
+            </g>
+          </g>
+        )}
+
+        {zone.id === 'twilight' && (
+          <g>
+            {/* OPEN WATER — drifting layered shadows that hint at vast
+                space, no walls. A faint mid-depth thermocline band. */}
+            <rect
+              x="0" y={SURFACE_Y + 80} width={W} height="2"
+              fill="#aef0ff" opacity="0.25"
+            />
+            <text x={W - 10} y={SURFACE_Y + 76} fontSize="9" textAnchor="end" fill="#aef0ff" opacity="0.7">thermocline</text>
+            {/* large drifting silhouettes in the open */}
+            <g opacity="0.35">
+              <ellipse cx={W * 0.7} cy={SURFACE_Y + 110} rx="36" ry="8" fill="#0a1c34" />
+              <polygon points={`${W * 0.7 + 36},${SURFACE_Y + 110} ${W * 0.7 + 52},${SURFACE_Y + 102} ${W * 0.7 + 52},${SURFACE_Y + 118}`} fill="#0a1c34" />
+            </g>
+            {/* a long ribbon-like siphonophore drifting */}
+            <g stroke="#9aeaff" strokeWidth="1.2" fill="none" opacity="0.6" strokeLinecap="round">
+              <path d={`M ${W * 0.2},${SURFACE_Y + 30} q -4 30 0 60 q 4 30 0 60`} />
+              <circle cx={W * 0.2} cy={SURFACE_Y + 30} r="2" fill="#aef0ff" />
+            </g>
+          </g>
+        )}
+
+        {zone.id === 'abyss' && (
+          <g>
+            {/* ABYSSAL CANYON — vertical walls on either side that
+                narrow as they descend into a deep trench. */}
+            <polygon
+              points={`0,${SURFACE_Y} 0,${H} ${W * 0.42},${H} ${W * 0.18},${H - 30} ${W * 0.12},${H - 80} ${W * 0.08},${H - 130} ${W * 0.04},${H - 180}`}
+              fill="#000814" opacity="0.85"
+            />
+            <polygon
+              points={`${W},${SURFACE_Y} ${W},${H} ${W * 0.58},${H} ${W * 0.82},${H - 30} ${W * 0.88},${H - 80} ${W * 0.92},${H - 130} ${W * 0.96},${H - 180}`}
+              fill="#000814" opacity="0.85"
+            />
+            {/* canyon-wall cracks / ledges */}
+            <g stroke="#0a1c34" strokeWidth="1" fill="none" opacity="0.85">
+              <path d={`M 0,${H - 100} L 30,${H - 110} L 60,${H - 80}`} />
+              <path d={`M 0,${H - 60} L 50,${H - 50}`} />
+              <path d={`M ${W},${H - 100} L ${W - 30},${H - 110} L ${W - 60},${H - 80}`} />
+              <path d={`M ${W},${H - 60} L ${W - 50},${H - 50}`} />
+            </g>
+            {/* deep-trench glow at the very bottom */}
+            <ellipse cx={W / 2} cy={H - 6} rx={W * 0.3} ry="6" fill="#ff5020" opacity="0.5" />
+            <ellipse cx={W / 2} cy={H - 4} rx={W * 0.15} ry="3" fill="#ffd040" opacity="0.7" />
+            {/* "TRENCH" label */}
+            <text x={W / 2} y={H - 26} textAnchor="middle" fontSize="10" fill="#ffa860" opacity="0.85" fontWeight="700">TRENCH</text>
+          </g>
+        )}
+
         {Array.from({ length: 7 }).map((_, i) => (
           <line key={i} x1={i * 90} y1={SURFACE_Y - 6} x2={i * 90 + 30} y2={SURFACE_Y - 2} stroke="white" strokeWidth="1.5" opacity="0.6" />
         ))}
