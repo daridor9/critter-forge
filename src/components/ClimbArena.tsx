@@ -93,6 +93,20 @@ const TICK_MS = 50;
 const W = 600;
 const H = 240;
 
+// CLIMB EFFORT — how hard the creature pushes up the slope.
+export type ClimbEffort = 'steady' | 'power' | 'cautious';
+
+interface ClimbEffortMod {
+  climbMult: number;   // multiplier on vertical speed
+  drainMult: number;   // multiplier on energy consumed per second
+}
+
+const CLIMB_EFFORT_MODS: Record<ClimbEffort, ClimbEffortMod> = {
+  steady:   { climbMult: 1.0, drainMult: 1.0 },           // balanced default
+  power:    { climbMult: 1.5, drainMult: 1.8 },           // fast but burns energy
+  cautious: { climbMult: 0.6, drainMult: 0.5 },           // slow but conserves
+};
+
 export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props) {
   const [terrainId, setTerrainId] = useState<ClimbTerrainId>('alpine');
   const env = CLIMB_TERRAINS.find((t) => t.id === terrainId) ?? CLIMB_TERRAINS[0];
@@ -101,6 +115,8 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   const [altitude, setAltitude] = useState(0);
   const climbStart = E0 + (comboEffects(creature).climbBonus ?? 0);
   const [energy, setEnergy] = useState(climbStart);
+  const [effort, setEffort] = useState<ClimbEffort>('steady');
+  const effortRef = useRef<ClimbEffort>('steady');
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -111,8 +127,15 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   function reset() {
     altRef.current = 0;
     energyRef.current = climbStart;
+    effortRef.current = 'steady';
     setAltitude(0);
     setEnergy(climbStart);
+    setEffort('steady');
+  }
+
+  function pickEffort(e: ClimbEffort) {
+    effortRef.current = e;
+    setEffort(e);
   }
 
   function start() {
@@ -139,8 +162,11 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
     const brainPath = 1 + creature.brainTier * 0.06;
 
     timerRef.current = window.setInterval(() => {
-      energyRef.current -= (coldDrain + effortDrain) * dt;
-      altRef.current += ALT_PER_SEC * brainPath * dt;
+      const mod = CLIMB_EFFORT_MODS[effortRef.current];
+      // Cold drain is constant (you feel the cold whether you push or rest).
+      // Effort drain scales with the picked effort.
+      energyRef.current -= (coldDrain + effortDrain * mod.drainMult) * dt;
+      altRef.current += ALT_PER_SEC * brainPath * mod.climbMult * dt;
       setEnergy(energyRef.current);
       setAltitude(altRef.current);
 
@@ -201,6 +227,32 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
             <span className="prey-name">
               {t.label}
               <small> {t.altGoal}m · ×{t.rewardMult.toFixed(1)}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* EFFORT PICKER — how hard the creature pushes up the slope. */}
+      <div className="drought-activity-label">
+        <strong>How hard are you climbing?</strong> <small>(switch any time during the run)</small>
+      </div>
+      <div className="prey-tabs">
+        {([
+          { id: 'steady'   as const, emoji: '🪜',  label: 'Steady',   sub: 'balanced',                title: 'Balanced effort. Default climb rate and energy drain.' },
+          { id: 'power'    as const, emoji: '💪',  label: 'Power push', sub: 'fast · burns energy',   title: 'Push hard — 1.5× climb but 1.8× energy drain. Great if you have lots of cold tolerance + stamina.' },
+          { id: 'cautious' as const, emoji: '🧗',  label: 'Cautious',  sub: 'slow · conserves',       title: 'Take it slow — 0.6× climb but 0.5× energy drain. Great for heavy bodies or low cold tolerance.' },
+        ]).map((e) => (
+          <button
+            key={e.id}
+            type="button"
+            className={`prey-tab${effort === e.id ? ' active' : ''}`}
+            onClick={() => pickEffort(e.id)}
+            title={e.title}
+          >
+            <span className="prey-emoji">{e.emoji}</span>
+            <span className="prey-name">
+              {e.label}
+              <small> {e.sub}</small>
             </span>
           </button>
         ))}

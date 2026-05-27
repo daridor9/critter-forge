@@ -289,8 +289,29 @@ function successProbability(c: Creature, maxSteps: number, paths: PathDef[]): nu
   return p;
 }
 
+// MAZE PACE — how the creature moves through the maze. Trades speed vs stamina cost.
+export type MazePace = 'follow' | 'sniff' | 'sprint' | 'echolocate';
+
+interface MazePaceMod {
+  speedMult: number;   // multiplier on forward step rate
+  costMult: number;    // multiplier on stamina consumed per real step
+  needsEcho?: boolean; // requires echolocation hybrid
+}
+
+const MAZE_PACE_MODS: Record<MazePace, MazePaceMod> = {
+  // Default — balanced cruise.
+  follow:     { speedMult: 1.0, costMult: 1.0 },
+  // Slow, careful — covers less ground per second but each step is cheap.
+  sniff:      { speedMult: 0.7, costMult: 0.6 },
+  // Fast charge — twice the ground per second, but burns through stamina.
+  sprint:     { speedMult: 1.7, costMult: 2.0 },
+  // Echolocation — strictly cheaper than Follow, requires the hybrid.
+  echolocate: { speedMult: 1.0, costMult: 0.5, needsEcho: true },
+};
+
 export function MazeArena({ creature, stats, onFinish }: Props) {
   const maxSteps = useMemo(() => maxStepsFor(creature, stats), [creature, stats]);
+  const hasEcho = creature.hybrids.includes('echolocation');
 
   const [themeId, setThemeId] = useState<MazeThemeId>('cave');
   const theme = MAZE_THEMES.find((t) => t.id === themeId) ?? MAZE_THEMES[0];
@@ -300,18 +321,34 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
   const successP = useMemo(() => successProbability(creature, maxSteps, PATHS), [creature, maxSteps, PATHS]);
 
   const [chosenPath, setChosenPath] = useState<PathDef | null>(null);
+  // stepsTaken = path-forward progress (drives the creature's position).
+  // energyUsed = stamina consumed (loses when this exceeds maxSteps).
   const [stepsTaken, setStepsTaken] = useState(0);
+  const [energyUsed, setEnergyUsed] = useState(0);
+  const [pace, setPace] = useState<MazePace>('follow');
+  const paceRef = useRef<MazePace>('follow');
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
 
   const stepRef = useRef(0);
+  const energyRef = useRef(0);
   const elapsedRef = useRef(0);
   const timerRef = useRef<number | null>(null);
 
+  function pickPace(p: MazePace) {
+    if (p === 'echolocate' && !hasEcho) return;
+    paceRef.current = p;
+    setPace(p);
+  }
+
   function start() {
     stepRef.current = 0;
+    energyRef.current = 0;
     elapsedRef.current = 0;
     setStepsTaken(0);
+    setEnergyUsed(0);
+    paceRef.current = 'follow';
+    setPace('follow');
     setChosenPath(pickPath(creature, PATHS));
     setDone(false);
     setRunning(true);
@@ -333,17 +370,21 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
     const needed = chosenPath.steps;
 
     timerRef.current = window.setInterval(() => {
+      const mod = MAZE_PACE_MODS[paceRef.current];
+      const dStep = (dt / STEP_INTERVAL_S) * mod.speedMult;
+      const dEnergy = (dt / STEP_INTERVAL_S) * mod.costMult;
       elapsedRef.current += dt;
-      const newSteps = elapsedRef.current / STEP_INTERVAL_S;
-      stepRef.current = newSteps;
-      setStepsTaken(newSteps);
+      stepRef.current += dStep;
+      energyRef.current += dEnergy;
+      setStepsTaken(stepRef.current);
+      setEnergyUsed(energyRef.current);
 
-      if (newSteps >= needed) {
-        stop({ won: true, reason: 'escaped', stepsTaken: Math.ceil(newSteps), stepsNeeded: needed });
+      if (stepRef.current >= needed) {
+        stop({ won: true, reason: 'escaped', stepsTaken: Math.ceil(stepRef.current), stepsNeeded: needed });
         return;
       }
-      if (newSteps >= maxSteps) {
-        stop({ won: false, reason: 'exhausted', stepsTaken: Math.floor(newSteps), stepsNeeded: needed });
+      if (energyRef.current >= maxSteps) {
+        stop({ won: false, reason: 'exhausted', stepsTaken: Math.floor(stepRef.current), stepsNeeded: needed });
       }
     }, TICK_MS);
 
@@ -362,8 +403,12 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
   useEffect(() => {
     if (!running) {
       stepRef.current = 0;
+      energyRef.current = 0;
       elapsedRef.current = 0;
       setStepsTaken(0);
+      setEnergyUsed(0);
+      paceRef.current = 'follow';
+      setPace('follow');
       setDone(false);
       setChosenPath(null);
     }
@@ -373,7 +418,7 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
   const activePath = chosenPath ?? PATHS[1];
   const progress = chosenPath ? Math.min(1, stepsTaken / activePath.steps) : 0;
   const pos = pointAtPath(activePath.points, progress);
-  const energyLeft = Math.max(0, 1 - stepsTaken / maxSteps);
+  const energyLeft = Math.max(0, 1 - energyUsed / maxSteps);
 
   return (
     <div className="arena">
@@ -399,6 +444,34 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
         Three paths exit the maze. Smarter brains spot the shortcut more often; dull brains wander.
         Each run picks one randomly, weighted by your brain.
       </p>
+
+      {/* PACE PICKER — how the creature moves through the maze. */}
+      <div className="drought-activity-label">
+        <strong>How are you moving?</strong> <small>(switch any time during the run)</small>
+      </div>
+      <div className="prey-tabs">
+        {([
+          { id: 'follow'     as const, emoji: '🐾',  label: 'Follow trail', sub: 'balanced',                    title: 'Steady pace. Equal speed and stamina cost.' },
+          { id: 'sniff'      as const, emoji: '👃',  label: 'Sniff careful', sub: 'slow · cheap',               title: 'Move slowly and check each turn. Less ground per second, but each step is cheap on stamina.' },
+          { id: 'sprint'     as const, emoji: '🏃',  label: 'Sprint',       sub: 'fast · burns stamina',        title: 'Charge ahead — 1.7× faster but each step costs 2× stamina. Great for short paths.' },
+          { id: 'echolocate' as const, emoji: '🦇',  label: 'Echolocate',   sub: hasEcho ? 'normal · half cost' : 'needs hybrid', title: hasEcho ? 'Read the maze through sound. Normal speed but half the stamina cost.' : 'Requires the echolocation hybrid.' },
+        ]).map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            className={`prey-tab${pace === p.id ? ' active' : ''}`}
+            onClick={() => pickPace(p.id)}
+            disabled={p.id === 'echolocate' && !hasEcho}
+            title={p.title}
+          >
+            <span className="prey-emoji">{p.emoji}</span>
+            <span className="prey-name">
+              {p.label}
+              <small> {p.sub}</small>
+            </span>
+          </button>
+        ))}
+      </div>
 
       <div className="maze-odds">
         {PATHS.map((p, i) => (

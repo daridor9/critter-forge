@@ -128,6 +128,46 @@ const GLIDE_ROUTES: GlideRoute[] = [
   },
 ];
 
+// SWIM STYLES — how the creature crosses the water. Affects speed and stamina.
+export type SwimStyle = 'steady' | 'sprint' | 'porpoise' | 'underwater';
+
+interface SwimStyleMod {
+  speedMult: number;
+  staminaDrainMult: number;
+  predEscapeBonus: number;   // added to escape roll vs shark
+  waveImmune?: boolean;       // ignores wave-height speed penalty
+  aquaticOnly?: boolean;
+}
+
+const SWIM_STYLE_MODS: Record<SwimStyle, SwimStyleMod> = {
+  // Balanced — moderate forward speed, normal stamina cost.
+  steady:     { speedMult: 1.0, staminaDrainMult: 1.0, predEscapeBonus: 0 },
+  // Burst sprint — fast but burns through stamina (helpful to escape predators).
+  sprint:     { speedMult: 1.6, staminaDrainMult: 2.2, predEscapeBonus: 0.3 },
+  // Porpoising — dolphins/penguins glide-leap to cut drag. Aquatic only.
+  porpoise:   { speedMult: 1.2, staminaDrainMult: 0.5, predEscapeBonus: 0.1, aquaticOnly: true },
+  // Slip below the surface to dodge storm chop. Costs extra (holding breath / harder).
+  underwater: { speedMult: 1.05, staminaDrainMult: 1.4, predEscapeBonus: 0.2, waveImmune: true },
+};
+
+// GLIDE WING-ACTIONS — what the wings do mid-flight. Costs wing stamina.
+export type WingAction = 'soar' | 'flap' | 'thermal';
+
+interface WingActionMod {
+  forwardMult: number;     // multiplier on forward airspeed
+  altitudeDelta: number;   // extra altitude per second (positive = climb)
+  wingDrainPerSec: number; // wing-stamina cost per second
+}
+
+const WING_ACTION_MODS: Record<WingAction, WingActionMod> = {
+  // Pure glide on outstretched wings — cheapest, slowest sink (handled by sinkRate).
+  soar:    { forwardMult: 1.0, altitudeDelta:  0,   wingDrainPerSec: 0 },
+  // Active flapping — climbs and accelerates, but tires you out fast.
+  flap:    { forwardMult: 1.55, altitudeDelta: 1.4, wingDrainPerSec: 1.0 },
+  // Circle in a thermal — no forward progress but gain altitude for free.
+  thermal: { forwardMult: 0.15, altitudeDelta: 2.6, wingDrainPerSec: 0 },
+};
+
 interface Props {
   creature: Creature;
   stats: CreatureStats;
@@ -269,11 +309,20 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
   const [swimPos, setSwimPos] = useState(0);
   const [swimStamina, setSwimStamina] = useState(swimStaminaCap);
   const [predatorTriggered, setPredatorTriggered] = useState(false);
+  const [swimStyle, setSwimStyle] = useState<SwimStyle>('steady');
+  const swimStyleRef = useRef<SwimStyle>('steady');
 
   // Glide state
   const [glidePos, setGlidePos] = useState(0);
   const [glideAlt, setGlideAlt] = useState(glideStart);
   const [gust, setGust] = useState(false);
+  const [wingAction, setWingAction] = useState<WingAction>('soar');
+  const wingActionRef = useRef<WingAction>('soar');
+  // Wing-stamina: how long you can flap before your wings tire. Bigger gQ +
+  // smaller body = more endurance. Once depleted, flapping stops climbing.
+  const wingStaminaCap = Math.max(6, 8 + gQ * 12 - Math.sqrt(stats.massKg) * 0.4);
+  const [wingStamina, setWingStamina] = useState(wingStaminaCap);
+  const wingStamRef = useRef(wingStaminaCap);
 
   const depthRef = useRef(0);
   const o2Ref = useRef(o2Capacity);
@@ -301,6 +350,24 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
     setGlidePos(0);
     setGlideAlt(glideStart);
     setGust(false);
+    // Style choices reset to defaults on each run.
+    swimStyleRef.current = 'steady';
+    setSwimStyle('steady');
+    wingActionRef.current = 'soar';
+    setWingAction('soar');
+    wingStamRef.current = wingStaminaCap;
+    setWingStamina(wingStaminaCap);
+  }
+
+  function pickSwimStyle(s: SwimStyle) {
+    if (s === 'porpoise' && !aq) return;     // aquatic-only
+    swimStyleRef.current = s;
+    setSwimStyle(s);
+  }
+
+  function pickWingAction(a: WingAction) {
+    wingActionRef.current = a;
+    setWingAction(a);
   }
 
   function start() {
@@ -359,17 +426,24 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           stop({ won: false, reason: 'drowned', maxDepth: Math.round(depthRef.current) });
         }
       } else if (travelMode === 'swim') {
-        // Forward progress per tick.
-        swimPosRef.current += swimSpeed * dt;
-        if (!aq) swimStamRef.current -= dt;
+        const style = swimStyleRef.current;
+        const mod = SWIM_STYLE_MODS[style];
+        // Underwater style ignores wave penalty; restore it for the base speed
+        // when needed by recomputing here (swimSpeed already has waves baked in).
+        const base = mod.waveImmune
+          ? (aq ? 6 : 2) + creature.legTier * 0.8 + Math.min(stats.topSpeedKmh / 25, 3)
+          : swimSpeed;
+        const effSpeed = base * mod.speedMult;
+        swimPosRef.current += effSpeed * dt;
+        if (!aq) swimStamRef.current -= dt * mod.staminaDrainMult;
         setSwimPos(swimPosRef.current);
         setSwimStamina(swimStamRef.current);
 
         // Predator interrupt at ~50% on the open-sea route.
         if (swimRoute.predator && !predatorTriggered && swimPosRef.current > swimRoute.distanceM * 0.5) {
           setPredatorTriggered(true);
-          // 30% catch chance reduced by agility + speed; aquatic body cuts it further.
-          const escape = (aq ? 0.5 : 0) + creature.legTier * 0.2 + Math.min(stats.topSpeedKmh / 80, 0.3);
+          // Escape roll: aquatic + legTier + top speed + style bonus (sprint helps a lot).
+          const escape = (aq ? 0.5 : 0) + creature.legTier * 0.2 + Math.min(stats.topSpeedKmh / 80, 0.3) + mod.predEscapeBonus;
           if (Math.random() > escape) {
             stop({ won: false, reason: 'caught', maxDepth: Math.round(swimPosRef.current) });
             return;
@@ -385,9 +459,23 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           return;
         }
       } else if (travelMode === 'glide') {
-        // Forward progress and slow altitude bleed.
-        glidePosRef.current += glideSpeed * dt;
-        glideAltRef.current -= sinkRate * dt;
+        const action = wingActionRef.current;
+        const wMod = WING_ACTION_MODS[action];
+        // If wing-stamina runs out, flap stops working — collapse to soar.
+        const stamExhausted = wingStamRef.current <= 0;
+        const effAction = (action === 'flap' && stamExhausted) ? 'soar' : action;
+        const effMod = WING_ACTION_MODS[effAction];
+
+        glidePosRef.current += glideSpeed * effMod.forwardMult * dt;
+        // Altitude: lose to sinkRate, gain from action delta.
+        glideAltRef.current += (effMod.altitudeDelta - sinkRate) * dt;
+        // Cap altitude at start (no infinite climb).
+        if (glideAltRef.current > glideStart) glideAltRef.current = glideStart;
+        // Wing stamina drain (only while flap is the picked action AND not yet exhausted).
+        if (!stamExhausted && wMod.wingDrainPerSec > 0) {
+          wingStamRef.current -= wMod.wingDrainPerSec * dt;
+          setWingStamina(wingStamRef.current);
+        }
 
         // Random gust on stormy routes — extra altitude loss + visual.
         if (Math.random() < glideRoute.gustChance * dt * 10) {
@@ -532,6 +620,67 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           </button>
         ))}
       </div>
+
+      {/* ── Per-mode style/action picker ─────────────────────────────── */}
+      {travelMode === 'swim' && (
+        <>
+          <div className="drought-activity-label">
+            <strong>How are you swimming?</strong> <small>(switch any time during the run)</small>
+          </div>
+          <div className="prey-tabs">
+            {([
+              { id: 'steady'     as const, emoji: '🏊',  label: 'Steady stroke', sub: 'balanced',                  title: 'Moderate speed and stamina. The default cruise pace.' },
+              { id: 'sprint'     as const, emoji: '💨',  label: 'Sprint burst',  sub: 'fast · burns stamina',      title: 'Big speed boost — burns stamina 2× faster. Best to outrun the shark or finish.' },
+              { id: 'porpoise'   as const, emoji: '🐬',  label: 'Porpoise',      sub: aq ? 'aquatic · efficient' : 'aquatic only', title: 'Dolphin-style leap-and-glide. Fast and stamina-efficient — but only aquatic bodies can do it.' },
+              { id: 'underwater' as const, emoji: '🤿',  label: 'Underwater',    sub: 'ignores waves',             title: 'Dip below the surface. Ignores wave penalties — great for the storm route, but costs more stamina.' },
+            ]).map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`prey-tab${swimStyle === s.id ? ' active' : ''}`}
+                onClick={() => pickSwimStyle(s.id)}
+                disabled={s.id === 'porpoise' && !aq}
+                title={s.title}
+              >
+                <span className="prey-emoji">{s.emoji}</span>
+                <span className="prey-name">
+                  {s.label}
+                  <small> {s.sub}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {travelMode === 'glide' && gliderOk && (
+        <>
+          <div className="drought-activity-label">
+            <strong>What are your wings doing?</strong> <small>(switch any time during the run)</small>
+          </div>
+          <div className="prey-tabs">
+            {([
+              { id: 'soar'    as const, emoji: '🦅',  label: 'Soar',          sub: 'free · slow forward',     title: 'Outstretched wings. Cheapest — no stamina cost, but you lose altitude steadily.' },
+              { id: 'flap'    as const, emoji: '🦋',  label: 'Flap hard',     sub: 'fast + climb · tires',    title: 'Active flapping. Big forward boost AND altitude climb — but tires your wings out.' },
+              { id: 'thermal' as const, emoji: '🌀',  label: 'Ride thermal',  sub: 'climb · no progress',     title: 'Circle in a warm updraft. Climbs steadily but you make almost no forward progress.' },
+            ]).map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                className={`prey-tab${wingAction === a.id ? ' active' : ''}`}
+                onClick={() => pickWingAction(a.id)}
+                title={a.title}
+              >
+                <span className="prey-emoji">{a.emoji}</span>
+                <span className="prey-name">
+                  {a.label}
+                  <small> {a.sub}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {travelMode === 'dive' && (
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
@@ -977,12 +1126,16 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
             <text x={W - 30} y={HORIZON - 72} fontSize="9" textAnchor="middle" fill="#fff">land</text>
           </g>
 
-          {/* altitude + progress HUD */}
-          <rect x="6" y="6" width="260" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
-          <text x="14" y="22" fontSize="11" fill="#333">altitude</text>
-          <rect x="76" y="13" width="186" height="10" fill="#eee" stroke="#999" />
-          <rect x="76" y="13" width={Math.max(0, 186 * (glideAlt / glideStart))} height="10"
+          {/* altitude + wing-stamina + progress HUD */}
+          <rect x="6" y="4" width="260" height="40" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
+          <text x="14" y="16" fontSize="10" fill="#333">altitude</text>
+          <rect x="76" y="9" width="186" height="8" fill="#eee" stroke="#999" />
+          <rect x="76" y="9" width={Math.max(0, 186 * (glideAlt / glideStart))} height="8"
             fill={glideAlt > STALL_ALT * 2 ? '#5cc46a' : glideAlt > STALL_ALT ? '#e0a040' : '#c44'} />
+          <text x="14" y="34" fontSize="10" fill="#333">wings</text>
+          <rect x="76" y="27" width="186" height="8" fill="#eee" stroke="#999" />
+          <rect x="76" y="27" width={Math.max(0, 186 * (wingStamina / wingStaminaCap))} height="8"
+            fill={wingStamina > wingStaminaCap * 0.3 ? '#9ad0e0' : '#c4a040'} />
           <rect x={W - 160} y="6" width="154" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
           <text x={W - 152} y="22" fontSize="11" fill="#333">
             {Math.round(glidePos)} / {glideRoute.distanceM} m
