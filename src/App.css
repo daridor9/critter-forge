@@ -3994,6 +3994,16 @@ h2 {
 }
 .gauntlet-arena-wrap { padding: 0 0 8px; }
 .gauntlet-result { padding-top: 6px; }
+.drought-activity-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.drought-activity-row .btn {
+  padding: 6px 10px;
+  font-size: 13px;
+}
 .gauntlet-toggle {
   margin: 10px auto 6px;
   max-width: 480px;

@@ -10,7 +10,7 @@ export interface Insight {
 export type ArenaResult =
   | { arena: 'chase'; won: boolean; reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance'; preyId?: 'rabbit' | 'gazelle' | 'kangaroo'; reward?: number; biome?: 'savanna' | 'forest' | 'tundra' | 'desert' | 'night' }
   | { arena: 'climb'; won: boolean; reason: 'reached-top' | 'froze' | 'exhausted'; terrain?: 'alpine' | 'volcanic' | 'glacial' | 'aurora' }
-  | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved'; daysSurvived: number; severity?: 'dry' | 'drought' | 'megadrought' | 'apocalypse' }
+  | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved' | 'dehydrated'; daysSurvived: number; severity?: 'dry' | 'drought' | 'megadrought' | 'apocalypse' }
   | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught'; env?: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean'; strategy?: 'hide' | 'run' | 'fight'; difficulty?: 'normal' | 'tough' | 'apex' }
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed' | 'crossed' | 'exhausted' | 'caught' | 'landed' | 'stalled' | 'no-wings'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number };
@@ -77,10 +77,17 @@ function pickDrought(r: Extract<ArenaResult, { arena: 'drought' }>): Insight {
       'crocodiles can fast for a YEAR. Cold-blooded creatures eat 1/10 the food per kg of warm-blooded ' +
       '— your gut wins the long game.' };
   }
+  if (r.reason === 'dehydrated') {
+    return { id: 'dehydrated', won: false, title: `Dehydrated on day ${r.daysSurvived}`, text:
+      'No water means death faster than no food. Warm-blooded animals lose 1-3% of their body weight in water ' +
+      'each day just from breathing and panting. Camels store water in their bloodstream and tolerate 25% loss; ' +
+      'kangaroo rats never drink — they make water from food. Try Find Water more often, or pick a cold-blooded ' +
+      'creature, or add thick fur (the camel-wool trick — insulates against heat loss).' };
+  }
   return { id: 'starved', won: false, title: `Starved on day ${r.daysSurvived}`, text:
     'Your metabolism burned reserves faster than the drought lasted. Warm-blooded brain-heavy creatures ' +
     'cost a lot per day. Try cold-blooded, or a much bigger body — total kcal scales as mass^0.75, so ' +
-    'per-kg cost drops as bodies get larger.' };
+    'per-kg cost drops as bodies get larger. Or split your time to Forage more.' };
 }
 
 function pickHunt(r: Extract<ArenaResult, { arena: 'hunt' }>): Insight {
