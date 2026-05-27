@@ -8,7 +8,10 @@ export type DroughtOutcome = {
   won: boolean;
   reason: 'survived' | 'starved';
   daysSurvived: number;
+  severity?: DroughtSeverityId;
 };
+
+export type DroughtSeverityId = 'dry' | 'drought' | 'megadrought' | 'apocalypse';
 
 interface Props {
   creature: Creature;
@@ -17,21 +20,71 @@ interface Props {
   onFinish: (o: DroughtOutcome) => void;
 }
 
-interface DroughtEnv {
+interface DroughtSeverity {
+  id: DroughtSeverityId;
   label: string;
+  emoji: string;
+  description: string;
   sky: [string, string];
   ground: [string, string];
   sun: string;
   sunRayColor: string;
   availFood: number;
   daysGoal: number;
+  rewardMult: number;
+  difficultyLabel: string;
+  dustStorm?: boolean;
+  bones?: boolean;
 }
 
-const DROUGHT_ENVS: DroughtEnv[] = [
-  { label: 'dry season',     sky: ['#ffd589', '#fbe9b0'], ground: ['#e3b06a', '#a07a45'], sun: '#ffb84a', sunRayColor: '#f0a040', availFood: 30, daysGoal: 60 },
-  { label: 'parched',         sky: ['#ffba60', '#f0c878'], ground: ['#d99850', '#8a6230'], sun: '#ff9a30', sunRayColor: '#e08020', availFood: 22, daysGoal: 65 },
-  { label: 'scorched earth',  sky: ['#ff8845', '#f0a058'], ground: ['#c47238', '#6e4818'], sun: '#ff6a20', sunRayColor: '#c05010', availFood: 15, daysGoal: 70 },
-  { label: 'red dust',        sky: ['#d65a40', '#e89060'], ground: ['#a04828', '#5a2810'], sun: '#e03020', sunRayColor: '#a01010', availFood: 10, daysGoal: 75 },
+const DROUGHT_SEVERITIES: DroughtSeverity[] = [
+  {
+    id: 'dry',
+    label: 'Dry season',
+    emoji: '🌾',
+    description: 'A long dry stretch. Some grass still grows.',
+    sky: ['#ffd589', '#fbe9b0'],
+    ground: ['#e3b06a', '#a07a45'],
+    sun: '#ffb84a', sunRayColor: '#f0a040',
+    availFood: 30, daysGoal: 60,
+    rewardMult: 1.0, difficultyLabel: 'easy',
+  },
+  {
+    id: 'drought',
+    label: 'Drought',
+    emoji: '🏜',
+    description: 'Cracked earth, sparse vegetation, hot sun.',
+    sky: ['#ffba60', '#f0c878'],
+    ground: ['#d99850', '#8a6230'],
+    sun: '#ff9a30', sunRayColor: '#e08020',
+    availFood: 18, daysGoal: 80,
+    rewardMult: 1.4, difficultyLabel: 'medium',
+  },
+  {
+    id: 'megadrought',
+    label: 'Megadrought',
+    emoji: '☠️',
+    description: 'Years without rain. Bones in the dust. Scorched earth.',
+    sky: ['#ff8845', '#f0a058'],
+    ground: ['#c47238', '#6e4818'],
+    sun: '#ff6a20', sunRayColor: '#c05010',
+    availFood: 12, daysGoal: 110,
+    rewardMult: 1.8, difficultyLabel: 'hard',
+    bones: true,
+  },
+  {
+    id: 'apocalypse',
+    label: 'Dust storm',
+    emoji: '🌪',
+    description: 'Red dust apocalypse. Almost nothing edible. Only the ancients survive.',
+    sky: ['#d65a40', '#e89060'],
+    ground: ['#a04828', '#5a2810'],
+    sun: '#e03020', sunRayColor: '#a01010',
+    availFood: 7, daysGoal: 150,
+    rewardMult: 2.3, difficultyLabel: 'extreme',
+    dustStorm: true,
+    bones: true,
+  },
 ];
 
 const DAYS_PER_SEC = 2;
@@ -47,8 +100,9 @@ function fatReserveKcal(massKg: number, brainTier: number): number {
 }
 
 export function DroughtArena({ creature, stats, generation = 1, onFinish }: Props) {
-  const env = DROUGHT_ENVS[(generation - 1) % DROUGHT_ENVS.length];
-  const DAYS_GOAL = env.daysGoal;
+  const [severityId, setSeverityId] = useState<DroughtSeverityId>('dry');
+  const env = DROUGHT_SEVERITIES.find((s) => s.id === severityId) ?? DROUGHT_SEVERITIES[0];
+  const DAYS_GOAL = env.daysGoal + (generation - 1) * 5;
   const AVAIL_KCAL_PER_DAY = env.availFood;
   const R0 = fatReserveKcal(stats.massKg, creature.brainTier);
 
@@ -97,11 +151,11 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
       setDay(dayRef.current);
 
       if (dayRef.current >= DAYS_GOAL) {
-        stop({ won: true, reason: 'survived', daysSurvived: DAYS_GOAL });
+        stop({ won: true, reason: 'survived', daysSurvived: DAYS_GOAL, severity: env.id });
         return;
       }
       if (reserveRef.current <= 0) {
-        stop({ won: false, reason: 'starved', daysSurvived: Math.round(dayRef.current) });
+        stop({ won: false, reason: 'starved', daysSurvived: Math.round(dayRef.current), severity: env.id });
       }
     }, TICK_MS);
 
@@ -117,7 +171,7 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
   useEffect(() => {
     if (!running && !done) reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stats.massKg, stats.foodKcalPerDay]);
+  }, [stats.massKg, stats.foodKcalPerDay, severityId]);
 
   const sunCx = W - 70;
   const sunCy = 48;
@@ -133,10 +187,30 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
 
   return (
     <div className="arena">
-      <h2>The Drought — cracked earth <small className="arena-env">· {env.label}</small></h2>
+      <h2>The Drought — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
       <p className="arena-help">
-        Survive {DAYS_GOAL} days with only {AVAIL_KCAL_PER_DAY} kcal of food per day. Big bodies and cold-blooded creatures last longest.
+        {env.description} Survive <strong>{DAYS_GOAL} days</strong> with only {AVAIL_KCAL_PER_DAY} kcal of food per day. Big bodies and cold-blooded creatures last longest.
       </p>
+
+      <div className="prey-tabs">
+        {DROUGHT_SEVERITIES.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            className={`prey-tab${severityId === s.id ? ' active' : ''}`}
+            onClick={() => !running && setSeverityId(s.id)}
+            disabled={running}
+            title={`${s.label} · ${s.difficultyLabel} · ×${s.rewardMult.toFixed(1)} reward`}
+          >
+            <span className="prey-emoji">{s.emoji}</span>
+            <span className="prey-name">
+              {s.label}
+              <small> {s.daysGoal}d · ×{s.rewardMult.toFixed(1)}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="drought-sky" x1="0" y1="0" x2="0" y2="1">
@@ -175,6 +249,51 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           <path d="M 0 -16 q -8 -10 -10 -22" stroke="#5a3b22" strokeWidth="1.5" fill="none" />
           <path d="M 0 -20 q 8 -6 12 -16" stroke="#5a3b22" strokeWidth="1.5" fill="none" />
         </g>
+
+        {/* BONES — for megadrought / dust storm */}
+        {env.bones && (
+          <g fill="#f4eed8" opacity="0.85" stroke="#a89878" strokeWidth="0.5">
+            {/* skull */}
+            <g transform={`translate(110 ${GROUND_Y + 50})`}>
+              <ellipse cx="0" cy="0" rx="12" ry="10" />
+              <circle cx="-4" cy="-2" r="2" fill="#3a2a18" stroke="none" />
+              <circle cx="4" cy="-2" r="2" fill="#3a2a18" stroke="none" />
+              <path d="M -4 4 q 4 -2 8 0" stroke="#3a2a18" strokeWidth="0.8" fill="none" />
+            </g>
+            {/* rib bones */}
+            <g transform={`translate(280 ${GROUND_Y + 58})`}>
+              <line x1="-10" y1="0" x2="14" y2="2" stroke="#a89878" strokeWidth="1.5" />
+              <ellipse cx="-10" cy="0" rx="2" ry="1.4" />
+              <ellipse cx="14" cy="2" rx="2" ry="1.4" />
+            </g>
+            <g transform={`translate(420 ${GROUND_Y + 66})`}>
+              <line x1="-8" y1="0" x2="10" y2="-1" stroke="#a89878" strokeWidth="1.5" />
+              <ellipse cx="-8" cy="0" rx="2" ry="1.2" />
+              <ellipse cx="10" cy="-1" rx="2" ry="1.2" />
+            </g>
+          </g>
+        )}
+
+        {/* DUST STORM — sweeping red dust particles */}
+        {env.dustStorm && (
+          <g fill="#a04020" opacity="0.45">
+            {Array.from({ length: 40 }).map((_, i) => (
+              <circle
+                key={i}
+                cx={(i * 47 + 20) % W}
+                cy={-10 + (i * 13) % GROUND_Y}
+                r={1.5 + (i % 3) * 0.6}
+                className="snowflake"
+                style={{ animationDuration: `${3 + (i % 3)}s`, animationDelay: `-${i * 0.3}s` }}
+              />
+            ))}
+            {/* sweeping dust waves at horizon */}
+            <g fill="#7a3010" opacity="0.55">
+              <ellipse cx={W * 0.3} cy={GROUND_Y - 4} rx="120" ry="10" />
+              <ellipse cx={W * 0.7} cy={GROUND_Y - 6} rx="140" ry="12" />
+            </g>
+          </g>
+        )}
 
         <rect x="6" y="6" width="148" height="22" fill="rgba(255,255,255,0.88)" rx="4" stroke="#bbb" />
         <text x="14" y="22" fontSize="11" fill="#333">

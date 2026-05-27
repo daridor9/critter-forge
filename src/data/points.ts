@@ -186,17 +186,23 @@ export function pointsForArenaResult(r: ArenaResult, generation: number): Points
       break;
     case 'hunt':
       if (r.env && r.strategy) {
-        // Each biome×strategy combo is its own challenge — beating the
-        // Lion by Hide is a different competition than by Fight.
-        key = `arena-hunt-${r.env}-${r.strategy}`;
-        specificMult = r.strategy === 'fight' ? 1.5 : r.strategy === 'run' ? 1.2 : 1.0;
-        description = `Beat ${r.env} ${r.strategy === 'hide' ? '(hidden)' : r.strategy === 'run' ? '(outran)' : '(fought)'}`;
+        // Each biome × strategy × difficulty combo is its own challenge.
+        const diff = r.difficulty ?? 'normal';
+        const diffMult = diff === 'apex' ? 2.2 : diff === 'tough' ? 1.5 : 1.0;
+        key = `arena-hunt-${r.env}-${r.strategy}-${diff}`;
+        const stratMult = r.strategy === 'fight' ? 1.5 : r.strategy === 'run' ? 1.2 : 1.0;
+        specificMult = stratMult * diffMult;
+        description = `Beat ${r.env} ${diff !== 'normal' ? `(${diff}) ` : ''}${r.strategy === 'hide' ? '(hidden)' : r.strategy === 'run' ? '(outran)' : '(fought)'}`;
       }
       break;
     case 'drought':
-      key = `arena-drought-gen${generation}`;
-      specificMult = 1 + Math.min(2, r.daysSurvived / 14);
-      description = `Survived ${r.daysSurvived}-day drought (Gen ${generation})`;
+      {
+        const sev = r.severity ?? 'dry';
+        const sevMult = sev === 'apocalypse' ? 2.3 : sev === 'megadrought' ? 1.8 : sev === 'drought' ? 1.4 : 1.0;
+        key = `arena-drought-${sev}-gen${generation}`;
+        specificMult = (1 + Math.min(2, r.daysSurvived / 14)) * sevMult;
+        description = `Survived ${r.daysSurvived}-day ${sev} (Gen ${generation})`;
+      }
       break;
     case 'deep':
       // Single Deep arena, but deeper dives are harder challenges.
@@ -219,8 +225,13 @@ export function pointsForArenaResult(r: ArenaResult, generation: number): Points
       }
       break;
     case 'climb':
-      key = `arena-climb-gen${generation}`;
-      description = `Summited (Gen ${generation})`;
+      {
+        const terr = r.terrain ?? 'alpine';
+        const terrMult = terr === 'aurora' ? 2.2 : terr === 'glacial' ? 1.8 : terr === 'volcanic' ? 1.5 : 1.0;
+        key = `arena-climb-${terr}-gen${generation}`;
+        specificMult = terrMult;
+        description = `Summited ${terr} (Gen ${generation})`;
+      }
       break;
   }
 

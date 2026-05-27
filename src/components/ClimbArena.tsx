@@ -4,7 +4,9 @@ import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
-export type ClimbOutcome = { won: boolean; reason: 'reached-top' | 'froze' | 'exhausted' };
+export type ClimbOutcome = { won: boolean; reason: 'reached-top' | 'froze' | 'exhausted'; terrain?: ClimbTerrainId };
+
+export type ClimbTerrainId = 'alpine' | 'volcanic' | 'glacial' | 'aurora';
 
 interface Props {
   creature: Creature;
@@ -13,28 +15,77 @@ interface Props {
   onFinish: (o: ClimbOutcome) => void;
 }
 
-interface ClimbEnv {
+interface ClimbTerrain {
+  id: ClimbTerrainId;
   label: string;
+  emoji: string;
+  description: string;
   sky: [string, string];
   rockTop: string;
   rockBottom: string;
   farMountain: string;
   midMountain: string;
   snowCount: number;
-  altBonus: number;
-  aurora: boolean;
+  altGoal: number;
+  rewardMult: number;
+  difficultyLabel: string;
+  coldDrainMult: number;       // higher = colder, drains faster
+  aurora?: boolean;
+  lava?: boolean;
+  glacial?: boolean;
 }
 
-const CLIMB_ENVS: ClimbEnv[] = [
-  { label: 'clear day', sky: ['#a8c8da', '#e5eef3'], rockTop: '#9aa9b1', rockBottom: '#6c7c84', farMountain: '#a8b8c4', midMountain: '#c0ccd3', snowCount: 14, altBonus: 0, aurora: false },
-  { label: 'snowstorm', sky: ['#7c8c98', '#b8c4cc'], rockTop: '#8d9aa2', rockBottom: '#5d6c76', farMountain: '#919fab', midMountain: '#a8b4be', snowCount: 42, altBonus: 200, aurora: false },
-  { label: 'aurora night', sky: ['#1a2244', '#3d2e5e'], rockTop: '#4c5566', rockBottom: '#2e3540', farMountain: '#3a4258', midMountain: '#4a5266', snowCount: 22, altBonus: 400, aurora: true },
-  { label: 'glacial dawn', sky: ['#d4e6f0', '#f0d4e0'], rockTop: '#b8c4cc', rockBottom: '#8089a0', farMountain: '#c4cdd6', midMountain: '#d6dde6', snowCount: 28, altBonus: 600, aurora: false },
+const CLIMB_TERRAINS: ClimbTerrain[] = [
+  {
+    id: 'alpine',
+    label: 'Alpine',
+    emoji: '🏔',
+    description: 'Clear day, classic snowy peak.',
+    sky: ['#a8c8da', '#e5eef3'],
+    rockTop: '#9aa9b1', rockBottom: '#6c7c84',
+    farMountain: '#a8b8c4', midMountain: '#c0ccd3',
+    snowCount: 14, altGoal: 3000, rewardMult: 1.0,
+    difficultyLabel: 'easy', coldDrainMult: 1.0,
+  },
+  {
+    id: 'volcanic',
+    label: 'Volcanic',
+    emoji: '🌋',
+    description: 'Red-hot caldera. Ash rains down. Lava glows below.',
+    sky: ['#8a3018', '#e06530'],
+    rockTop: '#5a2818', rockBottom: '#3a1808',
+    farMountain: '#5a3828', midMountain: '#6a4030',
+    snowCount: 0, altGoal: 3500, rewardMult: 1.5,
+    difficultyLabel: 'medium', coldDrainMult: 0.4,  // hot, not cold
+    lava: true,
+  },
+  {
+    id: 'glacial',
+    label: 'Glacial',
+    emoji: '❄️',
+    description: 'Snowstorm + ice. Extreme cold drains energy.',
+    sky: ['#7c8c98', '#b8c4cc'],
+    rockTop: '#8d9aa2', rockBottom: '#5d6c76',
+    farMountain: '#919fab', midMountain: '#a8b4be',
+    snowCount: 60, altGoal: 4200, rewardMult: 1.8,
+    difficultyLabel: 'hard', coldDrainMult: 1.8,
+    glacial: true,
+  },
+  {
+    id: 'aurora',
+    label: 'Aurora peak',
+    emoji: '🌌',
+    description: 'Night climb under shimmering aurora — pitch dark + cold.',
+    sky: ['#1a2244', '#3d2e5e'],
+    rockTop: '#4c5566', rockBottom: '#2e3540',
+    farMountain: '#3a4258', midMountain: '#4a5266',
+    snowCount: 26, altGoal: 4800, rewardMult: 2.2,
+    difficultyLabel: 'very hard', coldDrainMult: 1.5,
+    aurora: true,
+  },
 ];
 
-const BASE_ALT = 3000;
 const ALT_PER_SEC = 50;
-const ALT_GOAL = BASE_ALT;
 const E0 = 150;
 const TICK_MS = 50;
 
@@ -42,8 +93,9 @@ const W = 600;
 const H = 240;
 
 export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props) {
-  const env = CLIMB_ENVS[(generation - 1) % CLIMB_ENVS.length];
-  const altGoal = ALT_GOAL + env.altBonus;
+  const [terrainId, setTerrainId] = useState<ClimbTerrainId>('alpine');
+  const env = CLIMB_TERRAINS.find((t) => t.id === terrainId) ?? CLIMB_TERRAINS[0];
+  const altGoal = env.altGoal + (generation - 1) * 100;
 
   const [altitude, setAltitude] = useState(0);
   const [energy, setEnergy] = useState(E0);
@@ -80,7 +132,7 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   useEffect(() => {
     if (!running) return;
     const dt = TICK_MS / 1000;
-    const coldDrain = (100 - stats.coldTolerance) * 0.04;
+    const coldDrain = (100 - stats.coldTolerance) * 0.04 * env.coldDrainMult;
     const effortDrain = Math.sqrt(stats.massKg) * 0.15;
     const brainPath = 1 + creature.brainTier * 0.06;
 
@@ -91,12 +143,12 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
       setAltitude(altRef.current);
 
       if (altRef.current >= altGoal) {
-        stop({ won: true, reason: 'reached-top' });
+        stop({ won: true, reason: 'reached-top', terrain: env.id });
         return;
       }
       if (energyRef.current <= 0) {
         const reason: ClimbOutcome['reason'] = coldDrain >= effortDrain ? 'froze' : 'exhausted';
-        stop({ won: false, reason });
+        stop({ won: false, reason, terrain: env.id });
       }
     }, TICK_MS);
 
@@ -112,7 +164,7 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   useEffect(() => {
     if (!running && !done) reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stats.coldTolerance, stats.massKg]);
+  }, [stats.coldTolerance, stats.massKg, terrainId]);
 
   const climbFrac = Math.min(1, altitude / altGoal);
   const baseY = H - 24;
@@ -130,8 +182,28 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
 
   return (
     <div className="arena">
-      <h2>The Climb — snow mountain <small className="arena-env">· {env.label}</small></h2>
-      <p className="arena-help">Climb to {altGoal} m. Cold drains energy fast if your cold tolerance is low. Heavy bodies tire fast too.</p>
+      <h2>The Climb — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
+      <p className="arena-help">{env.description} Climb to <strong>{altGoal} m</strong>. {env.lava ? 'Heat saps cold-blooded creatures.' : 'Cold drains energy fast if your cold tolerance is low.'} Heavy bodies tire fast too.</p>
+
+      <div className="prey-tabs">
+        {CLIMB_TERRAINS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={`prey-tab${terrainId === t.id ? ' active' : ''}`}
+            onClick={() => !running && setTerrainId(t.id)}
+            disabled={running}
+            title={`${t.label} · ${t.difficultyLabel} · ×${t.rewardMult.toFixed(1)} reward`}
+          >
+            <span className="prey-emoji">{t.emoji}</span>
+            <span className="prey-name">
+              {t.label}
+              <small> {t.altGoal}m · ×{t.rewardMult.toFixed(1)}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="climb-sky" x1="0" y1="0" x2="0" y2="1">
@@ -142,6 +214,12 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
             <stop offset="0" stopColor={env.rockTop} />
             <stop offset="1" stopColor={env.rockBottom} />
           </linearGradient>
+          {env.lava && (
+            <radialGradient id="lava-glow" cx="0.5" cy="0" r="0.6">
+              <stop offset="0" stopColor="#ffd040" stopOpacity="0.6" />
+              <stop offset="1" stopColor="#ff5020" stopOpacity="0" />
+            </radialGradient>
+          )}
         </defs>
 
         <rect x="0" y="0" width={W} height={H} fill="url(#climb-sky)" />
@@ -164,6 +242,50 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
 
         <line x1={cx} y1="22" x2={cx} y2="6" stroke="#3a2118" strokeWidth="1.5" />
         <polygon points={`${cx} 6 ${cx + 12} 10 ${cx} 14`} fill="#e07b5b" />
+
+        {/* LAVA pool + glow at the base for volcanic terrain */}
+        {env.lava && (
+          <g>
+            <rect x="0" y={H - 14} width={W} height="14" fill="#ff5020" />
+            <rect x="0" y={H - 14} width={W} height="14" fill="url(#lava-glow)" />
+            {/* glowing cracks */}
+            <g stroke="#ffd040" strokeWidth="1.5" fill="none" opacity="0.85" strokeLinecap="round">
+              <path d={`M 60 ${H} q 5 -20 0 -40 q -5 -16 0 -32`} />
+              <path d={`M 200 ${H} q -5 -16 0 -28`} />
+              <path d={`M 380 ${H} q 6 -22 0 -42`} />
+              <path d={`M 520 ${H} q -4 -18 0 -34 q 4 -12 0 -22`} />
+            </g>
+            {/* ash particles falling */}
+            <g fill="#3a2a18" opacity="0.55">
+              {Array.from({ length: 22 }).map((_, i) => (
+                <circle
+                  key={i}
+                  cx={(i * 41 + 15) % W}
+                  cy={-10}
+                  r={1.2 + (i % 3) * 0.3}
+                  className="snowflake"
+                  style={{ animationDuration: `${5 + (i % 4)}s`, animationDelay: `-${i * 0.5}s` }}
+                />
+              ))}
+            </g>
+          </g>
+        )}
+
+        {/* GLACIAL extras — ice cracks + frost overlay */}
+        {env.glacial && (
+          <g>
+            <g stroke="#a8d8e8" strokeWidth="1.2" fill="none" opacity="0.65">
+              <path d={`M 0 ${H * 0.7} q 60 -8 100 -2 q 80 -4 140 4 q 80 -6 160 0`} />
+              <path d={`M 0 ${H * 0.82} q 80 -6 160 0 q 100 -4 180 6 q 60 -8 160 -2`} />
+            </g>
+            {/* icicle hints from foreground peak */}
+            <g fill="#cfe6ef" opacity="0.85">
+              <polygon points={`${cx - 24},22 ${cx - 20},38 ${cx - 26},32`} />
+              <polygon points={`${cx + 24},22 ${cx + 20},38 ${cx + 26},32`} />
+              <polygon points={`${cx - 8},22 ${cx - 4},44 ${cx - 12},36`} />
+            </g>
+          </g>
+        )}
 
         {snowflakes.map((s, i) => (
           <circle

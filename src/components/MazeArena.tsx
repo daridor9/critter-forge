@@ -23,6 +23,28 @@ const STEP_INTERVAL_S = 0.30;
 const W = 600;
 const H = 240;
 
+// ─── Themes ────────────────────────────────────────────────────────────
+export type MazeThemeId = 'cave' | 'hedge' | 'lab';
+
+interface MazeTheme {
+  id: MazeThemeId;
+  label: string;
+  emoji: string;
+  description: string;
+  bgTop: string;
+  bgBottom: string;
+  gridColor: string;
+  pathColor: string;        // base path color (overrides PathDef colors per-theme accent)
+  rewardMult: number;
+  difficultyLabel: string;
+}
+
+const MAZE_THEMES: MazeTheme[] = [
+  { id: 'cave',  label: 'Cave',         emoji: '🪨', description: 'Dark stone maze. Default difficulty.',                            bgTop: '#2c2f3a', bgBottom: '#1a1c24', gridColor: '#3a3f4a', pathColor: '#f0e2c8', rewardMult: 1.0, difficultyLabel: 'normal' },
+  { id: 'hedge', label: 'Hedge garden', emoji: '🌿', description: 'Green hedge maze under sunlight.',                                 bgTop: '#6a9a3a', bgBottom: '#3a6a1a', gridColor: '#4a7a2a', pathColor: '#c8e0a0', rewardMult: 1.3, difficultyLabel: 'medium' },
+  { id: 'lab',   label: 'Lab',          emoji: '🔬', description: 'Sci-fi neon maze. Tighter corridors, sharper turns.',             bgTop: '#1a2030', bgBottom: '#0a1020', gridColor: '#3a5080', pathColor: '#9ae0ff', rewardMult: 1.6, difficultyLabel: 'hard' },
+];
+
 // Three visible paths from START to EXIT. The creature picks one
 // stochastically — smarter brains weight toward the shortcut, dumber brains
 // weight toward the wander. All three are drawn so the kid can see the
@@ -188,6 +210,9 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
   const probs = useMemo(() => pickProbabilities(creature), [creature]);
   const successP = useMemo(() => successProbability(creature, maxSteps), [creature, maxSteps]);
 
+  const [themeId, setThemeId] = useState<MazeThemeId>('cave');
+  const theme = MAZE_THEMES.find((t) => t.id === themeId) ?? MAZE_THEMES[0];
+
   const [chosenPath, setChosenPath] = useState<PathDef | null>(null);
   const [stepsTaken, setStepsTaken] = useState(0);
   const [running, setRunning] = useState(false);
@@ -265,7 +290,24 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
 
   return (
     <div className="arena">
-      <h2>The Maze — find the exit</h2>
+      <h2>The Maze — {theme.emoji} {theme.label} <small className="arena-env">· {theme.difficultyLabel} · ×{theme.rewardMult.toFixed(1)} reward</small></h2>
+      <p className="arena-help">{theme.description}</p>
+
+      <div className="prey-tabs">
+        {MAZE_THEMES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={`prey-tab${themeId === t.id ? ' active' : ''}`}
+            onClick={() => !running && setThemeId(t.id)}
+            disabled={running}
+            title={`${t.label} · ${t.difficultyLabel} · ×${t.rewardMult.toFixed(1)} reward`}
+          >
+            <span className="prey-emoji">{t.emoji}</span>
+            <span className="prey-name">{t.label}<small> ×{t.rewardMult.toFixed(1)}</small></span>
+          </button>
+        ))}
+      </div>
       <p className="arena-help">
         Three paths exit the maze. Smarter brains spot the shortcut more often; dull brains wander.
         Each run picks one randomly, weighted by your brain.
@@ -294,15 +336,15 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="maze-bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#2c2f3a" />
-            <stop offset="1" stopColor="#1a1c24" />
+            <stop offset="0" stopColor={theme.bgTop} />
+            <stop offset="1" stopColor={theme.bgBottom} />
           </linearGradient>
         </defs>
 
         <rect x="0" y="0" width={W} height={H} fill="url(#maze-bg)" />
 
         {/* faint grid */}
-        <g stroke="#3a3f4a" strokeWidth="0.5" opacity="0.35">
+        <g stroke={theme.gridColor} strokeWidth="0.5" opacity="0.35">
           {Array.from({ length: 16 }).map((_, i) => (
             <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2={H} />
           ))}

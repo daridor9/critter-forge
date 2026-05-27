@@ -10,7 +10,26 @@ export type HuntOutcome = {
   reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught';
   env: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean';
   strategy: 'hide' | 'run' | 'fight';
+  difficulty?: HuntDifficultyId;
 };
+
+export type HuntDifficultyId = 'normal' | 'tough' | 'apex';
+
+interface HuntDifficulty {
+  id: HuntDifficultyId;
+  label: string;
+  emoji: string;
+  perceptionMult: number;   // higher = predator sees you better
+  biteMult: number;          // higher = predator hits harder
+  rewardMult: number;
+  description: string;
+}
+
+const HUNT_DIFFICULTIES: HuntDifficulty[] = [
+  { id: 'normal', label: 'Normal',  emoji: '⭐',     perceptionMult: 1.0, biteMult: 1.0, rewardMult: 1.0, description: 'Standard predator. Beatable with the right strategy.' },
+  { id: 'tough',  label: 'Tough',   emoji: '⭐⭐',    perceptionMult: 1.25, biteMult: 1.2, rewardMult: 1.5, description: 'Battle-hardened predator. +25% perception, +20% bite.' },
+  { id: 'apex',   label: 'Apex',    emoji: '⭐⭐⭐',   perceptionMult: 1.5,  biteMult: 1.4, rewardMult: 2.2, description: 'Legendary alpha. +50% perception, +40% bite. Bring everything.' },
+];
 
 interface Props {
   creature: Creature;
@@ -134,9 +153,18 @@ const GROUND_Y = 170;
 
 export function HuntArena({ creature, stats, onFinish }: Props) {
   const [envId, setEnvId] = useState<EnvId>('forest');
+  const [difficultyId, setDifficultyId] = useState<HuntDifficultyId>('normal');
   const [done, setDone] = useState(false);
 
-  const p = PREDATORS[envId];
+  const diff = HUNT_DIFFICULTIES.find((d) => d.id === difficultyId) ?? HUNT_DIFFICULTIES[0];
+
+  // Scale the predator by the chosen difficulty.
+  const basePred = PREDATORS[envId];
+  const p: Predator = {
+    ...basePred,
+    perception: Math.round(basePred.perception * diff.perceptionMult),
+    bite: Math.round(basePred.bite * diff.biteMult),
+  };
   const hide = predictHide(creature, p);
   const run = predictRun(stats, p);
   const fight = predictFight(creature, stats, p);
@@ -150,15 +178,15 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     const adjustedMargin = result.margin + luck;
     const won = adjustedMargin > 0;
     setDone(true);
-    onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy });
+    onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy, difficulty: diff.id });
   }
 
   function reset() { setDone(false); }
 
   return (
     <div className="arena">
-      <h2>The Hunt — encounter <small className="arena-env">· {p.envName}</small></h2>
-      <p className="arena-help">{p.envNote}</p>
+      <h2>The Hunt — encounter <small className="arena-env">· {p.envName} · {diff.emoji} {diff.label} · ×{diff.rewardMult.toFixed(1)} reward</small></h2>
+      <p className="arena-help">{p.envNote} <em>{diff.description}</em></p>
 
       <div className="prey-tabs">
         {(Object.entries(PREDATORS) as [EnvId, Predator][]).map(([id, def]) => (
@@ -172,6 +200,22 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
           >
             <span className="prey-emoji">{def.envEmoji}</span>
             <span className="prey-name">{def.envName}<small> {def.emoji}</small></span>
+          </button>
+        ))}
+      </div>
+
+      <div className="prey-tabs">
+        {HUNT_DIFFICULTIES.map((d) => (
+          <button
+            key={d.id}
+            type="button"
+            className={`prey-tab${difficultyId === d.id ? ' active' : ''}`}
+            onClick={() => { setDifficultyId(d.id); setDone(false); }}
+            disabled={done}
+            title={d.description}
+          >
+            <span className="prey-emoji">{d.emoji}</span>
+            <span className="prey-name">{d.label}<small> ×{d.rewardMult.toFixed(1)}</small></span>
           </button>
         ))}
       </div>
