@@ -170,9 +170,18 @@ export function pointsForArenaResult(r: ArenaResult, generation: number): Points
   switch (r.arena) {
     case 'chase':
       if (r.preyId) {
-        key = `arena-chase-gen${generation}-${r.preyId}`;
-        specificMult = r.preyId === 'kangaroo' ? 1.6 : r.preyId === 'gazelle' ? 1.2 : 1.0;
-        description = `Caught ${r.preyId} (Gen ${generation})`;
+        // Biome is part of the key — same prey in a different biome is a
+        // fresh challenge with its own award. Difficulty scales by both.
+        const biome = r.biome ?? 'savanna';
+        const biomeMult = biome === 'night' ? 1.9
+          : biome === 'desert' ? 1.6
+          : biome === 'tundra' ? 1.5
+          : biome === 'forest' ? 1.3
+          : 1.0;
+        const preyMult = r.preyId === 'kangaroo' ? 1.6 : r.preyId === 'gazelle' ? 1.2 : 1.0;
+        key = `arena-chase-${biome}-gen${generation}-${r.preyId}`;
+        specificMult = preyMult * biomeMult;
+        description = `Caught ${r.preyId} in ${biome} (Gen ${generation})`;
       }
       break;
     case 'hunt':

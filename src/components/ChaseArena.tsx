@@ -10,7 +10,10 @@ export type ChaseOutcome = {
   reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance';
   preyId?: 'rabbit' | 'gazelle' | 'kangaroo';
   reward?: number;
+  biome?: ChaseBiomeId;
 };
+
+export type ChaseBiomeId = 'savanna' | 'forest' | 'tundra' | 'desert' | 'night';
 
 interface Props {
   creature: Creature;
@@ -19,8 +22,11 @@ interface Props {
   onFinish: (o: ChaseOutcome) => void;
 }
 
-interface ChaseEnv {
+interface ChaseBiome {
+  id: ChaseBiomeId;
   label: string;
+  emoji: string;
+  description: string;
   sky: [string, string, string];
   sun: string;
   sunHalo: string;
@@ -31,14 +37,97 @@ interface ChaseEnv {
   treeMid: string;
   treeTop: string;
   stars: boolean;
-  preyKmhBonus: number;
+  preyKmhBonus: number;       // makes prey faster — adds to difficulty
+  rewardMult: number;         // scales kcal reward
+  difficultyLabel: string;
+  // Biome-specific scene props (snow drifts, cacti, pines) — opt-in flags
+  snow?: boolean;
+  cacti?: boolean;
+  pines?: boolean;
 }
 
-const CHASE_ENVS: ChaseEnv[] = [
-  { label: 'midday', sky: ['#7ec4e0', '#c8d8b8', '#f8d68a'], sun: '#ffd66a', sunHalo: '#ffe9a0', ground: ['#f3d27d', '#dfb066', '#a07a40'], hill: '#d4b56a', hill2: '#c89a55', treeMain: '#3f5a30', treeMid: '#557d3e', treeTop: '#6b9450', stars: false, preyKmhBonus: 0 },
-  { label: 'dusk', sky: ['#3a2a5a', '#d68b5a', '#f4a060'], sun: '#f06030', sunHalo: '#ffa060', ground: ['#d4a060', '#a87a45', '#6a4a28'], hill: '#a87a52', hill2: '#8a6238', treeMain: '#2a3a22', treeMid: '#3d5530', treeTop: '#557840', stars: false, preyKmhBonus: 2 },
-  { label: 'night', sky: ['#0a1530', '#1f2d5a', '#3a4878'], sun: '#f0f0ff', sunHalo: '#a0b8e0', ground: ['#5a5878', '#3e3c58', '#1e1c30'], hill: '#48506a', hill2: '#363c54', treeMain: '#1a2418', treeMid: '#243024', treeTop: '#2e3a2c', stars: true, preyKmhBonus: 4 },
-  { label: 'dawn', sky: ['#4a3a6a', '#e08aa0', '#f4c890'], sun: '#ffb098', sunHalo: '#ffd0c0', ground: ['#e8c590', '#c89a6a', '#8a6840'], hill: '#c79a78', hill2: '#a87a5e', treeMain: '#3c5a38', treeMid: '#577a4a', treeTop: '#6f9558', stars: false, preyKmhBonus: 6 },
+// 5 biomes ordered easy → hard. Each rotates the entire scene + tweaks
+// difficulty (prey speed) and reward (kcal multiplier).
+const CHASE_BIOMES: ChaseBiome[] = [
+  {
+    id: 'savanna',
+    label: 'Savanna',
+    emoji: '🌾',
+    description: 'Wide open plains. Easy sight lines.',
+    sky: ['#7ec4e0', '#c8d8b8', '#f8d68a'],
+    sun: '#ffd66a', sunHalo: '#ffe9a0',
+    ground: ['#f3d27d', '#dfb066', '#a07a40'],
+    hill: '#d4b56a', hill2: '#c89a55',
+    treeMain: '#3f5a30', treeMid: '#557d3e', treeTop: '#6b9450',
+    stars: false,
+    preyKmhBonus: 0,
+    rewardMult: 1.0,
+    difficultyLabel: 'easy',
+  },
+  {
+    id: 'forest',
+    label: 'Forest',
+    emoji: '🌳',
+    description: 'Dense cover. Prey zigzags between trees.',
+    sky: ['#5a8cb0', '#8ab48c', '#d4dca0'],
+    sun: '#ffd66a', sunHalo: '#ffe9a0',
+    ground: ['#7a8a4a', '#5a6a32', '#3a4a20'],
+    hill: '#6a7a3a', hill2: '#4a5a28',
+    treeMain: '#2a4218', treeMid: '#3a5828', treeTop: '#4a7038',
+    stars: false,
+    preyKmhBonus: 4,
+    rewardMult: 1.4,
+    difficultyLabel: 'medium',
+    pines: true,
+  },
+  {
+    id: 'tundra',
+    label: 'Tundra',
+    emoji: '🏔',
+    description: 'Snow drags every step. Cold-adapted prey.',
+    sky: ['#9ac6e0', '#cfe0e8', '#e8efef'],
+    sun: '#fff8d8', sunHalo: '#e8f0ff',
+    ground: ['#f0f4f8', '#dde4e8', '#aab4c0'],
+    hill: '#c8d2dc', hill2: '#a0aab6',
+    treeMain: '#2a3a22', treeMid: '#3a4a30', treeTop: '#4a5a3e',
+    stars: false,
+    preyKmhBonus: 6,
+    rewardMult: 1.6,
+    difficultyLabel: 'hard',
+    snow: true,
+    pines: true,
+  },
+  {
+    id: 'desert',
+    label: 'Desert',
+    emoji: '🏜',
+    description: 'Heat fatigue. Mirage prey. Cacti and dunes.',
+    sky: ['#ff9a55', '#ffba78', '#ffd590'],
+    sun: '#ff6a30', sunHalo: '#ff9050',
+    ground: ['#e6a868', '#c88840', '#8a5828'],
+    hill: '#c8945a', hill2: '#a87838',
+    treeMain: '#3f5a30', treeMid: '#557d3e', treeTop: '#6b9450',
+    stars: false,
+    preyKmhBonus: 8,
+    rewardMult: 1.8,
+    difficultyLabel: 'hard',
+    cacti: true,
+  },
+  {
+    id: 'night',
+    label: 'Night',
+    emoji: '🌃',
+    description: 'Low visibility. Prey is faster in the dark.',
+    sky: ['#0a1530', '#1f2d5a', '#3a4878'],
+    sun: '#f0f0ff', sunHalo: '#a0b8e0',
+    ground: ['#5a5878', '#3e3c58', '#1e1c30'],
+    hill: '#48506a', hill2: '#363c54',
+    treeMain: '#1a2418', treeMid: '#243024', treeTop: '#2e3a2c',
+    stars: true,
+    preyKmhBonus: 10,
+    rewardMult: 2.2,
+    difficultyLabel: 'very hard',
+  },
 ];
 
 const NIGHT_STARS = Array.from({ length: 28 }).map((_, i) => ({
@@ -221,6 +310,53 @@ function Tree({ x, h, colors }: { x: number; h: number; colors: { main: string; 
   );
 }
 
+function PineTree({ x, h, colors }: { x: number; h: number; colors: { main: string; mid: string; top: string } }) {
+  // Conifer — stacked triangular tiers narrowing toward the top.
+  const baseY = GROUND_Y - 2;
+  const topY = baseY - h;
+  return (
+    <g>
+      <rect x={x - 4} y={baseY - 14} width="8" height="14" fill="#3e2a18" />
+      {/* triangle tiers stacked */}
+      <polygon points={`${x - 26},${baseY - 14} ${x},${baseY - 36} ${x + 26},${baseY - 14}`} fill={colors.main} />
+      <polygon points={`${x - 22},${baseY - 30} ${x},${baseY - 54} ${x + 22},${baseY - 30}`} fill={colors.mid} />
+      <polygon points={`${x - 18},${baseY - 48} ${x},${baseY - 72} ${x + 18},${baseY - 48}`} fill={colors.top} />
+      {/* highest tip if tall enough */}
+      {h > 100 && (
+        <polygon points={`${x - 14},${baseY - 66} ${x},${topY - 2} ${x + 14},${baseY - 66}`} fill={colors.top} />
+      )}
+    </g>
+  );
+}
+
+function Cactus({ x, groundY }: { x: number; groundY: number }) {
+  return (
+    <g>
+      {/* main trunk */}
+      <rect x={x - 6} y={groundY - 48} width="12" height="48" rx="4" fill="#3f5e22" />
+      <rect x={x - 6} y={groundY - 48} width="3" height="48" fill="#557d2e" />
+      {/* left arm */}
+      <path d={`M ${x - 6} ${groundY - 30} q -12 -2 -12 -12 l 0 -16 l 6 0 l 0 14 q 4 4 4 14`} fill="#3f5e22" />
+      {/* right arm */}
+      <path d={`M ${x + 6} ${groundY - 36} q 12 -2 12 -12 l 0 -20 l 6 0 l 0 18 q -4 4 -4 14`} fill="#3f5e22" />
+      {/* ridges */}
+      <g stroke="#2a4218" strokeWidth="0.7" opacity="0.8">
+        <line x1={x - 2} y1={groundY - 48} x2={x - 2} y2={groundY - 2} />
+        <line x1={x + 2} y1={groundY - 48} x2={x + 2} y2={groundY - 2} />
+      </g>
+      {/* spines */}
+      <g stroke="#fff8d8" strokeWidth="0.5" opacity="0.7">
+        <line x1={x} y1={groundY - 40} x2={x} y2={groundY - 38} />
+        <line x1={x} y1={groundY - 30} x2={x} y2={groundY - 28} />
+        <line x1={x} y1={groundY - 18} x2={x} y2={groundY - 16} />
+      </g>
+      {/* top flower */}
+      <circle cx={x} cy={groundY - 49} r="4" fill="#ffd140" />
+      <circle cx={x} cy={groundY - 49} r="2" fill="#ff6890" />
+    </g>
+  );
+}
+
 function GrassTuft({ x, y }: { x: number; y: number }) {
   return (
     <g transform={`translate(${x} ${y})`} className="grass-tuft" style={{ transformOrigin: 'bottom' }}>
@@ -276,11 +412,17 @@ for (let i = 0; i < 36; i++) {
 export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props) {
   const E0 = Math.max(1, stats.enduranceKm * 1.5);
 
-  const env = CHASE_ENVS[(generation - 1) % CHASE_ENVS.length];
+  // Biome — the user picks. Difficulty + reward both scale with the
+  // biome. Generations layer additional difficulty on top (older
+  // generations face slightly faster prey via genBonus).
+  const [biomeId, setBiomeId] = useState<ChaseBiomeId>('savanna');
+  const env = CHASE_BIOMES.find((b) => b.id === biomeId) ?? CHASE_BIOMES[0];
+  const genBonus = (generation - 1) * 1.5;
 
   const [preyId, setPreyId] = useState<PreyId>('gazelle');
   const prey = PREYS.find((p) => p.id === preyId)!;
-  const preySpeedKmh = prey.speedKmh + env.preyKmhBonus;
+  const preySpeedKmh = Math.round(prey.speedKmh + env.preyKmhBonus + genBonus);
+  const scaledReward = Math.round(prey.reward * env.rewardMult);
 
   const [playerDist, setPlayerDist] = useState(0);
   const [gazelleDist, setGazelleDist] = useState(START_GAP_M);
@@ -339,7 +481,7 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
       setGazelleDist(gazelleRef.current);
 
       if (playerRef.current >= gazelleRef.current) {
-        stop({ won: true, reason: 'caught', preyId: prey.id, reward: prey.reward });
+        stop({ won: true, reason: 'caught', preyId: prey.id, reward: scaledReward, biome: env.id });
         return;
       }
       if (gazelleRef.current >= TRACK_M + START_GAP_M) {
@@ -348,7 +490,7 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
           : topMps <= preyMps
             ? 'lost-speed'
             : 'lost-distance';
-        stop({ won: false, reason });
+        stop({ won: false, reason, biome: env.id });
       }
     }, TICK_MS);
 
@@ -373,26 +515,48 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
 
   return (
     <div className="arena">
-      <h2>The Chase — savanna <small className="arena-env">· {env.label}</small></h2>
-      <p className="arena-help">Catch the {prey.label.toLowerCase()} ({preySpeedKmh} km/h) before it covers {TRACK_M} m.</p>
+      <h2>The Chase — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
+      <p className="arena-help">{env.description} Catch the {prey.label.toLowerCase()} ({preySpeedKmh} km/h) before it covers {TRACK_M} m. <strong>Win: +{scaledReward.toLocaleString()} kcal.</strong></p>
 
       <div className="prey-tabs">
-        {PREYS.map((p) => (
+        {CHASE_BIOMES.map((b) => (
           <button
-            key={p.id}
+            key={b.id}
             type="button"
-            className={`prey-tab${preyId === p.id ? ' active' : ''}`}
-            onClick={() => !running && setPreyId(p.id)}
+            className={`prey-tab${biomeId === b.id ? ' active' : ''}`}
+            onClick={() => !running && setBiomeId(b.id)}
             disabled={running}
-            title={`${p.label} — ${p.speedKmh} km/h`}
+            title={`${b.label} · ${b.difficultyLabel} · ×${b.rewardMult.toFixed(1)} reward`}
           >
-            <span className="prey-emoji">{p.emoji}</span>
+            <span className="prey-emoji">{b.emoji}</span>
             <span className="prey-name">
-              {p.label}
-              <small> {p.speedKmh} · {p.reward} kcal</small>
+              {b.label}
+              <small> {b.difficultyLabel} · ×{b.rewardMult.toFixed(1)}</small>
             </span>
           </button>
         ))}
+      </div>
+
+      <div className="prey-tabs">
+        {PREYS.map((p) => {
+          const r = Math.round(p.reward * env.rewardMult);
+          return (
+            <button
+              key={p.id}
+              type="button"
+              className={`prey-tab${preyId === p.id ? ' active' : ''}`}
+              onClick={() => !running && setPreyId(p.id)}
+              disabled={running}
+              title={`${p.label} — ${p.speedKmh} km/h · ${r} kcal`}
+            >
+              <span className="prey-emoji">{p.emoji}</span>
+              <span className="prey-name">
+                {p.label}
+                <small> {p.speedKmh + env.preyKmhBonus + genBonus} km/h · {r} kcal</small>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
@@ -469,9 +633,48 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
 
         <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="url(#chase-ground)" />
 
-        {TREES.map((t, i) => (
-          <Tree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />
-        ))}
+        {/* Biome-specific scene props — pines for forest/tundra,
+            cacti for desert, snow drifts on top of tundra ground. */}
+        {env.pines ? (
+          TREES.map((t, i) => <PineTree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />)
+        ) : env.cacti ? (
+          [{ x: 60 }, { x: 200 }, { x: 360 }, { x: 510 }, { x: 650 }, { x: 770 }].map((c, i) => (
+            <Cactus key={i} x={c.x} groundY={GROUND_Y} />
+          ))
+        ) : (
+          TREES.map((t, i) => <Tree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />)
+        )}
+
+        {/* SNOW DRIFTS for tundra */}
+        {env.snow && (
+          <g>
+            <ellipse cx="120" cy={GROUND_Y + 12} rx="80" ry="8" fill="white" opacity="0.75" />
+            <ellipse cx="400" cy={GROUND_Y + 14} rx="100" ry="10" fill="white" opacity="0.7" />
+            <ellipse cx="680" cy={GROUND_Y + 11} rx="90" ry="8" fill="white" opacity="0.75" />
+            {/* falling snowflakes */}
+            <g fill="white" opacity="0.85">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <circle
+                  key={i}
+                  cx={(i * 53 + 20) % W}
+                  cy={(i * 31) % GROUND_Y}
+                  r={1.5}
+                  className="snowflake"
+                  style={{ animationDuration: `${4 + (i % 4)}s`, animationDelay: `-${i * 0.4}s` }}
+                />
+              ))}
+            </g>
+          </g>
+        )}
+
+        {/* HEAT SHIMMER for desert */}
+        {env.id === 'desert' && (
+          <g className="heat" stroke="#ffe9a0" strokeWidth="1" opacity="0.4" strokeDasharray="3 5">
+            <line x1="40" y1={GROUND_Y - 8} x2="240" y2={GROUND_Y - 8} />
+            <line x1="320" y1={GROUND_Y - 10} x2="600" y2={GROUND_Y - 10} />
+            <line x1="640" y1={GROUND_Y - 6} x2="780" y2={GROUND_Y - 6} />
+          </g>
+        )}
 
         {Array.from({ length: 14 }).map((_, i) => {
           const rx = 30 + i * 56;
