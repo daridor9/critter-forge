@@ -25,7 +25,7 @@ const W = 600;
 const H = 240;
 
 // ─── Themes ────────────────────────────────────────────────────────────
-export type MazeThemeId = 'cave' | 'hedge' | 'lab';
+export type MazeThemeId = 'cave' | 'hedge' | 'lab' | 'sonar';
 
 interface MazeTheme {
   id: MazeThemeId;
@@ -44,6 +44,7 @@ const MAZE_THEMES: MazeTheme[] = [
   { id: 'cave',  label: 'Cave',         emoji: '🪨', description: 'Dark stone maze. Default difficulty.',                            bgTop: '#2c2f3a', bgBottom: '#1a1c24', gridColor: '#3a3f4a', pathColor: '#f0e2c8', rewardMult: 1.0, difficultyLabel: 'normal' },
   { id: 'hedge', label: 'Hedge garden', emoji: '🌿', description: 'Green hedge maze under sunlight.',                                 bgTop: '#6a9a3a', bgBottom: '#3a6a1a', gridColor: '#4a7a2a', pathColor: '#c8e0a0', rewardMult: 1.3, difficultyLabel: 'medium' },
   { id: 'lab',   label: 'Lab',          emoji: '🔬', description: 'Sci-fi neon maze. Tighter corridors, sharper turns.',             bgTop: '#1a2030', bgBottom: '#0a1020', gridColor: '#3a5080', pathColor: '#9ae0ff', rewardMult: 1.6, difficultyLabel: 'hard' },
+  { id: 'sonar', label: 'Sonar cave',   emoji: '📡', description: 'Pitch-dark cavern. You only see a few meters around you, lit by sonar pings.', bgTop: '#06090e', bgBottom: '#020407', gridColor: '#1a2030', pathColor: '#5ad8ff', rewardMult: 1.9, difficultyLabel: 'extreme' },
 ];
 
 // Three visible paths from START to EXIT. The creature picks one
@@ -159,6 +160,39 @@ const PATHS_BY_THEME: Record<MazeThemeId, PathDef[]> = {
         { x: 540, y: 50 }, { x: 60, y: 50 }, { x: 60, y: 150 },
         { x: 480, y: 150 }, { x: 480, y: 100 }, { x: 200, y: 100 },
         { x: 200, y: 120 }, { x: 570, y: 120 },
+      ],
+    },
+  ],
+
+  // SONAR CAVE — extra-long winding paths since you can't see ahead.
+  // The "shortcut" is more chaotic than the cave default; the long
+  // path is a multi-chamber descent.
+  sonar: [
+    {
+      id: 'short', label: 'echo gap', emoji: '🔊', color: '#5cc46a',
+      steps: 22,
+      points: [
+        { x: 30, y: 120 }, { x: 110, y: 160 }, { x: 220, y: 100 },
+        { x: 350, y: 150 }, { x: 460, y: 100 }, { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'medium', label: 'cavern run', emoji: '🌀', color: '#e8a838',
+      steps: 36,
+      points: [
+        { x: 30, y: 120 }, { x: 80, y: 60 }, { x: 170, y: 90 },
+        { x: 230, y: 180 }, { x: 320, y: 150 }, { x: 360, y: 60 },
+        { x: 450, y: 100 }, { x: 510, y: 180 }, { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'long', label: 'deep chamber', emoji: '🕳', color: '#c87878',
+      steps: 56,
+      points: [
+        { x: 30, y: 120 }, { x: 50, y: 200 }, { x: 130, y: 220 },
+        { x: 200, y: 180 }, { x: 240, y: 70 }, { x: 320, y: 50 },
+        { x: 380, y: 130 }, { x: 320, y: 200 }, { x: 420, y: 220 },
+        { x: 490, y: 170 }, { x: 510, y: 80 }, { x: 570, y: 120 },
       ],
     },
   ],
@@ -659,6 +693,54 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
               <CreatureBody creature={creature} cx={0} footY={22} scale={0.22} animate="run" />
             </g>
           )
+        )}
+
+        {/* ─── SONAR CAVE: FOG-OF-WAR overlay + sonar pings ───────── */}
+        {themeId === 'sonar' && chosenPath && (
+          <g style={{ pointerEvents: 'none' }}>
+            <defs>
+              {/* visibility radius depends on sensor / brain / echo —
+                  high-tier sensors see further. */}
+              <radialGradient
+                id="sonar-vision"
+                cx={pos.x}
+                cy={pos.y}
+                r={
+                  50 +
+                  creature.sensorTier * 14 +
+                  (creature.hybrids.includes('echolocation') ? 30 : 0) +
+                  creature.brainTier * 6
+                }
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stopColor="#06090e" stopOpacity="0" />
+                <stop offset="0.55" stopColor="#06090e" stopOpacity="0.15" />
+                <stop offset="0.85" stopColor="#06090e" stopOpacity="0.85" />
+                <stop offset="1" stopColor="#06090e" stopOpacity="0.97" />
+              </radialGradient>
+            </defs>
+            {/* darkness covering the whole maze with a transparent
+                hole around the creature */}
+            <rect x="0" y="0" width={W} height={H} fill="url(#sonar-vision)" />
+
+            {/* sonar PING ring expanding outward — gives the cave the
+                animated radar feel */}
+            <g
+              className="sonar-ping"
+              style={{ transformOrigin: `${pos.x}px ${pos.y}px`, transformBox: 'fill-box' }}
+            >
+              <circle cx={pos.x} cy={pos.y} r="8" stroke="#5ad8ff" strokeWidth="2" fill="none" />
+            </g>
+            <g
+              className="sonar-ping sonar-ping-2"
+              style={{ transformOrigin: `${pos.x}px ${pos.y}px`, transformBox: 'fill-box' }}
+            >
+              <circle cx={pos.x} cy={pos.y} r="8" stroke="#5ad8ff" strokeWidth="1.5" fill="none" />
+            </g>
+
+            {/* small position indicator dot inside the visible bubble */}
+            <circle cx={pos.x} cy={pos.y} r="2" fill="#5ad8ff" opacity="0.9" />
+          </g>
         )}
       </svg>
 

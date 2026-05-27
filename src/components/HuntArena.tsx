@@ -250,17 +250,35 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
   let creatureOpacity = 1;
   let predOpacity = 1;
   if (playing && playingStrategy === 'hide') {
-    // Creature CROUCHES (translateY +15) behind cover that pops in at
-    // its position, fades to 35% to suggest concealment. Predator
-    // sweeps left scanning. If won, predator passes by; if lost,
-    // predator pounces and creature pops back up exposed.
+    // Body-plan-specific HIDE behavior:
+    //   bird     flies UP into the canopy (translateY -50)
+    //   fish     dives DOWN into the water (translateY +30)
+    //   reptile  freezes in place (no Y shift — pure opacity fade)
+    //   mammal   crouches behind cover (translateY +18, current)
     creatureOpacity = playWon ? 0.3 : 0.55;
-    creatureDY = playWon ? 18 : 6;        // duck down
+    if (creature.bodyPlan === 'bird') {
+      creatureDY = playWon ? -50 : -18;   // flies up
+    } else if (creature.bodyPlan === 'fish') {
+      creatureDY = playWon ? 30 : 12;     // dives down
+    } else if (creature.bodyPlan === 'reptile') {
+      creatureDY = 0;                     // motionless camouflage
+      // reptiles rely entirely on stillness — opacity drops harder
+      creatureOpacity = playWon ? 0.2 : 0.6;
+    } else {
+      creatureDY = playWon ? 18 : 6;      // mammal crouch
+    }
     predDX = playWon ? -160 : -(basePredX - baseCreatureX);
   } else if (playing && playingStrategy === 'run') {
-    // Both dash left. Creature exits screen first if won, gets caught
-    // if lost.
+    // Body-plan-specific RUN:
+    //   bird     takes off in a steep upward arc (Y rises as X falls)
+    //   fish     zooms with a downward dive arc
+    //   others   sprint horizontally (current)
     creatureDX = playWon ? -(W * 0.45) : -(W * 0.32);
+    if (creature.bodyPlan === 'bird') {
+      creatureDY = playWon ? -60 : -30;
+    } else if (creature.bodyPlan === 'fish') {
+      creatureDY = playWon ? 24 : 12;
+    }
     predDX = playWon ? -(W * 0.3) : -(W * 0.48);
   } else if (playing && playingStrategy === 'fight') {
     // Beat-driven choreography:
@@ -499,7 +517,9 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
         </g>
 
         {/* HIDE COVER — biome-specific concealment that appears in
-            front of the creature when Hide is chosen. */}
+            front of the creature when Hide is chosen. Bird/fish hide
+            differently (up into canopy, down into water) so the
+            cover sprite changes location accordingly. */}
         {playing && playingStrategy === 'hide' && (
           <g
             style={{
@@ -507,18 +527,49 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
               opacity: 0.95,
             }}
           >
-            {envId === 'forest' && (
+            {/* Bird hides UP in tree canopy — cluster of leaves above the start */}
+            {creature.bodyPlan === 'bird' && (
+              <g transform={`translate(${W * 0.28 + 4} ${GROUND_Y - 100})`}>
+                <ellipse cx="0" cy="0" rx="34" ry="14" fill="#3f6b34" />
+                <ellipse cx="-16" cy="-4" rx="18" ry="9" fill="#557d3e" />
+                <ellipse cx="16" cy="4" rx="20" ry="10" fill="#557d3e" />
+                <ellipse cx="0" cy="-6" rx="14" ry="6" fill="#6b9450" />
+              </g>
+            )}
+            {/* Fish hides DOWN in a kelp / coral patch below — render
+                under the ground line as a low-cover blue ripple */}
+            {creature.bodyPlan === 'fish' && (
+              <g transform={`translate(${W * 0.28} ${GROUND_Y - 4})`}>
+                {/* water shimmer band */}
+                <ellipse cx="0" cy="0" rx="50" ry="6" fill="#3a85b8" opacity="0.7" />
+                <ellipse cx="0" cy="-2" rx="45" ry="4" fill="#74c4dc" opacity="0.5" />
+                {/* a sway of seaweed / kelp */}
+                <g stroke="#3a8848" strokeWidth="3" strokeLinecap="round" fill="none">
+                  <path d="M -16 4 q -2 -10 0 -22" />
+                  <path d="M 0 4 q 2 -12 -2 -24" />
+                  <path d="M 16 4 q -2 -8 2 -18" />
+                </g>
+              </g>
+            )}
+            {/* Reptile freezes in place — no overlay cover, just
+                a subtle shimmer near it to signal "frozen" */}
+            {creature.bodyPlan === 'reptile' && (
+              <g transform={`translate(${W * 0.28 + 4} ${GROUND_Y - 40})`}>
+                <text x="0" y="0" fontSize="14" textAnchor="middle" opacity="0.7">🥶</text>
+              </g>
+            )}
+            {/* Mammals get BIOME-specific ground cover. Bird, fish,
+                reptile cover handled above. */}
+            {creature.bodyPlan === 'mammal' && envId === 'forest' && (
               <g transform={`translate(${W * 0.28 + 10} ${GROUND_Y - 20})`}>
-                {/* dense BUSH */}
                 <ellipse cx="-12" cy="0" rx="18" ry="14" fill="#3a5a22" />
                 <ellipse cx="8" cy="-4" rx="22" ry="16" fill="#4a7028" />
                 <ellipse cx="28" cy="2" rx="16" ry="12" fill="#3a5a22" />
                 <ellipse cx="-2" cy="-10" rx="14" ry="9" fill="#5a8a3a" opacity="0.85" />
               </g>
             )}
-            {envId === 'savanna' && (
+            {creature.bodyPlan === 'mammal' && envId === 'savanna' && (
               <g transform={`translate(${W * 0.28 + 8} ${GROUND_Y - 16})`}>
-                {/* TALL GRASS clump */}
                 <g stroke="#a08a48" strokeWidth="2.5" strokeLinecap="round" fill="none">
                   {[-12, -6, 0, 6, 12, 18, 24].map((x, i) => (
                     <line key={i} x1={x} y1="14" x2={x + (i % 2 === 0 ? -2 : 2)} y2={-14 - (i % 3) * 2} />
@@ -531,28 +582,23 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
                 </g>
               </g>
             )}
-            {envId === 'mountain' && (
+            {creature.bodyPlan === 'mammal' && envId === 'mountain' && (
               <g transform={`translate(${W * 0.28 + 4} ${GROUND_Y - 20})`}>
-                {/* SNOW BOULDER */}
                 <ellipse cx="0" cy="6" rx="32" ry="18" fill="#aab4be" />
                 <ellipse cx="0" cy="4" rx="28" ry="14" fill="#dde4e8" />
-                {/* snow cap */}
                 <ellipse cx="0" cy="-6" rx="22" ry="6" fill="white" opacity="0.95" />
               </g>
             )}
-            {envId === 'desert' && (
+            {creature.bodyPlan === 'mammal' && envId === 'desert' && (
               <g transform={`translate(${W * 0.28 + 6} ${GROUND_Y - 18})`}>
-                {/* SAND DUNE */}
                 <ellipse cx="0" cy="10" rx="34" ry="14" fill="#a07a45" />
                 <ellipse cx="0" cy="6" rx="32" ry="12" fill="#c89a55" />
-                {/* a small cactus for extra cover */}
                 <rect x="-2" y="-12" width="4" height="20" rx="2" fill="#3f5e22" />
                 <ellipse cx="0" cy="-12" rx="3" ry="2" fill="#ffd140" />
               </g>
             )}
-            {envId === 'ocean' && (
+            {creature.bodyPlan === 'mammal' && envId === 'ocean' && (
               <g transform={`translate(${W * 0.28 + 4} ${GROUND_Y - 16})`}>
-                {/* KELP / SEAWEED */}
                 <g stroke="#3a8848" strokeWidth="5" strokeLinecap="round" fill="none">
                   <path d="M -10 14 q -3 -10 0 -22 q 3 -10 0 -22" />
                   <path d="M 0 14 q -2 -8 0 -16 q 2 -10 0 -22" />

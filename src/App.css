@@ -3911,6 +3911,14 @@ h2 {
 }
 .combo-badge-text strong { color: #8a5a00; }
 
+/* ─── Sonar maze pings ───────────────────────────────────────────────── */
+@keyframes sonar-ping {
+  0%   { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(8);   opacity: 0; }
+}
+.sonar-ping { animation: sonar-ping 2.5s ease-out infinite; }
+.sonar-ping-2 { animation-delay: 1.25s; }
+
 /* ─── Gauntlet (6-arena decathlon) ───────────────────────────────────── */
 .gauntlet-modal { max-width: 900px; }
 

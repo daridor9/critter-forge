@@ -254,7 +254,8 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
 
         {/* SEVERITY-SPECIFIC FOREGROUND PROPS */}
 
-        {/* DRY SEASON — sparse green grass tufts + a struggling tree */}
+        {/* DRY SEASON — sparse green grass tufts + flowers + a small
+            WATERING HOLE the creature is foraging around. */}
         {env.id === 'dry' && (
           <g>
             {/* wilting flowers */}
@@ -265,6 +266,30 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
                   <circle cx={x} cy={GROUND_Y + 2} r="2.5" fill="#d4a040" opacity="0.7" />
                 </g>
               ))}
+            </g>
+            {/* WATERING HOLE in the foreground — shrinking blue puddle
+                with a few ripple lines, plus a scrubby green bush by it */}
+            <g transform={`translate(${W * 0.55} ${GROUND_Y + 28})`}>
+              <ellipse cx="0" cy="0" rx="40" ry="8" fill="#3a85b8" opacity="0.7" />
+              <ellipse cx="0" cy="-2" rx="36" ry="5" fill="#74c4dc" opacity="0.6" />
+              {/* ripple rings */}
+              <g stroke="white" strokeWidth="0.7" fill="none" opacity="0.55">
+                <ellipse cx="-8" cy="-1" rx="6" ry="1.5" />
+                <ellipse cx="10" cy="0" rx="5" ry="1.2" />
+              </g>
+              {/* a thirsty bird sipping at the edge */}
+              <g transform="translate(28 -2)">
+                <ellipse cx="0" cy="0" rx="4" ry="2.5" fill="#5a3b22" />
+                <circle cx="4" cy="-1" r="1.6" fill="#5a3b22" />
+                <line x1="5.5" y1="-1" x2="8" y2="2" stroke="#5a3b22" strokeWidth="0.8" />
+                <line x1="-2" y1="2" x2="-3" y2="5" stroke="#5a3b22" strokeWidth="0.8" />
+                <line x1="2" y1="2" x2="1" y2="5" stroke="#5a3b22" strokeWidth="0.8" />
+              </g>
+              {/* scrub bush by the edge */}
+              <g transform="translate(-46 -2)">
+                <ellipse cx="0" cy="0" rx="10" ry="6" fill="#5a7838" />
+                <ellipse cx="6" cy="-2" rx="6" ry="4" fill="#6a9048" />
+              </g>
             </g>
             {/* small grass tufts still alive */}
             <g stroke="#9a8848" strokeWidth="1" strokeLinecap="round" opacity="0.7">
@@ -282,7 +307,8 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           </g>
         )}
 
-        {/* DROUGHT — dry tree silhouettes + heat shimmer waves */}
+        {/* DROUGHT — dry tree silhouettes + heat shimmer waves +
+            shrunken muddy puddle (almost dried up). */}
         {env.id === 'drought' && (
           <g>
             {/* dead branching tree silhouettes */}
@@ -297,6 +323,15 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
                 <line x1="0" y1={GROUND_Y} x2="0" y2={GROUND_Y - 30} />
                 <line x1="0" y1={GROUND_Y - 18} x2="-10" y2={GROUND_Y - 28} />
                 <line x1="0" y1={GROUND_Y - 24} x2="8" y2={GROUND_Y - 32} />
+              </g>
+            </g>
+            {/* SHRUNKEN muddy puddle (almost dried up) */}
+            <g transform={`translate(${W * 0.45} ${GROUND_Y + 36})`}>
+              <ellipse cx="0" cy="2" rx="22" ry="6" fill="#6a4a28" opacity="0.85" />
+              <ellipse cx="0" cy="0" rx="14" ry="3" fill="#5a8aa8" opacity="0.55" />
+              {/* cracked mud rings around the shrinking edge */}
+              <g stroke="#3a2a14" strokeWidth="0.8" fill="none" opacity="0.6">
+                <ellipse cx="0" cy="2" rx="28" ry="7" strokeDasharray="3 3" />
               </g>
             </g>
             {/* heat-shimmer waves over the horizon */}
