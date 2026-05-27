@@ -70,6 +70,7 @@ const ProfileModal = lazy(() => import('./components/ProfileModal').then((m) => 
 const QuestsModal = lazy(() => import('./components/QuestsModal').then((m) => ({ default: m.QuestsModal })));
 const FamilyModal = lazy(() => import('./components/FamilyModal').then((m) => ({ default: m.FamilyModal })));
 const ShareModal = lazy(() => import('./components/ShareModal').then((m) => ({ default: m.ShareModal })));
+const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
 type StageView = 'creature' | ArenaId;
@@ -183,6 +184,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showFamily, setShowFamily] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
   // right after the import toast.
@@ -620,6 +622,7 @@ export default function App() {
                 {moreItem('⚖️ Compare', () => setShowCompare(true))}
                 {moreItem('⚔️ Battle', () => setShowBattle(true))}
                 {moreItem('🥇 Bracket', () => setShowBracket(true))}
+                {moreItem('🏟 Gauntlet (6-arena)', () => setShowGauntlet(true))}
                 {moreItem('📈 Lineage', () => setShowLineage(true))}
                 {moreItem('🎯 Quests', () => setShowQuests(true))}
                 {moreItem('📅 Daily', () => setShowDaily(true))}
@@ -839,6 +842,14 @@ export default function App() {
             creature={creature}
             maker={activeStamp()}
             onClose={() => setShowShare(false)}
+          />
+        )}
+        {showGauntlet && (
+          <GauntletModal
+            creature={creature}
+            stats={stats}
+            onClose={() => setShowGauntlet(false)}
+            onArenaResult={(r) => finish(r)}
           />
         )}
         {showQuests && <QuestsModal onClose={() => setShowQuests(false)} />}

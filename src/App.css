@@ -3189,8 +3189,15 @@ h2 {
   box-shadow: var(--shadow-1);
 }
 .ach-card.locked {
-  opacity: 0.45;
+  opacity: 0.85;
+  background: #f4f0e8;
+  border-style: dashed;
 }
+.ach-card.locked .ach-emoji {
+  filter: grayscale(1) opacity(0.55);
+}
+.ach-card.locked .ach-name { color: #8a7868; }
+.ach-card.locked .ach-desc { color: #aa9988; }
 .ach-emoji {
   font-size: 26px;
   margin-bottom: 4px;
@@ -3205,6 +3212,120 @@ h2 {
   font-size: 11px;
   color: var(--fg-dim);
   line-height: 1.3;
+}
+
+/* progress + status bits */
+.ach-progress {
+  margin-top: 8px;
+}
+.ach-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #eee5cc;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #d5c6a0;
+}
+.ach-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5cc46a, #e89a3a);
+  transition: width 0.3s;
+}
+.ach-progress-label {
+  font-size: 10px;
+  color: var(--fg-dim);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.ach-card.got .ach-progress-fill {
+  background: linear-gradient(90deg, #5cc46a, #f5d040);
+}
+.ach-got-badge {
+  background: #5cc46a;
+  color: white;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+/* summary header + category tabs */
+.achievements-modal { max-width: 720px; }
+.ach-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  margin-bottom: 12px;
+}
+.ach-summary-count strong {
+  font-size: 24px;
+  color: var(--accent);
+}
+.ach-summary-count span {
+  color: var(--fg-dim);
+  font-size: 14px;
+}
+.ach-summary-bar {
+  flex: 1;
+  height: 10px;
+  background: #eee5cc;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #d5c6a0;
+}
+.ach-summary-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #f5d040);
+  transition: width 0.4s;
+}
+.ach-summary-toggle {
+  font-size: 11px;
+  color: var(--fg-dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ach-summary-toggle input { margin: 0; }
+
+.ach-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.ach-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--fg);
+}
+.ach-cat:hover { border-color: var(--accent); }
+.ach-cat.active {
+  background: linear-gradient(135deg, var(--accent), #c25541);
+  color: white;
+  border-color: var(--accent);
+}
+.ach-cat-count {
+  background: rgba(0,0,0,0.08);
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.ach-cat.active .ach-cat-count {
+  background: rgba(255,255,255,0.25);
 }
 
 .toast-stack {
@@ -3789,6 +3910,82 @@ h2 {
   font-size: 18px;
 }
 .combo-badge-text strong { color: #8a5a00; }
+
+/* ─── Gauntlet (6-arena decathlon) ───────────────────────────────────── */
+.gauntlet-modal { max-width: 900px; }
+
+.gauntlet-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.gauntlet-pip {
+  background: #fbf8f1;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s;
+}
+.gauntlet-pip.upcoming { opacity: 0.5; }
+.gauntlet-pip.current {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, #fff4ee, #fbeede);
+  box-shadow: 0 0 0 2px var(--accent) inset;
+  transform: translateY(-2px);
+}
+.gauntlet-pip.won {
+  background: linear-gradient(135deg, #d8efb8, #fbf8f1);
+  border-color: #6ab050;
+}
+.gauntlet-pip.lost {
+  background: rgba(214, 90, 90, 0.1);
+  border-color: #d65a5a;
+  opacity: 0.7;
+}
+.gauntlet-pip-emoji { font-size: 22px; }
+.gauntlet-pip-label { font-size: 11px; font-weight: 700; margin-top: 2px; }
+.gauntlet-pip-mark {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: white;
+  border-radius: 50%;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1.5px solid currentColor;
+}
+.gauntlet-pip.won .gauntlet-pip-mark { color: #4a8a3a; }
+.gauntlet-pip.lost .gauntlet-pip-mark { color: #b04848; }
+.gauntlet-pip.current .gauntlet-pip-mark { color: var(--accent); }
+
+.gauntlet-intro {
+  text-align: center;
+  padding: 8px 0;
+}
+.gauntlet-creature {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; margin-bottom: 12px;
+}
+.gauntlet-thumb {
+  width: 200px; height: 140px;
+  background: #f4eed8;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.gauntlet-arena-head {
+  margin: 4px 0 8px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--accent);
+}
+.gauntlet-arena-wrap { padding: 0 0 8px; }
+.gauntlet-result { padding-top: 6px; }
 .profile-prey {
   display: flex;
   gap: 10px;
