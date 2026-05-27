@@ -542,6 +542,57 @@ h2 {
   transform-origin: center;
 }
 
+/* Drifting petals / butterflies across the meadow */
+@keyframes petal-drift {
+  0%   { transform: translate(0, 0) rotate(0); }
+  50%  { transform: translate(40px, 12px) rotate(20deg); }
+  100% { transform: translate(80px, -4px) rotate(-10deg); }
+}
+.petal { animation: petal-drift 9s ease-in-out infinite alternate; transform-box: fill-box; }
+
+/* Fish/bird swimming across the screen */
+@keyframes swim-across {
+  from { transform: translateX(-40px); }
+  to   { transform: translateX(440px); }
+}
+.swim { animation: swim-across linear infinite; transform-box: fill-box; }
+
+/* Slow circling for a hawk or vulture */
+@keyframes circle-slow {
+  from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+}
+.circle-slow { animation: circle-slow 18s linear infinite; transform-box: fill-box; }
+
+/* God-rays / sunbeams brightening + dimming */
+@keyframes ray-shimmer {
+  0%, 100% { opacity: 0.18; }
+  50%      { opacity: 0.42; }
+}
+.ray { animation: ray-shimmer 6s ease-in-out infinite; }
+
+/* Heat shimmer for desert ground */
+@keyframes heat-shimmer {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(2px); }
+}
+.heat { animation: heat-shimmer 1.6s ease-in-out infinite; }
+
+/* Bubble rising up through water */
+@keyframes bubble-rise {
+  from { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 0.85; }
+  to   { transform: translateY(-280px); opacity: 0; }
+}
+.bubble { animation: bubble-rise linear infinite; transform-box: fill-box; }
+
+/* Slow drift for jellyfish */
+@keyframes jelly-pulse {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50%      { transform: scaleY(0.85) translateY(4px); }
+}
+.jelly { animation: jelly-pulse 3.5s ease-in-out infinite; transform-box: fill-box; }
+
 .arena-tabs {
   display: flex;
   gap: 4px;
