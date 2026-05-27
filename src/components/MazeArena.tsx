@@ -343,6 +343,141 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
 
         <rect x="0" y="0" width={W} height={H} fill="url(#maze-bg)" />
 
+        {/* ─── THEME-SPECIFIC STRUCTURAL DECOR ─────────────────────── */}
+
+        {theme.id === 'cave' && (
+          <g>
+            {/* STALACTITES hanging from the top */}
+            {[40, 110, 180, 260, 330, 410, 480, 560].map((x, i) => {
+              const h = 10 + (i % 4) * 8;
+              return (
+                <g key={`stal-top-${i}`}>
+                  <polygon points={`${x - 6},0 ${x + 6},0 ${x},${h}`} fill="#1a1c24" />
+                  <polygon points={`${x - 4},0 ${x + 4},0 ${x},${h - 3}`} fill="#3a3a44" />
+                </g>
+              );
+            })}
+            {/* STALAGMITES on the floor */}
+            {[80, 160, 250, 330, 420, 510, 580].map((x, i) => {
+              const h = 12 + (i % 3) * 6;
+              return (
+                <g key={`stal-bot-${i}`}>
+                  <polygon points={`${x - 6},${H} ${x + 6},${H} ${x},${H - h}`} fill="#1a1c24" />
+                  <polygon points={`${x - 4},${H} ${x + 4},${H} ${x},${H - h + 3}`} fill="#3a3a44" />
+                </g>
+              );
+            })}
+            {/* rocky chunks scattered */}
+            <g fill="#2c2f3a">
+              <ellipse cx="60" cy={H - 6} rx="14" ry="3" />
+              <ellipse cx="290" cy={H - 4} rx="10" ry="2" />
+              <ellipse cx="480" cy={H - 5} rx="16" ry="3" />
+            </g>
+            {/* glowing pair of eyes in the corner */}
+            <g fill="#ffd040" opacity="0.85">
+              <circle cx="20" cy="100" r="2" />
+              <circle cx="26" cy="100" r="2" />
+            </g>
+            {/* bat silhouette flapping across */}
+            <g transform="translate(280 40)">
+              <g className="bird-wing">
+                <path d="M -12 0 L -6 -3 L 0 0 L 6 -3 L 12 0" stroke="#1a1c24" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </g>
+            </g>
+          </g>
+        )}
+
+        {theme.id === 'hedge' && (
+          <g>
+            {/* TOP HEDGE BORDER — bumpy green wall */}
+            <g fill="#3a6a1a">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <circle key={`hb-${i}`} cx={i * 26 + 13} cy="6" r={10 + (i % 3) * 2} />
+              ))}
+            </g>
+            <g fill="#5a8a2a">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <circle key={`hb2-${i}`} cx={i * 26 + 13} cy="4" r={6 + (i % 3)} />
+              ))}
+            </g>
+            {/* BOTTOM HEDGE BORDER */}
+            <g fill="#3a6a1a">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <circle key={`hbb-${i}`} cx={i * 26 + 13} cy={H - 6} r={10 + ((i + 1) % 3) * 2} />
+              ))}
+            </g>
+            <g fill="#5a8a2a">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <circle key={`hbb2-${i}`} cx={i * 26 + 13} cy={H - 4} r={6 + ((i + 1) % 3)} />
+              ))}
+            </g>
+            {/* SCATTERED FLOWERS along the corridors */}
+            {[
+              [80, 60, '#ff6688'], [180, 100, '#ffd040'], [280, 70, '#ff6688'],
+              [380, 120, '#9a60d0'], [480, 80, '#ffd040'], [540, 100, '#ff6688'],
+              [100, 180, '#9a60d0'], [240, 200, '#ffd040'], [380, 180, '#ff6688'],
+            ].map(([x, y, c], i) => (
+              <g key={`fl-${i}`}>
+                <circle cx={x as number} cy={y as number} r="3" fill={c as string} />
+                <circle cx={(x as number) - 2.5} cy={(y as number) + 2} r="2" fill={c as string} opacity="0.85" />
+                <circle cx={(x as number) + 2.5} cy={(y as number) + 2} r="2" fill={c as string} opacity="0.85" />
+                <circle cx={x as number} cy={(y as number) + 1} r="1" fill="#ffd040" />
+              </g>
+            ))}
+            {/* BUTTERFLY drifting */}
+            <g transform="translate(200 40)" className="petal" style={{ transformOrigin: 'center' }}>
+              <text x="0" y="0" fontSize="14">🦋</text>
+            </g>
+            {/* STONE BENCH silhouette */}
+            <g fill="#6a6a6a">
+              <rect x="450" y="200" width="48" height="6" rx="2" />
+              <rect x="454" y="206" width="6" height="14" />
+              <rect x="488" y="206" width="6" height="14" />
+            </g>
+          </g>
+        )}
+
+        {theme.id === 'lab' && (
+          <g>
+            {/* NEON BORDER LINES top + bottom + sides */}
+            <line x1="0" y1="3" x2={W} y2="3" stroke="#5ad8ff" strokeWidth="2" opacity="0.9" />
+            <line x1="0" y1={H - 3} x2={W} y2={H - 3} stroke="#5ad8ff" strokeWidth="2" opacity="0.9" />
+            <line x1="3" y1="0" x2="3" y2={H} stroke="#5ad8ff" strokeWidth="2" opacity="0.9" />
+            <line x1={W - 3} y1="0" x2={W - 3} y2={H} stroke="#5ad8ff" strokeWidth="2" opacity="0.9" />
+            {/* PULSING SENSOR DOTS scattered */}
+            <g>
+              {[
+                [50, 30], [150, 50], [250, 35], [350, 60], [450, 30], [550, 55],
+                [80, 200], [200, 210], [320, 195], [440, 215], [520, 200],
+              ].map(([x, y], i) => (
+                <circle key={`s-${i}`} cx={x} cy={y} r="2" fill="#5ad8ff" opacity="0.85" className="ray"
+                  style={{ animationDuration: `${1.5 + (i % 3) * 0.7}s`, animationDelay: `-${i * 0.3}s` }} />
+              ))}
+            </g>
+            {/* SCREEN PANELS — small rectangles with bars */}
+            <g>
+              <rect x="14" y="20" width="36" height="22" fill="#0c1830" stroke="#5ad8ff" strokeWidth="0.7" />
+              <line x1="18" y1="26" x2="34" y2="26" stroke="#5ad8ff" strokeWidth="0.8" />
+              <line x1="18" y1="32" x2="46" y2="32" stroke="#5ad8ff" strokeWidth="0.8" />
+              <line x1="18" y1="38" x2="42" y2="38" stroke="#5ad8ff" strokeWidth="0.8" />
+
+              <rect x={W - 50} y="20" width="36" height="22" fill="#0c1830" stroke="#5ad8ff" strokeWidth="0.7" />
+              <line x1={W - 46} y1="26" x2={W - 30} y2="26" stroke="#5ad8ff" strokeWidth="0.8" />
+              <line x1={W - 46} y1="32" x2={W - 18} y2="32" stroke="#5ad8ff" strokeWidth="0.8" />
+              <line x1={W - 46} y1="38" x2={W - 22} y2="38" stroke="#5ad8ff" strokeWidth="0.8" />
+            </g>
+            {/* CONDUIT vertical pipes */}
+            <g stroke="#3a5080" strokeWidth="3" fill="none" opacity="0.7">
+              <line x1="100" y1="0" x2="100" y2={H} />
+              <line x1="500" y1="0" x2="500" y2={H} />
+            </g>
+            {/* DANGER tape stripe at the bottom */}
+            <g>
+              <rect x="0" y={H - 16} width={W} height="2" fill="#ffd040" opacity="0.5" />
+            </g>
+          </g>
+        )}
+
         {/* faint grid */}
         <g stroke={theme.gridColor} strokeWidth="0.5" opacity="0.35">
           {Array.from({ length: 16 }).map((_, i) => (

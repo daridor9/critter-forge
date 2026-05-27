@@ -250,6 +250,61 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           <path d="M 0 -20 q 8 -6 12 -16" stroke="#5a3b22" strokeWidth="1.5" fill="none" />
         </g>
 
+        {/* SEVERITY-SPECIFIC FOREGROUND PROPS */}
+
+        {/* DRY SEASON — sparse green grass tufts + a struggling tree */}
+        {env.id === 'dry' && (
+          <g>
+            {/* wilting flowers */}
+            <g>
+              {[80, 180, 320, 450].map((x, i) => (
+                <g key={`fl-${i}`}>
+                  <line x1={x} y1={GROUND_Y + 12} x2={x} y2={GROUND_Y + 4} stroke="#9a7848" strokeWidth="1" />
+                  <circle cx={x} cy={GROUND_Y + 2} r="2.5" fill="#d4a040" opacity="0.7" />
+                </g>
+              ))}
+            </g>
+            {/* small grass tufts still alive */}
+            <g stroke="#9a8848" strokeWidth="1" strokeLinecap="round" opacity="0.7">
+              {Array.from({ length: 14 }).map((_, i) => {
+                const x = 30 + i * 40;
+                return (
+                  <g key={i}>
+                    <line x1={x} y1={GROUND_Y + 20} x2={x - 3} y2={GROUND_Y + 10} />
+                    <line x1={x} y1={GROUND_Y + 20} x2={x} y2={GROUND_Y + 8} />
+                    <line x1={x} y1={GROUND_Y + 20} x2={x + 3} y2={GROUND_Y + 10} />
+                  </g>
+                );
+              })}
+            </g>
+          </g>
+        )}
+
+        {/* DROUGHT — dry tree silhouettes + heat shimmer waves */}
+        {env.id === 'drought' && (
+          <g>
+            {/* dead branching tree silhouettes */}
+            <g stroke="#3a2a14" strokeWidth="2.5" strokeLinecap="round" fill="none">
+              <g transform="translate(120 0)">
+                <line x1="0" y1={GROUND_Y} x2="0" y2={GROUND_Y - 36} />
+                <line x1="0" y1={GROUND_Y - 22} x2="-12" y2={GROUND_Y - 32} />
+                <line x1="0" y1={GROUND_Y - 28} x2="10" y2={GROUND_Y - 40} />
+                <line x1="-8" y1={GROUND_Y - 30} x2="-14" y2={GROUND_Y - 42} />
+              </g>
+              <g transform="translate(420 0)">
+                <line x1="0" y1={GROUND_Y} x2="0" y2={GROUND_Y - 30} />
+                <line x1="0" y1={GROUND_Y - 18} x2="-10" y2={GROUND_Y - 28} />
+                <line x1="0" y1={GROUND_Y - 24} x2="8" y2={GROUND_Y - 32} />
+              </g>
+            </g>
+            {/* heat-shimmer waves over the horizon */}
+            <g className="heat" stroke="#ffd060" strokeWidth="1" opacity="0.45" strokeDasharray="3 5">
+              <line x1="40" y1={GROUND_Y - 8} x2="240" y2={GROUND_Y - 8} />
+              <line x1="280" y1={GROUND_Y - 12} x2="540" y2={GROUND_Y - 12} />
+            </g>
+          </g>
+        )}
+
         {/* BONES — for megadrought / dust storm */}
         {env.bones && (
           <g fill="#f4eed8" opacity="0.85" stroke="#a89878" strokeWidth="0.5">
@@ -274,7 +329,36 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           </g>
         )}
 
-        {/* DUST STORM — sweeping red dust particles */}
+        {/* MEGADROUGHT — dead skeletal tree + circling vulture */}
+        {env.id === 'megadrought' && (
+          <g>
+            {/* dead twisted tree */}
+            <g stroke="#3a1a08" strokeWidth="3" fill="none" strokeLinecap="round">
+              <path d={`M 350 ${GROUND_Y} L 350 ${GROUND_Y - 50}`} />
+              <path d={`M 350 ${GROUND_Y - 30} q -16 -6 -22 -22`} />
+              <path d={`M 350 ${GROUND_Y - 42} q 14 -4 22 -18`} />
+              <path d={`M 350 ${GROUND_Y - 50} q -6 -10 -16 -14`} />
+              <path d={`M 350 ${GROUND_Y - 48} q 6 -14 18 -12`} />
+            </g>
+            {/* circling vulture */}
+            <g style={{ transformOrigin: 'center' }}>
+              <g className="circle-slow" style={{ transformOrigin: '200px 30px' }}>
+                <text x="200" y="30" fontSize="14" opacity="0.85">🦅</text>
+              </g>
+            </g>
+            {/* tumbleweed rolling across */}
+            <g className="swim" style={{ animationDuration: '14s' }}>
+              <g transform="translate(0 138)">
+                <circle cx="0" cy="0" r="9" fill="#6a4828" opacity="0.85" />
+                <g stroke="#3a2818" strokeWidth="0.8" fill="none" opacity="0.7" strokeLinecap="round">
+                  <path d="M -6 -4 q 5 -3 9 4 M -3 -6 q 6 1 6 7 M 3 -7 q 3 5 -3 8" />
+                </g>
+              </g>
+            </g>
+          </g>
+        )}
+
+        {/* DUST STORM — sweeping red dust particles + wall of dust */}
         {env.dustStorm && (
           <g fill="#a04020" opacity="0.45">
             {Array.from({ length: 40 }).map((_, i) => (

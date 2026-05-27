@@ -155,11 +155,16 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
   const [envId, setEnvId] = useState<EnvId>('forest');
   const [difficultyId, setDifficultyId] = useState<HuntDifficultyId>('normal');
   // Three-phase flow: 'choose' (pick strategy) → 'play' (animate the
-  // outcome for ~1.7s) → 'done' (insight card shows).
+  // outcome) → 'done' (insight card shows).
   const [phase, setPhase] = useState<'choose' | 'play' | 'done'>('choose');
   const [playingStrategy, setPlayingStrategy] = useState<Strategy | null>(null);
   const [playWon, setPlayWon] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
+  // Fight choreography: charge → clash1 → recoil → clash2 → finish.
+  // Beat is 0..4 — each beat is ~700ms. Total fight is ~3.5s.
+  const [fightBeat, setFightBeat] = useState(0);
+  // Whole-scene shake on impacts.
+  const [shake, setShake] = useState(false);
 
   const diff = HUNT_DIFFICULTIES.find((d) => d.id === difficultyId) ?? HUNT_DIFFICULTIES[0];
 
@@ -185,22 +190,44 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     setPlayingStrategy(strategy);
     setPlayWon(won);
     setPhase('play');
-    // Mid-animation flash for fight + lost-hide collisions.
-    if (strategy === 'fight' || (!won && strategy === 'hide')) {
-      window.setTimeout(() => setFlashOn(true), 900);
-      window.setTimeout(() => setFlashOn(false), 1200);
+    setFightBeat(0);
+
+    if (strategy === 'fight') {
+      // Multi-beat fight choreography ~3.5s:
+      //   T+0     charge       — both close to center
+      //   T+700   clash 1       — flash + shake + 💥
+      //   T+1400  recoil        — both bounce back
+      //   T+2100  clash 2       — bigger flash + shake + 💥
+      //   T+2800  finish        — winner stands, loser fades
+      window.setTimeout(() => { setFightBeat(1); setFlashOn(true); setShake(true); }, 700);
+      window.setTimeout(() => { setFlashOn(false); setShake(false); }, 1000);
+      window.setTimeout(() => { setFightBeat(2); }, 1400);
+      window.setTimeout(() => { setFightBeat(3); setFlashOn(true); setShake(true); }, 2100);
+      window.setTimeout(() => { setFlashOn(false); setShake(false); }, 2400);
+      window.setTimeout(() => { setFightBeat(4); }, 2800);
+      window.setTimeout(() => {
+        setPhase('done');
+        onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy, difficulty: diff.id });
+      }, 3500);
+    } else {
+      // Hide / Run keep the ~1.8s simple animation.
+      if (!won && strategy === 'hide') {
+        window.setTimeout(() => { setFlashOn(true); setShake(true); }, 900);
+        window.setTimeout(() => { setFlashOn(false); setShake(false); }, 1200);
+      }
+      window.setTimeout(() => {
+        setPhase('done');
+        onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy, difficulty: diff.id });
+      }, 1800);
     }
-    // After the animation, settle to 'done' and report the outcome up.
-    window.setTimeout(() => {
-      setPhase('done');
-      onFinish({ won, reason: reasonFor(strategy, won, creature), env: envId, strategy, difficulty: diff.id });
-    }, 1800);
   }
 
   function reset() {
     setPhase('choose');
     setPlayingStrategy(null);
     setFlashOn(false);
+    setShake(false);
+    setFightBeat(0);
   }
 
   const done = phase === 'done';
@@ -227,11 +254,31 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     creatureDX = playWon ? -(W * 0.45) : -(W * 0.32);
     predDX = playWon ? -(W * 0.3) : -(W * 0.48);
   } else if (playing && playingStrategy === 'fight') {
-    // Both close to center, then one retreats.
-    creatureDX = playWon ? 60 : 100;
-    predDX = playWon ? -160 : -100;
-    if (playWon) predOpacity = 0.45;     // predator fades on retreat
-    else creatureOpacity = 0.55;
+    // Beat-driven choreography:
+    //   0 = pre-fight pose (idle)
+    //   1 = first clash (close to center)
+    //   2 = recoil (bounce back)
+    //   3 = second clash (close again, bigger)
+    //   4 = finish (winner stands, loser retreats + fades)
+    if (fightBeat === 0) {
+      creatureDX = 30;
+      predDX = -80;
+    } else if (fightBeat === 1) {
+      creatureDX = 110;
+      predDX = -170;
+    } else if (fightBeat === 2) {
+      creatureDX = 60;
+      predDX = -110;
+    } else if (fightBeat === 3) {
+      creatureDX = 120;
+      predDX = -180;
+    } else {
+      // finish
+      creatureDX = playWon ? 80 : -20;
+      predDX = playWon ? -50 : -150;
+      if (playWon) predOpacity = 0.4;
+      else creatureOpacity = 0.5;
+    }
   }
 
   return (
@@ -271,7 +318,15 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
         ))}
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        preserveAspectRatio="xMidYMid meet"
+        style={{
+          transition: 'transform 0.08s ease-out',
+          transform: shake ? `translate(${(Math.random() - 0.5) * 8}px, ${(Math.random() - 0.5) * 6}px)` : 'translate(0, 0)',
+        }}
+      >
         <defs>
           <linearGradient id="hunt-sky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={p.sky[0]} />
@@ -379,29 +434,66 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
           </g>
         </g>
 
-        {/* COLLISION FLASH — appears briefly on a fight or a lost hide */}
+        {/* COLLISION FLASH — appears briefly on a fight clash or a lost hide */}
         {flashOn && (
           <g>
             <rect x="0" y="0" width={W} height={H} fill="white" opacity="0.55" />
-            {/* impact starburst at center */}
+            {/* impact starburst at the collision point. Beat 1 = small,
+                beat 3 = bigger second clash. */}
             <g transform={`translate(${(baseCreatureX + basePredX) / 2 + (creatureDX + predDX) / 2} ${GROUND_Y - 40})`}>
-              {Array.from({ length: 10 }).map((_, i) => {
-                const a = (i / 10) * Math.PI * 2;
-                return <line key={i} x1={Math.cos(a) * 8} y1={Math.sin(a) * 8} x2={Math.cos(a) * 28} y2={Math.sin(a) * 28} stroke="#ffd040" strokeWidth="3" strokeLinecap="round" />;
+              {Array.from({ length: fightBeat === 3 ? 14 : 10 }).map((_, i) => {
+                const total = fightBeat === 3 ? 14 : 10;
+                const a = (i / total) * Math.PI * 2;
+                const inner = fightBeat === 3 ? 10 : 8;
+                const outer = fightBeat === 3 ? 38 : 28;
+                return <line key={i} x1={Math.cos(a) * inner} y1={Math.sin(a) * inner} x2={Math.cos(a) * outer} y2={Math.sin(a) * outer} stroke="#ffd040" strokeWidth={fightBeat === 3 ? 4 : 3} strokeLinecap="round" />;
               })}
-              <text x="0" y="6" fontSize="22" textAnchor="middle">💥</text>
+              <text x="0" y={fightBeat === 3 ? 10 : 6} fontSize={fightBeat === 3 ? 30 : 22} textAnchor="middle">
+                {playingStrategy === 'fight' ? (fightBeat === 3 ? '💢' : '💥') : '💥'}
+              </text>
+              {/* secondary smaller stars around */}
+              {fightBeat === 3 && (
+                <>
+                  <text x="-30" y="-20" fontSize="14">✨</text>
+                  <text x="28" y="-22" fontSize="14">✨</text>
+                  <text x="-22" y="22" fontSize="14">⚡</text>
+                  <text x="26" y="20" fontSize="14">⚡</text>
+                </>
+              )}
             </g>
+            {/* ground-level dust cloud during fight clashes */}
+            {playingStrategy === 'fight' && (
+              <g fill="#d6c098" opacity="0.7">
+                <ellipse cx={(baseCreatureX + basePredX) / 2 + (creatureDX + predDX) / 2} cy={GROUND_Y - 2} rx="60" ry="8" />
+                <circle cx={(baseCreatureX + basePredX) / 2 + (creatureDX + predDX) / 2 - 30} cy={GROUND_Y - 8} r="6" opacity="0.85" />
+                <circle cx={(baseCreatureX + basePredX) / 2 + (creatureDX + predDX) / 2 + 30} cy={GROUND_Y - 6} r="5" opacity="0.85" />
+              </g>
+            )}
+          </g>
+        )}
+
+        {/* GROWL bubbles during fight beats 0, 2 (before the clashes) */}
+        {playing && playingStrategy === 'fight' && (fightBeat === 0 || fightBeat === 2) && (
+          <g>
+            <text x={baseCreatureX + creatureDX} y={GROUND_Y - 100} textAnchor="middle" fontSize="18" fontWeight="800" fill="#5a2820" style={{ animation: 'fadeIn 0.3s' }}>RRRR!</text>
+            <text x={basePredX + predDX} y={GROUND_Y - 100} textAnchor="middle" fontSize="18" fontWeight="800" fill="#5a2820" style={{ animation: 'fadeIn 0.3s' }}>GRRR!</text>
           </g>
         )}
 
         {/* PLAYING-PHASE OVERLAY — small caption explaining what's happening */}
         {playing && playingStrategy && (
           <g>
-            <rect x={W / 2 - 90} y="8" width="180" height="22" fill="rgba(255,255,255,0.92)" rx="11" stroke="#aaa" />
+            <rect x={W / 2 - 100} y="8" width="200" height="22" fill="rgba(255,255,255,0.92)" rx="11" stroke="#aaa" />
             <text x={W / 2} y="23" textAnchor="middle" fontSize="12" fill="#333" fontWeight="700">
               {playingStrategy === 'hide' && (playWon ? '🫥 holding still…' : '🫥 hiding… spotted!')}
               {playingStrategy === 'run' && (playWon ? '🏃 sprinting away' : '🏃 chase is on…')}
-              {playingStrategy === 'fight' && (playWon ? '⚔️ standing ground' : '⚔️ they bite back!')}
+              {playingStrategy === 'fight' && (
+                fightBeat === 0 ? '⚔️ closing in…' :
+                fightBeat === 1 ? '💥 first clash!' :
+                fightBeat === 2 ? '… they recoil …' :
+                fightBeat === 3 ? '💢 second strike!' :
+                playWon ? '⚔️ stood the ground!' : '⚔️ took the bite!'
+              )}
             </text>
           </g>
         )}
