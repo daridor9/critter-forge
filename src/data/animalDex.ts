@@ -9,7 +9,7 @@ export type DexShape =
   | 'tortoise' | 'crocodile' | 'shark' | 'chameleon'
   | 'raptor' | 'triceratops' | 'stegosaurus' | 'pterodactyl'
   | 'tiger' | 'trex' | 'jellyfish' | 'sheep' | 'cow' | 'horse' | 'pig' | 'giraffe'
-  | 'rooster' | 'donkey' | 'rhino';
+  | 'rooster' | 'donkey' | 'rhino' | 'cat' | 'dog' | 'goat';
 
 export interface DexAnimal {
   name: string;
@@ -63,6 +63,9 @@ export const ANIMAL_COLORS: Record<string, ColorOverride> = {
   'Rooster':         { main: '#c84030', shade: '#8a2818', light: '#f0a060', cheek: '#f8d050', pattern: '#1a1a1a' },
   'Donkey':          { main: '#9a948a', shade: '#5a544a', light: '#cec8be', cheek: '#e8e0d4', pattern: '#3a342a' },
   'Rhino':           { main: '#9a8e80', shade: '#6a5e50', light: '#bcb0a2', cheek: '#c4a890', pattern: '#3a342a' },
+  'Cat':             { main: '#d4a060', shade: '#a87838', light: '#f0c890', cheek: '#f4b0a0', pattern: '#1a1a1a' },
+  'Dog':             { main: '#c89058', shade: '#8a5828', light: '#e8b888', cheek: '#f4a098', pattern: '#3a1a08' },
+  'Goat':            { main: '#e8e4d8', shade: '#a09888', light: '#fff8e8', cheek: '#e8c8c8', pattern: '#3a342a' },
 };
 
 const make = (
@@ -209,6 +212,15 @@ export const ANIMAL_DEX: DexAnimal[] = [
   make('Rhino', '🦏', 2300, 'mammal', true, 1, 1, 2, 1, [],
     '2nd-biggest land animal after the elephant. The front horn is keratin (same as fingernails), no bone — and grows up to 1.5 m. Skin armor folds 2 cm thick. Charges at 50 km/h despite the bulk. Sees poorly but smells in 360°.', 'rhino',
     ['keratin horn', '2 cm armor skin', 'square mouth for grazing']),
+  make('Cat', '🐱', 4, 'mammal', true, 2, 1, 0, 2, [],
+    'Smallest cat alive — a domesticated tabby. Sees 6× better than humans in low light. Retractable claws stay sharp. Whiskers map space precisely. Purrs at 25-50 Hz, a frequency that helps bones heal.', 'cat',
+    ['retractable claws', 'slit pupils for night vision', 'purr at 25-50 Hz']),
+  make('Dog', '🐶', 25, 'mammal', true, 1, 1, 1, 2, [],
+    'Domesticated wolf — diverged ~20,000 years ago. 300 million scent receptors (vs human 6 million). Reads human emotion from face + voice. Can learn 165+ words; collies push 1,000.', 'dog',
+    ['300M scent receptors', 'wags emotion', 'social-bonding eye contact']),
+  make('Goat', '🐐', 70, 'mammal', true, 2, 1, 2, 1, [],
+    'Lives almost anywhere — Himalayas, deserts, sea cliffs. Cloven hooves grip rough rock; can climb near-vertical cliffs. Horizontal pupils give a 320° view. Headbutts with backward-curving horns. Beard grows from a special gland.', 'goat',
+    ['cliff-climbing hooves', 'horizontal pupils (320°)', 'backward-curving horns']),
 ];
 
 export function massDistance(a: Creature, b: Creature): number {

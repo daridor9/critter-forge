@@ -1760,6 +1760,9 @@ export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverrid
   rooster: RoosterShape,
   donkey: DonkeyShape,
   rhino: RhinoShape,
+  cat: CatShape,
+  dog: DogShape,
+  goat: GoatShape,
 };
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
@@ -3490,6 +3493,356 @@ export function RhinoShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="352" cy="168" rx="6" ry="3" fill={fold} opacity="0.6" />
       <path d="M 340 178 Q 350 184 358 178" stroke="#3a1a08" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <ellipse cx="356" cy="170" rx="1.5" ry="2" fill="#3a1a08" />
+    </svg>
+  );
+}
+
+// ─── Cat (housecat) ─────────────────────────────────────────────────────
+// Sleeker than a tiger — small triangular ears, long curving tail,
+// vertical-slit pupils, faint tabby stripes, pink nose, prominent
+// whiskers, retractable claws hinted on the paws.
+export function CatShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const cheek = colors.cheek;
+  const stripe = colors.pattern ?? '#1a1a1a';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="120" ry="6" fill="rgba(0,0,0,0.18)" />
+
+      {/* LONG CURVING TAIL — curves up like a question mark, classic cat */}
+      <path d="M 88 188 Q 50 196 36 158 Q 36 132 60 130 Q 76 134 70 154" stroke={shade} strokeWidth="11" fill="none" strokeLinecap="round" />
+      <path d="M 88 188 Q 50 196 36 158 Q 36 132 60 130 Q 76 134 70 154" stroke={main} strokeWidth="7" fill="none" strokeLinecap="round" />
+      <g stroke={stripe} strokeWidth="1.2" opacity="0.6" fill="none">
+        <line x1="68" y1="180" x2="72" y2="174" />
+        <line x1="54" y1="170" x2="58" y2="162" />
+        <line x1="46" y1="148" x2="52" y2="142" />
+      </g>
+
+      {/* LEGS — slim with paw pads */}
+      {[125, 162, 240, 277].map((x, i) => (
+        <g key={x}>
+          <rect x={x - 6} y="200" width="12" height="54" rx="4" fill={i % 2 === 0 ? shade : main} />
+          {/* faint stripes on legs */}
+          <line x1={x - 6} y1="218" x2={x + 6} y2="218" stroke={stripe} strokeWidth="1" opacity="0.5" />
+          <line x1={x - 6} y1="232" x2={x + 6} y2="232" stroke={stripe} strokeWidth="1" opacity="0.5" />
+          {/* paw */}
+          <ellipse cx={x} cy="258" rx="9" ry="5" fill={shade} />
+          {/* retractable claw hint */}
+          <g stroke="#3a1a08" strokeWidth="0.8" opacity="0.7">
+            <line x1={x - 4} y1="261" x2={x - 6} y2="263" />
+            <line x1={x} y1="262" x2={x} y2="265" />
+            <line x1={x + 4} y1="261" x2={x + 6} y2="263" />
+          </g>
+        </g>
+      ))}
+
+      {/* SLEEK BODY */}
+      <ellipse cx="190" cy="190" rx="100" ry="32" fill={shade} />
+      <ellipse cx="190" cy="186" rx="96" ry="28" fill={main} />
+      <ellipse cx="190" cy="200" rx="86" ry="14" fill={light} opacity="0.6" />
+
+      {/* TABBY STRIPES on the back */}
+      <g stroke={stripe} strokeWidth="2" fill="none" opacity="0.65" strokeLinecap="round">
+        <path d="M 130 168 q 8 8 16 0" />
+        <path d="M 160 162 q 8 8 16 0" />
+        <path d="M 190 158 q 8 8 16 0" />
+        <path d="M 220 162 q 8 8 16 0" />
+        <path d="M 250 170 q 8 8 16 0" />
+      </g>
+
+      {/* NECK + HEAD — round and slightly forward */}
+      <circle cx="290" cy="170" r="38" fill={shade} />
+      <circle cx="290" cy="168" r="34" fill={main} />
+      <ellipse cx="288" cy="186" rx="26" ry="12" fill={light} opacity="0.55" />
+
+      {/* TRIANGULAR EARS — pointed, set wide apart on top */}
+      <polygon points="262 144 268 110 280 144" fill={shade} />
+      <polygon points="266 142 270 122 276 142" fill="#f4b8a8" opacity="0.85" />
+      <polygon points="300 144 312 110 318 144" fill={shade} />
+      <polygon points="304 142 310 122 314 142" fill="#f4b8a8" opacity="0.85" />
+
+      {/* FACE STRIPES — classic tabby M on the forehead */}
+      <g stroke={stripe} strokeWidth="2" fill="none" opacity="0.7" strokeLinecap="round">
+        <path d="M 280 148 q 5 4 0 12" />
+        <path d="M 290 148 q 0 6 0 14" />
+        <path d="M 300 148 q -5 4 0 12" />
+      </g>
+
+      {/* SLIT-PUPIL EYES */}
+      <g className="eye-blink" style={{ transformOrigin: '275px 170px' }}>
+        <ellipse cx="275" cy="170" rx="8" ry="7" fill="white" stroke="#222" strokeWidth="0.7" />
+        <ellipse cx="276" cy="170" rx="5.5" ry="6" fill="#5cc46a" />
+        <rect x="274.5" y="164" width="3" height="12" rx="1.5" fill="#0a0a0a" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '305px 170px' }}>
+        <ellipse cx="305" cy="170" rx="8" ry="7" fill="white" stroke="#222" strokeWidth="0.7" />
+        <ellipse cx="306" cy="170" rx="5.5" ry="6" fill="#5cc46a" />
+        <rect x="304.5" y="164" width="3" height="12" rx="1.5" fill="#0a0a0a" />
+      </g>
+
+      {/* PINK NOSE — triangle */}
+      <polygon points="285 184 295 184 290 191" fill={cheek} stroke="#a05060" strokeWidth="0.5" />
+      {/* mouth — soft "W" */}
+      <path d="M 290 191 q -4 6 -10 4 M 290 191 q 4 6 10 4" stroke="#3a1a08" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* WHISKERS — long, on both sides */}
+      <g stroke="white" strokeWidth="0.8" opacity="0.85" strokeLinecap="round">
+        <line x1="278" y1="188" x2="252" y2="184" />
+        <line x1="278" y1="192" x2="250" y2="194" />
+        <line x1="302" y1="188" x2="328" y2="184" />
+        <line x1="302" y1="192" x2="330" y2="194" />
+      </g>
+    </svg>
+  );
+}
+
+// ─── Dog ────────────────────────────────────────────────────────────────
+// Friendly golden-ish dog, side view. Floppy ears, panting pink tongue,
+// wagging tail, friendly square muzzle.
+export function DogShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const cheek = colors.cheek;
+  const dark = colors.pattern ?? '#3a1a08';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="138" ry="7" fill="rgba(0,0,0,0.18)" />
+
+      {/* TAIL — wagging arc */}
+      <path d="M 82 180 Q 50 172 36 140 Q 32 124 46 122 Q 60 128 58 142" stroke={shade} strokeWidth="13" fill="none" strokeLinecap="round" />
+      <path d="M 82 180 Q 50 172 36 140 Q 32 124 46 122 Q 60 128 58 142" stroke={main} strokeWidth="9" fill="none" strokeLinecap="round" />
+      {/* lighter underside */}
+      <path d="M 88 184 Q 60 178 50 156" stroke={light} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.6" />
+      {/* motion-line wag hints */}
+      <g stroke={dark} strokeWidth="1" opacity="0.4" strokeLinecap="round">
+        <path d="M 22 110 q 6 4 8 12" fill="none" />
+        <path d="M 60 100 q -4 6 -8 8" fill="none" />
+      </g>
+
+      {/* LEGS */}
+      {[120, 152, 232, 264].map((x, i) => (
+        <g key={x}>
+          <rect x={x - 7} y="194" width="14" height="60" rx="4" fill={i % 2 === 0 ? shade : main} />
+          {/* paw pads */}
+          <ellipse cx={x} cy="258" rx="10" ry="5" fill={dark} />
+          {/* toes */}
+          <g fill={dark}>
+            <circle cx={x - 5} cy="256" r="1.6" />
+            <circle cx={x} cy="255" r="1.6" />
+            <circle cx={x + 5} cy="256" r="1.6" />
+          </g>
+        </g>
+      ))}
+
+      {/* BODY */}
+      <ellipse cx="180" cy="178" rx="105" ry="38" fill={shade} />
+      <ellipse cx="180" cy="174" rx="100" ry="34" fill={main} />
+      <ellipse cx="180" cy="192" rx="92" ry="16" fill={light} opacity="0.65" />
+
+      {/* CHEST FLUFF — lighter cream patch */}
+      <ellipse cx="248" cy="200" rx="18" ry="14" fill={light} opacity="0.85" />
+
+      {/* NECK + HEAD */}
+      <ellipse cx="282" cy="156" rx="32" ry="28" fill={shade} />
+      <ellipse cx="282" cy="154" rx="28" ry="24" fill={main} />
+
+      {/* FLOPPY EARS — hanging down the sides */}
+      <path d="M 256 138
+               Q 244 158 250 188
+               Q 264 190 268 180
+               Q 270 158 268 140 Z"
+        fill={shade} />
+      <path d="M 260 142
+               Q 252 160 256 184
+               Q 264 184 266 176
+               Q 268 158 266 144 Z"
+        fill={dark} opacity="0.55" />
+      <path d="M 304 138
+               Q 318 152 318 174
+               Q 308 184 300 178
+               Q 296 154 300 140 Z"
+        fill={shade} />
+      <path d="M 306 142
+               Q 314 154 314 172
+               Q 306 178 302 174
+               Q 300 156 304 144 Z"
+        fill={dark} opacity="0.45" />
+
+      {/* SQUARE MUZZLE poking forward */}
+      <path d="M 296 158
+               Q 332 160 344 172
+               Q 348 184 340 192
+               Q 320 196 304 188
+               Q 296 178 296 158 Z"
+        fill={shade} />
+      <path d="M 300 160
+               Q 328 162 340 174
+               Q 344 184 336 188
+               Q 320 192 306 186
+               Q 300 178 300 160 Z"
+        fill={main} />
+      <ellipse cx="324" cy="186" rx="14" ry="6" fill={light} opacity="0.6" />
+
+      {/* BLACK NOSE — bulbous at the tip */}
+      <ellipse cx="346" cy="174" rx="7" ry="5" fill={dark} />
+      <ellipse cx="346" cy="172" rx="4" ry="2.5" fill="#0a0a0a" />
+
+      {/* PINK TONGUE — sticking out slightly */}
+      <path d="M 326 188 Q 332 198 322 200 Q 318 192 320 188 Z" fill={cheek} stroke="#a05060" strokeWidth="0.6" />
+      <line x1="324" y1="192" x2="324" y2="198" stroke="#a05060" strokeWidth="0.6" />
+
+      {/* FRIENDLY EYE */}
+      <g className="eye-blink" style={{ transformOrigin: '290px 154px' }}>
+        <circle cx="290" cy="154" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="290" cy="154" r="4" fill={dark} />
+        <circle cx="291" cy="152" r="1.5" fill="white" />
+        <circle cx="293" cy="156" r="0.8" fill="white" opacity="0.7" />
+      </g>
+      {/* eyebrow shadow */}
+      <path d="M 284 145 q 6 -2 12 0" stroke={shade} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+
+      {/* eye on the far side (smaller, hidden behind muzzle) */}
+      <circle cx="306" cy="156" r="3" fill={dark} opacity="0.6" />
+    </svg>
+  );
+}
+
+// ─── Goat ───────────────────────────────────────────────────────────────
+// Side view. Backward-curving horns (different from sheep's curled-under
+// ones), chin BEARD, horizontal-slit pupils, cloven hooves, short tail.
+export function GoatShape({ colors }: { colors: ColorOverride }) {
+  const main = colors.main;
+  const shade = colors.shade;
+  const light = colors.light;
+  const cheek = colors.cheek;
+  const dark = colors.pattern ?? '#3a342a';
+  const horn = '#a89878';
+  const hornDark = '#6a5838';
+  return (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
+
+      {/* shadow */}
+      <ellipse cx="200" cy="266" rx="125" ry="6" fill="rgba(0,0,0,0.18)" />
+
+      {/* SHORT UPRIGHT TAIL */}
+      <path d="M 88 178 L 76 168 L 80 184 Z" fill={shade} />
+      <path d="M 86 178 L 78 172 L 80 182 Z" fill={main} />
+
+      {/* LEGS with cloven hooves */}
+      {[125, 158, 238, 270].map((x, i) => (
+        <g key={x}>
+          <rect x={x - 7} y="194" width="14" height="58" rx="3" fill={i % 2 === 0 ? shade : main} />
+          {/* darker lower leg */}
+          <rect x={x - 7} y="232" width="14" height="20" fill={dark} opacity="0.45" />
+          {/* cloven hoof */}
+          <rect x={x - 8} y="252" width="16" height="10" rx="2" fill="#1a1208" />
+          <line x1={x} y1="252" x2={x} y2="262" stroke="#0a0500" strokeWidth="1.5" />
+        </g>
+      ))}
+
+      {/* BODY */}
+      <ellipse cx="188" cy="176" rx="98" ry="38" fill={shade} />
+      <ellipse cx="188" cy="172" rx="94" ry="34" fill={main} />
+      <ellipse cx="188" cy="190" rx="86" ry="16" fill={light} opacity="0.65" />
+
+      {/* faint goat speckles */}
+      <g fill={dark} opacity="0.3">
+        <circle cx="148" cy="160" r="4" />
+        <circle cx="176" cy="180" r="3" />
+        <circle cx="208" cy="160" r="4" />
+        <circle cx="232" cy="180" r="3" />
+      </g>
+
+      {/* NECK + HEAD — long and angular */}
+      <path d="M 252 156
+               Q 268 130 296 122
+               Q 316 124 322 138
+               L 316 158
+               Q 296 164 274 168
+               Q 258 166 252 162 Z"
+        fill={shade} />
+      <path d="M 256 158
+               Q 270 132 296 126
+               Q 312 128 318 138
+               L 312 156
+               Q 296 160 276 164
+               Q 260 164 256 162 Z"
+        fill={main} />
+
+      {/* HEAD */}
+      <path d="M 296 122
+               Q 332 122 348 138
+               Q 354 156 344 172
+               Q 320 178 306 172
+               Q 292 158 296 122 Z"
+        fill={shade} />
+      <path d="M 300 126
+               Q 330 126 344 140
+               Q 350 154 342 168
+               Q 322 174 308 170
+               Q 296 158 300 126 Z"
+        fill={main} />
+
+      {/* light muzzle */}
+      <ellipse cx="344" cy="160" rx="14" ry="9" fill={cheek} opacity="0.55" />
+
+      {/* nose + mouth */}
+      <ellipse cx="354" cy="156" rx="4" ry="3" fill="#1a1208" />
+      <path d="M 350 164 Q 346 170 340 168" stroke="#3a1a08" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* CHIN BEARD — the iconic goat tuft */}
+      <path d="M 326 174 Q 322 198 314 210 Q 308 200 312 182 Z" fill={dark} />
+      <g stroke={dark} strokeWidth="1" opacity="0.7">
+        <line x1="324" y1="180" x2="320" y2="200" />
+        <line x1="320" y1="184" x2="316" y2="206" />
+      </g>
+
+      {/* BACKWARD-CURVING HORNS — different from sheep's curl. Sweep
+          UP and BACK in a smooth arc. */}
+      <g fill="none" stroke={hornDark} strokeWidth="9" strokeLinecap="round">
+        <path d="M 306 122 Q 296 96 280 80 Q 272 76 268 80" />
+        <path d="M 320 122 Q 314 94 304 76 Q 296 70 290 74" />
+      </g>
+      <g fill="none" stroke={horn} strokeWidth="5" strokeLinecap="round">
+        <path d="M 306 122 Q 296 96 280 80 Q 272 76 268 80" />
+        <path d="M 320 122 Q 314 94 304 76 Q 296 70 290 74" />
+      </g>
+      {/* horn ridges */}
+      <g stroke={hornDark} strokeWidth="1" opacity="0.85" fill="none" strokeLinecap="round">
+        <path d="M 302 118 q -3 4 -2 8" />
+        <path d="M 296 106 q -3 4 -2 8" />
+        <path d="M 286 92 q -3 4 -2 8" />
+        <path d="M 316 118 q -3 4 -2 8" />
+        <path d="M 312 106 q -3 4 -2 8" />
+        <path d="M 304 90 q -3 4 -2 8" />
+      </g>
+
+      {/* DROOPING EAR sticking sideways */}
+      <ellipse cx="296" cy="138" rx="14" ry="6" fill={shade} transform="rotate(20 296 138)" />
+      <ellipse cx="296" cy="138" rx="9" ry="3" fill="#f0b8a8" transform="rotate(20 296 138)" opacity="0.85" />
+
+      {/* HORIZONTAL-SLIT PUPILS — classic goat eye */}
+      <g className="eye-blink" style={{ transformOrigin: '320px 144px' }}>
+        <ellipse cx="320" cy="144" rx="6" ry="5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="320" cy="144" rx="4.5" ry="3" fill="#7a5028" />
+        <rect x="316" y="143" width="8" height="2" rx="1" fill="#0a0500" />
+      </g>
     </svg>
   );
 }
