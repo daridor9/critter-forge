@@ -41,6 +41,25 @@ interface Props {
 type EnvId = 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean';
 type Strategy = 'hide' | 'run' | 'fight';
 
+// HUNT TACTIC — modifies the outcome margin within the chosen strategy.
+// Defensive boosts hide/run odds; aggressive boosts fight odds.
+export type HuntTactic = 'defensive' | 'balanced' | 'aggressive';
+
+interface HuntTacticMod {
+  hideMargin: number;
+  runMargin: number;
+  fightMargin: number;
+}
+
+const HUNT_TACTIC_MODS: Record<HuntTactic, HuntTacticMod> = {
+  // Skews toward survival outcomes — better at hiding/running, worse at fighting.
+  defensive:  { hideMargin: +0.18, runMargin: +0.15, fightMargin: -0.12 },
+  // No modifier — pure strategy roll.
+  balanced:   { hideMargin: 0, runMargin: 0, fightMargin: 0 },
+  // Skews toward decisive outcomes — worse at hiding/running, better at fighting.
+  aggressive: { hideMargin: -0.10, runMargin: -0.08, fightMargin: +0.20 },
+};
+
 interface Predator {
   envName: string;
   envEmoji: string;
@@ -159,6 +178,7 @@ const GROUND_Y = 170;
 export function HuntArena({ creature, stats, onFinish }: Props) {
   const [envId, setEnvId] = useState<EnvId>('forest');
   const [difficultyId, setDifficultyId] = useState<HuntDifficultyId>('normal');
+  const [tactic, setTactic] = useState<HuntTactic>('balanced');
   // Three-phase flow: 'choose' (pick strategy) → 'play' (animate the
   // outcome) → 'done' (insight card shows).
   const [phase, setPhase] = useState<'choose' | 'play' | 'done'>('choose');
@@ -189,8 +209,13 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
       strategy === 'hide' ? hide :
       strategy === 'run' ? run :
       fight;
+    const tacticMod = HUNT_TACTIC_MODS[tactic];
+    const tacticDelta =
+      strategy === 'hide'  ? tacticMod.hideMargin :
+      strategy === 'run'   ? tacticMod.runMargin :
+                             tacticMod.fightMargin;
     const luck = (Math.random() * 2 - 1) * LUCK_SWING;
-    const adjustedMargin = result.margin + luck;
+    const adjustedMargin = result.margin + tacticDelta + luck;
     const won = adjustedMargin > 0;
     setPlayingStrategy(strategy);
     setPlayWon(won);
@@ -357,6 +382,34 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
           >
             <span className="prey-emoji">{d.emoji}</span>
             <span className="prey-name">{d.label}<small> ×{d.rewardMult.toFixed(1)}</small></span>
+          </button>
+        ))}
+      </div>
+
+      {/* TACTIC PICKER — defensive/balanced/aggressive modifies how the chosen
+          strategy plays out. Pick this BEFORE choosing hide/run/fight. */}
+      <div className="drought-activity-label">
+        <strong>What's your mood?</strong> <small>(pick before Hide / Run / Fight)</small>
+      </div>
+      <div className="prey-tabs">
+        {([
+          { id: 'defensive'  as const, emoji: '🛡️', label: 'Defensive',  sub: '+hide · +run · -fight',   title: 'Play it safe. Better odds when hiding or running, worse when fighting. Good for fragile creatures.' },
+          { id: 'balanced'   as const, emoji: '⚖️', label: 'Balanced',   sub: 'no modifier',             title: 'No skew — pure strategy roll. Default.' },
+          { id: 'aggressive' as const, emoji: '⚔️', label: 'Aggressive', sub: '-hide · -run · +fight',  title: 'Go on the offensive. Better odds when fighting, worse when hiding or running. Good for armored or venomous creatures.' },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={`prey-tab${tactic === t.id ? ' active' : ''}`}
+            onClick={() => setTactic(t.id)}
+            disabled={done || playing}
+            title={t.title}
+          >
+            <span className="prey-emoji">{t.emoji}</span>
+            <span className="prey-name">
+              {t.label}
+              <small> {t.sub}</small>
+            </span>
           </button>
         ))}
       </div>

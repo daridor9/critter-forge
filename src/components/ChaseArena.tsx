@@ -16,6 +16,9 @@ export type ChaseOutcome = {
 
 export type ChaseBiomeId = 'savanna' | 'forest' | 'tundra' | 'desert' | 'night';
 
+// CHASE PACE — how the creature chases. Trades speed against stamina.
+export type ChasePace = 'sprint' | 'pace' | 'burst';
+
 interface Props {
   creature: Creature;
   stats: CreatureStats;
@@ -430,6 +433,9 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
   const [energy, setEnergy] = useState(E0);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
+  const [pace, setPace] = useState<ChasePace>('sprint');
+  const paceRef = useRef<ChasePace>('sprint');
+  const elapsedRef = useRef(0);
 
   const energyRef = useRef(E0);
   const playerRef = useRef(0);
@@ -440,9 +446,17 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
     energyRef.current = E0;
     playerRef.current = 0;
     gazelleRef.current = START_GAP_M;
+    elapsedRef.current = 0;
+    paceRef.current = 'sprint';
     setEnergy(E0);
     setPlayerDist(0);
     setGazelleDist(START_GAP_M);
+    setPace('sprint');
+  }
+
+  function pickPace(p: ChasePace) {
+    paceRef.current = p;
+    setPace(p);
   }
 
   function start() {
@@ -471,9 +485,29 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
     const drainPerSec = 1.0 * (creature.warmBlooded ? 1 : 1.5);
 
     timerRef.current = window.setInterval(() => {
+      elapsedRef.current += dt;
+      // PACE MODIFIERS
+      // sprint: 1.0× speed, 1.0× drain (cheetah-style — quick burst)
+      // pace:   0.85× speed, 0.55× drain (wolf endurance hunt)
+      // burst:  1.3× speed for first 4s, then 0.7× — but drain stays at 1.6×
+      //         throughout, like a cheetah blowing its ATP budget.
+      let speedMult = 1.0;
+      let drainMult = 1.0;
+      const t = elapsedRef.current;
+      switch (paceRef.current) {
+        case 'sprint':
+          speedMult = 1.0; drainMult = 1.0; break;
+        case 'pace':
+          speedMult = 0.85; drainMult = 0.55; break;
+        case 'burst':
+          speedMult = t < 4 ? 1.3 : 0.7;
+          drainMult = 1.6;
+          break;
+      }
+
       const exhausted = energyRef.current <= 0;
-      const playerV = exhausted ? topMps * 0.25 : topMps;
-      if (!exhausted) energyRef.current -= drainPerSec * dt;
+      const playerV = exhausted ? topMps * 0.25 : topMps * speedMult;
+      if (!exhausted) energyRef.current -= drainPerSec * drainMult * dt;
 
       playerRef.current += playerV * dt;
       gazelleRef.current += preyMps * dt;
@@ -571,6 +605,32 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
             </button>
           );
         })}
+      </div>
+
+      {/* PACE PICKER — how the creature chases. */}
+      <div className="drought-activity-label">
+        <strong>How are you chasing?</strong> <small>(switch any time during the run)</small>
+      </div>
+      <div className="prey-tabs">
+        {([
+          { id: 'sprint' as const, emoji: '🏃', label: 'Full sprint',  sub: 'balanced',                title: 'Full speed at normal stamina cost. The default cheetah-style chase.' },
+          { id: 'pace'   as const, emoji: '🐺', label: 'Pace yourself', sub: 'slow · saves stamina',    title: 'Endurance hunt like a wolf. 0.85× speed but only 0.55× stamina drain — you can chase forever.' },
+          { id: 'burst'  as const, emoji: '🐆', label: 'Cheetah burst', sub: 'fast · then crash',       title: 'Big 4-second sprint at 1.3× speed, then you slow to 0.7×. Drain stays at 1.6× the whole time — only works if you can close fast.' },
+        ]).map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            className={`prey-tab${pace === p.id ? ' active' : ''}`}
+            onClick={() => pickPace(p.id)}
+            title={p.title}
+          >
+            <span className="prey-emoji">{p.emoji}</span>
+            <span className="prey-name">
+              {p.label}
+              <small> {p.sub}</small>
+            </span>
+          </button>
+        ))}
       </div>
 
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
