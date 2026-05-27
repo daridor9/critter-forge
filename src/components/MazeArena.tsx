@@ -58,61 +58,110 @@ interface PathDef {
   points: { x: number; y: number }[];
 }
 
-const PATHS: PathDef[] = [
-  {
-    id: 'short',
-    label: 'shortcut',
-    emoji: '⚡',
-    color: '#5cc46a',
-    steps: 18,
-    points: [
-      { x: 30, y: 120 },
-      { x: 200, y: 120 },
-      { x: 400, y: 120 },
-      { x: 570, y: 120 },
-    ],
-  },
-  {
-    id: 'medium',
-    label: 'standard',
-    emoji: '🧭',
-    color: '#e8a838',
-    steps: 32,
-    points: [
-      { x: 30, y: 120 },
-      { x: 110, y: 120 },
-      { x: 110, y: 60 },
-      { x: 230, y: 60 },
-      { x: 230, y: 180 },
-      { x: 380, y: 180 },
-      { x: 380, y: 60 },
-      { x: 500, y: 60 },
-      { x: 500, y: 120 },
-      { x: 570, y: 120 },
-    ],
-  },
-  {
-    id: 'long',
-    label: 'wander',
-    emoji: '🌀',
-    color: '#c87878',
-    steps: 52,
-    points: [
-      { x: 30, y: 120 },
-      { x: 60, y: 200 },
-      { x: 140, y: 220 },
-      { x: 180, y: 160 },
-      { x: 240, y: 220 },
-      { x: 300, y: 180 },
-      { x: 280, y: 80 },
-      { x: 360, y: 40 },
-      { x: 430, y: 100 },
-      { x: 470, y: 200 },
-      { x: 530, y: 160 },
-      { x: 570, y: 120 },
-    ],
-  },
-];
+// Path SHAPES differ per theme so each theme reads as a genuinely
+// different maze layout, not just a recolor:
+//   cave   organic curves with a meandering long route
+//   hedge  strict 90-degree right-angle turns (classic hedge maze)
+//   lab    grid-aligned shortcuts + a long circuit loop (sci-fi)
+const PATHS_BY_THEME: Record<MazeThemeId, PathDef[]> = {
+  cave: [
+    {
+      id: 'short', label: 'shortcut', emoji: '⚡', color: '#5cc46a',
+      steps: 18,
+      points: [
+        { x: 30, y: 120 }, { x: 200, y: 120 }, { x: 400, y: 120 }, { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'medium', label: 'standard', emoji: '🧭', color: '#e8a838',
+      steps: 32,
+      points: [
+        { x: 30, y: 120 }, { x: 110, y: 120 }, { x: 110, y: 60 },
+        { x: 230, y: 60 }, { x: 230, y: 180 }, { x: 380, y: 180 },
+        { x: 380, y: 60 }, { x: 500, y: 60 }, { x: 500, y: 120 }, { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'long', label: 'wander', emoji: '🌀', color: '#c87878',
+      steps: 52,
+      points: [
+        { x: 30, y: 120 }, { x: 60, y: 200 }, { x: 140, y: 220 }, { x: 180, y: 160 },
+        { x: 240, y: 220 }, { x: 300, y: 180 }, { x: 280, y: 80 }, { x: 360, y: 40 },
+        { x: 430, y: 100 }, { x: 470, y: 200 }, { x: 530, y: 160 }, { x: 570, y: 120 },
+      ],
+    },
+  ],
+
+  // HEDGE — formal garden maze with strict right-angle turns. The
+  // shortcut is a clean L-route, the standard goes around a planter,
+  // the long path threads through every cardinal compartment.
+  hedge: [
+    {
+      id: 'short', label: 'green way', emoji: '🌱', color: '#5cc46a',
+      steps: 22,
+      points: [
+        { x: 30, y: 120 }, { x: 30, y: 60 }, { x: 290, y: 60 }, { x: 290, y: 120 },
+        { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'medium', label: 'planter loop', emoji: '🌷', color: '#e8a838',
+      steps: 38,
+      points: [
+        { x: 30, y: 120 }, { x: 30, y: 180 }, { x: 150, y: 180 },
+        { x: 150, y: 80 }, { x: 270, y: 80 }, { x: 270, y: 180 },
+        { x: 410, y: 180 }, { x: 410, y: 80 }, { x: 520, y: 80 },
+        { x: 520, y: 120 }, { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'long', label: 'royal labyrinth', emoji: '👑', color: '#c87878',
+      steps: 58,
+      points: [
+        { x: 30, y: 120 }, { x: 30, y: 200 }, { x: 100, y: 200 },
+        { x: 100, y: 60 }, { x: 180, y: 60 }, { x: 180, y: 200 },
+        { x: 260, y: 200 }, { x: 260, y: 60 }, { x: 340, y: 60 },
+        { x: 340, y: 200 }, { x: 420, y: 200 }, { x: 420, y: 60 },
+        { x: 510, y: 60 }, { x: 510, y: 200 }, { x: 570, y: 200 },
+        { x: 570, y: 120 },
+      ],
+    },
+  ],
+
+  // LAB — sci-fi maze with sharper diagonals + a circuit-style long
+  // route. Shortcut is a diagonal "data bus", standard is a precision
+  // zigzag, long is a perimeter circuit.
+  lab: [
+    {
+      id: 'short', label: 'data bus', emoji: '⚡', color: '#5cc46a',
+      steps: 16,
+      points: [
+        { x: 30, y: 120 }, { x: 130, y: 80 }, { x: 280, y: 120 },
+        { x: 430, y: 80 }, { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'medium', label: 'pipeline', emoji: '🔌', color: '#e8a838',
+      steps: 30,
+      points: [
+        { x: 30, y: 120 }, { x: 100, y: 120 }, { x: 100, y: 60 },
+        { x: 200, y: 60 }, { x: 200, y: 180 }, { x: 320, y: 180 },
+        { x: 320, y: 60 }, { x: 440, y: 60 }, { x: 440, y: 120 },
+        { x: 570, y: 120 },
+      ],
+    },
+    {
+      id: 'long', label: 'mainframe loop', emoji: '🌀', color: '#c87878',
+      steps: 48,
+      points: [
+        { x: 30, y: 120 }, { x: 30, y: 200 }, { x: 540, y: 200 },
+        { x: 540, y: 50 }, { x: 60, y: 50 }, { x: 60, y: 150 },
+        { x: 480, y: 150 }, { x: 480, y: 100 }, { x: 200, y: 100 },
+        { x: 200, y: 120 }, { x: 570, y: 120 },
+      ],
+    },
+  ],
+};
 
 function pathLengths(pts: { x: number; y: number }[]): { segLens: number[]; cumLens: number[]; total: number } {
   const segLens: number[] = [];
@@ -164,12 +213,12 @@ function pickProbabilities(c: Creature): [number, number, number] {
   return [pShort / total, pMedium / total, pLong / total];
 }
 
-function pickPath(c: Creature): PathDef {
+function pickPath(c: Creature, paths: PathDef[]): PathDef {
   const [pS, pM] = pickProbabilities(c);
   const r = Math.random();
-  if (r < pS) return PATHS[0];
-  if (r < pS + pM) return PATHS[1];
-  return PATHS[2];
+  if (r < pS) return paths[0];
+  if (r < pS + pM) return paths[1];
+  return paths[2];
 }
 
 function energyPerStep(stats: CreatureStats): number {
@@ -195,11 +244,11 @@ function maxStepsFor(c: Creature, stats: CreatureStats): number {
 }
 
 // Total probability of success: sum of (pick-probability × can-this-path-finish-on-stamina).
-function successProbability(c: Creature, maxSteps: number): number {
+function successProbability(c: Creature, maxSteps: number, paths: PathDef[]): number {
   const probs = pickProbabilities(c);
   let p = 0;
   for (let i = 0; i < 3; i++) {
-    if (PATHS[i].steps <= maxSteps) p += probs[i];
+    if (paths[i].steps <= maxSteps) p += probs[i];
   }
   return p;
 }
@@ -207,11 +256,12 @@ function successProbability(c: Creature, maxSteps: number): number {
 export function MazeArena({ creature, stats, onFinish }: Props) {
   const maxSteps = useMemo(() => maxStepsFor(creature, stats), [creature, stats]);
 
-  const probs = useMemo(() => pickProbabilities(creature), [creature]);
-  const successP = useMemo(() => successProbability(creature, maxSteps), [creature, maxSteps]);
-
   const [themeId, setThemeId] = useState<MazeThemeId>('cave');
   const theme = MAZE_THEMES.find((t) => t.id === themeId) ?? MAZE_THEMES[0];
+  const PATHS = useMemo(() => PATHS_BY_THEME[themeId], [themeId]);
+
+  const probs = useMemo(() => pickProbabilities(creature), [creature]);
+  const successP = useMemo(() => successProbability(creature, maxSteps, PATHS), [creature, maxSteps, PATHS]);
 
   const [chosenPath, setChosenPath] = useState<PathDef | null>(null);
   const [stepsTaken, setStepsTaken] = useState(0);
@@ -226,7 +276,7 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
     stepRef.current = 0;
     elapsedRef.current = 0;
     setStepsTaken(0);
-    setChosenPath(pickPath(creature));
+    setChosenPath(pickPath(creature, PATHS));
     setDone(false);
     setRunning(true);
   }
@@ -272,6 +322,7 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
 
   // When the creature changes (e.g. user bumps brain after a fail), reset the
   // done state so Try Again will pick a fresh path with the new probabilities.
+  // Also reset when the theme changes so the picked path matches the layout.
   useEffect(() => {
     if (!running) {
       stepRef.current = 0;
@@ -281,7 +332,7 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
       setChosenPath(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creature]);
+  }, [creature, themeId]);
 
   const activePath = chosenPath ?? PATHS[1];
   const progress = chosenPath ? Math.min(1, stepsTaken / activePath.steps) : 0;
