@@ -137,26 +137,76 @@ export function WhaleShape({ colors }: { colors: ColorOverride }) {
         <ellipse cx="135" cy="55" rx="11" ry="5" fill="#cfeefb" opacity="0.8" />
       </g>
 
+      {/* BODY — massive torpedo */}
       <ellipse cx="205" cy="178" rx="172" ry="58" fill={colors.shade} />
       <ellipse cx="205" cy="172" rx="166" ry="52" fill={colors.main} />
-      <ellipse cx="205" cy="198" rx="150" ry="22" fill={colors.light} opacity="0.7" />
+      {/* WHITE BELLY — humpback / blue whales have a pale underside */}
+      <ellipse cx="205" cy="200" rx="148" ry="20" fill="#fff8e8" opacity="0.92" />
+      <ellipse cx="205" cy="208" rx="135" ry="11" fill="#ffffff" opacity="0.7" />
       <ellipse cx="190" cy="142" rx="100" ry="14" fill="white" opacity="0.18" />
 
-      <polygon points="365,172 398,128 398,168 380,178 398,188 398,222 365,180" fill={colors.shade} />
-      <polygon points="365,172 392,140 392,168 378,178 392,188 392,212 365,178" fill={colors.main} />
+      {/* THROAT PLEATS / VENTRAL GROOVES — the iconic rorqual feature.
+          Long parallel folds running from the chin to the belly that
+          expand when the whale lunge-feeds. Real humpbacks have ~20-30. */}
+      <g stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.5">
+        <path d="M 70 195 Q 110 215 165 218" />
+        <path d="M 70 200 Q 110 220 165 222" />
+        <path d="M 70 205 Q 110 224 165 225" />
+        <path d="M 72 210 Q 110 228 165 228" />
+        <path d="M 75 215 Q 110 230 165 231" />
+        <path d="M 80 220 Q 112 232 162 233" />
+      </g>
 
-      <ellipse cx="125" cy="215" rx="26" ry="14" fill={colors.shade} transform="rotate(18 125 215)" />
+      {/* BARNACLE patches — characteristic white encrustations on humpbacks */}
+      <g fill="#e8e4d8" opacity="0.85">
+        <circle cx="60" cy="180" r="3.5" />
+        <circle cx="56" cy="186" r="2" />
+        <circle cx="66" cy="184" r="2" />
+        <circle cx="350" cy="165" r="2.5" />
+        <circle cx="356" cy="170" r="2" />
+      </g>
+      <g fill={colors.shade} opacity="0.4">
+        <circle cx="60" cy="180" r="1.5" />
+        <circle cx="350" cy="165" r="1.2" />
+      </g>
 
-      <ellipse cx="125" cy="125" rx="6" ry="3" fill={colors.shade} />
+      {/* FLUKE — broad horizontal tail with central notch */}
+      <polygon points="365,172 398,116 400,168 380,178 400,188 398,228 365,180" fill={colors.shade} />
+      <polygon points="365,172 392,130 394,168 378,178 394,188 392,218 365,178" fill={colors.main} />
+      {/* fluke central notch */}
+      <ellipse cx="380" cy="178" rx="10" ry="3" fill={colors.shade} />
+      {/* fluke trailing edge highlight */}
+      <path d="M 365 175 Q 380 175 392 132" stroke={colors.light} strokeWidth="1.2" fill="none" opacity="0.4" />
 
+      {/* GIGANTIC PECTORAL FIN — humpbacks have the longest flippers of
+          any whale (1/3 their body length) */}
+      <ellipse cx="125" cy="215" rx="34" ry="14" fill={colors.shade} transform="rotate(18 125 215)" />
+      <ellipse cx="125" cy="213" rx="30" ry="11" fill={colors.main} transform="rotate(18 125 213)" />
+      {/* white underside of the flipper */}
+      <ellipse cx="128" cy="218" rx="24" ry="6" fill="#fff8e8" opacity="0.85" transform="rotate(18 128 218)" />
+
+      {/* HEAD TUBERCLES — the bumpy knobs along a humpback's head/jaw */}
+      <g fill={colors.shade}>
+        <circle cx="80" cy="150" r="3" />
+        <circle cx="68" cy="160" r="3" />
+        <circle cx="58" cy="170" r="3" />
+        <circle cx="52" cy="180" r="2.5" />
+      </g>
+
+      {/* BLOWHOLE — on top of the head */}
+      <ellipse cx="125" cy="125" rx="7" ry="3.5" fill={colors.shade} />
+      <ellipse cx="125" cy="124" rx="4" ry="2" fill="#0a1820" />
+
+      {/* small kind EYE */}
       <g className="eye-blink" style={{ transformOrigin: '92px 168px' }}>
         <circle cx="92" cy="168" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
         <circle cx="92" cy="168" r="3" fill="#1a1a1a" />
         <circle cx="93" cy="166" r="1.2" fill="white" />
       </g>
 
-      <path d="M 55 185 Q 75 196 110 188" stroke="#3a2118" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <line x1="60" y1="184" x2="105" y2="186" stroke="#3a2118" strokeWidth="1" opacity="0.5" />
+      {/* long curving MOUTH LINE (whales have characteristic upturned mouth) */}
+      <path d="M 45 185 Q 75 200 110 192" stroke="#3a2118" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <line x1="55" y1="184" x2="100" y2="187" stroke="#3a2118" strokeWidth="1" opacity="0.5" />
 
       <ellipse cx="200" cy="262" rx="150" ry="8" fill="rgba(0,0,0,0.18)" />
     </svg>
@@ -709,6 +759,7 @@ export function ElephantShape({ colors }: { colors: ColorOverride }) {
         <line x1="30" y1="230" x2="42" y2="240" />
       </g>
 
+      {/* PILLAR LEGS — thick columnar */}
       <rect x="100" y="218" width="30" height="58" fill={colors.shade} rx="6" />
       <rect x="155" y="220" width="28" height="56" fill={colors.shade} rx="6" />
       <rect x="220" y="220" width="28" height="56" fill={colors.shade} rx="6" />
@@ -717,29 +768,83 @@ export function ElephantShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="169" cy="280" rx="17" ry="5" fill="#3a2118" />
       <ellipse cx="234" cy="280" rx="17" ry="5" fill="#3a2118" />
       <ellipse cx="285" cy="280" rx="18" ry="5" fill="#3a2118" />
+      {/* TOENAILS — 4 little hoof-like nails on each foot */}
+      <g fill="#f0e8d0" stroke="#888" strokeWidth="0.4">
+        {[100, 108, 116, 124].map((x, i) => (
+          <rect key={`f1-${i}`} x={x} y="274" width="5" height="6" rx="1" />
+        ))}
+        {[155, 163, 171, 179].map((x, i) => (
+          <rect key={`f2-${i}`} x={x} y="274" width="5" height="6" rx="1" />
+        ))}
+        {[220, 228, 236, 244].map((x, i) => (
+          <rect key={`f3-${i}`} x={x} y="274" width="5" height="6" rx="1" />
+        ))}
+        {[270, 278, 286, 294].map((x, i) => (
+          <rect key={`f4-${i}`} x={x} y="274" width="5" height="6" rx="1" />
+        ))}
+      </g>
 
+      {/* BODY */}
       <ellipse cx="195" cy="185" rx="130" ry="55" fill={colors.shade} />
       <ellipse cx="195" cy="180" rx="124" ry="50" fill={colors.main} />
       <ellipse cx="195" cy="210" rx="105" ry="16" fill={colors.light} opacity="0.55" />
       <ellipse cx="175" cy="148" rx="80" ry="12" fill="white" opacity="0.2" />
 
-      <path d="M 295 180 Q 320 155 300 132 Q 270 110 240 122 L 245 162 Z" fill={colors.shade} />
-      <path d="M 295 178 Q 318 156 302 134 Q 274 114 248 124 L 250 160 Z" fill={colors.main} />
-      <ellipse cx="270" cy="135" rx="22" ry="6" fill="#f4c8b8" opacity="0.5" />
+      {/* WRINKLY SKIN texture — characteristic elephant hide */}
+      <g stroke={colors.shade} strokeWidth="0.8" fill="none" opacity="0.45">
+        <path d="M 90 170 q 30 6 60 4" />
+        <path d="M 90 185 q 30 6 60 4" />
+        <path d="M 90 200 q 30 6 60 4" />
+        <path d="M 160 170 q 30 6 60 4" />
+        <path d="M 160 185 q 30 6 60 4" />
+        <path d="M 220 175 q 20 4 40 2" />
+        <path d="M 220 190 q 20 4 40 2" />
+      </g>
 
-      <path d="M 305 195 Q 320 215 318 245 Q 314 268 306 275 Q 300 268 302 245 Q 304 215 305 195 Z" fill={colors.shade} />
-      <path d="M 307 195 Q 320 215 318 245 Q 314 264 308 270 Q 304 264 305 245 Q 306 215 307 195 Z" fill={colors.main} />
+      {/* GIANT AFRICA-SHAPED EAR — much bigger than original */}
+      <path d="M 268 168 Q 240 130 215 118 Q 195 110 188 132 Q 188 168 220 192 Q 246 200 268 192 Z" fill={colors.shade} />
+      <path d="M 264 168 Q 240 134 218 124 Q 200 120 194 138 Q 196 166 224 188 Q 244 194 262 188 Z" fill={colors.main} />
+      <ellipse cx="232" cy="158" rx="22" ry="14" fill="#f4c8b8" opacity="0.4" />
+      {/* ear vein lines */}
+      <g stroke={colors.shade} strokeWidth="0.7" fill="none" opacity="0.5">
+        <path d="M 222 140 q 8 14 12 30" />
+        <path d="M 232 138 q 4 16 6 32" />
+        <path d="M 242 142 q 0 16 -2 30" />
+      </g>
 
-      <polygon points="288,228 290,265 296,232" fill="#f0ead0" stroke="#b8a890" strokeWidth="0.6" />
-      <polygon points="324,228 322,265 316,232" fill="#f0ead0" stroke="#b8a890" strokeWidth="0.6" />
+      {/* HUGE LONG TRUNK with ring-folds — elephants have ~150,000 muscles
+          in the trunk. Much longer and more dramatic than before. */}
+      <path d="M 295 195 Q 332 220 340 255 Q 338 278 320 282 Q 304 274 306 252 Q 310 220 295 195 Z" fill={colors.shade} />
+      <path d="M 297 197 Q 330 222 336 254 Q 334 274 320 278 Q 308 270 310 252 Q 312 220 297 197 Z" fill={colors.main} />
+      {/* trunk ring-folds (the rib-like wrinkles) */}
+      <g stroke={colors.shade} strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.7">
+        <path d="M 300 208 q 12 10 22 0" />
+        <path d="M 304 222 q 14 10 26 -2" />
+        <path d="M 307 236 q 14 10 28 -2" />
+        <path d="M 308 250 q 14 8 28 -2" />
+        <path d="M 310 264 q 12 6 24 -2" />
+      </g>
+      {/* trunk tip with two finger-like lobes (African elephant feature) */}
+      <ellipse cx="320" cy="282" rx="9" ry="5" fill={colors.shade} />
+      <ellipse cx="320" cy="282" rx="6" ry="3" fill="#3a2818" opacity="0.7" />
+      {/* nostril */}
+      <ellipse cx="320" cy="280" rx="2" ry="1.4" fill="#1a1208" />
 
-      <ellipse cx="318" cy="265" rx="1.5" ry="1" fill={colors.shade} />
-      <ellipse cx="312" cy="265" rx="1.5" ry="1" fill={colors.shade} />
+      {/* TUSKS — long curving ivory */}
+      <polygon points="284,225 286,275 296,228" fill="#f0ead0" stroke="#b8a890" strokeWidth="0.6" />
+      <polygon points="284,225 290,272 292,230" fill="#fff8e0" />
+      {/* tusk shadow */}
+      <ellipse cx="290" cy="270" rx="1.5" ry="1" fill={colors.shade} />
 
-      <g className="eye-blink" style={{ transformOrigin: '292px 195px' }}>
-        <circle cx="292" cy="195" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <circle cx="293" cy="195" r="3" fill="#1a1a1a" />
-        <circle cx="294" cy="193" r="1.2" fill="white" />
+      {/* EYE — small, kind */}
+      <g className="eye-blink" style={{ transformOrigin: '278px 175px' }}>
+        <circle cx="278" cy="175" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="279" cy="175" r="3" fill="#1a1a1a" />
+        <circle cx="280" cy="173" r="1.2" fill="white" />
+        {/* long eyelashes */}
+        <line x1="275" y1="171" x2="273" y2="168" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round" />
+        <line x1="278" y1="170" x2="277" y2="167" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round" />
+        <line x1="281" y1="170" x2="282" y2="167" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round" />
       </g>
 
       <ellipse cx="195" cy="287" rx="135" ry="6" fill="rgba(0,0,0,0.22)" />
@@ -1068,26 +1173,80 @@ export function OwlShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="200" cy="130" rx="65" ry="55" fill={colors.shade} />
       <ellipse cx="200" cy="128" rx="60" ry="50" fill={colors.main} />
 
-      <ellipse cx="180" cy="130" rx="22" ry="24" fill="#fae8c8" />
-      <ellipse cx="220" cy="130" rx="22" ry="24" fill="#fae8c8" />
+      {/* FACIAL DISC — the iconic owl face. Pale heart-shaped feather ring
+          that gathers sound into the ears, like a satellite dish. */}
+      <path d="M 200 100 Q 152 102 142 130 Q 138 160 162 178 Q 200 188 238 178 Q 262 160 258 130 Q 248 102 200 100 Z" fill="#fae8c8" />
+      <path d="M 200 105 Q 158 108 148 132 Q 146 158 168 172 Q 200 182 232 172 Q 254 158 252 132 Q 242 108 200 105 Z" fill="#fdf2d8" />
+      {/* feather lines radiating around the disc — the satellite-dish texture */}
+      <g stroke="#c8a878" strokeWidth="0.7" fill="none" opacity="0.7">
+        <path d="M 200 102 Q 200 92 200 86" />
+        <path d="M 174 108 Q 168 100 162 94" />
+        <path d="M 152 124 Q 144 122 138 122" />
+        <path d="M 148 152 Q 140 156 134 162" />
+        <path d="M 162 174 Q 156 182 150 188" />
+        <path d="M 226 108 Q 232 100 238 94" />
+        <path d="M 248 124 Q 256 122 262 122" />
+        <path d="M 252 152 Q 260 156 266 162" />
+        <path d="M 238 174 Q 244 182 250 188" />
+      </g>
+      {/* central bridge between the eyes — gives owl its distinctive look */}
+      <path d="M 195 130 Q 200 140 205 130 Q 200 150 195 130 Z" fill="#c8a878" opacity="0.5" />
+
+      {/* HUGE round yellow eyes — owls have eyes that fill 70% of their skull.
+          Surrounded by dark rings for that intense stare. */}
+      <circle cx="180" cy="130" r="20" fill="#3a2010" />
+      <circle cx="220" cy="130" r="20" fill="#3a2010" />
       <g className="eye-blink" style={{ transformOrigin: '180px 130px' }}>
-        <circle cx="180" cy="130" r="16" fill="#ffd34a" stroke="#222" strokeWidth="0.6" />
-        <circle cx="181" cy="130" r="9" fill="#1a1a1a" />
-        <circle cx="184" cy="126" r="3" fill="white" />
+        <circle cx="180" cy="130" r="17" fill="#ffd34a" stroke="#3a2010" strokeWidth="1.2" />
+        <circle cx="180" cy="130" r="13" fill="#fa9a30" />
+        <circle cx="181" cy="130" r="10" fill="#1a1a1a" />
+        <circle cx="184" cy="126" r="3.5" fill="white" />
+        <circle cx="178" cy="132" r="1.4" fill="white" opacity="0.7" />
       </g>
       <g className="eye-blink" style={{ transformOrigin: '220px 130px' }}>
-        <circle cx="220" cy="130" r="16" fill="#ffd34a" stroke="#222" strokeWidth="0.6" />
-        <circle cx="221" cy="130" r="9" fill="#1a1a1a" />
-        <circle cx="224" cy="126" r="3" fill="white" />
+        <circle cx="220" cy="130" r="17" fill="#ffd34a" stroke="#3a2010" strokeWidth="1.2" />
+        <circle cx="220" cy="130" r="13" fill="#fa9a30" />
+        <circle cx="221" cy="130" r="10" fill="#1a1a1a" />
+        <circle cx="224" cy="126" r="3.5" fill="white" />
+        <circle cx="218" cy="132" r="1.4" fill="white" opacity="0.7" />
       </g>
 
-      <polygon points="200,148 192,162 208,162" fill="#d8851a" />
-      <polygon points="200,152 196,160 204,160" fill="#fa9a30" />
+      {/* SHARP HOOKED BEAK — pointed downward, dark tip */}
+      <path d="M 200 150 L 192 168 L 200 172 L 208 168 Z" fill="#d8851a" />
+      <path d="M 200 152 L 194 166 L 200 170 L 206 166 Z" fill="#fa9a30" />
+      <path d="M 196 168 L 200 174 L 204 168 L 200 170 Z" fill="#6a3010" />
 
+      {/* WINGS folded against the body — angled with feather edge */}
       <ellipse cx="124" cy="200" rx="22" ry="50" fill={colors.shade} transform="rotate(10 124 200)" />
+      <ellipse cx="124" cy="198" rx="18" ry="46" fill={colors.main} transform="rotate(10 124 200)" />
       <ellipse cx="276" cy="200" rx="22" ry="50" fill={colors.shade} transform="rotate(-10 276 200)" />
+      <ellipse cx="276" cy="198" rx="18" ry="46" fill={colors.main} transform="rotate(-10 276 200)" />
+      {/* wing feather barred lines */}
+      <g stroke={spot} strokeWidth="1.2" fill="none" opacity="0.6">
+        <path d="M 116 180 q 14 -4 22 0" />
+        <path d="M 114 200 q 18 -4 26 0" />
+        <path d="M 116 220 q 18 -4 24 0" />
+        <path d="M 116 240 q 14 -4 20 0" />
+        <path d="M 262 180 q 14 -4 22 0" transform="scale(-1,1) translate(-548,0)" />
+        <path d="M 264 200 q 18 -4 26 0" transform="scale(-1,1) translate(-548,0)" />
+        <path d="M 262 220 q 18 -4 24 0" transform="scale(-1,1) translate(-548,0)" />
+        <path d="M 264 240 q 14 -4 20 0" transform="scale(-1,1) translate(-548,0)" />
+      </g>
 
-      <polygon points="186,248 192,250 188,256 200,252 212,256 208,250 214,248" fill="#fa9a30" />
+      {/* talons gripping the branch — sharper now */}
+      <g>
+        <path d="M 188 248 L 186 256 M 194 248 L 192 256" stroke="#3a2010" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 206 248 L 208 256 M 212 248 L 214 256" stroke="#3a2010" strokeWidth="3" strokeLinecap="round" />
+        <ellipse cx="195" cy="252" rx="7" ry="4" fill="#fa9a30" />
+        <ellipse cx="208" cy="252" rx="7" ry="4" fill="#fa9a30" />
+        {/* claws */}
+        <g fill="#1a1208">
+          <ellipse cx="186" cy="258" rx="1.5" ry="2" />
+          <ellipse cx="192" cy="258" rx="1.5" ry="2" />
+          <ellipse cx="208" cy="258" rx="1.5" ry="2" />
+          <ellipse cx="214" cy="258" rx="1.5" ry="2" />
+        </g>
+      </g>
 
       <ellipse cx="200" cy="278" rx="70" ry="5" fill="rgba(0,0,0,0.4)" />
     </svg>
@@ -1194,41 +1353,91 @@ export function CrocodileShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="180" cy="186" rx="96" ry="18" fill={colors.main} />
       <ellipse cx="180" cy="200" rx="80" ry="6" fill={colors.light} opacity="0.5" />
 
-      <g fill={colors.shade}>
-        <polygon points="105,170 112,158 118,170" />
-        <polygon points="135,168 142,154 148,168" />
-        <polygon points="165,166 172,152 178,166" />
-        <polygon points="195,166 202,152 208,166" />
-        <polygon points="225,168 232,154 238,168" />
-        <polygon points="252,170 259,158 265,170" />
+      {/* SCALE TEXTURE on body — small bumps in a grid pattern */}
+      <g fill={colors.shade} opacity="0.4">
+        {[120, 140, 160, 180, 200, 220, 240].map((x) => (
+          <g key={x}>
+            <circle cx={x} cy="184" r="1.3" />
+            <circle cx={x + 6} cy="190" r="1.3" />
+            <circle cx={x} cy="196" r="1.3" />
+          </g>
+        ))}
       </g>
 
+      {/* BIGGER, more pronounced ARMOR PLATES along the spine — the iconic
+          crocodile osteoderm ridges. Replaced 6 thin triangles with 7 bigger
+          armor plates with a paired-keel shape. */}
+      <g fill={colors.shade}>
+        <path d="M 100 172 L 108 156 L 114 160 L 120 156 L 128 172 Z" />
+        <path d="M 128 170 L 136 154 L 142 158 L 148 154 L 156 170 Z" />
+        <path d="M 156 168 L 164 150 L 170 154 L 176 150 L 184 168 Z" />
+        <path d="M 184 166 L 192 148 L 198 152 L 204 148 L 212 166 Z" />
+        <path d="M 212 168 L 220 150 L 226 154 L 232 150 L 240 168 Z" />
+        <path d="M 240 170 L 248 154 L 254 158 L 260 154 L 268 170 Z" />
+      </g>
+      {/* darker plate centers for depth */}
+      <g fill="#1a2a1a" opacity="0.4">
+        <ellipse cx="114" cy="166" rx="3" ry="2" />
+        <ellipse cx="142" cy="164" rx="3" ry="2" />
+        <ellipse cx="170" cy="162" rx="3" ry="2" />
+        <ellipse cx="198" cy="160" rx="3" ry="2" />
+        <ellipse cx="226" cy="162" rx="3" ry="2" />
+        <ellipse cx="254" cy="164" rx="3" ry="2" />
+      </g>
+
+      {/* HEAD/SNOUT — wider at the base, narrowing toward the tip */}
       <ellipse cx="290" cy="186" rx="55" ry="18" fill={colors.shade} />
       <ellipse cx="290" cy="184" rx="52" ry="15" fill={colors.main} />
 
-      <ellipse cx="278" cy="170" rx="9" ry="6" fill={colors.shade} />
-      <ellipse cx="300" cy="170" rx="9" ry="6" fill={colors.shade} />
+      {/* BROW RIDGES — prominent bony hoods above the eyes (croc signature) */}
+      <ellipse cx="278" cy="167" rx="12" ry="7" fill={colors.shade} />
+      <ellipse cx="278" cy="166" rx="10" ry="5" fill={colors.main} />
+      <ellipse cx="300" cy="167" rx="12" ry="7" fill={colors.shade} />
+      <ellipse cx="300" cy="166" rx="10" ry="5" fill={colors.main} />
+
+      {/* EYES — yellow with vertical slit pupils (reptile feature) */}
       <g className="eye-blink" style={{ transformOrigin: '278px 168px' }}>
-        <circle cx="278" cy="168" r="3.5" fill="#ffd34a" stroke="#222" strokeWidth="0.5" />
-        <ellipse cx="278" cy="168" rx="1.4" ry="3" fill="#1a1a1a" />
+        <circle cx="278" cy="168" r="4" fill="#ffd34a" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="278" cy="168" rx="1.4" ry="3.4" fill="#1a1a1a" />
+        <circle cx="279" cy="167" r="0.8" fill="white" opacity="0.7" />
       </g>
       <g className="eye-blink" style={{ transformOrigin: '300px 168px' }}>
-        <circle cx="300" cy="168" r="3.5" fill="#ffd34a" stroke="#222" strokeWidth="0.5" />
-        <ellipse cx="300" cy="168" rx="1.4" ry="3" fill="#1a1a1a" />
+        <circle cx="300" cy="168" r="4" fill="#ffd34a" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="300" cy="168" rx="1.4" ry="3.4" fill="#1a1a1a" />
+        <circle cx="301" cy="167" r="0.8" fill="white" opacity="0.7" />
       </g>
 
+      {/* MOUTH with INTERLOCKING TEETH — the menacing croc grin where the
+          bottom fangs stick UP through the upper lip, alternating with
+          upper fangs hanging DOWN. */}
       <line x1="244" y1="192" x2="340" y2="192" stroke="#3a2118" strokeWidth="1.6" />
-      <g fill="white">
+      {/* upper teeth pointing DOWN */}
+      <g fill="white" stroke="#888" strokeWidth="0.3">
         {Array.from({ length: 11 }).map((_, i) => (
-          <polygon key={`u${i}`} points={`${250 + i * 9},192 ${252 + i * 9},198 ${254 + i * 9},192`} />
-        ))}
-        {Array.from({ length: 11 }).map((_, i) => (
-          <polygon key={`l${i}`} points={`${250 + i * 9},192 ${252 + i * 9},186 ${254 + i * 9},192`} />
+          <polygon key={`u${i}`} points={`${250 + i * 9},192 ${252 + i * 9},199 ${254 + i * 9},192`} />
         ))}
       </g>
+      {/* lower teeth pointing UP — extra long fangs at positions 1, 4, 7
+          stick THROUGH the upper jaw (the croc smile) */}
+      <g fill="white" stroke="#888" strokeWidth="0.3">
+        {Array.from({ length: 11 }).map((_, i) => {
+          const isLongFang = i === 1 || i === 4 || i === 7;
+          const tipY = isLongFang ? 178 : 185;
+          return (
+            <polygon
+              key={`l${i}`}
+              points={`${250 + i * 9},192 ${252 + i * 9},${tipY} ${254 + i * 9},192`}
+            />
+          );
+        })}
+      </g>
 
-      <ellipse cx="332" cy="184" rx="2.5" ry="1.6" fill={colors.shade} />
-      <ellipse cx="326" cy="184" rx="2.5" ry="1.6" fill={colors.shade} />
+      {/* nostrils — raised on top of the snout (croc lets the snout sit at
+          water level while the body is submerged) */}
+      <ellipse cx="332" cy="180" rx="2.5" ry="1.6" fill={colors.shade} />
+      <ellipse cx="326" cy="180" rx="2.5" ry="1.6" fill={colors.shade} />
+      <ellipse cx="332" cy="180" rx="1" ry="0.6" fill="#1a1a1a" />
+      <ellipse cx="326" cy="180" rx="1" ry="0.6" fill="#1a1a1a" />
     </svg>
   );
 }
@@ -1923,36 +2132,73 @@ export function BatShape({ colors }: { colors: ColorOverride }) {
         <circle cx="370" cy="120" r="1.4" />
       </g>
 
+      {/* LEFT WING with VISIBLE FINGER BONES — the iconic bat feature.
+          Bats are the only mammals with true flight, and their wings are
+          elongated hand-and-finger skeletons stretched in a thin membrane.
+          The visible bones radiating through the membrane are the giveaway. */}
       <path d="M 200 175 Q 110 100 30 130 Q 70 160 100 170 Q 140 180 200 185 Z" fill={colors.shade} />
-      <path d="M 200 175 Q 115 108 38 134 Q 75 162 102 170 Q 142 178 200 182 Z" fill={colors.main} />
-      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.65">
-        <line x1="200" y1="175" x2="50" y2="138" />
-        <line x1="200" y1="178" x2="78" y2="158" />
-        <line x1="200" y1="180" x2="105" y2="172" />
+      <path d="M 200 175 Q 115 108 38 134 Q 75 162 102 170 Q 142 178 200 182 Z" fill={colors.main} opacity="0.92" />
+      {/* finger bones — 5 long ridges radiating outward from the body */}
+      <g stroke={colors.shade} strokeWidth="2.2" fill="none" strokeLinecap="round">
+        <line x1="200" y1="175" x2="40" y2="135" />
+        <line x1="200" y1="175" x2="62" y2="150" />
+        <line x1="200" y1="175" x2="85" y2="166" />
+        <line x1="200" y1="175" x2="115" y2="175" />
+        <line x1="200" y1="175" x2="155" y2="184" />
       </g>
+      {/* tiny thumb claw at the wing tip */}
+      <circle cx="30" cy="130" r="3" fill={colors.shade} />
+      <polygon points="32,128 38,124 34,132" fill={colors.shade} />
+      {/* wing membrane outline curve */}
       <path d="M 30 132 Q 60 145 95 170" stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.7" />
 
+      {/* RIGHT WING — mirrored */}
       <path d="M 200 175 Q 290 100 370 130 Q 330 160 300 170 Q 260 180 200 185 Z" fill={colors.shade} />
-      <path d="M 200 175 Q 285 108 362 134 Q 325 162 298 170 Q 258 178 200 182 Z" fill={colors.main} />
-      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.65">
-        <line x1="200" y1="175" x2="350" y2="138" />
-        <line x1="200" y1="178" x2="322" y2="158" />
-        <line x1="200" y1="180" x2="295" y2="172" />
+      <path d="M 200 175 Q 285 108 362 134 Q 325 162 298 170 Q 258 178 200 182 Z" fill={colors.main} opacity="0.92" />
+      <g stroke={colors.shade} strokeWidth="2.2" fill="none" strokeLinecap="round">
+        <line x1="200" y1="175" x2="360" y2="135" />
+        <line x1="200" y1="175" x2="338" y2="150" />
+        <line x1="200" y1="175" x2="315" y2="166" />
+        <line x1="200" y1="175" x2="285" y2="175" />
+        <line x1="200" y1="175" x2="245" y2="184" />
       </g>
+      <circle cx="370" cy="130" r="3" fill={colors.shade} />
+      <polygon points="368,128 362,124 366,132" fill={colors.shade} />
       <path d="M 370 132 Q 340 145 305 170" stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.7" />
 
+      {/* BODY — small furry torso */}
       <ellipse cx="200" cy="180" rx="22" ry="32" fill={colors.shade} />
       <ellipse cx="200" cy="178" rx="18" ry="28" fill={colors.main} />
       <ellipse cx="200" cy="195" rx="14" ry="14" fill={colors.light} opacity="0.4" />
+      {/* fur tufts on belly */}
+      <g fill={colors.light} opacity="0.4">
+        <circle cx="195" cy="190" r="2.5" />
+        <circle cx="205" cy="192" r="2.5" />
+        <circle cx="200" cy="200" r="2.5" />
+      </g>
 
+      {/* HEAD */}
       <ellipse cx="200" cy="148" rx="22" ry="18" fill={colors.shade} />
       <ellipse cx="200" cy="146" rx="19" ry="15" fill={colors.main} />
+      {/* furry forehead tuft */}
+      <ellipse cx="200" cy="138" rx="14" ry="3" fill={colors.light} opacity="0.4" />
 
-      <polygon points="186,134 178,104 196,128" fill={colors.shade} />
-      <polygon points="214,134 222,104 204,128" fill={colors.shade} />
-      <polygon points="188,132 184,116 194,128" fill="#c87890" />
-      <polygon points="212,132 216,116 206,128" fill="#c87890" />
+      {/* HUGE EARS — bigger now, with internal "fingerprint" lines hinting at
+          the sound-collection ridges (real bats use these like satellite dishes
+          for echolocation). */}
+      <path d="M 186 134 L 174 96 L 200 124 Z" fill={colors.shade} />
+      <path d="M 214 134 L 226 96 L 200 124 Z" fill={colors.shade} />
+      <path d="M 188 132 L 180 108 L 196 126 Z" fill="#d88aa0" />
+      <path d="M 212 132 L 220 108 L 204 126 Z" fill="#d88aa0" />
+      {/* inner ear ridge lines */}
+      <g stroke="#a8556a" strokeWidth="0.8" fill="none" opacity="0.7">
+        <path d="M 184 124 L 188 116" />
+        <path d="M 188 122 L 192 116" />
+        <path d="M 216 124 L 212 116" />
+        <path d="M 212 122 L 208 116" />
+      </g>
 
+      {/* EYES — small, dark, alert (bats see ok but echolocate better) */}
       <g className="eye-blink" style={{ transformOrigin: '193px 145px' }}>
         <circle cx="193" cy="145" r="3.5" fill="white" stroke="#222" strokeWidth="0.5" />
         <circle cx="194" cy="145" r="2.2" fill="#1a1a1a" />
@@ -1964,8 +2210,14 @@ export function BatShape({ colors }: { colors: ColorOverride }) {
         <circle cx="209" cy="143" r="1" fill="white" />
       </g>
 
-      <polygon points="196,155 197,160 199,155" fill="white" />
-      <polygon points="201,155 203,160 205,155" fill="white" />
+      {/* TINY NOSE LEAF — many bats have this distinctive ornament */}
+      <ellipse cx="200" cy="153" rx="2.5" ry="1.6" fill="#a8556a" />
+      <ellipse cx="200" cy="153" rx="1.4" ry="0.8" fill="#6a283c" />
+
+      {/* MOUTH with VISIBLE FANGS — slightly larger, sharper. Vampire-style. */}
+      <path d="M 192 158 Q 200 162 208 158" stroke="#1a0a08" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      <polygon points="195,158 196,164 198,158" fill="white" stroke="#888" strokeWidth="0.3" />
+      <polygon points="202,158 204,164 206,158" fill="white" stroke="#888" strokeWidth="0.3" />
 
       <line x1="195" y1="210" x2="190" y2="222" stroke={colors.shade} strokeWidth="3.5" strokeLinecap="round" />
       <line x1="205" y1="210" x2="210" y2="222" stroke={colors.shade} strokeWidth="3.5" strokeLinecap="round" />
