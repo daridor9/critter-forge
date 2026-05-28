@@ -5,6 +5,7 @@ import { computeStats } from './physics';
 import { Builder } from './components/Builder';
 import { CreatureStage } from './components/CreatureStage';
 import { ComboBadge } from './components/ComboBadge';
+import { BuildSlots } from './components/BuildSlots';
 import { StatsPanel } from './components/StatsPanel';
 import { ComparePanel } from './components/ComparePanel';
 import { ChaseArena } from './components/ChaseArena';
@@ -609,6 +610,10 @@ export default function App() {
               title="Leave tournament"
             >🚪 Exit</button>
           )}
+          <BuildSlots
+            current={creature}
+            onLoad={(c) => { setCreature(c); sounds.click(); }}
+          />
           <button
             className="header-btn"
             type="button"
