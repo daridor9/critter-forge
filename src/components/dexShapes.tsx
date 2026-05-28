@@ -367,18 +367,30 @@ export function PterodactylShape({ colors }: { colors: ColorOverride }) {
 }
 
 export function LionShape({ colors }: { colors: ColorOverride }) {
-  const maneColor = '#6e4818';
-  const maneInner = '#8a5e24';
+  const maneOuter = '#4a2e10';   // darkest outer ring
+  const maneColor = '#6e4818';   // mid mane
+  const maneInner = '#a07238';   // inner highlight tufts
+  const tailTuft = '#3a2008';    // black tuft at end of tail
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
 
-      <path d="M 90 195 Q 50 175 28 188" stroke={colors.shade} strokeWidth="14" fill="none" strokeLinecap="round" />
-      <path d="M 90 195 Q 50 175 28 188" stroke={colors.main} strokeWidth="9" fill="none" strokeLinecap="round" />
-      <ellipse cx="24" cy="186" rx="9" ry="11" fill={maneColor} />
+      {/* TAIL — long sinuous curve with the iconic dark TUFT at the end */}
+      <path d="M 90 205 Q 60 220 36 215 Q 20 210 16 196" stroke={colors.shade} strokeWidth="13" fill="none" strokeLinecap="round" />
+      <path d="M 90 205 Q 60 220 36 215 Q 20 210 16 196" stroke={colors.main} strokeWidth="8" fill="none" strokeLinecap="round" />
+      {/* black tuft */}
+      <ellipse cx="14" cy="192" rx="9" ry="14" fill={tailTuft} transform="rotate(-15 14 192)" />
+      <ellipse cx="16" cy="188" rx="6" ry="10" fill="#1a0e04" transform="rotate(-15 16 188)" opacity="0.7" />
+      {/* tuft hair lines */}
+      <g stroke="#1a0e04" strokeWidth="1.2" strokeLinecap="round">
+        <line x1="10" y1="180" x2="6" y2="170" />
+        <line x1="18" y1="178" x2="20" y2="166" />
+        <line x1="22" y1="182" x2="28" y2="172" />
+      </g>
 
+      {/* legs */}
       <rect x="105" y="220" width="20" height="58" fill={colors.shade} rx="4" />
       <rect x="148" y="222" width="20" height="56" fill={colors.shade} rx="4" />
       <rect x="220" y="222" width="20" height="56" fill={colors.shade} rx="4" />
@@ -388,20 +400,41 @@ export function LionShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="230" cy="280" rx="14" ry="4" fill="#3a2118" />
       <ellipse cx="272" cy="280" rx="14" ry="4" fill="#3a2118" />
 
+      {/* body */}
       <ellipse cx="195" cy="195" rx="100" ry="42" fill={colors.shade} />
       <ellipse cx="195" cy="190" rx="95" ry="38" fill={colors.main} />
       <ellipse cx="195" cy="218" rx="78" ry="14" fill={colors.light} opacity="0.55" />
       <ellipse cx="170" cy="160" rx="50" ry="11" fill="white" opacity="0.2" />
 
+      {/* ─── MANE ─── three layers of irregular tufts for depth.
+          Outer ring (darkest), middle ring (mid), inner ring (highlighted).
+          Tuft sizes vary so the mane doesn't look like a uniform sunburst. */}
       <g>
-        <circle cx="295" cy="170" r="56" fill={maneColor} />
-        {Array.from({ length: 18 }).map((_, i) => {
-          const a = (i / 18) * Math.PI * 2;
-          const x = 295 + Math.cos(a) * 60;
-          const y = 170 + Math.sin(a) * 60;
-          return <circle key={i} cx={x} cy={y} r="10" fill={maneColor} />;
-        })}
-        <circle cx="295" cy="170" r="48" fill={maneInner} opacity="0.5" />
+        {/* outer dark ring — bigger asymmetric tufts behind the head */}
+        {[
+          [225, 130, 18], [248, 110, 17], [275, 100, 19], [305, 95, 18],
+          [338, 100, 19], [362, 115, 17], [378, 140, 18], [380, 170, 19],
+          [375, 200, 18], [358, 224, 17], [330, 232, 19], [298, 230, 18],
+          [268, 228, 17], [240, 222, 19], [222, 205, 16], [218, 178, 18],
+          [220, 152, 17],
+        ].map(([cx, cy, r], i) => (
+          <circle key={`o-${i}`} cx={cx} cy={cy} r={r} fill={maneOuter} />
+        ))}
+        {/* mid ring — slightly tighter to the face, regular mane color */}
+        {[
+          [240, 142, 16], [260, 122, 15], [285, 116, 17], [310, 112, 16],
+          [336, 118, 15], [358, 132, 16], [368, 155, 15], [368, 184, 17],
+          [358, 210, 15], [335, 222, 16], [310, 222, 15], [284, 220, 17],
+          [258, 215, 15], [240, 196, 14], [236, 168, 16],
+        ].map(([cx, cy, r], i) => (
+          <circle key={`m-${i}`} cx={cx} cy={cy} r={r} fill={maneColor} />
+        ))}
+        {/* base disk under the face */}
+        <circle cx="298" cy="172" r="50" fill={maneColor} />
+        {/* highlight tufts on top of the mane (catches the light) */}
+        {[[268, 130, 9], [298, 122, 10], [328, 128, 9], [344, 148, 8], [352, 172, 9]].map(([cx, cy, r], i) => (
+          <circle key={`i-${i}`} cx={cx} cy={cy} r={r} fill={maneInner} opacity="0.7" />
+        ))}
       </g>
 
       <circle cx="300" cy="180" r="36" fill={colors.main} />
@@ -1350,18 +1383,52 @@ export function WolfShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="185" cy="218" rx="80" ry="10" fill={colors.light} opacity="0.55" />
       <path d="M 95 175 Q 185 165 275 175" stroke={colors.shade} strokeWidth="6" fill="none" opacity="0.5" />
 
-      <ellipse cx="295" cy="180" r="0" fill={colors.shade} />
-      <ellipse cx="285" cy="184" rx="32" ry="26" fill={colors.shade} />
-      <ellipse cx="284" cy="182" rx="28" ry="22" fill={colors.main} />
+      {/* FUR RUFF — thick shaggy mane around the wolf's shoulders/neck.
+          Layered tufts in two shades give it volume. Wolves have a
+          distinctive winter-coat collar that other canines don't. */}
+      <g>
+        {/* darker outer tufts */}
+        {[
+          [240, 170, 14], [248, 188, 15], [252, 206, 13], [248, 222, 12],
+          [232, 168, 12], [218, 162, 11], [205, 160, 10],
+        ].map(([cx, cy, r], i) => (
+          <circle key={`ro-${i}`} cx={cx} cy={cy} r={r} fill={colors.shade} />
+        ))}
+        {/* lighter inner tufts on top */}
+        {[
+          [244, 178, 10], [250, 196, 11], [248, 214, 9], [238, 226, 8],
+          [234, 174, 9], [222, 168, 8],
+        ].map(([cx, cy, r], i) => (
+          <circle key={`ri-${i}`} cx={cx} cy={cy} r={r} fill={colors.main} />
+        ))}
+        {/* light highlights on the topmost tufts */}
+        {[[240, 174, 5], [244, 192, 5], [240, 210, 4]].map(([cx, cy, r], i) => (
+          <circle key={`rh-${i}`} cx={cx} cy={cy} r={r} fill={colors.light} opacity="0.55" />
+        ))}
+        {/* fur-direction lines around the ruff */}
+        <g stroke={colors.shade} strokeWidth="1.4" strokeLinecap="round" opacity="0.55">
+          <line x1="226" y1="160" x2="220" y2="146" />
+          <line x1="240" y1="158" x2="238" y2="142" />
+          <line x1="254" y1="170" x2="258" y2="156" />
+        </g>
+      </g>
 
-      <ellipse cx="320" cy="200" rx="22" ry="12" fill={colors.shade} />
-      <ellipse cx="320" cy="198" rx="19" ry="10" fill={colors.main} />
-      <ellipse cx="338" cy="200" rx="4.5" ry="3.5" fill="#1a1a1a" />
-      <line x1="338" y1="204" x2="338" y2="208" stroke="#1a1a1a" strokeWidth="1.5" />
+      {/* HEAD — slightly more elongated for the iconic wolf snout */}
+      <ellipse cx="285" cy="184" rx="34" ry="26" fill={colors.shade} />
+      <ellipse cx="284" cy="182" rx="30" ry="22" fill={colors.main} />
+      {/* cheek light patch (wolves have pale cheeks) */}
+      <ellipse cx="278" cy="196" rx="14" ry="6" fill={colors.light} opacity="0.55" />
 
-      <path d="M 320 207 Q 326 212 332 209 Q 326 214 318 209" stroke="#1a1a1a" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <polygon points="324,205 325,210 327,205" fill="white" />
-      <polygon points="328,205 329,210 331,205" fill="white" />
+      {/* SNOUT — longer and more pointed than the original ellipse */}
+      <path d="M 308 188 Q 344 192 348 200 Q 344 210 308 208 Z" fill={colors.shade} />
+      <path d="M 310 190 Q 340 194 344 200 Q 340 208 310 206 Z" fill={colors.main} />
+      <ellipse cx="345" cy="200" rx="5" ry="4" fill="#1a1a1a" />
+      <line x1="345" y1="205" x2="345" y2="210" stroke="#1a1a1a" strokeWidth="1.5" />
+
+      {/* mouth + fangs — repositioned for the new longer snout */}
+      <path d="M 328 207 Q 334 212 340 209 Q 334 214 326 209" stroke="#1a1a1a" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <polygon points="332,205 333,210 335,205" fill="white" />
+      <polygon points="336,205 337,210 339,205" fill="white" />
 
       <polygon points="262,158 252,128 274,150" fill={colors.shade} />
       <polygon points="295,158 305,128 282,150" fill={colors.shade} />
@@ -2243,24 +2310,40 @@ export function TigerShape({ colors }: { colors: ColorOverride }) {
       <rect x="240" y="190" width="22" height="68" rx="6" fill={colors.shade} />
       <rect x="278" y="190" width="22" height="68" rx="6" fill={colors.main} />
 
-      {/* body */}
+      {/* body — slight forward tilt for a stalking posture */}
       <ellipse cx="200" cy="180" rx="115" ry="48" fill={colors.shade} />
       <ellipse cx="200" cy="175" rx="110" ry="42" fill={colors.main} />
-      <ellipse cx="200" cy="195" rx="100" ry="20" fill={colors.light} opacity="0.7" />
+      {/* WHITE BELLY — distinctive tiger underside */}
+      <ellipse cx="200" cy="200" rx="98" ry="20" fill="#fff5e8" opacity="0.92" />
+      <ellipse cx="200" cy="208" rx="94" ry="12" fill="#ffffff" opacity="0.65" />
 
-      {/* black stripes on body */}
-      <g fill="#1a1a1a" opacity="0.85">
-        {[-0.3, -0.15, 0, 0.15, 0.3].map((off) => (
-          <path key={off} d={`M ${200 + 200 * off - 3} 148 q -2 25 0 50 q 6 -2 6 -10 q -2 -20 -3 -40 z`} />
-        ))}
+      {/* IRREGULAR BLACK STRIPES — varied widths, curving down the body
+          like real tiger stripes wrap from the spine to the belly. */}
+      <g fill="#1a1a1a" opacity="0.92">
+        {/* spine to flank stripes, each different shape */}
+        <path d="M 140 148 q -3 26 -1 56 q 4 -2 5 -10 q -2 -22 -3 -48 z" />
+        <path d="M 160 144 q -2 32 1 64 q 5 -1 5 -10 q -3 -28 -3 -55 z" />
+        <path d="M 184 142 q -3 36 0 70 q 7 -2 7 -12 q -3 -32 -4 -60 z" />
+        <path d="M 208 144 q -2 34 1 68 q 6 -1 6 -11 q -3 -30 -3 -58 z" />
+        <path d="M 232 142 q -3 32 1 64 q 5 -1 6 -10 q -3 -28 -4 -55 z" />
+        <path d="M 256 144 q -2 30 1 60 q 5 -1 5 -10 q -2 -26 -3 -52 z" />
+        <path d="M 278 148 q -2 24 1 50 q 5 -1 5 -9 q -2 -22 -4 -42 z" />
+        {/* shorter accent stripes — half-length on the flank */}
+        <path d="M 148 195 q -2 16 0 30 q 3 -1 3 -8 q -1 -14 -2 -24 z" opacity="0.85" />
+        <path d="M 196 195 q -2 16 0 30 q 3 -1 3 -8 q -1 -14 -2 -24 z" opacity="0.85" />
+        <path d="M 244 195 q -2 16 0 30 q 3 -1 3 -8 q -1 -14 -2 -24 z" opacity="0.85" />
       </g>
 
-      {/* tail */}
+      {/* TAIL — striped rings (real tiger feature) */}
       <path d="M 85 175 Q 50 160 30 145" stroke={colors.shade} strokeWidth="14" fill="none" strokeLinecap="round" />
       <path d="M 85 175 Q 50 160 30 145" stroke={colors.main} strokeWidth="10" fill="none" strokeLinecap="round" />
-      <g stroke="#1a1a1a" strokeWidth="2.5" fill="none" opacity="0.85">
-        <line x1="60" y1="167" x2="65" y2="155" />
-        <line x1="42" y1="158" x2="48" y2="146" />
+      {/* tail rings — five black bands along the tail */}
+      <g fill="#1a1a1a" opacity="0.9">
+        <ellipse cx="76" cy="173" rx="3" ry="6" transform="rotate(-30 76 173)" />
+        <ellipse cx="64" cy="167" rx="3" ry="6" transform="rotate(-30 64 167)" />
+        <ellipse cx="52" cy="160" rx="3" ry="6" transform="rotate(-35 52 160)" />
+        <ellipse cx="40" cy="152" rx="3" ry="6" transform="rotate(-40 40 152)" />
+        <ellipse cx="30" cy="146" rx="4" ry="7" transform="rotate(-45 30 146)" />
       </g>
 
       {/* head */}
