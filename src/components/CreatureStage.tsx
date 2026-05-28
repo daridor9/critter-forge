@@ -1,10 +1,10 @@
 import type { Creature, AnatomyLayer } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { getBespokeShape } from './dexShapes';
-import { getBespokeXray } from './xrayShapes';
 import { hybridCatalog } from '../data/hybrids';
 import { sizeToMass } from '../physics';
 import { SizeCompareView } from './SizeCompareView';
+import { LabView } from './LabView';
 
 const W = 400;
 const H = 300;
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function CreatureStage({ creature, xray = false, layer }: Props) {
-  const effLayer: AnatomyLayer = layer ?? (xray ? 'anatomy' : 'skin');
+  const effLayer: AnatomyLayer = layer ?? (xray ? 'lab' : 'skin');
   const isXray = effLayer !== 'skin';
   const footY = FOOT_Y[creature.bodyPlan];
   const skinScale = stageBodyScale(creature);
@@ -56,9 +56,7 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-      {effLayer === 'anatomy' ? (
-        <rect width={W} height={H} fill="#f4ecd5" />
-      ) : effLayer === 'compare' ? null : (
+      {effLayer === 'skin' && (
         <>
           {creature.bodyPlan === 'mammal' && <MeadowHabitat />}
           {creature.bodyPlan === 'reptile' && <RockyHabitat />}
@@ -81,22 +79,8 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
         </g>
       )}
 
-      {effLayer === 'anatomy' ? (
-        (() => {
-          // Bespoke per-Dex-animal x-rays (octopus 9 brains, whale car-sized
-          // heart, shark cartilage) win over the generic procedural one.
-          const BespokeXray = getBespokeXray(creature.shape);
-          if (BespokeXray) {
-            const m = sizeToMass(creature.sizeUnit);
-            return (
-              <>
-                <rect width={W} height={H} fill="#0c1e30" />
-                <BespokeXray creature={creature} massKg={m} />
-              </>
-            );
-          }
-          return <AnatomyView creature={creature} cx={W / 2} footY={footY} />;
-        })()
+      {effLayer === 'lab' ? (
+        <LabView creature={creature} W={W} H={H} />
       ) : effLayer === 'compare' ? (
         <SizeCompareView creature={creature} W={W} H={H} />
       ) : (
@@ -112,314 +96,6 @@ function stageBodyScale(creature: Creature): number {
   const sizeT = Math.max(0, Math.min(1, (logM + 2) / 7));
   if (creature.bodyPlan === 'fish') return 1.18 + (1 - sizeT) * 0.28;
   return 1.08 + (1 - sizeT) * 0.38;
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// Shared metrics for anatomy/muscles views — same math as CreatureBody so the
-// skeleton/muscles line up under the skin silhouette.
-// ─────────────────────────────────────────────────────────────────────────
-interface AnatomyMetrics {
-  bodyW: number;
-  bodyH: number;
-  cx: number;
-  cy: number;
-  headR: number;
-  headCx: number;
-  headCy: number;
-  legLen: number;
-  legXs: number[];
-  heartRateBpm: number;
-  beatPeriod: number;
-  sizeT: number;
-  m: number;
-}
-
-function getAnatomyMetrics(creature: Creature, cx: number, footY: number, opts?: { presentation?: boolean }): AnatomyMetrics {
-  const m = sizeToMass(creature.sizeUnit);
-  const logM = Math.log10(Math.max(0.01, m));
-  const sizeT = Math.max(0, Math.min(1, (logM + 2) / 7));
-  const baseSize = Math.max(15, 30 + logM * 22);
-  const bodyAspect = 1.35 + sizeT * 1.15;
-  let bodyH = baseSize;
-  let bodyW = bodyH * bodyAspect;
-  let legLen = [bodyH * 0.4, bodyH * 0.75, bodyH * 1.15][creature.legTier];
-  let headR = bodyH * 0.44 * [0.78, 1.0, 1.22, 1.45][creature.brainTier] * (1.42 - sizeT * 1.1);
-
-  // Presentation mode: anatomy and muscle views zoom the creature so it
-  // fills the canvas. Otherwise tiny creatures get lost in empty space.
-  // Target: total height (body + legs) ≈ 210px in a 300px canvas, capped
-  // at 2.6× zoom to avoid overflow for already-large creatures.
-  if (opts?.presentation) {
-    const rawTotal = bodyH + legLen;
-    const zoom = Math.max(1, Math.min(2.6, 210 / rawTotal));
-    bodyH *= zoom;
-    bodyW *= zoom;
-    legLen *= zoom;
-    headR *= zoom;
-  }
-
-  // In presentation mode anchor the creature vertically near the canvas
-  // center; otherwise keep the foot-on-the-ground placement used by the
-  // skin/habitat view so habitats line up the way they always have.
-  const cy = opts?.presentation
-    ? 145 - legLen / 2
-    : footY - bodyH / 2 - legLen;
-
-  const headCx = cx + bodyW / 2 - 6;
-  const headCy = cy - bodyH * 0.14;
-  const numLegs = creature.bodyPlan === 'fish' ? 0 : creature.bodyPlan === 'bird' ? 2 : 4;
-  const legXs =
-    numLegs === 2 ? [cx - bodyW * 0.2, cx + bodyW * 0.2]
-    : numLegs === 4 ? [cx - bodyW * 0.38, cx - bodyW * 0.12, cx + bodyW * 0.12, cx + bodyW * 0.38]
-    : [];
-  // Allometric heart rate from mass — same formula as physics.ts.
-  const heartRateBpm = Math.max(4, Math.round(241 * Math.pow(m, -0.25)));
-  const beatPeriod = Math.max(0.25, 60 / heartRateBpm);
-  return { bodyW, bodyH, cx, cy, headR, headCx, headCy, legLen, legXs, heartRateBpm, beatPeriod, sizeT, m };
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// AnatomyView — biology-textbook style: skeleton + labeled organs.
-// Ink-on-parchment palette. Renders on a cream rect set by the parent.
-// ─────────────────────────────────────────────────────────────────────────
-const INK = '#3a2a1a';
-const INK_LIGHT = '#7a5a3a';
-const ORGAN = {
-  brain: '#b48ad4',
-  heart: '#d64558',
-  lungs: '#7ab8e0',
-  liver: '#a04030',
-  stomach: '#e09a40',
-  kidney: '#7a3a5a',
-};
-
-function AnatomyView({ creature, cx, footY }: { creature: Creature; cx: number; footY: number }) {
-  const M = getAnatomyMetrics(creature, cx, footY, { presentation: true });
-  const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, heartRateBpm, beatPeriod, m } = M;
-
-  const isFish = creature.bodyPlan === 'fish';
-  const isMammal = creature.bodyPlan === 'mammal';
-
-  // Ribcage: 5 pairs of ribs curving from spine down to body bottom
-  const ribCount = 5;
-  const ribs: { x: number }[] = [];
-  for (let i = 0; i < ribCount; i++) {
-    const t = (i + 0.5) / ribCount;          // 0..1 along body
-    const x = cx + (t - 0.5) * bodyW * 0.85;
-    ribs.push({ x });
-  }
-  const spineTopY = cy - bodyH * 0.05;       // spine sits near top of body
-  const bottomY = cy + bodyH * 0.42;
-  const vertCount = 9;
-
-  // Skull control points
-  const skullR = headR * 0.95;
-  const jawTip = { x: headCx + skullR * 1.05, y: headCy + skullR * 0.4 };
-
-  // Organ positions (relative to body center)
-  const heart = { x: cx - bodyW * 0.18, y: cy - bodyH * 0.05 };
-  const lungL = { x: cx - bodyW * 0.06, y: cy - bodyH * 0.2 };
-  const lungR = { x: cx + bodyW * 0.06, y: cy - bodyH * 0.2 };
-  const liver = { x: cx + bodyW * 0.0,  y: cy + bodyH * 0.08 };
-  const stomach = { x: cx + bodyW * 0.22, y: cy + bodyH * 0.05 };
-  const kidneyL = { x: cx + bodyW * 0.28, y: cy - bodyH * 0.05 };
-  const kidneyR = { x: cx + bodyW * 0.38, y: cy };
-
-  return (
-    <g>
-      {/* Graph-paper grid — sells the "textbook page" feel. Faint
-          parchment-on-parchment so it never competes with the anatomy. */}
-      <g stroke="#d8c8a0" strokeWidth="0.4" opacity="0.7">
-        {Array.from({ length: Math.ceil(W / 20) + 1 }).map((_, i) => (
-          <line key={`gv-${i}`} x1={i * 20} y1={0} x2={i * 20} y2={H} />
-        ))}
-        {Array.from({ length: Math.ceil(H / 20) + 1 }).map((_, i) => (
-          <line key={`gh-${i}`} x1={0} y1={i * 20} x2={W} y2={i * 20} />
-        ))}
-      </g>
-      {/* Slightly darker every-100 lines for a real graph-paper feel */}
-      <g stroke="#b8a070" strokeWidth="0.6" opacity="0.55">
-        {Array.from({ length: Math.ceil(W / 100) + 1 }).map((_, i) => (
-          <line key={`gV-${i}`} x1={i * 100} y1={0} x2={i * 100} y2={H} />
-        ))}
-        {Array.from({ length: Math.ceil(H / 100) + 1 }).map((_, i) => (
-          <line key={`gH-${i}`} x1={0} y1={i * 100} x2={W} y2={i * 100} />
-        ))}
-      </g>
-
-      {/* Textbook title: "Anatomy of [name]" with a mass + body-plan subtitle */}
-      <g>
-        <text
-          x={W / 2} y={22}
-          textAnchor="middle"
-          fontSize="13" fontWeight="700"
-          fontFamily="ui-rounded, Georgia, serif"
-          fill={INK}
-          style={{ letterSpacing: '0.02em' }}
-        >
-          Anatomy of {creature.name}
-        </text>
-        <text
-          x={W / 2} y={36}
-          textAnchor="middle"
-          fontSize="9.5"
-          fontFamily="ui-rounded, system-ui, sans-serif"
-          fill={INK_LIGHT}
-          style={{ fontStyle: 'italic' }}
-        >
-          {m < 0.1 ? `${(m * 1000).toFixed(0)} g` : m < 10 ? `${m.toFixed(1)} kg` : `${Math.round(m)} kg`} · {creature.bodyPlan}{creature.warmBlooded ? '' : ' (cold-blooded)'}
-        </text>
-      </g>
-
-      {/* Faint body silhouette so the skeleton has context */}
-      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill="#fff" fillOpacity="0.35" stroke={INK_LIGHT} strokeWidth="0.6" strokeDasharray="2 3" />
-      <circle cx={headCx} cy={headCy} r={headR} fill="#fff" fillOpacity="0.35" stroke={INK_LIGHT} strokeWidth="0.6" strokeDasharray="2 3" />
-
-      {/* ── SKELETON ── */}
-      {/* Spine: connected vertebrae across the body */}
-      <g stroke={INK} strokeWidth="1.4" fill="none">
-        {Array.from({ length: vertCount }).map((_, i) => {
-          const t = i / (vertCount - 1);
-          const x1 = cx - bodyW * 0.45 + t * bodyW * 0.9;
-          return <circle key={i} cx={x1} cy={spineTopY} r={Math.max(1.4, bodyH * 0.04)} fill={INK} stroke="none" />;
-        })}
-        <line x1={cx - bodyW * 0.45} y1={spineTopY} x2={cx + bodyW * 0.45} y2={spineTopY} strokeWidth="0.8" />
-      </g>
-
-      {/* Ribcage */}
-      <g stroke={INK} strokeWidth="1.2" fill="none" strokeLinecap="round">
-        {ribs.map((r, i) => (
-          <g key={i}>
-            <path d={`M ${r.x} ${spineTopY} Q ${r.x - bodyW * 0.06} ${cy + bodyH * 0.05} ${r.x - bodyW * 0.02} ${bottomY}`} />
-            <path d={`M ${r.x} ${spineTopY} Q ${r.x + bodyW * 0.06} ${cy + bodyH * 0.05} ${r.x + bodyW * 0.02} ${bottomY}`} />
-          </g>
-        ))}
-      </g>
-
-      {/* Pelvis at rear of body */}
-      {!isFish && (
-        <g stroke={INK} strokeWidth="1.6" fill="none">
-          <path d={`M ${cx + bodyW * 0.32} ${spineTopY} Q ${cx + bodyW * 0.42} ${cy + bodyH * 0.15} ${cx + bodyW * 0.5} ${cy + bodyH * 0.32}`} />
-          <path d={`M ${cx + bodyW * 0.32} ${spineTopY} Q ${cx + bodyW * 0.5} ${cy + bodyH * 0.1} ${cx + bodyW * 0.5} ${cy + bodyH * 0.32}`} />
-        </g>
-      )}
-
-      {/* Legs as femur + tibia with knee joint */}
-      {legXs.map((x, i) => {
-        const hipY = cy + bodyH * 0.42;
-        const kneeY = hipY + legLen * 0.5;
-        const footYY = hipY + legLen;
-        const kneeOff = (i % 2 === 0 ? 1 : -1) * legLen * 0.04;
-        return (
-          <g key={`leg-${i}`} stroke={INK} strokeWidth="1.6" strokeLinecap="round">
-            <line x1={x} y1={hipY} x2={x + kneeOff} y2={kneeY} />
-            <line x1={x + kneeOff} y1={kneeY} x2={x} y2={footYY} />
-            <circle cx={x + kneeOff} cy={kneeY} r="1.6" fill={INK} stroke="none" />
-            <circle cx={x} cy={footYY} r="1.4" fill={INK} stroke="none" />
-          </g>
-        );
-      })}
-
-      {/* Skull: cranial dome + lower jaw line */}
-      <g stroke={INK} strokeWidth="1.4" fill="none" strokeLinecap="round">
-        <circle cx={headCx} cy={headCy} r={skullR} />
-        <path d={`M ${headCx + skullR * 0.4} ${headCy + skullR * 0.2} L ${jawTip.x} ${jawTip.y} L ${headCx - skullR * 0.3} ${headCy + skullR * 0.55}`} />
-        {/* Eye socket */}
-        <circle cx={headCx + skullR * 0.45} cy={headCy - skullR * 0.05} r={Math.max(2, skullR * 0.18)} stroke={INK} />
-      </g>
-
-      {/* Tail vertebrae for mammals */}
-      {isMammal && (() => {
-        const tailStart = cx - bodyW * 0.45;
-        const tailSegs = 5;
-        return (
-          <g stroke={INK} strokeWidth="1" fill={INK}>
-            {Array.from({ length: tailSegs }).map((_, i) => {
-              const t = i / (tailSegs - 1);
-              const tx = tailStart - bodyH * 0.5 * t;
-              const ty = spineTopY - bodyH * 0.35 * Math.pow(t, 1.5);
-              return <circle key={i} cx={tx} cy={ty} r={Math.max(1, 2.2 - t * 1.4)} />;
-            })}
-          </g>
-        );
-      })()}
-
-      {/* Neck connector skull→spine */}
-      <line x1={cx + bodyW * 0.45} y1={spineTopY} x2={headCx - skullR * 0.4} y2={headCy + skullR * 0.1} stroke={INK} strokeWidth="1.4" strokeLinecap="round" />
-
-      {/* ── ORGANS ── */}
-      {/* Lungs (two lobes behind ribcage) */}
-      <ellipse cx={lungL.x} cy={lungL.y} rx={Math.max(4, bodyW * 0.09)} ry={Math.max(3, bodyH * 0.13)} fill={ORGAN.lungs} opacity="0.7" />
-      <ellipse cx={lungR.x} cy={lungR.y} rx={Math.max(4, bodyW * 0.09)} ry={Math.max(3, bodyH * 0.13)} fill={ORGAN.lungs} opacity="0.7" />
-      {/* Bronchi sketch */}
-      <g stroke="#4a85b0" strokeWidth="0.8" fill="none">
-        <line x1={lungL.x + 2} y1={lungL.y - bodyH * 0.05} x2={lungR.x - 2} y2={lungR.y - bodyH * 0.05} />
-        <line x1={(lungL.x + lungR.x) / 2} y1={lungL.y - bodyH * 0.05} x2={(lungL.x + lungR.x) / 2} y2={lungL.y - bodyH * 0.16} />
-      </g>
-
-      {/* Heart — animated */}
-      <ellipse
-        cx={heart.x} cy={heart.y}
-        rx={Math.max(4, bodyW * 0.09)} ry={Math.max(4, bodyH * 0.11)}
-        fill={ORGAN.heart}
-        style={{ animation: `heartbeat ${beatPeriod}s ease-in-out infinite`, transformOrigin: `${heart.x}px ${heart.y}px`, transformBox: 'fill-box' }}
-      />
-      {/* Aorta arch */}
-      <path d={`M ${heart.x} ${heart.y - bodyH * 0.1} q ${bodyW * 0.04} ${-bodyH * 0.06} ${bodyW * 0.08} 0`} stroke="#8a1f2c" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-
-      {/* Liver */}
-      <path
-        d={`M ${liver.x - bodyW * 0.1} ${liver.y} q ${bodyW * 0.08} ${-bodyH * 0.06} ${bodyW * 0.16} 0 q ${bodyW * 0.04} ${bodyH * 0.08} ${-bodyW * 0.04} ${bodyH * 0.1} q ${-bodyW * 0.16} ${bodyH * 0.02} ${-bodyW * 0.12} ${-bodyH * 0.1} Z`}
-        fill={ORGAN.liver} opacity="0.78"
-      />
-
-      {/* Stomach: curved pouch */}
-      <path
-        d={`M ${stomach.x - bodyW * 0.06} ${stomach.y} q ${bodyW * 0.04} ${-bodyH * 0.08} ${bodyW * 0.1} ${-bodyH * 0.02} q ${bodyW * 0.04} ${bodyH * 0.06} ${-bodyW * 0.02} ${bodyH * 0.1} q ${-bodyW * 0.1} ${bodyH * 0.02} ${-bodyW * 0.08} ${-bodyH * 0.08} Z`}
-        fill={ORGAN.stomach} opacity="0.75"
-      />
-
-      {/* Kidneys (pair behind, near pelvis) */}
-      <ellipse cx={kidneyL.x} cy={kidneyL.y} rx={Math.max(2, bodyW * 0.04)} ry={Math.max(3, bodyH * 0.07)} fill={ORGAN.kidney} opacity="0.78" />
-      <ellipse cx={kidneyR.x} cy={kidneyR.y} rx={Math.max(2, bodyW * 0.04)} ry={Math.max(3, bodyH * 0.07)} fill={ORGAN.kidney} opacity="0.78" />
-
-      {/* Brain inside skull */}
-      <ellipse
-        cx={headCx + headR * 0.05} cy={headCy - headR * 0.15}
-        rx={headR * 0.55 * [0.5, 0.85, 1.05, 1.3][creature.brainTier]}
-        ry={headR * 0.45 * [0.5, 0.85, 1.05, 1.3][creature.brainTier]}
-        fill={ORGAN.brain} opacity="0.75"
-      />
-      {/* Sulci squiggles to read as "brain" */}
-      <g stroke="#6a3a8a" strokeWidth="0.7" fill="none" opacity="0.6">
-        <path d={`M ${headCx - headR * 0.2} ${headCy - headR * 0.2} q ${headR * 0.2} ${-headR * 0.1} ${headR * 0.4} 0`} />
-        <path d={`M ${headCx - headR * 0.15} ${headCy - headR * 0.05} q ${headR * 0.15} ${-headR * 0.08} ${headR * 0.35} 0`} />
-      </g>
-
-      {/* ── LEADER LINES + LABELS ── */}
-      <AnatomyLabel x1={heart.x} y1={heart.y} x2={36} y2={cy - 24} text="heart" color={ORGAN.heart} />
-      <AnatomyLabel x1={lungL.x} y1={lungL.y} x2={36} y2={cy - 50} text="lungs" color={ORGAN.lungs} />
-      <AnatomyLabel x1={headCx} y1={headCy - headR * 0.2} x2={W - 60} y2={cy - 60} text="brain" color={ORGAN.brain} anchor="start" />
-      <AnatomyLabel x1={liver.x - bodyW * 0.05} y1={liver.y + bodyH * 0.05} x2={36} y2={cy + bodyH * 0.6} text="liver" color={ORGAN.liver} />
-      <AnatomyLabel x1={stomach.x + bodyW * 0.02} y1={stomach.y + bodyH * 0.05} x2={W - 60} y2={cy + bodyH * 0.6} text="stomach" color={ORGAN.stomach} anchor="start" />
-
-      {/* Heart-rate readout at bottom */}
-      <g fill={INK} fontSize="10" fontFamily="ui-rounded, system-ui, sans-serif">
-        <text x="14" y={H - 14}>♥ {heartRateBpm} bpm</text>
-        <text x={W - 14} y={H - 14} textAnchor="end" opacity="0.6">anatomy view</text>
-      </g>
-    </g>
-  );
-}
-
-function AnatomyLabel({ x1, y1, x2, y2, text, color, anchor = 'end' }: { x1: number; y1: number; x2: number; y2: number; text: string; color: string; anchor?: 'start' | 'end' }) {
-  return (
-    <g>
-      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="0.7" opacity="0.85" />
-      <circle cx={x1} cy={y1} r="1.6" fill={color} />
-      <text x={x2 + (anchor === 'end' ? -3 : 3)} y={y2 + 3} fontSize="9" fontFamily="ui-rounded, system-ui, sans-serif" fill={INK} textAnchor={anchor}>{text}</text>
-    </g>
-  );
 }
 
 

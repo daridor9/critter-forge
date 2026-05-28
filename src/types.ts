@@ -54,10 +54,10 @@ export interface Creature {
 /**
  * Which view to display when looking at a creature.
  *  - skin:    normal habitat view (what users see when designing)
- *  - anatomy: skeleton + labeled organs, biology-textbook style
+ *  - lab:     biophysics annotations — stats labelled to body parts
  *  - compare: side-by-side scale comparison against reference animals
  */
-export type AnatomyLayer = 'skin' | 'anatomy' | 'compare';
+export type AnatomyLayer = 'skin' | 'lab' | 'compare';
 
 export const defaultCreature: Creature = {
   sizeUnit: 40,
