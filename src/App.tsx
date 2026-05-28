@@ -76,6 +76,7 @@ const GameShareModal = lazy(() => import('./components/GameShareModal').then((m)
 const EvolutionRoadmapModal = lazy(() => import('./components/EvolutionRoadmapModal').then((m) => ({ default: m.EvolutionRoadmapModal })));
 const DesignLabModal = lazy(() => import('./components/DesignLabModal').then((m) => ({ default: m.DesignLabModal })));
 const DailyEncounterModal = lazy(() => import('./components/DailyEncounterModal').then((m) => ({ default: m.DailyEncounterModal })));
+const LifecycleModal = lazy(() => import('./components/LifecycleModal').then((m) => ({ default: m.LifecycleModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -194,6 +195,7 @@ export default function App() {
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showDesignLab, setShowDesignLab] = useState(false);
   const [showDailyWild, setShowDailyWild] = useState(false);
+  const [showLifecycle, setShowLifecycle] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -650,6 +652,7 @@ export default function App() {
                 {moreItem('🎯 Quests', () => setShowQuests(true))}
                 {moreItem('📅 Daily quest', () => setShowDaily(true))}
                 {moreItem('🐺 Daily wild encounter', () => setShowDailyWild(true))}
+                {moreItem('🐣 Lifecycle (baby/adult/elder)', () => setShowLifecycle(true))}
                 {moreItem('👤 Profile', () => setShowProfile(true))}
                 {moreItem('👥 Family', () => setShowFamily(true))}
                 {moreItem('🏅 Achievements', () => setShowAchievements(true))}
@@ -906,6 +909,9 @@ export default function App() {
               if (won) sounds.win(); else sounds.lose();
             }}
           />
+        )}
+        {showLifecycle && (
+          <LifecycleModal creature={creature} onClose={() => setShowLifecycle(false)} />
         )}
         {showGauntlet && (
           <GauntletModal
