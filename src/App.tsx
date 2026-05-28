@@ -4,6 +4,7 @@ import type { Creature } from './types';
 import { computeStats } from './physics';
 import { Builder } from './components/Builder';
 import { CreatureStage } from './components/CreatureStage';
+import { ComboBadge } from './components/ComboBadge';
 import { StatsPanel } from './components/StatsPanel';
 import { ComparePanel } from './components/ComparePanel';
 import { ChaseArena } from './components/ChaseArena';
@@ -696,6 +697,7 @@ export default function App() {
               <div className="stage-creature">
                 <div className="creature-stage creature-stage-habitat">
                   <CreatureStage creature={creature} layer={anatomyLayer} />
+                  <ComboBadge creature={creature} />
                   <button
                     type="button"
                     className="portrait-launch-btn"

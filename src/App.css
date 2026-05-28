@@ -3795,6 +3795,113 @@ h2 {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 13px;
 }
+
+/* ─── Install affordance inside the share modal ────────────────────── */
+.game-share-install {
+  margin-top: 14px;
+  padding: 12px;
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-align: center;
+}
+.game-share-install .install-btn {
+  font-size: 16px;
+  padding: 12px 24px;
+}
+.game-share-install .install-hint {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin: 0;
+  line-height: 1.45;
+}
+.game-share-install .install-installed {
+  color: #2a8050;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ─── Combo badge on the creature stage (top-right floating chip) ──── */
+.combo-badge-stage {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 8px;
+  background: linear-gradient(135deg, #fff8d8 0%, #ffe4a0 100%);
+  border: 1px solid #d8a040;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(255, 255, 255, 0.6) inset;
+  pointer-events: auto;
+  cursor: help;
+  z-index: 5;
+  max-width: calc(100% - 16px);
+  animation: combo-glow 2.4s ease-in-out infinite;
+}
+@keyframes combo-glow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(255, 255, 255, 0.6) inset, 0 0 0 0 rgba(216, 160, 64, 0); }
+  50% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(255, 255, 255, 0.6) inset, 0 0 12px 3px rgba(216, 160, 64, 0.45); }
+}
+.combo-badge-stage-emoji { font-size: 22px; line-height: 1; }
+.combo-badge-stage-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  font-size: 12px;
+  color: #5a3b18;
+}
+.combo-badge-stage-text strong { font-size: 13px; }
+.combo-badge-stage-text small { font-size: 10px; opacity: 0.75; }
+
+/* ─── Touch / mobile polish ─────────────────────────────────────────
+   On phones and tablets, bump tap target sizes to ~44px and let chunky
+   button rows wrap nicely. We don't override desktop — only narrow screens
+   and explicit coarse pointers. */
+@media (pointer: coarse), (max-width: 720px) {
+  .btn {
+    padding: 10px 18px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+  .header-btn {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+  .prey-tab {
+    min-height: 56px;
+    padding: 8px 10px;
+  }
+  .prey-tab .prey-emoji { font-size: 22px; }
+  .prey-tab .prey-name { font-size: 13px; }
+  .prey-tab .prey-name small { font-size: 11px; }
+  .drought-activity-label {
+    font-size: 14px;
+    padding: 4px 8px;
+  }
+  /* Allow strategy picker rows to wrap onto multiple lines on narrow screens
+     so 4 tabs don't get squished into unreadable widths. */
+  .prey-tabs {
+    flex-wrap: wrap;
+  }
+  /* Modals get a bit more breathing room on phones. */
+  .about-modal,
+  .share-modal,
+  .insight-card {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+  /* Combo badge shrinks to icon-only on tight stages so it doesn't cover the
+     creature. */
+  .combo-badge-stage-text strong { font-size: 11px; }
+  .combo-badge-stage-text small { display: none; }
+}
+@media (max-width: 480px) {
+  .combo-badge-stage-text { display: none; }
+  .combo-badge-stage { padding: 6px 8px; }
+}
 .share-creature-row {
   display: flex;
   align-items: center;
