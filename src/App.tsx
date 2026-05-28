@@ -75,6 +75,7 @@ const ShareModal = lazy(() => import('./components/ShareModal').then((m) => ({ d
 const GameShareModal = lazy(() => import('./components/GameShareModal').then((m) => ({ default: m.GameShareModal })));
 const EvolutionRoadmapModal = lazy(() => import('./components/EvolutionRoadmapModal').then((m) => ({ default: m.EvolutionRoadmapModal })));
 const DesignLabModal = lazy(() => import('./components/DesignLabModal').then((m) => ({ default: m.DesignLabModal })));
+const DailyEncounterModal = lazy(() => import('./components/DailyEncounterModal').then((m) => ({ default: m.DailyEncounterModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -192,6 +193,7 @@ export default function App() {
   const [showGameShare, setShowGameShare] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showDesignLab, setShowDesignLab] = useState(false);
+  const [showDailyWild, setShowDailyWild] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -646,7 +648,8 @@ export default function App() {
                 {moreItem('🏟 Gauntlet (6-arena)', () => setShowGauntlet(true))}
                 {moreItem('📈 Lineage', () => setShowLineage(true))}
                 {moreItem('🎯 Quests', () => setShowQuests(true))}
-                {moreItem('📅 Daily', () => setShowDaily(true))}
+                {moreItem('📅 Daily quest', () => setShowDaily(true))}
+                {moreItem('🐺 Daily wild encounter', () => setShowDailyWild(true))}
                 {moreItem('👤 Profile', () => setShowProfile(true))}
                 {moreItem('👥 Family', () => setShowFamily(true))}
                 {moreItem('🏅 Achievements', () => setShowAchievements(true))}
@@ -888,6 +891,20 @@ export default function App() {
             onLoad={(c) => { setCreature(c); setShowDesignLab(false); sounds.click(); }}
             onClose={() => setShowDesignLab(false)}
             onGoToBuilder={() => { setShowDesignLab(false); setView('creature'); }}
+          />
+        )}
+        {showDailyWild && (
+          <DailyEncounterModal
+            player={creature}
+            onClose={() => setShowDailyWild(false)}
+            onChallengeResolved={(won) => {
+              // Lazy import to avoid pulling the streak helpers into the main bundle.
+              import('./data/dailyEncounter').then(({ recordDailyWin, recordDailyLoss }) => {
+                if (won) recordDailyWin();
+                else recordDailyLoss();
+              });
+              if (won) sounds.win(); else sounds.lose();
+            }}
           />
         )}
         {showGauntlet && (
