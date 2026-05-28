@@ -1433,6 +1433,64 @@ h2 {
 .gene-combo-text strong { font-size: 11.5px; color: #5a3b18; }
 .gene-combo-text small { font-size: 10px; color: #8a6238; }
 
+/* ─── Plague Arena inventory (herbs + cure ingredients) ──────── */
+.plague-inventory {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+.plague-inv-slot {
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+.plague-inv-icon { font-size: 18px; }
+.plague-inv-label { color: var(--fg-dim); }
+.plague-inv-count {
+  font-weight: 800;
+  color: var(--fg);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  min-width: 28px;
+  text-align: center;
+}
+.plague-inv-slot .btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-left: auto;
+}
+.plague-cure-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+.plague-cure-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #eee;
+  border: 1px solid #ccc;
+  font-size: 0;
+}
+.plague-cure-dot.filled {
+  background: #9a60d0;
+  border-color: #5a30a0;
+  box-shadow: 0 0 4px rgba(154, 96, 208, 0.6);
+}
+
+@media (max-width: 720px) {
+  .plague-inventory { grid-template-columns: 1fr; }
+}
+
 /* ─── Breeding Lab modal — genetic crossing ──────────────────── */
 .breeding-modal { max-width: 920px; }
 
