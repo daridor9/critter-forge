@@ -212,9 +212,9 @@ export default function App() {
   const [showPortrait, setShowPortrait] = useState(false);
   const [showBattle, setShowBattle] = useState(false);
   const [showBracket, setShowBracket] = useState(false);
-  // Anatomy layer for the creature view: skin (default), muscles, or anatomy
-  // (skeleton + organs, biology-textbook style).
-  const [anatomyLayer, setAnatomyLayer] = useState<'skin' | 'muscles' | 'anatomy'>('skin');
+  // Creature-view layer: skin (habitat view), anatomy (skeleton + organs),
+  // or compare (size comparison to reference animals).
+  const [anatomyLayer, setAnatomyLayer] = useState<'skin' | 'anatomy' | 'compare'>('skin');
   // Lineage pointer — restore from localStorage if the stored id still
   // resolves to a node in the lineage map; otherwise plant a new root.
   const [lineageId, setLineageIdRaw] = useState<string | null>(() => {
@@ -706,8 +706,8 @@ export default function App() {
                   >
                     🖼 <span className="portrait-launch-label">Upload portrait</span>
                   </button>
-                  <div className="anatomy-toggle" role="tablist" aria-label="Anatomy layer">
-                    {(['skin', 'muscles', 'anatomy'] as const).map((id) => (
+                  <div className="anatomy-toggle" role="tablist" aria-label="Creature view">
+                    {(['skin', 'anatomy', 'compare'] as const).map((id) => (
                       <button
                         key={id}
                         type="button"
@@ -715,9 +715,12 @@ export default function App() {
                         aria-selected={anatomyLayer === id}
                         className={anatomyLayer === id ? 'anatomy-toggle-btn active' : 'anatomy-toggle-btn'}
                         onClick={() => { setAnatomyLayer(id); sounds.click(); }}
-                        title={id === 'skin' ? 'Normal view' : id === 'muscles' ? 'Show muscles' : 'Show skeleton + organs'}
+                        title={id === 'skin' ? 'Normal habitat view' : id === 'anatomy' ? 'Show skeleton + organs' : 'Compare size to a familiar animal'}
                       >
-                        {id === 'skin' ? '🐾' : id === 'muscles' ? '💪' : '🦴'} <span className="anatomy-toggle-label">{id === 'skin' ? 'Skin' : id === 'muscles' ? 'Muscles' : 'Anatomy'}</span>
+                        {id === 'skin' ? '🐾' : id === 'anatomy' ? '🦴' : '📏'}{' '}
+                        <span className="anatomy-toggle-label">
+                          {id === 'skin' ? 'Skin' : id === 'anatomy' ? 'Anatomy' : 'Size compare'}
+                        </span>
                       </button>
                     ))}
                   </div>

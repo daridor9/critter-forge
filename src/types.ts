@@ -52,12 +52,12 @@ export interface Creature {
 }
 
 /**
- * Which anatomical layer to display when looking at a creature.
+ * Which view to display when looking at a creature.
  *  - skin:    normal habitat view (what users see when designing)
- *  - muscles: removed-skin view showing major muscle groups
  *  - anatomy: skeleton + labeled organs, biology-textbook style
+ *  - compare: side-by-side scale comparison against reference animals
  */
-export type AnatomyLayer = 'skin' | 'muscles' | 'anatomy';
+export type AnatomyLayer = 'skin' | 'anatomy' | 'compare';
 
 export const defaultCreature: Creature = {
   sizeUnit: 40,

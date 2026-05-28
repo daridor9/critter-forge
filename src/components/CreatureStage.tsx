@@ -4,6 +4,7 @@ import { getBespokeShape } from './dexShapes';
 import { getBespokeXray } from './xrayShapes';
 import { hybridCatalog } from '../data/hybrids';
 import { sizeToMass } from '../physics';
+import { SizeCompareView } from './SizeCompareView';
 
 const W = 400;
 const H = 300;
@@ -57,9 +58,7 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
       {effLayer === 'anatomy' ? (
         <rect width={W} height={H} fill="#f4ecd5" />
-      ) : effLayer === 'muscles' ? (
-        <rect width={W} height={H} fill="#fcefe6" />
-      ) : (
+      ) : effLayer === 'compare' ? null : (
         <>
           {creature.bodyPlan === 'mammal' && <MeadowHabitat />}
           {creature.bodyPlan === 'reptile' && <RockyHabitat />}
@@ -68,7 +67,7 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
         </>
       )}
 
-      {creature.hybrids.length > 0 && !isXray && (
+      {creature.hybrids.length > 0 && effLayer === 'skin' && (
         <g>
           {creature.hybrids.map((id, i) => {
             const info = hybridCatalog.find((h) => h.id === id);
@@ -98,8 +97,8 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
           }
           return <AnatomyView creature={creature} cx={W / 2} footY={footY} />;
         })()
-      ) : effLayer === 'muscles' ? (
-        <MusclesView creature={creature} cx={W / 2} footY={footY} />
+      ) : effLayer === 'compare' ? (
+        <SizeCompareView creature={creature} W={W} H={H} />
       ) : (
         <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={skinScale} animate="breathe" />
       )}
@@ -423,141 +422,6 @@ function AnatomyLabel({ x1, y1, x2, y2, text, color, anchor = 'end' }: { x1: num
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// MusclesView — body silhouette filled with muscle tone, with visible
-// striated muscle groups (shoulder, hip, jaw, abdomen).
-// ─────────────────────────────────────────────────────────────────────────
-const MUSCLE_DEEP = '#8f263b';
-const MUSCLE_MID = '#d25a6b';
-const MUSCLE_LIGHT = '#f1a1a8';
-const MUSCLE_LINE = '#5a1528';
-
-function MusclesView({ creature, cx, footY }: { creature: Creature; cx: number; footY: number }) {
-  const M = getAnatomyMetrics(creature, cx, footY, { presentation: true });
-  const { bodyW, bodyH, cy, headR, headCx, headCy, legLen, legXs, beatPeriod, m } = M;
-  const bellyY = cy + bodyH * 0.18;
-  const shoulder = { x: cx - bodyW * 0.23, y: cy - bodyH * 0.04 };
-  const hip = { x: cx + bodyW * 0.24, y: cy + bodyH * 0.08 };
-
-  return (
-    <g>
-      <defs>
-        <linearGradient id="muscleBody" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={MUSCLE_LIGHT} />
-          <stop offset="44%" stopColor={MUSCLE_MID} />
-          <stop offset="100%" stopColor={MUSCLE_DEEP} />
-        </linearGradient>
-        <pattern id="muscleGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f4c6c9" strokeWidth="0.45" opacity="0.55" />
-        </pattern>
-      </defs>
-      <rect width={W} height={H} fill="#fff5f2" />
-      <rect width={W} height={H} fill="url(#muscleGrid)" />
-
-      {/* Title strip matching anatomy view (slightly muted to read as a
-          'second page' of the same textbook) */}
-      <text
-        x={W / 2} y={22}
-        textAnchor="middle"
-        fontSize="13" fontWeight="700"
-        fontFamily="ui-rounded, Georgia, serif"
-        fill="#5a1a24"
-        style={{ letterSpacing: '0.02em' }}
-      >
-        Musculature of {creature.name}
-      </text>
-      <text
-        x={W / 2} y={36}
-        textAnchor="middle"
-        fontSize="9.5"
-        fontFamily="ui-rounded, system-ui, sans-serif"
-        fill="#8a4a52"
-        style={{ fontStyle: 'italic' }}
-      >
-        {m < 0.1 ? `${(m * 1000).toFixed(0)} g` : m < 10 ? `${m.toFixed(1)} kg` : `${Math.round(m)} kg`} · {creature.bodyPlan}{creature.warmBlooded ? '' : ' (cold-blooded)'}
-      </text>
-
-      {/* Ground shadow and outer silhouette so the creature still reads as a
-          character, not just a flat biology blob. */}
-      <ellipse cx={cx + bodyW * 0.04} cy={cy + bodyH * 0.58 + legLen} rx={bodyW * 0.62} ry="8" fill="#4f1a25" opacity="0.18" />
-      <ellipse cx={cx + 3} cy={cy + 3} rx={bodyW / 2 + 7} ry={bodyH / 2 + 6} fill="#5a1528" opacity="0.16" />
-      <circle cx={headCx + 3} cy={headCy + 3} r={headR + 4} fill="#5a1528" opacity="0.14" />
-
-      {/* Body in muscle tone */}
-      <ellipse cx={cx} cy={cy} rx={bodyW / 2} ry={bodyH / 2} fill="url(#muscleBody)" stroke={MUSCLE_LINE} strokeWidth="2.2" />
-      <circle cx={headCx} cy={headCy} r={headR} fill="url(#muscleBody)" stroke={MUSCLE_LINE} strokeWidth="2" />
-
-      {/* Highlight along top for sheen */}
-      <ellipse cx={cx - bodyW * 0.08} cy={cy - bodyH * 0.24} rx={bodyW * 0.32} ry={bodyH * 0.12} fill="#ffd4d6" opacity="0.62" />
-
-      {/* Curved anatomical bands give the body readable volume. */}
-      <g fill="none" stroke={MUSCLE_LINE} strokeWidth="1" opacity="0.42">
-        {[-0.28, -0.14, 0, 0.14, 0.28].map((off) => (
-          <path key={off} d={`M ${cx + bodyW * off} ${cy - bodyH * 0.42} Q ${cx + bodyW * (off + 0.1)} ${cy} ${cx + bodyW * off} ${cy + bodyH * 0.42}`} />
-        ))}
-      </g>
-
-      {/* Striated muscle group patches with fiber lines */}
-      <MuscleGroup x={shoulder.x} y={shoulder.y} w={bodyW * 0.25} h={bodyH * 0.38} angle={-16} fibers={6} label="pectoral" />
-      <MuscleGroup x={hip.x} y={hip.y} w={bodyW * 0.25} h={bodyH * 0.38} angle={12} fibers={6} label="gluteal" />
-      <MuscleGroup x={cx} y={bellyY} w={bodyW * 0.46} h={bodyH * 0.2} angle={0} fibers={7} label="abdominal" />
-
-      {/* Jaw muscle on head */}
-      <MuscleGroup x={headCx - headR * 0.12} y={headCy + headR * 0.32} w={headR * 0.78} h={headR * 0.42} angle={8} fibers={4} label="masseter" />
-
-      {/* Legs as muscle bundles with quadriceps fibers */}
-      {legXs.map((x, i) => {
-        const hipY = cy + bodyH * 0.42;
-        const footYY = hipY + legLen;
-        return (
-          <g key={`leg-m-${i}`}>
-            <rect x={x - bodyW * 0.05} y={hipY} width={bodyW * 0.1} height={legLen} fill="url(#muscleBody)" stroke={MUSCLE_LINE} strokeWidth="1.1" rx="5" />
-            {/* Quadriceps fiber lines */}
-            <g stroke={MUSCLE_LINE} strokeWidth="0.7" opacity="0.58">
-              {[0.2, 0.4, 0.6, 0.8].map((t) => (
-                <line key={t} x1={x - bodyW * 0.04} y1={hipY + legLen * t} x2={x + bodyW * 0.04} y2={hipY + legLen * (t + 0.08)} />
-              ))}
-            </g>
-            <ellipse cx={x} cy={footYY} rx={bodyW * 0.06} ry={bodyH * 0.03} fill={MUSCLE_LINE} />
-          </g>
-        );
-      })}
-
-      {/* Eye showing through — keeps the character recognizable */}
-      <circle cx={headCx + headR * 0.45} cy={headCy - headR * 0.1} r={Math.max(2, headR * 0.18)} fill="#fff" stroke="#3a2118" strokeWidth="0.6" />
-      <circle cx={headCx + headR * 0.45} cy={headCy - headR * 0.1} r={Math.max(1, headR * 0.1)} fill="#1a1a1a" />
-
-      {/* Heart pulse showing through (faint) */}
-      <circle
-        cx={cx - bodyW * 0.18} cy={cy - bodyH * 0.05}
-        r={Math.max(3, bodyW * 0.05)}
-        fill="#ff334f" opacity="0.72"
-        style={{ animation: `heartbeat ${beatPeriod}s ease-in-out infinite`, transformOrigin: `${cx - bodyW * 0.18}px ${cy - bodyH * 0.05}px`, transformBox: 'fill-box' }}
-      />
-
-      <g fill="#5a1a24" fontSize="10" fontFamily="ui-rounded, system-ui, sans-serif" fontWeight="700">
-        <text x="14" y={H - 14}>muscle map</text>
-        <text x={W - 14} y={H - 14} textAnchor="end" opacity="0.65">skin hidden</text>
-      </g>
-    </g>
-  );
-}
-
-function MuscleGroup({ x, y, w, h, angle, fibers, label: _label }: { x: number; y: number; w: number; h: number; angle: number; fibers: number; label: string }) {
-  return (
-    <g transform={`rotate(${angle} ${x} ${y})`}>
-      <ellipse cx={x} cy={y} rx={w / 2} ry={h / 2} fill="#b8324a" opacity="0.72" stroke={MUSCLE_LINE} strokeWidth="0.8" />
-      <ellipse cx={x - w * 0.12} cy={y - h * 0.14} rx={w * 0.22} ry={h * 0.18} fill="#ffb5b8" opacity="0.45" />
-      <g stroke="#ffe2df" strokeWidth="0.75" opacity="0.9">
-        {Array.from({ length: fibers }).map((_, i) => {
-          const t = (i + 1) / (fibers + 1);
-          const fy = y - h / 2 + t * h;
-          return <line key={i} x1={x - w * 0.45} y1={fy} x2={x + w * 0.45} y2={fy} />;
-        })}
-      </g>
-    </g>
-  );
-}
 
 function MeadowHabitat() {
   const groundY = 256;
