@@ -596,7 +596,7 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
         </text>
 
         {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={W / 2 - 80} y={GROUND_Y - 90} width={110} height={90} animate="breathe" />
+          <BespokeInScene creature={creature} x={W / 2 - 80} y={GROUND_Y - 76} width={110} height={90} animate="breathe" />
         ) : (
           <CreatureBody creature={creature} cx={W / 2 - 30} footY={GROUND_Y} scale={0.35} animate="breathe" />
         )}
