@@ -70,6 +70,7 @@ const ProfileModal = lazy(() => import('./components/ProfileModal').then((m) => 
 const QuestsModal = lazy(() => import('./components/QuestsModal').then((m) => ({ default: m.QuestsModal })));
 const FamilyModal = lazy(() => import('./components/FamilyModal').then((m) => ({ default: m.FamilyModal })));
 const ShareModal = lazy(() => import('./components/ShareModal').then((m) => ({ default: m.ShareModal })));
+const GameShareModal = lazy(() => import('./components/GameShareModal').then((m) => ({ default: m.GameShareModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -184,6 +185,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showFamily, setShowFamily] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showGameShare, setShowGameShare] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -632,6 +634,7 @@ export default function App() {
                 <div className="more-divider" />
                 {moreItem('✏️ Suggest name', doSuggestName)}
                 {moreItem('📸 Export PNG', () => exportCreatureCard(creature, stats))}
+                {moreItem('📲 Share game (QR)', () => setShowGameShare(true))}
                 <div className="more-divider" />
                 {moreItem('ℹ About', () => setShowAbout(true))}
               </div>
@@ -843,6 +846,9 @@ export default function App() {
             maker={activeStamp()}
             onClose={() => setShowShare(false)}
           />
+        )}
+        {showGameShare && (
+          <GameShareModal onClose={() => setShowGameShare(false)} />
         )}
         {showGauntlet && (
           <GauntletModal

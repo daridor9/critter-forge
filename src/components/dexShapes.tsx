@@ -32,7 +32,7 @@ export function OctopusShape({ colors }: { colors: ColorOverride }) {
   ];
 
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
 
@@ -69,7 +69,7 @@ export function OctopusShape({ colors }: { colors: ColorOverride }) {
 
 export function WhaleShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
 
@@ -114,7 +114,7 @@ export function WhaleShape({ colors }: { colors: ColorOverride }) {
 
 export function RaptorShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -185,7 +185,7 @@ export function RaptorShape({ colors }: { colors: ColorOverride }) {
 
 export function TriceratopsShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -246,7 +246,7 @@ export function TriceratopsShape({ colors }: { colors: ColorOverride }) {
 
 export function StegosaurusShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -305,7 +305,7 @@ export function StegosaurusShape({ colors }: { colors: ColorOverride }) {
 
 export function PterodactylShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="ptero-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#7fbfe0" />
@@ -370,7 +370,7 @@ export function LionShape({ colors }: { colors: ColorOverride }) {
   const maneColor = '#6e4818';
   const maneInner = '#8a5e24';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -441,7 +441,7 @@ export function LionShape({ colors }: { colors: ColorOverride }) {
 
 export function DolphinShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
 
@@ -496,7 +496,7 @@ export function DolphinShape({ colors }: { colors: ColorOverride }) {
 
 export function ChameleonShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="cham-bg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#d6efc8" />
@@ -596,7 +596,7 @@ export function ChameleonShape({ colors }: { colors: ColorOverride }) {
 
 export function ElephantShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -649,7 +649,7 @@ export function ElephantShape({ colors }: { colors: ColorOverride }) {
 
 export function GorillaShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -705,7 +705,7 @@ export function GorillaShape({ colors }: { colors: ColorOverride }) {
 
 export function CamelShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="camel-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ffd589" />
@@ -763,7 +763,7 @@ export function CamelShape({ colors }: { colors: ColorOverride }) {
 
 export function OstrichShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -818,7 +818,7 @@ export function OstrichShape({ colors }: { colors: ColorOverride }) {
 
 export function EagleShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="eagle-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#7fbfe0" />
@@ -888,7 +888,7 @@ export function EagleShape({ colors }: { colors: ColorOverride }) {
 export function OwlShape({ colors }: { colors: ColorOverride }) {
   const spot = colors.pattern ?? '#3a2818';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="owl-night" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#1f254a" />
@@ -956,7 +956,7 @@ export function OwlShape({ colors }: { colors: ColorOverride }) {
 
 export function TortoiseShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -1015,7 +1015,7 @@ export function TortoiseShape({ colors }: { colors: ColorOverride }) {
 
 export function CrocodileShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="croc-water" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#a8c2b8" />
@@ -1095,7 +1095,7 @@ export function CrocodileShape({ colors }: { colors: ColorOverride }) {
 
 export function SharkShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
       <g opacity="0.6">
@@ -1156,7 +1156,7 @@ export function SharkShape({ colors }: { colors: ColorOverride }) {
 export function CheetahShape({ colors }: { colors: ColorOverride }) {
   const spot = colors.pattern ?? '#1a1a1a';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -1232,7 +1232,7 @@ export function CheetahShape({ colors }: { colors: ColorOverride }) {
 export function SnowLeopardShape({ colors }: { colors: ColorOverride }) {
   const rosette = colors.pattern ?? '#3a3530';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="snow-bg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#dfecf2" />
@@ -1323,7 +1323,7 @@ export function SnowLeopardShape({ colors }: { colors: ColorOverride }) {
 
 export function WolfShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -1386,7 +1386,7 @@ export function WolfShape({ colors }: { colors: ColorOverride }) {
 
 export function PolarBearShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="polar-bg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#cfe3ec" />
@@ -1461,7 +1461,7 @@ export function PolarBearShape({ colors }: { colors: ColorOverride }) {
 
 export function MouseShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -1521,7 +1521,7 @@ export function MouseShape({ colors }: { colors: ColorOverride }) {
 export function HummingbirdShape({ colors }: { colors: ColorOverride }) {
   const gorget = '#e63060';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="hum-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#a8e0f0" />
@@ -1585,7 +1585,7 @@ export function HummingbirdShape({ colors }: { colors: ColorOverride }) {
 
 export function BatShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="bat-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#1a1f3a" />
@@ -1667,7 +1667,7 @@ export function BatShape({ colors }: { colors: ColorOverride }) {
 
 export function PenguinShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg-ice)" />
 
@@ -1971,7 +1971,7 @@ export function hasBespokeShape(creature: Creature): boolean {
 // Slow arboreal mammal: long hook claws, shaggy algae-green fur, sleepy face.
 export function SlothShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="30" y1="85" x2="370" y2="55" stroke="#7a5a32" strokeWidth="16" strokeLinecap="round" />
@@ -2047,7 +2047,7 @@ export function KangarooShape({ colors }: { colors: ColorOverride }) {
   const bellyShade = '#e6cea0';
   const innerEar = '#e09080';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -2229,7 +2229,7 @@ export function KangarooShape({ colors }: { colors: ColorOverride }) {
 // Like a big cat with bold black stripes on orange.
 export function TigerShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -2316,7 +2316,7 @@ export function TigerShape({ colors }: { colors: ColorOverride }) {
 // Bipedal apex theropod — massive head, tiny arms, long counterbalancing tail.
 export function TRexShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="270" x2="380" y2="270" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -2393,7 +2393,7 @@ export function TRexShape({ colors }: { colors: ColorOverride }) {
 // Translucent bell with trailing tentacles.
 export function JellyfishShape({ colors }: { colors: ColorOverride }) {
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
 
@@ -2468,7 +2468,7 @@ export function FoxkitShape({ colors }: { colors: ColorOverride }) {
   const main = colors.main;
   const blush = colors.cheek;
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <ellipse cx="215" cy="266" rx="136" ry="12" fill="rgba(64,34,24,0.14)" />
@@ -2593,7 +2593,7 @@ export function SheepShape({ colors }: { colors: ColorOverride }) {
   const horn = '#c8a070';
   const hornDark = '#8a6238';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -2738,7 +2738,7 @@ export function CowShape({ colors }: { colors: ColorOverride }) {
   const hornDark = '#a88848';
   const hoof = '#1a1208';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -2883,7 +2883,7 @@ export function HorseShape({ colors }: { colors: ColorOverride }) {
   const mane = colors.pattern ?? '#3a1a08';
   const hoof = '#1a1208';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3002,7 +3002,7 @@ export function PigShape({ colors }: { colors: ColorOverride }) {
   const hoof = '#3a1a14';
   const snoutDark = '#a85060';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3107,7 +3107,7 @@ export function GiraffeShape({ colors }: { colors: ColorOverride }) {
   const ossicone = '#5a3a18';
   const hoof = '#2a1a08';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3249,7 +3249,7 @@ export function RoosterShape({ colors }: { colors: ColorOverride }) {
   const tailHi = '#5a8a4a';
   const claw = '#3a1808';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3417,7 +3417,7 @@ export function DonkeyShape({ colors }: { colors: ColorOverride }) {
   const cross = colors.pattern ?? '#3a342a';  // donkey-cross stripe
   const hoof = '#1a1208';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3554,7 +3554,7 @@ export function RhinoShape({ colors }: { colors: ColorOverride }) {
   const hornShade = '#a89878';
   const hoof = '#1a1208';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3705,7 +3705,7 @@ export function CatShape({ colors }: { colors: ColorOverride }) {
   const cheek = colors.cheek;
   const stripe = colors.pattern ?? '#1a1a1a';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3810,7 +3810,7 @@ export function DogShape({ colors }: { colors: ColorOverride }) {
   const cheek = colors.cheek;
   const dark = colors.pattern ?? '#3a1a08';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
@@ -3929,7 +3929,7 @@ export function GoatShape({ colors }: { colors: ColorOverride }) {
   const horn = '#a89878';
   const hornDark = '#6a5838';
   return (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
