@@ -228,13 +228,25 @@ export function RaptorShape({ colors }: { colors: ColorOverride }) {
         <line x1="40" y1="145" x2="35" y2="135" />
       </g>
 
+      {/* LEFT LEG with the iconic raptor SICKLE CLAW */}
       <path d="M 175 225 Q 165 250 178 275" stroke={colors.shade} strokeWidth="20" fill="none" strokeLinecap="round" />
       <ellipse cx="180" cy="278" rx="14" ry="4" fill="#3a2118" />
-      <path d="M 183 278 l 8 -3 M 183 278 l 6 5 M 173 278 l -6 3" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {/* small toes */}
+      <path d="M 183 278 l 8 -3 M 173 278 l -6 3" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {/* SICKLE CLAW — the massive curved killing claw on the raised second
+          toe (every dromaeosaur signature; Velociraptor's most famous feature). */}
+      <path d="M 186 278 Q 196 274 198 264 Q 196 272 188 272 Z" fill="#1a0a08" stroke="#000" strokeWidth="0.5" />
+      <path d="M 186 278 Q 196 274 198 264 Q 196 272 188 272" fill="#3a2010" />
+      <circle cx="198" cy="264" r="1.4" fill="#000" />
 
+      {/* RIGHT LEG (slightly forward) — also with sickle claw */}
       <path d="M 205 225 Q 200 250 215 275" stroke={colors.shade} strokeWidth="20" fill="none" strokeLinecap="round" />
       <ellipse cx="215" cy="278" rx="14" ry="4" fill="#3a2118" />
-      <path d="M 218 278 l 8 -3 M 218 278 l 6 5 M 208 278 l -6 3" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M 218 278 l 8 -3 M 208 278 l -6 3" stroke="#3a2118" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {/* SICKLE CLAW on right foot */}
+      <path d="M 221 278 Q 231 274 233 264 Q 231 272 223 272 Z" fill="#1a0a08" stroke="#000" strokeWidth="0.5" />
+      <path d="M 221 278 Q 231 274 233 264 Q 231 272 223 272" fill="#3a2010" />
+      <circle cx="233" cy="264" r="1.4" fill="#000" />
 
       <ellipse cx="185" cy="200" rx="80" ry="34" fill={colors.shade} />
       <ellipse cx="185" cy="195" rx="76" ry="30" fill={colors.main} />
@@ -872,36 +884,83 @@ export function GorillaShape({ colors }: { colors: ColorOverride }) {
       <path d="M 270 180 Q 295 230 310 270" stroke={colors.main} strokeWidth="26" fill="none" strokeLinecap="round" />
       <ellipse cx="310" cy="270" rx="16" ry="10" fill={colors.shade} />
 
-      <ellipse cx="200" cy="190" rx="80" ry="78" fill={colors.shade} />
-      <ellipse cx="200" cy="185" rx="74" ry="72" fill={colors.main} />
+      {/* MASSIVE BARREL CHEST */}
+      <ellipse cx="200" cy="190" rx="84" ry="80" fill={colors.shade} />
+      <ellipse cx="200" cy="185" rx="78" ry="74" fill={colors.main} />
       <ellipse cx="200" cy="215" rx="56" ry="40" fill="#5a4a4a" opacity="0.55" />
 
+      {/* SILVERBACK SADDLE — adult male gorillas develop a silver-grey
+          patch of fur from shoulders to lower back. This is the iconic
+          mature-male marker. */}
+      <ellipse cx="200" cy="160" rx="68" ry="26" fill="#c8c8c8" opacity="0.7" />
+      <ellipse cx="200" cy="158" rx="62" ry="22" fill="#e0e0e0" opacity="0.6" />
+      {/* silvery fur lines on the saddle */}
+      <g stroke="#a8a8a8" strokeWidth="0.8" fill="none" opacity="0.7">
+        <path d="M 150 152 q 4 6 8 4" />
+        <path d="M 170 148 q 4 6 8 4" />
+        <path d="M 195 146 q 4 6 8 4" />
+        <path d="M 220 148 q 4 6 8 4" />
+        <path d="M 240 152 q 4 6 8 4" />
+        <path d="M 160 168 q 4 6 8 4" />
+        <path d="M 190 170 q 4 6 8 4" />
+        <path d="M 220 168 q 4 6 8 4" />
+      </g>
+
+      {/* HEAD — slightly tapered (sagittal-crest hint) */}
       <ellipse cx="200" cy="110" rx="50" ry="44" fill={colors.shade} />
       <ellipse cx="200" cy="108" rx="46" ry="40" fill={colors.main} />
+      {/* SAGITTAL CREST — peaked ridge on top of the skull (males only) */}
+      <path d="M 184 72 Q 200 60 216 72 Q 208 80 200 78 Q 192 80 184 72 Z" fill={colors.shade} />
 
-      <ellipse cx="200" cy="135" rx="40" ry="26" fill="#7a6050" />
-      <ellipse cx="200" cy="135" rx="35" ry="22" fill="#9a7868" />
+      {/* FACE — bare dark skin (gorillas have hairless faces) */}
+      <ellipse cx="200" cy="135" rx="40" ry="26" fill="#3a2a1e" />
+      <ellipse cx="200" cy="135" rx="35" ry="22" fill="#5a4632" />
 
-      <path d="M 150 88 Q 200 50 250 88" stroke={colors.shade} strokeWidth="12" fill="none" strokeLinecap="round" />
+      {/* PROMINENT BROW RIDGE — deeply furrowed, projecting forward */}
+      <path d="M 152 88 Q 200 48 248 88" stroke={colors.shade} strokeWidth="14" fill="none" strokeLinecap="round" />
+      <path d="M 156 90 Q 200 56 244 90" stroke="#3a2a1e" strokeWidth="9" fill="none" strokeLinecap="round" />
+      {/* brow furrows */}
+      <g stroke="#1a0e08" strokeWidth="1" fill="none" opacity="0.7">
+        <path d="M 178 96 q 4 -4 8 -4" />
+        <path d="M 214 96 q 4 -4 8 -4" />
+      </g>
 
+      {/* dark eye sockets */}
       <circle cx="158" cy="108" r="9" fill={colors.shade} />
       <circle cx="242" cy="108" r="9" fill={colors.shade} />
 
+      {/* EYES — small, intelligent, deep-set */}
       <g className="eye-blink" style={{ transformOrigin: '184px 122px' }}>
         <circle cx="184" cy="122" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <circle cx="185" cy="122" r="3" fill="#1a1a1a" />
+        <ellipse cx="185" cy="122" rx="2.6" ry="3.4" fill="#5a3a18" />
+        <circle cx="185" cy="122" r="2" fill="#1a1a1a" />
         <circle cx="186" cy="120" r="1.2" fill="white" />
       </g>
       <g className="eye-blink" style={{ transformOrigin: '216px 122px' }}>
         <circle cx="216" cy="122" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <circle cx="217" cy="122" r="3" fill="#1a1a1a" />
+        <ellipse cx="217" cy="122" rx="2.6" ry="3.4" fill="#5a3a18" />
+        <circle cx="217" cy="122" r="2" fill="#1a1a1a" />
         <circle cx="218" cy="120" r="1.2" fill="white" />
       </g>
 
-      <ellipse cx="195" cy="138" rx="2.5" ry="2" fill="#1a1a1a" />
-      <ellipse cx="205" cy="138" rx="2.5" ry="2" fill="#1a1a1a" />
+      {/* WIDE FLAT NOSE with prominent nostrils — gorilla signature */}
+      <ellipse cx="200" cy="140" rx="11" ry="6" fill="#1a1208" opacity="0.85" />
+      <ellipse cx="194" cy="141" rx="3" ry="2.4" fill="#000" />
+      <ellipse cx="206" cy="141" rx="3" ry="2.4" fill="#000" />
+      {/* nose bridge */}
+      <path d="M 192 134 q 8 -4 16 0" stroke="#3a2010" strokeWidth="1.2" fill="none" />
 
-      <path d="M 188 148 Q 200 156 212 148" stroke="#1a1a1a" strokeWidth="2" fill="none" strokeLinecap="round" />
+      {/* MOUTH — wide, with subtle lip line */}
+      <path d="M 184 152 Q 200 160 216 152" stroke="#1a1a1a" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <path d="M 188 152 Q 200 156 212 152" stroke="#1a1a1a" strokeWidth="1" fill="none" opacity="0.5" />
+
+      {/* fur texture lines on the body shoulders */}
+      <g stroke={colors.shade} strokeWidth="0.8" fill="none" opacity="0.55">
+        <path d="M 130 190 q 6 8 4 16" />
+        <path d="M 140 200 q 6 8 4 16" />
+        <path d="M 260 190 q -6 8 -4 16" />
+        <path d="M 250 200 q -6 8 -4 16" />
+      </g>
 
       <ellipse cx="200" cy="287" rx="120" ry="6" fill="rgba(0,0,0,0.22)" />
     </svg>
@@ -2013,9 +2072,14 @@ export function MouseShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="258" cy="200" rx="50" ry="42" fill={colors.shade} />
       <ellipse cx="256" cy="196" rx="45" ry="38" fill={colors.main} />
 
+      {/* MUZZLE/SNOUT — pointed pink-tipped nose */}
       <ellipse cx="305" cy="210" rx="16" ry="12" fill={colors.main} />
       <ellipse cx="304" cy="208" rx="13" ry="9" fill={colors.light} opacity="0.5" />
       <ellipse cx="316" cy="212" rx="4" ry="3" fill="#d85a78" />
+      {/* TWO BIG FRONT TEETH — the iconic rodent feature.
+          Continuously-growing incisors poking out below the nose. */}
+      <rect x="308" y="218" width="3" height="6" rx="0.5" fill="white" stroke="#888" strokeWidth="0.4" />
+      <rect x="313" y="218" width="3" height="6" rx="0.5" fill="white" stroke="#888" strokeWidth="0.4" />
 
       <g className="eye-blink" style={{ transformOrigin: '270px 188px' }}>
         <circle cx="270" cy="188" r="8" fill="white" stroke="#222" strokeWidth="0.6" />
@@ -2241,17 +2305,32 @@ export function PenguinShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="200" cy="290" rx="180" ry="14" fill="white" />
       <ellipse cx="200" cy="285" rx="110" ry="9" fill="rgba(0,0,0,0.15)" />
 
+      {/* BODY — dark torpedo (tuxedo back) */}
       <ellipse cx="207" cy="175" rx="78" ry="95" fill={colors.shade} />
       <ellipse cx="200" cy="170" rx="74" ry="90" fill={colors.main} />
 
+      {/* WHITE BELLY — the iconic tuxedo front, sharp contrast */}
       <ellipse cx="200" cy="192" rx="48" ry="72" fill="white" />
       <ellipse cx="200" cy="180" rx="40" ry="50" fill={colors.light} opacity="0.5" />
+      {/* sharp boundary curve between black back and white belly */}
+      <path d="M 152 150 Q 158 195 174 250" stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.5" />
+      <path d="M 248 150 Q 242 195 226 250" stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.5" />
 
+      {/* HEAD — dark cap */}
       <ellipse cx="200" cy="100" rx="55" ry="48" fill={colors.shade} />
       <ellipse cx="200" cy="95" rx="50" ry="44" fill={colors.main} />
 
-      <path d="M 168 95 Q 200 125 232 95 Q 230 80 200 78 Q 170 80 168 95 Z" fill="white" opacity="0.95" />
+      {/* WHITE FACE MASK — wraps around the chin */}
+      <path d="M 168 95 Q 200 130 232 95 Q 230 80 200 78 Q 170 80 168 95 Z" fill="white" opacity="0.95" />
 
+      {/* EMPEROR PENGUIN AURICULAR PATCHES — bright yellow-orange teardrops
+          on either side of the neck. The most iconic emperor-penguin marker. */}
+      <path d="M 152 110 Q 144 130 152 152 Q 162 148 168 130 Q 168 115 156 110 Z" fill="#ffd34a" />
+      <path d="M 155 115 Q 150 130 158 148 Q 164 145 166 130 Q 166 118 158 115 Z" fill="#fff088" opacity="0.7" />
+      <path d="M 248 110 Q 256 130 248 152 Q 238 148 232 130 Q 232 115 244 110 Z" fill="#ffd34a" />
+      <path d="M 245 115 Q 250 130 242 148 Q 236 145 234 130 Q 234 118 242 115 Z" fill="#fff088" opacity="0.7" />
+
+      {/* EYES — dark, alert */}
       <g className="eye-blink" style={{ transformOrigin: '183px 90px' }}>
         <circle cx="183" cy="90" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
         <circle cx="184" cy="90" r="3.8" fill="#1a1a1a" />
@@ -2263,21 +2342,43 @@ export function PenguinShape({ colors }: { colors: ColorOverride }) {
         <circle cx="219" cy="87" r="1.5" fill="white" />
       </g>
 
-      <polygon points="192,115 200,140 208,115" fill="#d8851a" />
-      <polygon points="195,118 200,135 205,118" fill="#fa9a30" />
-      <line x1="200" y1="118" x2="200" y2="135" stroke="#7a4810" strokeWidth="0.5" />
+      {/* LONG POINTED BEAK — penguins have notably long bills */}
+      <polygon points="190,115 200,148 210,115" fill="#d8851a" />
+      <polygon points="194,118 200,142 206,118" fill="#fa9a30" />
+      <line x1="200" y1="118" x2="200" y2="142" stroke="#7a4810" strokeWidth="0.5" />
+      {/* slight beak tip pink for the gular skin */}
+      <circle cx="200" cy="146" r="1.6" fill="#a83828" />
 
+      {/* FLIPPERS — angled side wings */}
       <ellipse cx="135" cy="180" rx="16" ry="50" fill={colors.shade} transform="rotate(12 135 180)" />
       <ellipse cx="265" cy="180" rx="16" ry="50" fill={colors.shade} transform="rotate(-12 265 180)" />
       <ellipse cx="133" cy="170" rx="8" ry="30" fill={colors.main} transform="rotate(12 133 170)" />
       <ellipse cx="267" cy="170" rx="8" ry="30" fill={colors.main} transform="rotate(-12 267 170)" />
+      {/* white inner-flipper edge */}
+      <ellipse cx="146" cy="220" rx="4" ry="14" fill="white" opacity="0.5" transform="rotate(12 146 220)" />
+      <ellipse cx="254" cy="220" rx="4" ry="14" fill="white" opacity="0.5" transform="rotate(-12 254 220)" />
 
+      {/* WEBBED FEET — bigger, with visible toe segments */}
       <ellipse cx="178" cy="271" rx="22" ry="7" fill="#d8851a" />
       <ellipse cx="222" cy="271" rx="22" ry="7" fill="#d8851a" />
-      <line x1="170" y1="271" x2="180" y2="275" stroke="#7a4810" strokeWidth="0.7" />
-      <line x1="184" y1="271" x2="196" y2="275" stroke="#7a4810" strokeWidth="0.7" />
-      <line x1="214" y1="271" x2="226" y2="275" stroke="#7a4810" strokeWidth="0.7" />
-      <line x1="220" y1="271" x2="234" y2="275" stroke="#7a4810" strokeWidth="0.7" />
+      {/* toe webbing lines */}
+      <g stroke="#7a4810" strokeWidth="0.8" fill="none">
+        <line x1="166" y1="270" x2="172" y2="276" />
+        <line x1="178" y1="270" x2="180" y2="276" />
+        <line x1="190" y1="270" x2="188" y2="276" />
+        <line x1="210" y1="270" x2="212" y2="276" />
+        <line x1="222" y1="270" x2="220" y2="276" />
+        <line x1="234" y1="270" x2="228" y2="276" />
+      </g>
+      {/* black claws */}
+      <g fill="#1a1208">
+        <circle cx="171" cy="276" r="1.2" />
+        <circle cx="180" cy="276" r="1.2" />
+        <circle cx="189" cy="276" r="1.2" />
+        <circle cx="213" cy="276" r="1.2" />
+        <circle cx="222" cy="276" r="1.2" />
+        <circle cx="231" cy="276" r="1.2" />
+      </g>
     </svg>
   );
 }
@@ -2550,11 +2651,24 @@ export function SlothShape({ colors }: { colors: ColorOverride }) {
       <path d="M 140 105 Q 118 154 128 218" stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
       <path d="M 250 98 Q 285 142 278 215" stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
 
-      <g stroke="#2d2015" strokeWidth="3" fill="none" strokeLinecap="round">
-        <path d="M 126 92 q 0 22 16 20" />
-        <path d="M 142 90 q 0 22 16 20" />
-        <path d="M 238 88 q 0 22 16 20" />
-        <path d="M 254 87 q 0 22 16 20" />
+      {/* HOOKED CLAWS — bigger, sharper, the iconic sloth feature.
+          Sloths hang from these claws for hours; they're permanent hooks. */}
+      <g stroke="#2d2015" strokeWidth="4" fill="none" strokeLinecap="round">
+        <path d="M 126 92 q 0 24 18 22" />
+        <path d="M 142 90 q 0 24 18 22" />
+        <path d="M 158 90 q 0 22 16 20" />
+        <path d="M 234 88 q 0 24 18 22" />
+        <path d="M 250 87 q 0 24 18 22" />
+        <path d="M 266 87 q 0 22 16 20" />
+      </g>
+      {/* claw tips — pointed black */}
+      <g fill="#1a0e08">
+        <circle cx="144" cy="114" r="1.4" />
+        <circle cx="160" cy="112" r="1.4" />
+        <circle cx="174" cy="110" r="1.4" />
+        <circle cx="252" cy="110" r="1.4" />
+        <circle cx="268" cy="109" r="1.4" />
+        <circle cx="282" cy="107" r="1.4" />
       </g>
 
       <ellipse cx="205" cy="175" rx="78" ry="62" fill={colors.shade} />
@@ -2585,8 +2699,13 @@ export function SlothShape({ colors }: { colors: ColorOverride }) {
         <circle cx="220" cy="114" r="4.5" fill="#16120e" />
         <circle cx="221" cy="112" r="1.3" fill="white" opacity="0.8" />
       </g>
+      {/* nose */}
       <ellipse cx="205" cy="128" rx="5" ry="3.5" fill="#2d2015" />
-      <path d="M 194 138 Q 205 146 216 138" stroke="#2d2015" strokeWidth="2" fill="none" strokeLinecap="round" />
+      {/* ICONIC SLEEPY SMILE — wide upturned mouth (sloths look permanently happy) */}
+      <path d="M 188 138 Q 205 152 222 138" stroke="#2d2015" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      {/* slight cheek dimples */}
+      <ellipse cx="186" cy="135" rx="3" ry="2" fill="#d4a878" opacity="0.5" />
+      <ellipse cx="224" cy="135" rx="3" ry="2" fill="#d4a878" opacity="0.5" />
 
       <g stroke="#2d2015" strokeWidth="2.2" fill="none" strokeLinecap="round">
         <path d="M 130 220 q -8 18 -22 12" />
@@ -2988,24 +3107,40 @@ export function JellyfishShape({ colors }: { colors: ColorOverride }) {
         <circle cx="280" cy="40" r="2" />
       </g>
 
-      {/* tentacles — long and wavy */}
+      {/* TENTACLES — VARIED LENGTHS for organic look (real jellies have
+          stinging tentacles of many different lengths). Long thin trailing
+          ones in dark + thin highlight. */}
       <g stroke={colors.shade} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.85">
-        {[140, 160, 180, 200, 220, 240, 260].map((x) => (
-          <path key={x} d={`M ${x} 175 q -8 30 0 60 q 8 30 0 60`} />
-        ))}
+        <path d="M 130 175 q -10 30 4 60 q 6 30 -4 60 q -6 20 0 30" />
+        <path d="M 150 175 q -6 20 0 40 q -2 20 -8 40" />
+        <path d="M 170 175 q -4 26 6 52 q 8 26 -2 50" />
+        <path d="M 190 175 q -2 30 0 60 q 4 30 -4 50" />
+        <path d="M 210 175 q 2 30 0 60 q -4 30 4 50" />
+        <path d="M 230 175 q 4 26 -6 52 q -8 26 2 50" />
+        <path d="M 250 175 q 6 20 0 40 q 2 20 8 40" />
+        <path d="M 270 175 q 10 30 -4 60 q -6 30 4 60 q 6 20 0 30" />
       </g>
-      <g stroke={colors.main} strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.65">
-        {[140, 160, 180, 200, 220, 240, 260].map((x) => (
-          <path key={x} d={`M ${x} 175 q -8 30 0 60 q 8 30 0 60`} />
-        ))}
+      {/* light glow lines on each tentacle for bioluminescence */}
+      <g stroke={colors.light} strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6">
+        <path d="M 130 175 q -10 30 4 60 q 6 30 -4 60 q -6 20 0 30" />
+        <path d="M 170 175 q -4 26 6 52 q 8 26 -2 50" />
+        <path d="M 210 175 q 2 30 0 60 q -4 30 4 50" />
+        <path d="M 250 175 q 6 20 0 40 q 2 20 8 40" />
+        <path d="M 270 175 q 10 30 -4 60 q -6 30 4 60 q 6 20 0 30" />
       </g>
 
-      {/* short frilly tentacles */}
-      <g stroke={colors.shade} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.8">
-        {[150, 175, 200, 225, 250].map((x) => (
-          <path key={x} d={`M ${x} 170 q 0 14 ${(x % 30) - 15} 28`} />
-        ))}
+      {/* SHORT FRILLY ORAL ARMS (the central feeding tentacles) — denser */}
+      <g stroke={colors.shade} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.85">
+        <path d="M 175 170 q -2 16 -8 30" />
+        <path d="M 188 170 q 0 14 -4 28" />
+        <path d="M 200 170 q 0 16 0 32" />
+        <path d="M 212 170 q 0 14 4 28" />
+        <path d="M 225 170 q 2 16 8 30" />
       </g>
+
+      {/* BIOLUMINESCENT GLOW HALO behind the bell */}
+      <ellipse cx="200" cy="135" rx="115" ry="80" fill={colors.light} opacity="0.18" />
+      <ellipse cx="200" cy="135" rx="100" ry="65" fill={colors.cheek} opacity="0.18" />
 
       {/* BELL — translucent dome */}
       <path d="M 110 175 Q 200 70 290 175 Z" fill={colors.shade} opacity="0.7" />
@@ -3013,28 +3148,46 @@ export function JellyfishShape({ colors }: { colors: ColorOverride }) {
       <path d="M 130 168 Q 200 92 270 168 Z" fill={colors.light} opacity="0.65" />
       {/* highlight */}
       <ellipse cx="175" cy="120" rx="44" ry="22" fill="white" opacity="0.4" />
+      {/* secondary smaller highlight */}
+      <ellipse cx="195" cy="98" rx="14" ry="6" fill="white" opacity="0.5" />
 
-      {/* bell ridges */}
+      {/* bell ridges — meridional channels */}
       <g stroke={colors.shade} strokeWidth="1.2" fill="none" opacity="0.5">
-        <path d="M 145 168 Q 150 130 165 100" />
+        <path d="M 130 168 Q 138 130 158 96" />
+        <path d="M 158 168 Q 162 130 175 94" />
         <path d="M 180 168 Q 182 120 188 90" />
         <path d="M 220 168 Q 218 120 212 90" />
-        <path d="M 255 168 Q 250 130 235 100" />
+        <path d="M 242 168 Q 238 130 225 94" />
+        <path d="M 270 168 Q 262 130 242 96" />
       </g>
 
-      {/* hint of inner organs (radial gonads) */}
-      <g fill={colors.cheek} opacity="0.7">
-        <ellipse cx="180" cy="140" rx="10" ry="14" />
-        <ellipse cx="220" cy="140" rx="10" ry="14" />
-        <ellipse cx="200" cy="125" rx="10" ry="14" />
+      {/* GONADS — the four lobes visible through the translucent bell */}
+      <g fill={colors.cheek} opacity="0.75">
+        <ellipse cx="172" cy="140" rx="9" ry="14" />
+        <ellipse cx="228" cy="140" rx="9" ry="14" />
+        <ellipse cx="200" cy="125" rx="9" ry="14" />
+        <ellipse cx="200" cy="155" rx="9" ry="14" />
       </g>
 
-      {/* bell rim */}
-      <ellipse cx="200" cy="175" rx="92" ry="6" fill={colors.shade} opacity="0.65" />
+      {/* FRILLY BELL RIM — wavy edge instead of flat ellipse */}
+      <path d="M 110 175 Q 122 182 134 175 Q 146 182 158 175 Q 170 182 182 175 Q 194 182 206 175 Q 218 182 230 175 Q 242 182 254 175 Q 266 182 278 175 Q 286 178 290 175"
+        stroke={colors.shade} strokeWidth="2" fill="none" opacity="0.85" />
 
-      {/* eye-spots (jellyfish actually have ocelli at the bell edge) */}
-      <circle cx="120" cy="173" r="2" fill="#1a1a1a" />
-      <circle cx="280" cy="173" r="2" fill="#1a1a1a" />
+      {/* RHOPALIA — light-sensing organs at the bell margin (real jellyfish
+          feature; they have ~8 of these around the bell edge) */}
+      <g fill="#ffd34a" opacity="0.85">
+        <circle cx="120" cy="173" r="2" />
+        <circle cx="156" cy="173" r="2" />
+        <circle cx="200" cy="178" r="2" />
+        <circle cx="244" cy="173" r="2" />
+        <circle cx="280" cy="173" r="2" />
+      </g>
+      <g fill="#1a1a1a" opacity="0.7">
+        <circle cx="120" cy="173" r="1" />
+        <circle cx="156" cy="173" r="1" />
+        <circle cx="244" cy="173" r="1" />
+        <circle cx="280" cy="173" r="1" />
+      </g>
 
       <ellipse cx="200" cy="285" rx="100" ry="4" fill="rgba(0,0,0,0.15)" />
     </svg>
