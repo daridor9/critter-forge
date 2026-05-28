@@ -1,7 +1,7 @@
 import type { Creature } from '../types';
 import { computeStats, sizeToMass } from '../physics';
 
-export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze' | 'storm';
+export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze' | 'storm' | 'nest' | 'migrate' | 'plague';
 export type Fit = 'great' | 'ok' | 'tough';
 
 export interface ArenaFit {
@@ -65,6 +65,27 @@ export function arenaFitFor(arena: ArenaId, c: Creature): ArenaFit {
       if (m > 100) return { fit: 'great', reason: 'Big body grips the ground.' };
       if (m < 5) return { fit: 'tough', reason: 'Too light to anchor — winds carry you.' };
       return { fit: 'ok', reason: 'Mid-mass — hunker down to survive.' };
+    }
+    case 'nest': {
+      if (c.defenseTier >= 2 || c.hybrids.includes('venom') || c.hybrids.includes('stoneskin'))
+        return { fit: 'great', reason: 'Armored or venomous — predators learn fast.' };
+      if (c.bodyPlan === 'bird' || sizeToMass(c.sizeUnit) > 100)
+        return { fit: 'great', reason: 'Big or aerial — natural egg guard.' };
+      if (sizeToMass(c.sizeUnit) < 1) return { fit: 'tough', reason: 'Too small to deter raiders.' };
+      return { fit: 'ok', reason: 'Reasonable defender.' };
+    }
+    case 'migrate': {
+      if (s.enduranceKm > 25 && c.brainTier >= 1)
+        return { fit: 'great', reason: 'Endurance + brain — built for long roads.' };
+      if (s.enduranceKm < 10) return { fit: 'tough', reason: 'Low endurance — starves before arriving.' };
+      return { fit: 'ok', reason: 'Can make the journey with care.' };
+    }
+    case 'plague': {
+      const m = sizeToMass(c.sizeUnit);
+      if (c.warmBlooded && m > 30) return { fit: 'great', reason: 'Warm blood + reserves = fever immunity.' };
+      if (!c.warmBlooded) return { fit: 'tough', reason: 'Cold-blooded — cannot mount a fever.' };
+      if (m < 1) return { fit: 'tough', reason: 'Tiny body, no reserves to fight infection.' };
+      return { fit: 'ok', reason: 'Average immune system.' };
     }
   }
 }

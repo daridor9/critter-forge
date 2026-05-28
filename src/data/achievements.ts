@@ -21,6 +21,9 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'win-deep',          emoji: '🌊', name: 'Abyss diver',          description: 'Complete a deep dive.' },
   { id: 'win-maze',          emoji: '🧩', name: 'Maze solver',          description: 'Escape the Maze.' },
   { id: 'win-storm',         emoji: '🌪', name: 'Storm survivor',       description: 'Survive a storm.' },
+  { id: 'win-nest',          emoji: '🥚', name: 'Nest guardian',        description: 'Defend the eggs from all waves.' },
+  { id: 'win-migrate',       emoji: '🏛', name: 'Trail blazer',         description: 'Complete a migration.' },
+  { id: 'win-plague',        emoji: '🦟', name: 'Pestilence survivor',  description: 'Outlast a plague.' },
   { id: 'win-all-arenas',    emoji: '🏆', name: 'Renaissance critter', description: 'Win every arena at least once.' },
   { id: 'tournament-run',    emoji: '🎫', name: 'Entered the arena',    description: 'Start a tournament.' },
   { id: 'tournament-champ',  emoji: '🥇', name: 'Champion',             description: 'Win 5 or more arenas in one tournament.' },
@@ -121,6 +124,9 @@ export function checkArenaWin(r: ArenaResult): Achievement[] {
     deep: 'win-deep',
     maze: 'win-maze',
     storm: 'win-storm',
+    nest: 'win-nest',
+    migrate: 'win-migrate',
+    plague: 'win-plague',
   };
   const a = tryUnlock(arenaKey[r.arena]);
   if (a) out.push(a);

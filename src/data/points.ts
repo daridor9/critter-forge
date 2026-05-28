@@ -247,6 +247,27 @@ export function pointsForArenaResult(r: ArenaResult, generation: number): Points
         description = `Survived ${sev} (${r.secondsHeld}s)`;
       }
       break;
+    case 'nest':
+      {
+        key = `arena-nest-${r.wavesSurvived}w-gen${generation}`;
+        specificMult = 1 + Math.max(0, (5 - r.eggsLost) / 5);
+        description = `Defended ${r.wavesSurvived} waves (${5 - r.eggsLost} eggs saved)`;
+      }
+      break;
+    case 'migrate':
+      {
+        key = `arena-migrate-${Math.floor(r.kmTravelled / 200)}-gen${generation}`;
+        specificMult = 1 + Math.min(2, r.kmTravelled / r.goalKm);
+        description = `Migrated ${r.kmTravelled} km`;
+      }
+      break;
+    case 'plague':
+      {
+        key = `arena-plague-gen${generation}`;
+        specificMult = 1 + (r.daysSurvived / r.goalDays);
+        description = `Survived plague ${r.daysSurvived} days`;
+      }
+      break;
   }
 
   const difficulty = base * genMult * specificMult;

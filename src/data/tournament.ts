@@ -2,7 +2,7 @@ import type { ArenaResult } from './insights';
 import type { Creature } from '../types';
 import { computeStats } from '../physics';
 
-export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze' | 'storm';
+export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze' | 'storm' | 'nest' | 'migrate' | 'plague';
 
 // Storm is excluded from the tournament 6-arena rotation by design — it's
 // a standalone challenge. The tournament keeps its original 6 to preserve
@@ -11,6 +11,9 @@ export const TOURNAMENT_ORDER: ArenaId[] = ['chase', 'hunt', 'climb', 'drought',
 
 export const ARENA_LABELS: Record<ArenaId, { label: string; emoji: string }> = {
   storm:   { label: 'The Storm',   emoji: '🌪️' },
+  nest:    { label: 'The Nest',    emoji: '🥚' },
+  migrate: { label: 'The Migration', emoji: '🏛' },
+  plague:  { label: 'The Plague',  emoji: '🦟' },
   chase:   { label: 'The Chase',   emoji: '🦌' },
   hunt:    { label: 'The Hunt',    emoji: '🌳' },
   climb:   { label: 'The Climb',   emoji: '🏔' },
@@ -27,6 +30,9 @@ const BASE_POINTS: Record<ArenaId, number> = {
   deep:    4,
   maze:    3,
   storm:   4,    // tornado is brutal; reflects it
+  nest:    3,
+  migrate: 4,    // 800km is a long haul
+  plague:  3,
 };
 
 export function difficultyFor(arena: ArenaId, generation: number): number {
@@ -61,6 +67,9 @@ export const MEDAL_NAMES: Record<ArenaId, string> = {
   deep:    'Abyss-Diver',
   maze:    'Maze-Solver',
   storm:   'Wind-Defier',
+  nest:    'Egg-Guardian',
+  migrate: 'Trail-Blazer',
+  plague:  'Plague-Survivor',
 };
 
 export interface FinalRank {

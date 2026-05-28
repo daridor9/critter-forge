@@ -14,7 +14,10 @@ export type ArenaResult =
   | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught'; env?: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean'; strategy?: 'hide' | 'run' | 'fight'; difficulty?: 'normal' | 'tough' | 'apex' }
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed' | 'crossed' | 'exhausted' | 'caught' | 'landed' | 'stalled' | 'no-wings'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number }
-  | { arena: 'storm'; won: boolean; reason: 'survived' | 'blown-away' | 'struck-by-debris'; secondsHeld: number; severity?: 'gust' | 'storm' | 'tornado' };
+  | { arena: 'storm'; won: boolean; reason: 'survived' | 'blown-away' | 'struck-by-debris'; secondsHeld: number; severity?: 'gust' | 'storm' | 'tornado' }
+  | { arena: 'nest'; won: boolean; reason: 'defended' | 'eggs-stolen'; eggsLost: number; wavesSurvived: number }
+  | { arena: 'migrate'; won: boolean; reason: 'arrived' | 'lost' | 'starved'; kmTravelled: number; goalKm: number }
+  | { arena: 'plague'; won: boolean; reason: 'recovered' | 'succumbed'; daysSurvived: number; goalDays: number };
 
 export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature): Insight {
   switch (r.arena) {
@@ -25,6 +28,9 @@ export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature)
     case 'deep':    return pickDeep(r, massKg, creature);
     case 'maze':    return pickMaze(r, creature);
     case 'storm':   return pickStorm(r);
+    case 'nest':    return pickNest(r);
+    case 'migrate': return pickMigrate(r);
+    case 'plague':  return pickPlague(r);
   }
 }
 
@@ -264,4 +270,47 @@ function pickStorm(r: Extract<ArenaResult, { arena: 'storm' }>): Insight {
   return { id: 'storm-debris', won: false, title: `Struck by debris at ${r.secondsHeld}s`, text:
     'Flying debris is the real killer in tornadoes. A 100 mph 2x4 hits like a bullet. Armor (defense tier 2) or ' +
     'the stoneskin hybrid would have absorbed the impact. Bigger bodies also have more mass to spread the hit.' };
+}
+
+function pickNest(r: Extract<ArenaResult, { arena: 'nest' }>): Insight {
+  if (r.won) {
+    return { id: 'nest-won', won: true, title: `Eggs defended! (${r.wavesSurvived} waves)`, text:
+      'Parental defense is one of the strongest forces in nature. Geese hiss and bite humans. Killdeer fake a ' +
+      'broken wing to lure predators away. Cassowaries kill leopards. Defending eggs is what evolved venom, ' +
+      'spurs, claws, and aggressive displays in countless species.' };
+  }
+  return { id: 'nest-lost', won: false, title: `${r.eggsLost} eggs lost`, text:
+    'Speed + size + defense are what protect nests. Without one, predators slip past. ' +
+    'A tiny unarmored creature has to outrun, hide, or pick a high inaccessible nest site. Try a bigger build ' +
+    'or add stoneskin / venom for active defense.' };
+}
+
+function pickMigrate(r: Extract<ArenaResult, { arena: 'migrate' }>): Insight {
+  if (r.won) {
+    return { id: 'migrate-won', won: true, title: `Migrated ${r.goalKm} km!`, text:
+      'Arctic terns migrate 70,000 km per year. Wildebeest cross 800 km of crocodile-filled rivers. Monarch butterflies ' +
+      'travel 4,800 km to Mexico. Long-distance travel demands big aerobic muscles, fat reserves, and a brain ' +
+      'that can navigate by sun, stars, magnetic fields, or memorized landmarks.' };
+  }
+  if (r.reason === 'starved') {
+    return { id: 'migrate-starved', won: false, title: `Starved at ${r.kmTravelled} km`, text:
+      'You burned through your fat reserves. Real migrators fatten up beforehand — geese double their weight ' +
+      'before flying south. Bigger body + cold-blood + endurance hybrid would help.' };
+  }
+  return { id: 'migrate-lost', won: false, title: `Lost the trail at ${r.kmTravelled} km`, text:
+    'A smarter brain reads landscape features and avoids hazards. Bird brains use star patterns and Earth\'s ' +
+    'magnetic field as a compass. Boost brain tier + sensors to navigate better.' };
+}
+
+function pickPlague(r: Extract<ArenaResult, { arena: 'plague' }>): Insight {
+  if (r.won) {
+    return { id: 'plague-won', won: true, title: `Survived the plague (${r.daysSurvived} days)`, text:
+      'Big warm-blooded animals have the strongest immune systems — antibodies need protein, fever needs ' +
+      'metabolic power. Bats carry dozens of viruses without symptoms because their high body temperature ' +
+      'from flying suppresses them. Mass + warm blood + rest = immunity.' };
+  }
+  return { id: 'plague-lost', won: false, title: `Succumbed at day ${r.daysSurvived}`, text:
+    'Smaller bodies have less reserve to fight infection. Cold-blooded creatures can\'t mount a fever ' +
+    '(their body temperature matches their environment). For epidemic resistance: bigger warm-blooded body, ' +
+    'thicker armor (skin barrier), and the regeneration hybrid which heals damage as it occurs.' };
 }
