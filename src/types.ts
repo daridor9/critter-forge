@@ -21,7 +21,13 @@ export type Hybrid =
   | 'firebreath'
   | 'stoneskin'
   | 'hypersonic'
-  | 'dragon';
+  | 'dragon'
+  // New batch — biology-inspired niche traits.
+  | 'photosynthesis'   // eat sunlight like a plant — reduces food needs
+  | 'regeneration'    // axolotl/starfish trick — heal mid-fight
+  | 'bioluminescence' // glow in dark — lure prey, navigate deep
+  | 'mimicry'         // octopus/butterfly — confuse predators
+  | 'hibernation';    // bear/groundhog — sleep through bad seasons
 
 // When a creature is loaded straight from the dex, it carries the bespoke
 // shape name, palette, and factual adaptations so the main stage can render

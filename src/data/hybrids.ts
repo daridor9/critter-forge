@@ -89,6 +89,36 @@ export const hybridCatalog: HybridInfo[] = [
     emoji: '🐉',
     fact: 'The legendary apex. Wings, fire, scales, big brain — every mythic upgrade rolled into one. Costs almost as much food as it grants in glory.',
   },
+  {
+    id: 'photosynthesis',
+    name: 'Photosynthesis',
+    emoji: '🌿',
+    fact: 'Sea slugs steal chloroplasts from algae and live off sunlight for months. Sloths grow algae in their fur. This trait lets your creature gain food from sun — drought becomes way easier.',
+  },
+  {
+    id: 'regeneration',
+    name: 'Regeneration',
+    emoji: '🦎',
+    fact: 'Axolotls regrow entire limbs in weeks. Starfish regrow from a single arm. Planarian flatworms cut in half become two complete worms. Heal mid-fight in Hunt.',
+  },
+  {
+    id: 'bioluminescence',
+    name: 'Bioluminescence',
+    emoji: '✨',
+    fact: 'Anglerfish dangle a glowing lure in the abyss; fireflies signal mates; deep-sea squid blast brilliant flashes to confuse predators. Light up the Deep — and dazzle attackers.',
+  },
+  {
+    id: 'mimicry',
+    name: 'Mimicry',
+    emoji: '🎭',
+    fact: 'The mimic octopus can shape-shift to look like 15 different species including poison fish and sea snakes. Viceroy butterflies copy toxic Monarchs. Confuse predators in Hunt.',
+  },
+  {
+    id: 'hibernation',
+    name: 'Hibernation',
+    emoji: '😴',
+    fact: 'Ground squirrels drop their heart rate to 5 bpm and body temperature below freezing for months. Bears sleep through winter. Your creature can wait out the worst of the Drought.',
+  },
 ];
 
 export const MAX_HYBRIDS = 2;

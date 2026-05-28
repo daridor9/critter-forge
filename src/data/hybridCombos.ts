@@ -106,6 +106,39 @@ export const HYBRID_COMBOS: HybridCombo[] = [
     description: 'Echolocation + hypersonic = sees everything, catches anything. +40 maze stamina, +30% chase speed.',
     effects: { mazeStaminaBonus: 40, chaseSpeedMult: 1.3 },
   },
+  // ─── New biology combos using the niche-trait batch ──────────────────
+  {
+    id: 'green-survivor',
+    hybrids: ['photosynthesis', 'hibernation'],
+    name: 'Eternal survivor',
+    emoji: '🌿',
+    description: 'Eat sun + sleep through bad times = ultimate drought-proof. 2× drought food, +30 climb energy.',
+    effects: { droughtFoodMult: 2.0, climbBonus: 30 },
+  },
+  {
+    id: 'mimic-octopus',
+    hybrids: ['mimicry', 'camouflage'],
+    name: 'Phantom shapeshifter',
+    emoji: '🎭',
+    description: 'Mimicry + camo = vanish from any predator. +60 hunt-hide, half maze stamina cost.',
+    effects: { huntHideBonus: 60, mazeStaminaBonus: 30 },
+  },
+  {
+    id: 'abyss-lantern',
+    hybrids: ['bioluminescence', 'gills'],
+    name: 'Abyss lantern',
+    emoji: '✨',
+    description: 'Glow + gills = thrive in the lightless deep. 2.5× deep breath, +25 maze stamina.',
+    effects: { deepBreathBonus: 2.5, mazeStaminaBonus: 25 },
+  },
+  {
+    id: 'undying-tank',
+    hybrids: ['regeneration', 'stoneskin'],
+    name: 'Undying tank',
+    emoji: '🦎',
+    description: 'Regrow + armor = nothing kills you. +40 brawl power, +25 climb energy, +20 hunt-fight.',
+    effects: { brawlPowerBonus: 40, climbBonus: 25, huntFightBonus: 20 },
+  },
 ];
 
 // Returns the first matching combo for a creature's hybrids, or null

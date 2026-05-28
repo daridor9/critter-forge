@@ -61,6 +61,12 @@ const HYBRID_PHRASES: Record<Hybrid, string> = {
   stoneskin: 'rough overlapping rocky plates layered over the body like armor',
   hypersonic: 'streaks of soft motion-blur trailing behind, with bright speed-lines',
   dragon: 'iridescent scales, small horns, leathery dragon wings and faint smoke from the nose',
+  // Biology-inspired niche traits
+  photosynthesis: 'green leafy patches across the back with tiny sunlit golden tips',
+  regeneration: 'subtle pink shimmer of healing energy around the body, with faint sparkles',
+  bioluminescence: 'glowing cyan spots scattered along the body that softly pulse with light',
+  mimicry: 'a shifting iridescent pattern that suggests it could change appearance at will',
+  hibernation: 'a cozy sleepy expression and a slightly thicker fluffy coat',
 };
 
 function bodyPlanNoun(creature: Creature): string {

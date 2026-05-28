@@ -80,6 +80,15 @@ export function BuildSlots({ current, onLoad, onSlotChange }: Props) {
       // empty → save current
       saveSlot(id, current);
       refresh();
+      // First-save tip: if this is the player's FIRST slot save ever, show a
+      // sticky toast explaining what to do next.
+      const seenKey = 'critter-forge:slot-tip-shown';
+      const seen = (() => { try { return localStorage.getItem(seenKey) === '1'; } catch { return true; } })();
+      if (!seen) {
+        try { localStorage.setItem(seenKey, '1'); } catch { /* ignore */ }
+        // Dispatch a custom event so the App can show a toast in its own UI.
+        window.dispatchEvent(new CustomEvent('critter-forge:slot-first-save', { detail: { id } }));
+      }
     } else {
       // filled → load with confirm
       const ok = window.confirm(

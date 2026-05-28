@@ -2780,6 +2780,97 @@ function HybridOverlay({ hybrids, colors }: { hybrids: import('../types').Hybrid
           <line x1="50" y1="200" x2="100" y2="200" />
         </g>
       )}
+
+      {/* PHOTOSYNTHESIS — green leafy patches + sun rays around the body */}
+      {hybrids.includes('photosynthesis') && (
+        <g>
+          {/* leafy patches on the back */}
+          <g fill="#5a9a4a" stroke="#3a7a2a" strokeWidth="0.6">
+            <ellipse cx="160" cy="160" rx="8" ry="5" transform="rotate(-20 160 160)" />
+            <ellipse cx="195" cy="155" rx="9" ry="6" transform="rotate(0 195 155)" />
+            <ellipse cx="230" cy="160" rx="8" ry="5" transform="rotate(20 230 160)" />
+            <ellipse cx="180" cy="175" rx="6" ry="4" transform="rotate(-15 180 175)" />
+            <ellipse cx="215" cy="175" rx="6" ry="4" transform="rotate(15 215 175)" />
+          </g>
+          {/* leaf veins */}
+          <g stroke="#3a7a2a" strokeWidth="0.6" fill="none" opacity="0.7">
+            <path d="M 160 160 q 3 0 6 -1" />
+            <path d="M 195 155 q 4 0 7 -1" />
+            <path d="M 230 160 q 3 0 6 -1" />
+          </g>
+          {/* sun rays overhead — small radiating lines */}
+          <g stroke="#ffd34a" strokeWidth="1.4" fill="none" opacity="0.7" strokeLinecap="round">
+            <line x1="195" y1="95" x2="195" y2="85" />
+            <line x1="180" y1="98" x2="174" y2="90" />
+            <line x1="210" y1="98" x2="216" y2="90" />
+            <line x1="165" y1="108" x2="158" y2="103" />
+            <line x1="225" y1="108" x2="232" y2="103" />
+          </g>
+        </g>
+      )}
+
+      {/* REGENERATION — pink heart-shaped pulse + healing sparkles */}
+      {hybrids.includes('regeneration') && (
+        <g>
+          {/* glowing pulse around the body */}
+          <ellipse cx="200" cy="185" rx="120" ry="50" fill="none" stroke="#ff7ab0" strokeWidth="1.4" opacity="0.5" strokeDasharray="4 6" />
+          {/* tiny heal sparkles */}
+          <g fill="#ff7ab0" opacity="0.85">
+            <path d="M 140 180 l 2 -5 l 2 5 l 5 2 l -5 2 l -2 5 l -2 -5 l -5 -2 z" />
+            <path d="M 250 175 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" />
+            <path d="M 210 200 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" />
+          </g>
+        </g>
+      )}
+
+      {/* BIOLUMINESCENCE — glowing spots on the body */}
+      {hybrids.includes('bioluminescence') && (
+        <g>
+          {/* core spots — bright cyan */}
+          <g fill="#aef0ff" opacity="0.95">
+            <circle cx="160" cy="175" r="2.5" />
+            <circle cx="180" cy="190" r="2" />
+            <circle cx="200" cy="180" r="3" />
+            <circle cx="220" cy="190" r="2" />
+            <circle cx="240" cy="175" r="2.5" />
+            <circle cx="195" cy="200" r="2" />
+            <circle cx="215" cy="200" r="2" />
+          </g>
+          {/* outer halo around each spot */}
+          <g fill="#88c8ee" opacity="0.35">
+            <circle cx="160" cy="175" r="6" />
+            <circle cx="200" cy="180" r="7" />
+            <circle cx="240" cy="175" r="6" />
+          </g>
+          {/* head lure (anglerfish-style) */}
+          <line x1="320" y1="160" x2="332" y2="142" stroke="#88c8ee" strokeWidth="1.2" />
+          <circle cx="332" cy="142" r="4" fill="#aef0ff" />
+          <circle cx="332" cy="142" r="7" fill="#aef0ff" opacity="0.3" />
+        </g>
+      )}
+
+      {/* MIMICRY — wavy shimmer outline + question marks */}
+      {hybrids.includes('mimicry') && (
+        <g opacity="0.7">
+          {/* shimmery wave around the body */}
+          <path d="M 120 165 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0"
+            stroke="#c8a8ff" strokeWidth="1.4" fill="none" opacity="0.7" />
+          <path d="M 120 210 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0"
+            stroke="#c8a8ff" strokeWidth="1.4" fill="none" opacity="0.7" />
+          {/* question marks floating */}
+          <text x="120" y="140" fontSize="14" fill="#9a60d0" opacity="0.8" fontWeight="700">?</text>
+          <text x="270" y="135" fontSize="12" fill="#9a60d0" opacity="0.8" fontWeight="700">?</text>
+        </g>
+      )}
+
+      {/* HIBERNATION — sleeping Zzz over the head */}
+      {hybrids.includes('hibernation') && (
+        <g opacity="0.85">
+          <text x="320" y="120" fontSize="20" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+          <text x="328" y="105" fontSize="16" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+          <text x="338" y="92" fontSize="12" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+        </g>
+      )}
     </g>
   );
 }

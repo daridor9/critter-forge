@@ -128,6 +128,12 @@ function hybridEffect(h: Hybrid): HybridEffect {
     case 'stoneskin':    return { foodMult: 1.10 };            // armor without speed penalty
     case 'hypersonic':   return { foodMult: 1.25, topSpeedMult: 1.25, enduranceMult: 1.10 };
     case 'dragon':       return { foodMult: 1.5, topSpeedMult: 1.15, enduranceMult: 1.20, bonusCold: 25 };
+    // Biology-inspired niche traits
+    case 'photosynthesis': return { foodMult: 0.55 };           // half the food — sun-powered
+    case 'regeneration':   return { foodMult: 1.10 };           // costs energy to heal
+    case 'bioluminescence':return { foodMult: 1.08 };           // glowing costs ATP
+    case 'mimicry':        return { foodMult: 1.05 };
+    case 'hibernation':    return { foodMult: 0.85 };           // slow metabolism off-season
   }
 }
 
@@ -137,6 +143,13 @@ export function isHybridValid(h: Hybrid, c: Creature): { valid: boolean; reason?
   if (h === 'thick-fur' && !c.warmBlooded) return { valid: false, reason: 'warm-blooded only' };
   if (h === 'wings' && sizeToMass(c.sizeUnit) > 2) return { valid: false, reason: 'too heavy to fly (>2 kg)' };
   if (h === 'gills' && c.bodyPlan === 'fish') return { valid: false, reason: 'fish already have gills' };
+  // New biology-inspired traits
+  if (h === 'photosynthesis' && sizeToMass(c.sizeUnit) > 500) {
+    return { valid: false, reason: 'too big to power on sunlight alone' };
+  }
+  if (h === 'hibernation' && c.bodyPlan === 'fish') {
+    return { valid: false, reason: 'fish do not hibernate (they brumate)' };
+  }
   // Mythic hybrids have no biology limits — only the points unlock gate
   // (enforced in the Builder UI + isHybridUnlocked in data/points.ts).
   return { valid: true };

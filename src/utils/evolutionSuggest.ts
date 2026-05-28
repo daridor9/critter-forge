@@ -54,10 +54,13 @@ function chaseScore(c: Creature, s: DerivedStats): number {
 }
 
 function huntScore(c: Creature, s: DerivedStats): number {
-  const hide  = (c.hybrids.includes('camouflage') ? 2.5 : 0) + (s.massKg < 5 ? 2 : s.massKg < 30 ? 1 : 0) + c.sensorTier * 0.4;
+  const hide  = (c.hybrids.includes('camouflage') ? 2.5 : 0) + (s.massKg < 5 ? 2 : s.massKg < 30 ? 1 : 0) + c.sensorTier * 0.4
+    + (c.hybrids.includes('mimicry') ? 2 : 0)              // confuse predators
+    + (c.hybrids.includes('bioluminescence') ? 0.8 : 0);   // dazzle attacker
   const run   = s.topSpeedKmh > 60 ? 3 : s.topSpeedKmh > 40 ? 2 : s.topSpeedKmh > 25 ? 1 : 0;
   const fight = (c.hybrids.includes('venom') ? 2 : 0) + (c.hybrids.includes('electric') ? 2 : 0)
     + (c.hybrids.includes('stoneskin') ? 1.5 : 0) + (c.hybrids.includes('firebreath') ? 2 : 0)
+    + (c.hybrids.includes('regeneration') ? 1.5 : 0)       // heal mid-fight
     + c.defenseTier + (s.massKg > 500 ? 1.5 : 0);
   return Math.min(5, Math.max(hide, run, fight) * 1.1);
 }
@@ -76,6 +79,9 @@ function droughtScore(c: Creature, s: DerivedStats): number {
   if (s.massKg > 50) score += 1.5; else if (s.massKg > 10) score += 0.8;
   if (c.hybrids.includes('thick-fur')) score += 1;
   if (c.hybrids.includes('stoneskin')) score += 0.7;
+  // New biology hybrids
+  if (c.hybrids.includes('photosynthesis')) score += 2;   // half food need
+  if (c.hybrids.includes('hibernation')) score += 1.8;    // sleep through drought
   return Math.min(5, score);
 }
 
@@ -91,6 +97,8 @@ function deepScore(c: Creature, s: DerivedStats): number {
   if (diveAdapted) score += 1.5;
   if (pressureProof) score += 1;
   if (canGlide) score += 0.8;
+  // Bioluminescence helps in the dark deep ocean (anglerfish lure trick)
+  if (c.hybrids.includes('bioluminescence')) score += 0.8;
   return Math.min(5, score);
 }
 
@@ -195,6 +203,7 @@ function genCandidates(c: Creature): Candidate[] {
     'echolocation', 'wings', 'venom', 'electric', 'camouflage',
     'antifreeze', 'thick-fur', 'gills', 'symbiosis',
     'firebreath', 'stoneskin', 'hypersonic', 'dragon',
+    'photosynthesis', 'regeneration', 'bioluminescence', 'mimicry', 'hibernation',
   ];
   for (const h of HYBRIDS) {
     if (c.hybrids.includes(h)) continue;
@@ -232,6 +241,11 @@ function hybridWhy(h: Hybrid): string {
     case 'stoneskin': return 'Armor — pressure-safe in Deep, big Drought help';
     case 'hypersonic': return 'Massive Chase + Hunt-run bonus';
     case 'dragon': return 'Apex tier — pairs with firebreath for the dragon combo';
+    case 'photosynthesis': return 'Eat sunlight — massive Drought help, half food cost';
+    case 'regeneration': return 'Heal in Hunt fights — axolotl trick';
+    case 'bioluminescence': return 'Anglerfish lure — Deep + Hunt hide bonus';
+    case 'mimicry': return 'Octopus shape-shift — huge Hunt hide bonus';
+    case 'hibernation': return 'Sleep through Drought — bear/ground squirrel trick';
   }
 }
 

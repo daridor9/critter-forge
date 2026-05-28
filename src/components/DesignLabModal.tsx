@@ -319,7 +319,17 @@ export function DesignLabModal({ current, onLoad, onClose, onGoToBuilder }: Prop
                         <span>·</span>
                       </div>
                       <div className="design-lab-meta">
-                        <div className="design-lab-empty-text">Empty slot — click below to save your current creature here.</div>
+                        <div className="design-lab-empty-text">
+                          {(() => {
+                            // Count how many slots are filled. If at least one
+                            // already is, tell the player to CHANGE first then save.
+                            const filledCount = SLOT_IDS.filter((sid) => slots[sid] !== null).length;
+                            if (filledCount === 0) {
+                              return 'Empty slot — click below to save your current creature here.';
+                            }
+                            return '💡 Empty slot. To compare designs: tweak your current creature in the Builder, then save it here. You\'ll be able to switch between variants with one click.';
+                          })()}
+                        </div>
                       </div>
                       <div className="design-lab-actions">
                         <button className="btn" type="button" onClick={() => handleSaveToSlot(id)}>

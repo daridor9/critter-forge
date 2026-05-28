@@ -321,6 +321,23 @@ export default function App() {
     stopAmbient();
   }, []);
 
+  // First-save tip — when the player saves to a slot for the first time,
+  // explain the next step so they're not stranded wondering "now what?"
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent).detail?.id ?? 'A';
+      pushToasts([{
+        id: '_slot-tip',
+        emoji: '💡',
+        name: `Saved to Slot ${id}! Now what?`,
+        description: `Change your creature in the Builder, then save to another slot to compare designs. Open 🧪 Design Lab to see all your variants.`,
+      }]);
+    };
+    window.addEventListener('critter-forge:slot-first-save', handler);
+    return () => window.removeEventListener('critter-forge:slot-first-save', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const got = checkGenAchievements(generation);
     if (got.length > 0) pushToasts(got);
