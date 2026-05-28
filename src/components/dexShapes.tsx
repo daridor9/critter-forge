@@ -320,28 +320,64 @@ export function TriceratopsShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="195" cy="220" rx="92" ry="14" fill={colors.light} opacity="0.55" />
       <ellipse cx="170" cy="160" rx="60" ry="14" fill="white" opacity="0.18" />
 
-      <ellipse cx="300" cy="180" rx="55" ry="62" fill={colors.shade} />
-      <ellipse cx="300" cy="180" rx="48" ry="55" fill={colors.main} />
+      {/* BIGGER FRILL SHIELD — the iconic triceratops feature.
+          Bony plate extending from the head, used for display + defense. */}
+      <ellipse cx="295" cy="180" rx="62" ry="70" fill={colors.shade} />
+      <ellipse cx="295" cy="180" rx="55" ry="62" fill={colors.main} />
+      {/* frill bone pattern radiating outward (like real triceratops) */}
+      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.6">
+        <path d="M 295 180 L 250 120" />
+        <path d="M 295 180 L 274 112" />
+        <path d="M 295 180 L 300 108" />
+        <path d="M 295 180 L 325 112" />
+        <path d="M 295 180 L 343 130" />
+        <path d="M 295 180 L 350 158" />
+        <path d="M 295 180 L 245 152" />
+      </g>
+      {/* SCALLOPED EDGE SPIKES — bigger than before, ringing the frill top */}
       <g fill={colors.shade}>
-        <polygon points="270,128 275,114 282,132" />
-        <polygon points="293,122 298,108 305,126" />
-        <polygon points="315,126 320,112 327,130" />
-        <polygon points="332,138 338,124 343,142" />
+        <polygon points="248,140 250,124 258,142" />
+        <polygon points="265,124 268,108 275,128" />
+        <polygon points="285,116 288,98 298,122" />
+        <polygon points="307,114 312,96 320,118" />
+        <polygon points="325,120 332,104 339,126" />
+        <polygon points="340,132 348,118 352,138" />
+        <polygon points="350,156 358,144 354,162" />
+      </g>
+      {/* frill bumps along the edges (osteoderm rim) */}
+      <g fill={colors.main} opacity="0.7">
+        <circle cx="254" cy="130" r="2" />
+        <circle cx="272" cy="118" r="2" />
+        <circle cx="293" cy="110" r="2" />
+        <circle cx="315" cy="108" r="2" />
+        <circle cx="333" cy="116" r="2" />
       </g>
 
-      <ellipse cx="325" cy="200" rx="36" ry="24" fill={colors.shade} />
-      <ellipse cx="324" cy="198" rx="32" ry="21" fill={colors.main} />
-      <ellipse cx="345" cy="207" rx="14" ry="10" fill={colors.main} />
+      {/* HEAD/MUZZLE — wider, beak-like front */}
+      <ellipse cx="325" cy="202" rx="38" ry="26" fill={colors.shade} />
+      <ellipse cx="324" cy="200" rx="34" ry="22" fill={colors.main} />
+      <ellipse cx="345" cy="209" rx="16" ry="11" fill={colors.main} />
 
-      <g fill={colors.shade}>
-        <polygon points="346,200 354,180 360,202" />
-        <polygon points="312,175 308,140 320,175" />
-        <polygon points="340,175 346,140 352,175" />
-      </g>
-      <g fill={colors.light} opacity="0.4">
-        <polygon points="313,170 309,148 318,170" />
-        <polygon points="341,170 347,148 350,170" />
-      </g>
+      {/* BIGGER BROW HORNS — the two long ones above the eyes */}
+      <polygon points="308,178 304,128 322,176" fill={colors.shade} />
+      <polygon points="336,178 344,128 352,176" fill={colors.shade} />
+      {/* horn highlights */}
+      <polygon points="310,172 307,138 318,172" fill={colors.light} opacity="0.5" />
+      <polygon points="339,172 343,138 350,172" fill={colors.light} opacity="0.5" />
+      {/* sharp dark tips */}
+      <circle cx="306" cy="130" r="2" fill="#1a0e08" />
+      <circle cx="346" cy="130" r="2" fill="#1a0e08" />
+
+      {/* THIRD HORN — the SHORT NOSE HORN that gives triceratops its name
+          ("three horns"). Smaller than the brow horns but the defining
+          feature. Sits at the base of the beak. */}
+      <polygon points="358,196 364,176 370,196" fill={colors.shade} />
+      <polygon points="360,194 364,182 368,194" fill={colors.light} opacity="0.5" />
+      <circle cx="364" cy="178" r="1.4" fill="#1a0e08" />
+
+      {/* PARROT-LIKE BEAK at the front */}
+      <path d="M 354 210 Q 368 212 368 220 Q 364 224 354 222 Z" fill="#3a2010" />
+      <path d="M 356 212 Q 364 214 364 218 Q 360 220 356 218 Z" fill="#5a3018" />
 
       <g className="eye-blink" style={{ transformOrigin: '322px 193px' }}>
         <circle cx="322" cy="193" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
@@ -349,7 +385,8 @@ export function TriceratopsShape({ colors }: { colors: ColorOverride }) {
         <circle cx="324" cy="191" r="1.3" fill="white" />
       </g>
 
-      <path d="M 345 213 L 358 213" stroke="#3a2118" strokeWidth="2" strokeLinecap="round" />
+      {/* mouth line */}
+      <path d="M 340 218 Q 352 220 360 218" stroke="#3a2118" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <circle cx="354" cy="208" r="1.2" fill={colors.shade} />
 
       <ellipse cx="200" cy="287" rx="135" ry="6" fill="rgba(0,0,0,0.2)" />
@@ -364,13 +401,26 @@ export function StegosaurusShape({ colors }: { colors: ColorOverride }) {
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
 
+      {/* TAIL with THAGOMIZER — the iconic 4 tail spikes at the tip.
+          Named after a Far Side cartoon; real stegosaurus used them as
+          a defensive weapon, swinging the tail laterally. */}
       <path d="M 85 215 Q 50 230 22 252" stroke={colors.shade} strokeWidth="22" fill="none" strokeLinecap="round" />
       <path d="M 85 215 Q 50 230 22 252" stroke={colors.main} strokeWidth="14" fill="none" strokeLinecap="round" />
-      <g fill={colors.shade}>
-        <polygon points="32,250 16,228 38,247" />
-        <polygon points="46,253 30,232 52,250" />
-        <polygon points="40,260 50,278 56,255" />
-        <polygon points="52,260 64,278 66,255" />
+      {/* BIGGER, SHARPER thagomizer spikes — 4 fanning out at the tail tip */}
+      <g>
+        <polygon points="36,252 6,220 40,248" fill={colors.shade} />
+        <polygon points="36,252 6,220 40,248" fill={colors.main} opacity="0.7" />
+        <polygon points="52,253 28,218 54,250" fill={colors.shade} />
+        <polygon points="52,253 28,218 54,250" fill={colors.main} opacity="0.7" />
+        <polygon points="40,260 44,288 58,255" fill={colors.shade} />
+        <polygon points="40,260 44,288 58,255" fill={colors.main} opacity="0.7" />
+        <polygon points="52,260 60,288 70,255" fill={colors.shade} />
+        <polygon points="52,260 60,288 70,255" fill={colors.main} opacity="0.7" />
+        {/* dark sharp tips */}
+        <circle cx="6" cy="220" r="2" fill="#1a0e08" />
+        <circle cx="28" cy="218" r="2" fill="#1a0e08" />
+        <circle cx="44" cy="288" r="2" fill="#1a0e08" />
+        <circle cx="60" cy="288" r="2" fill="#1a0e08" />
       </g>
 
       <rect x="100" y="218" width="22" height="58" fill={colors.shade} rx="5" />
@@ -386,19 +436,34 @@ export function StegosaurusShape({ colors }: { colors: ColorOverride }) {
       <path d="M 93 218 Q 93 175 113 167 Q 162 135 200 135 Q 238 135 268 167 Q 290 175 290 218 Z" fill={colors.main} />
       <ellipse cx="195" cy="208" rx="90" ry="16" fill={colors.light} opacity="0.55" />
 
-      <g stroke={colors.shade} strokeWidth="1.2">
-        <polygon points="115,160 130,128 145,160" fill={colors.main} />
-        <polygon points="150,148 165,112 180,148" fill={colors.main} />
-        <polygon points="185,138 200,98 215,138" fill={colors.main} />
-        <polygon points="220,148 235,112 250,148" fill={colors.main} />
-        <polygon points="253,160 265,128 277,160" fill={colors.main} />
+      {/* BIGGER KITE-SHAPED PLATES along the spine — the iconic stegosaurus
+          feature. Drawn larger and with a paired/alternating pattern hint
+          (real stegosaurus likely had alternating offset plates). */}
+      <g stroke={colors.shade} strokeWidth="1.4">
+        {/* small plate at the neck */}
+        <polygon points="108,162 122,118 140,162" fill={colors.main} />
+        {/* mid plates — bigger */}
+        <polygon points="148,150 168,90 188,150" fill={colors.main} />
+        <polygon points="190,140 210,76 230,140" fill={colors.main} />
+        <polygon points="230,150 250,90 270,150" fill={colors.main} />
+        {/* plate at the rump */}
+        <polygon points="270,162 286,118 304,162" fill={colors.main} />
       </g>
-      <g fill={colors.light} opacity="0.45">
-        <polygon points="120,155 130,134 140,155" />
-        <polygon points="156,144 165,118 174,144" />
-        <polygon points="191,134 200,104 209,134" />
-        <polygon points="226,144 235,118 244,144" />
-        <polygon points="258,155 265,134 272,155" />
+      {/* plate highlights — lighter inner kite shape */}
+      <g fill={colors.light} opacity="0.5">
+        <polygon points="116,158 122,128 134,158" />
+        <polygon points="156,146 168,100 180,146" />
+        <polygon points="198,136 210,86 222,136" />
+        <polygon points="238,146 250,100 262,146" />
+        <polygon points="276,158 286,128 298,158" />
+      </g>
+      {/* dark plate edge ridges for armor texture */}
+      <g stroke="#3a2818" strokeWidth="0.8" fill="none" opacity="0.5">
+        <line x1="122" y1="118" x2="124" y2="158" />
+        <line x1="168" y1="90" x2="170" y2="146" />
+        <line x1="210" y1="76" x2="212" y2="136" />
+        <line x1="250" y1="90" x2="252" y2="146" />
+        <line x1="286" y1="118" x2="288" y2="158" />
       </g>
 
       <ellipse cx="298" cy="205" rx="22" ry="14" fill={colors.shade} />
@@ -433,20 +498,31 @@ export function PterodactylShape({ colors }: { colors: ColorOverride }) {
         <ellipse cx="345" cy="76" rx="16" ry="5" />
       </g>
 
+      {/* LEFT WING — pterosaur anatomy. Unlike bats (multiple finger
+          bones) pterosaurs supported their entire wing on ONE massively
+          elongated fourth finger. The leading edge is that single bone. */}
       <path d="M 200 170 L 60 130 L 40 148 L 70 195 L 200 188 Z" fill={colors.shade} />
       <path d="M 200 170 L 70 138 L 60 152 L 80 188 L 200 184 Z" fill={colors.main} />
-      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.5">
-        <line x1="200" y1="170" x2="60" y2="130" />
-        <line x1="200" y1="175" x2="80" y2="155" />
-        <line x1="200" y1="180" x2="100" y2="178" />
+      {/* THICK leading-edge finger bone — the single one */}
+      <line x1="200" y1="170" x2="40" y2="148" stroke={colors.shade} strokeWidth="3.5" strokeLinecap="round" />
+      {/* small claw at the wing tip */}
+      <polygon points="40,148 32,140 38,154" fill="#1a0e08" />
+      {/* wing membrane support struts */}
+      <g stroke={colors.shade} strokeWidth="1.2" fill="none" opacity="0.45">
+        <line x1="200" y1="175" x2="90" y2="160" />
+        <line x1="200" y1="180" x2="120" y2="180" />
+        <line x1="200" y1="184" x2="150" y2="186" />
       </g>
 
+      {/* RIGHT WING (mirrored) */}
       <path d="M 200 170 L 340 130 L 360 148 L 330 195 L 200 188 Z" fill={colors.shade} />
       <path d="M 200 170 L 330 138 L 340 152 L 320 188 L 200 184 Z" fill={colors.main} />
-      <g stroke={colors.shade} strokeWidth="1.5" fill="none" opacity="0.5">
-        <line x1="200" y1="170" x2="340" y2="130" />
-        <line x1="200" y1="175" x2="320" y2="155" />
-        <line x1="200" y1="180" x2="300" y2="178" />
+      <line x1="200" y1="170" x2="360" y2="148" stroke={colors.shade} strokeWidth="3.5" strokeLinecap="round" />
+      <polygon points="360,148 368,140 362,154" fill="#1a0e08" />
+      <g stroke={colors.shade} strokeWidth="1.2" fill="none" opacity="0.45">
+        <line x1="200" y1="175" x2="310" y2="160" />
+        <line x1="200" y1="180" x2="280" y2="180" />
+        <line x1="200" y1="184" x2="250" y2="186" />
       </g>
 
       <ellipse cx="200" cy="180" rx="22" ry="34" fill={colors.shade} />
@@ -460,8 +536,12 @@ export function PterodactylShape({ colors }: { colors: ColorOverride }) {
       <polygon points="216,134 262,104 218,144" fill={colors.main} />
       <line x1="222" y1="138" x2="262" y2="118" stroke="#3a2118" strokeWidth="0.6" />
 
-      <polygon points="195,125 188,84 210,90 215,120" fill={colors.shade} />
-      <polygon points="197,123 191,90 208,94 212,118" fill={colors.main} />
+      {/* BIGGER BACKWARD-SWEPT CREST — the iconic Pteranodon head crest.
+          A long bony fin extending back from the skull. Much more dramatic
+          than the original tiny triangle. */}
+      <path d="M 192 124 Q 175 80 162 68 Q 158 80 174 110 Q 184 122 192 122 Z" fill={colors.shade} />
+      <path d="M 194 124 Q 178 84 168 72 Q 166 84 178 108 Q 186 120 194 122 Z" fill={colors.main} />
+      <path d="M 196 122 Q 184 96 178 84" stroke={colors.light} strokeWidth="1.2" fill="none" opacity="0.6" />
 
       <g className="eye-blink" style={{ transformOrigin: '207px 137px' }}>
         <circle cx="207" cy="137" r="4" fill="white" stroke="#222" strokeWidth="0.6" />
@@ -1330,21 +1410,43 @@ export function TortoiseShape({ colors }: { colors: ColorOverride }) {
 
       <ellipse cx="85" cy="245" rx="18" ry="5" fill="#5a7a40" />
 
+      {/* SHELL — dome with darker rim */}
       <path d="M 110 240 Q 200 105 290 240 Q 290 255 200 258 Q 110 255 110 240 Z" fill="#5a4828" />
       <path d="M 115 238 Q 200 115 285 238 Q 285 252 200 254 Q 115 252 115 238 Z" fill="#7a6232" />
 
-      <g fill="#5a4828" stroke="#3a2818" strokeWidth="1.2">
-        <polygon points="155,200 175,170 200,165 225,170 245,200 232,225 200,232 168,225" />
-        <polygon points="200,165 215,135 205,108 195,108 185,135" />
+      {/* HEXAGONAL SCUTE PATTERN — the iconic tortoise shell tiles.
+          Central row of large hexes flanked by smaller surrounding scutes.
+          Real tortoise shells have these growth-ring keratin plates. */}
+      <g fill="#5a4828" stroke="#3a2818" strokeWidth="1.4">
+        {/* central spine row */}
+        <polygon points="200,115 215,128 215,150 200,162 185,150 185,128" />
+        <polygon points="200,165 215,178 215,200 200,212 185,200 185,178" />
+        <polygon points="200,215 215,225 215,240 200,250 185,240 185,225" />
+        {/* left flank row */}
+        <polygon points="155,150 170,158 170,178 155,186 140,178 140,158" />
+        <polygon points="155,195 170,205 170,225 155,232 140,225 140,205" />
+        {/* right flank row */}
+        <polygon points="245,150 230,158 230,178 245,186 260,178 260,158" />
+        <polygon points="245,195 230,205 230,225 245,232 260,225 260,205" />
+        {/* edge rim scutes */}
+        <polygon points="125,225 138,235 125,245 116,235" />
+        <polygon points="275,225 262,235 275,245 284,235" />
       </g>
-      <g fill="#9a7a44" opacity="0.5">
-        <polygon points="158,200 178,175 200,170 222,175 242,200 232,222 200,228 168,222" />
+      {/* lighter scute centers — growth-ring highlight */}
+      <g fill="#9a7a44" opacity="0.6">
+        <polygon points="200,122 211,131 211,148 200,155 189,148 189,131" />
+        <polygon points="200,172 211,180 211,198 200,205 189,198 189,180" />
+        <polygon points="200,220 211,228 211,238 200,245 189,238 189,228" />
+        <polygon points="155,156 166,162 166,176 155,180 144,176 144,162" />
+        <polygon points="155,201 166,207 166,222 155,226 144,222 144,207" />
+        <polygon points="245,156 234,162 234,176 245,180 256,176 256,162" />
+        <polygon points="245,201 234,207 234,222 245,226 256,222 256,207" />
       </g>
-
-      <g fill="#5a4828" opacity="0.6">
-        <polygon points="135,225 155,200 170,225" />
-        <polygon points="170,225 195,200 215,200 230,225" />
-        <polygon points="230,225 245,200 265,225" />
+      {/* growth rings on the center scutes — concentric darker lines */}
+      <g stroke="#3a2818" strokeWidth="0.8" fill="none" opacity="0.6">
+        <polygon points="200,130 207,136 207,148 200,153 193,148 193,136" />
+        <polygon points="200,178 207,184 207,196 200,201 193,196 193,184" />
+        <polygon points="200,225 207,231 207,238 200,243 193,238 193,231" />
       </g>
 
       <ellipse cx="320" cy="225" rx="30" ry="22" fill={colors.shade} />
