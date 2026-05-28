@@ -74,6 +74,7 @@ const FamilyModal = lazy(() => import('./components/FamilyModal').then((m) => ({
 const ShareModal = lazy(() => import('./components/ShareModal').then((m) => ({ default: m.ShareModal })));
 const GameShareModal = lazy(() => import('./components/GameShareModal').then((m) => ({ default: m.GameShareModal })));
 const EvolutionRoadmapModal = lazy(() => import('./components/EvolutionRoadmapModal').then((m) => ({ default: m.EvolutionRoadmapModal })));
+const DesignLabModal = lazy(() => import('./components/DesignLabModal').then((m) => ({ default: m.DesignLabModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -190,6 +191,7 @@ export default function App() {
   const [showShare, setShowShare] = useState(false);
   const [showGameShare, setShowGameShare] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
+  const [showDesignLab, setShowDesignLab] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -615,6 +617,12 @@ export default function App() {
             onLoad={(c) => { setCreature(c); sounds.click(); }}
           />
           <button
+            className="header-btn header-btn-primary"
+            type="button"
+            onClick={() => { setShowDesignLab(true); sounds.click(); }}
+            title="Design Lab — save / swap / test creature variants"
+          >🧪 Design Lab</button>
+          <button
             className="header-btn"
             type="button"
             onClick={() => { setShowShare(true); sounds.click(); }}
@@ -873,6 +881,14 @@ export default function App() {
         )}
         {showRoadmap && (
           <EvolutionRoadmapModal creature={creature} onClose={() => setShowRoadmap(false)} />
+        )}
+        {showDesignLab && (
+          <DesignLabModal
+            current={creature}
+            onLoad={(c) => { setCreature(c); setShowDesignLab(false); sounds.click(); }}
+            onClose={() => setShowDesignLab(false)}
+            onGoToBuilder={() => { setShowDesignLab(false); setView('creature'); }}
+          />
         )}
         {showGauntlet && (
           <GauntletModal

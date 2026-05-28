@@ -1433,6 +1433,210 @@ h2 {
 .gene-combo-text strong { font-size: 11.5px; color: #5a3b18; }
 .gene-combo-text small { font-size: 10px; color: #8a6238; }
 
+/* ─── Design Lab modal — full workspace for variants ─────────────── */
+.design-lab { max-width: 920px; }
+
+.design-lab-current {
+  margin-bottom: 16px;
+}
+.design-lab-current-label,
+.design-lab-slots-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.design-lab-card {
+  background: white;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "head head"
+    "thumb meta"
+    "actions actions";
+  gap: 10px;
+  align-items: start;
+}
+.design-lab-card-current {
+  border-color: #d8a040;
+  border-width: 2px;
+  background: linear-gradient(135deg, #fff8e8 0%, #fff5d0 100%);
+  grid-template-areas:
+    "thumb meta actions";
+  grid-template-columns: 100px 1fr auto;
+}
+.design-lab-card-head {
+  grid-area: head;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.design-lab-thumb-big {
+  grid-area: thumb;
+  width: 100px;
+  height: 100px;
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.design-lab-thumb-big svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.design-lab-thumb-empty {
+  font-size: 40px;
+  color: #c8b8a0;
+}
+.design-lab-meta {
+  grid-area: meta;
+  min-width: 0;
+}
+.design-lab-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.design-lab-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  margin-bottom: 4px;
+}
+.design-lab-stats span {
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.design-lab-combo {
+  font-size: 11px;
+  color: #a06820;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.design-lab-hybrids small {
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.design-lab-actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.design-lab-actions .btn {
+  font-size: 12.5px;
+  padding: 6px 10px;
+}
+.design-lab-actions-current {
+  align-self: center;
+}
+.design-lab-slot-letter {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #d8a040;
+}
+.design-lab-slot-age {
+  font-size: 10px;
+  color: var(--fg-dim);
+}
+.design-lab-card-empty {
+  border-style: dashed;
+  background: #fbfaf3;
+}
+.design-lab-empty-text {
+  font-size: 12px;
+  color: var(--fg-dim);
+  line-height: 1.4;
+}
+.design-lab-clear {
+  background: #d05050 !important;
+  color: white;
+}
+
+.design-lab-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.design-lab-suggest {
+  background: #f4ecd5;
+  border: 1px solid #c8a878;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+.design-lab-suggest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.design-lab-suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.design-lab-suggest-emoji {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.design-lab-suggest-text strong { color: #5a3b18; }
+.design-lab-suggest-text small { color: var(--fg-dim); }
+
+.design-lab-help {
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.design-lab-help summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--fg);
+}
+.design-lab-help-body {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--fg);
+  line-height: 1.5;
+}
+.design-lab-help-body ul { padding-left: 20px; }
+.design-lab-help-body li { margin: 3px 0; }
+
+@media (max-width: 720px) {
+  .design-lab-card-current {
+    grid-template-areas:
+      "thumb meta"
+      "actions actions";
+    grid-template-columns: 100px 1fr;
+  }
+  .design-lab-slot-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ─── Evolution Roadmap modal ──────────────────────────────────── */
 .evolution-roadmap { max-width: 720px; }
 .evo-goal-section {
