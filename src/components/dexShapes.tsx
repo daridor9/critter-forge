@@ -1075,9 +1075,18 @@ export function CamelShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="180" cy="200" rx="105" ry="38" fill={colors.shade} />
       <ellipse cx="180" cy="196" rx="100" ry="34" fill={colors.main} />
 
-      <path d="M 130 195 Q 155 130 215 195 Z" fill={colors.shade} />
-      <path d="M 134 195 Q 158 138 212 195 Z" fill={colors.main} />
-      <ellipse cx="170" cy="160" rx="32" ry="6" fill={colors.light} opacity="0.5" />
+      {/* PROMINENT HUMP — dromedary camel signature. Bigger and more rounded. */}
+      <path d="M 120 195 Q 155 115 220 195 Z" fill={colors.shade} />
+      <path d="M 124 195 Q 158 124 216 195 Z" fill={colors.main} />
+      {/* hump highlight on top — sun-bleached top */}
+      <ellipse cx="170" cy="142" rx="32" ry="8" fill={colors.light} opacity="0.6" />
+      <ellipse cx="170" cy="160" rx="30" ry="5" fill={colors.light} opacity="0.4" />
+      {/* fur tuft on top of the hump */}
+      <g fill={colors.shade} opacity="0.7">
+        <circle cx="160" cy="125" r="3" />
+        <circle cx="170" cy="120" r="3.5" />
+        <circle cx="180" cy="125" r="3" />
+      </g>
 
       <path d="M 90 200 L 70 195 L 75 210 Z" fill={colors.shade} />
       <path d="M 85 198 L 75 196 L 78 207 Z" fill={colors.main} />
@@ -1095,9 +1104,19 @@ export function CamelShape({ colors }: { colors: ColorOverride }) {
       <polygon points="312,98 314,82 320,100" fill={colors.shade} />
       <polygon points="332,98 334,82 326,100" fill={colors.shade} />
 
+      {/* EYE with the famously LONG CAMEL EYELASHES — they protect against
+          desert sand and sun glare. Multiple eyelashes splayed above the eye. */}
       <g className="eye-blink" style={{ transformOrigin: '322px 112px' }}>
         <circle cx="322" cy="112" r="3.5" fill="white" stroke="#222" strokeWidth="0.5" />
         <circle cx="323" cy="112" r="2.2" fill="#1a1a1a" />
+        <circle cx="324" cy="111" r="0.8" fill="white" />
+      </g>
+      {/* iconic long curving eyelashes */}
+      <g stroke="#1a1a1a" strokeWidth="1.2" strokeLinecap="round" fill="none">
+        <path d="M 318 107 Q 316 102 314 98" />
+        <path d="M 322 106 Q 322 100 322 96" />
+        <path d="M 326 107 Q 328 102 330 98" />
+        <path d="M 330 109 Q 334 105 338 102" />
       </g>
 
       <path d="M 340 130 L 348 128" stroke="#3a2118" strokeWidth="1.2" strokeLinecap="round" />
@@ -1149,10 +1168,28 @@ export function OstrichShape({ colors }: { colors: ColorOverride }) {
       <polygon points="294,40 312,46 298,52" fill="#d8851a" />
       <polygon points="296,42 306,46 298,50" fill="#fa9a30" />
 
+      {/* EYE with BIG LASHES — ostriches have the largest eyes of any land
+          vertebrate (5cm wide, bigger than their own brain) and famously
+          long curving lashes for desert glare protection. */}
       <g className="eye-blink" style={{ transformOrigin: '278px 38px' }}>
-        <circle cx="278" cy="38" r="4" fill="white" stroke="#222" strokeWidth="0.5" />
-        <circle cx="279" cy="38" r="2.5" fill="#1a1a1a" />
-        <circle cx="280" cy="36" r="1.2" fill="white" />
+        <circle cx="278" cy="38" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <circle cx="279" cy="38" r="3" fill="#1a1a1a" />
+        <circle cx="280" cy="36" r="1.4" fill="white" />
+      </g>
+      {/* long curving eyelashes */}
+      <g stroke="#1a1a1a" strokeWidth="1.2" strokeLinecap="round" fill="none">
+        <path d="M 274 33 Q 272 28 270 24" />
+        <path d="M 278 32 Q 278 26 278 22" />
+        <path d="M 282 33 Q 284 28 286 24" />
+      </g>
+
+      {/* FLUFFY FEATHER TUFTS on the body — ostriches have iconic loose
+          fluffy plumage, especially the showy tail and wing feathers. */}
+      <g fill={colors.light} opacity="0.5">
+        <circle cx="160" cy="244" r="6" />
+        <circle cx="175" cy="252" r="5" />
+        <circle cx="225" cy="252" r="5" />
+        <circle cx="240" cy="244" r="6" />
       </g>
 
       <ellipse cx="200" cy="287" rx="110" ry="6" fill="rgba(0,0,0,0.22)" />
@@ -1862,13 +1899,25 @@ export function SnowLeopardShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="200" cy="288" rx="200" ry="14" fill="white" />
       <ellipse cx="200" cy="290" rx="120" ry="6" fill="rgba(0,0,0,0.12)" />
 
-      <path d="M 88 195 Q 50 185 26 200 Q 14 215 22 234 Q 32 248 50 250" stroke={colors.shade} strokeWidth="22" fill="none" strokeLinecap="round" />
-      <path d="M 88 195 Q 50 185 26 200 Q 14 215 22 234 Q 32 248 50 250" stroke={colors.main} strokeWidth="16" fill="none" strokeLinecap="round" />
-      <g fill={rosette} opacity="0.55">
+      {/* EXTRA-FLUFFY THICK TAIL — snow leopards have a tail almost as long
+          as their body, used as a counterweight for jumping and as a scarf
+          to wrap around their face when they sleep in the cold. */}
+      <path d="M 88 195 Q 50 185 26 200 Q 14 215 22 234 Q 32 248 50 250" stroke={colors.shade} strokeWidth="28" fill="none" strokeLinecap="round" />
+      <path d="M 88 195 Q 50 185 26 200 Q 14 215 22 234 Q 32 248 50 250" stroke={colors.main} strokeWidth="22" fill="none" strokeLinecap="round" />
+      {/* fur tufts along the underside */}
+      <g fill={colors.light} opacity="0.5">
+        <circle cx="68" cy="208" r="4" />
+        <circle cx="48" cy="216" r="4" />
+        <circle cx="28" cy="230" r="4" />
+        <circle cx="40" cy="252" r="4" />
+      </g>
+      <g fill={rosette} opacity="0.6">
         <circle cx="62" cy="200" r="3.5" />
         <circle cx="42" cy="208" r="3.5" />
         <circle cx="28" cy="220" r="3.5" />
         <circle cx="36" cy="240" r="3.2" />
+        <circle cx="52" cy="195" r="2.5" />
+        <circle cx="22" cy="232" r="2.5" />
       </g>
 
       <rect x="110" y="218" width="22" height="55" fill={colors.shade} rx="5" />
@@ -1924,14 +1973,18 @@ export function SnowLeopardShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="312" cy="190" rx="12" ry="9" fill={colors.main} />
       <ellipse cx="320" cy="192" rx="4" ry="3" fill="#1a1a1a" />
 
+      {/* SIGNATURE PALE BLUE-GREEN EYES — snow leopards are the only big
+          cat with this distinctive icy eye color. */}
       <g className="eye-blink" style={{ transformOrigin: '288px 176px' }}>
-        <circle cx="288" cy="176" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="289" cy="176" rx="2.4" ry="4" fill="#1a1a1a" />
+        <circle cx="288" cy="176" r="5.5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="289" cy="176" rx="3" ry="4.5" fill="#9ad0d8" />
+        <ellipse cx="289" cy="176" rx="1.4" ry="3.4" fill="#1a1a1a" />
         <circle cx="290" cy="174" r="1.4" fill="white" />
       </g>
       <g className="eye-blink" style={{ transformOrigin: '304px 176px' }}>
-        <circle cx="304" cy="176" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="305" cy="176" rx="2.4" ry="4" fill="#1a1a1a" />
+        <circle cx="304" cy="176" r="5.5" fill="white" stroke="#222" strokeWidth="0.6" />
+        <ellipse cx="305" cy="176" rx="3" ry="4.5" fill="#9ad0d8" />
+        <ellipse cx="305" cy="176" rx="1.4" ry="3.4" fill="#1a1a1a" />
         <circle cx="306" cy="174" r="1.4" fill="white" />
       </g>
 
