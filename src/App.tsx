@@ -78,6 +78,7 @@ const DesignLabModal = lazy(() => import('./components/DesignLabModal').then((m)
 const DailyEncounterModal = lazy(() => import('./components/DailyEncounterModal').then((m) => ({ default: m.DailyEncounterModal })));
 const LifecycleModal = lazy(() => import('./components/LifecycleModal').then((m) => ({ default: m.LifecycleModal })));
 const CampaignModal = lazy(() => import('./components/CampaignModal').then((m) => ({ default: m.CampaignModal })));
+const BreedingModal = lazy(() => import('./components/BreedingModal').then((m) => ({ default: m.BreedingModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -198,6 +199,7 @@ export default function App() {
   const [showDailyWild, setShowDailyWild] = useState(false);
   const [showLifecycle, setShowLifecycle] = useState(false);
   const [showCampaign, setShowCampaign] = useState(false);
+  const [showBreeding, setShowBreeding] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -706,6 +708,7 @@ export default function App() {
                 {moreItem('🐺 Daily wild encounter', () => setShowDailyWild(true))}
                 {moreItem('🐣 Lifecycle (baby/adult/elder)', () => setShowLifecycle(true))}
                 {moreItem('🌍 The Adapting (campaign)', () => setShowCampaign(true))}
+                {moreItem('🧬 Breeding lab', () => setShowBreeding(true))}
                 {moreItem('👤 Profile', () => setShowProfile(true))}
                 {moreItem('👥 Family', () => setShowFamily(true))}
                 {moreItem('🏅 Achievements', () => setShowAchievements(true))}
@@ -971,6 +974,13 @@ export default function App() {
             onClose={() => setShowCampaign(false)}
             onStartArena={(arena) => pickArena(arena as ArenaId)}
             onStartGauntlet={() => setShowGauntlet(true)}
+          />
+        )}
+        {showBreeding && (
+          <BreedingModal
+            current={creature}
+            onClose={() => setShowBreeding(false)}
+            onPickOffspring={(c) => { setCreature(c); sounds.click(); }}
           />
         )}
         {showGauntlet && (

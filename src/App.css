@@ -1433,6 +1433,179 @@ h2 {
 .gene-combo-text strong { font-size: 11.5px; color: #5a3b18; }
 .gene-combo-text small { font-size: 10px; color: #8a6238; }
 
+/* ─── Breeding Lab modal — genetic crossing ──────────────────── */
+.breeding-modal { max-width: 920px; }
+
+.breeding-parents {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 8px;
+}
+.breeding-parent-card {
+  background: white;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+.breeding-parent-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+}
+.breeding-parent-thumb {
+  width: 100px;
+  height: 100px;
+  background: #fbfaf3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.breeding-parent-thumb svg { width: 100%; height: 100%; }
+.breeding-parent-name {
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+.breeding-parent-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  font-size: 10.5px;
+}
+.breeding-parent-stats span {
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--fg-dim);
+}
+.breeding-parent-hybrids {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+.breeding-hybrid-chip {
+  background: #fff8d8;
+  border: 1px solid #d8a040;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+}
+
+.breeding-cross {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.breeding-cross-x {
+  font-size: 30px;
+  font-weight: 800;
+  color: #c08030;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.breeding-offspring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.breeding-offspring-card {
+  background: linear-gradient(180deg, #fff8e8 0%, #ffffff 60%);
+  border: 1.5px solid #d8a040;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+.breeding-offspring-thumb {
+  width: 100px;
+  height: 100px;
+  background: #fbfaf3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.breeding-offspring-thumb svg { width: 100%; height: 100%; }
+.breeding-offspring-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--fg);
+  text-align: center;
+}
+.breeding-offspring-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+}
+.breeding-trait {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  background: white;
+  border: 1.5px solid #ccc;
+  border-radius: 4px;
+  padding: 1px 1px 1px 4px;
+  color: var(--fg);
+}
+.breeding-trait-icon { font-size: 10px; }
+.breeding-trait-source {
+  font-size: 9px;
+  font-weight: 800;
+  color: white;
+  padding: 1px 3px;
+  border-radius: 2px;
+  margin-left: 2px;
+}
+.breeding-offspring-hybrids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+}
+.breeding-offspring-hybrids .breeding-hybrid-chip {
+  font-size: 10px;
+  padding: 1px 5px;
+}
+.breeding-mutation-note {
+  font-size: 11px;
+  color: #9a60d0;
+  font-weight: 700;
+  background: #f4e8ff;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-align: center;
+}
+.breeding-offspring-action {
+  margin-top: 4px;
+}
+
+.breeding-fact {
+  background: #f0f6e8;
+  border: 1px solid #98c478;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-top: 12px;
+}
+
+@media (max-width: 720px) {
+  .breeding-parents { grid-template-columns: 1fr; }
+  .breeding-cross-x { transform: rotate(90deg); }
+}
+
 /* ─── Campaign modal — "The Adapting" ──────────────────────────── */
 .campaign-modal { max-width: 760px; }
 .campaign-progress {
