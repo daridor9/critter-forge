@@ -20,15 +20,35 @@ const BG_DEFS = (
 );
 
 export function OctopusShape({ colors }: { colors: ColorOverride }) {
-  const tentacles = [
-    { sx: 155, sy: 175, c1x: 90,  c1y: 195, c2x: 50,  c2y: 250, ex: 30,  ey: 270 },
-    { sx: 170, sy: 185, c1x: 130, c1y: 230, c2x: 110, c2y: 270, ex: 95,  ey: 290 },
-    { sx: 185, sy: 190, c1x: 175, c1y: 240, c2x: 155, c2y: 280, ex: 160, ey: 290 },
-    { sx: 200, sy: 192, c1x: 205, c1y: 245, c2x: 205, c2y: 280, ex: 210, ey: 295 },
-    { sx: 215, sy: 190, c1x: 225, c1y: 240, c2x: 245, c2y: 280, ex: 250, ey: 290 },
-    { sx: 230, sy: 185, c1x: 270, c1y: 230, c2x: 290, c2y: 270, ex: 305, ey: 290 },
-    { sx: 245, sy: 175, c1x: 310, c1y: 195, c2x: 350, c2y: 250, ex: 370, ey: 270 },
-    { sx: 200, sy: 190, c1x: 220, c1y: 250, c2x: 235, c2y: 285, ex: 230, ey: 295 },
+  // 8 tentacles, with two top-side tentacles curling UPWARD for a more dynamic
+  // exploring pose, and the suckerPoints array placing visible suckers along
+  // each tentacle.
+  const tentacles: Array<{
+    sx: number; sy: number; c1x: number; c1y: number; c2x: number; c2y: number; ex: number; ey: number;
+    suckers: Array<[number, number]>;
+  }> = [
+    // Leftmost — CURLS UPWARD (exploring above)
+    { sx: 155, sy: 175, c1x: 100, c1y: 130, c2x: 50, c2y: 70, ex: 28, ey: 38,
+      suckers: [[130, 156], [105, 130], [78, 100], [54, 72], [38, 50]] },
+    // Lower-left
+    { sx: 170, sy: 185, c1x: 130, c1y: 230, c2x: 110, c2y: 270, ex: 95, ey: 290,
+      suckers: [[152, 200], [132, 226], [118, 252], [102, 278]] },
+    { sx: 185, sy: 190, c1x: 175, c1y: 240, c2x: 155, c2y: 280, ex: 160, ey: 290,
+      suckers: [[180, 210], [170, 240], [162, 268], [160, 285]] },
+    // Centre-left
+    { sx: 200, sy: 192, c1x: 205, c1y: 245, c2x: 205, c2y: 280, ex: 210, ey: 295,
+      suckers: [[200, 215], [204, 245], [206, 270], [208, 290]] },
+    // Centre-right
+    { sx: 215, sy: 190, c1x: 225, c1y: 240, c2x: 245, c2y: 280, ex: 250, ey: 290,
+      suckers: [[220, 210], [230, 240], [238, 268], [248, 285]] },
+    { sx: 230, sy: 185, c1x: 270, c1y: 230, c2x: 290, c2y: 270, ex: 305, ey: 290,
+      suckers: [[248, 200], [268, 226], [282, 252], [298, 278]] },
+    // Rightmost — CURLS UPWARD (exploring above)
+    { sx: 245, sy: 175, c1x: 300, c1y: 130, c2x: 350, c2y: 70, ex: 374, ey: 38,
+      suckers: [[270, 156], [295, 130], [322, 100], [346, 72], [364, 50]] },
+    // Centre dangling between others
+    { sx: 200, sy: 190, c1x: 220, c1y: 250, c2x: 235, c2y: 285, ex: 230, ey: 295,
+      suckers: [[210, 215], [220, 245], [228, 270], [230, 290]] },
   ];
 
   return (
@@ -38,29 +58,60 @@ export function OctopusShape({ colors }: { colors: ColorOverride }) {
 
       {tentacles.map((t, i) => (
         <g key={i}>
+          {/* tentacle base — dark outline */}
           <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`} stroke={colors.shade} strokeWidth="22" fill="none" strokeLinecap="round" />
+          {/* tentacle main color */}
           <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`} stroke={colors.main} strokeWidth="18" fill="none" strokeLinecap="round" />
-          <path d={`M ${t.sx} ${t.sy} C ${t.c1x} ${t.c1y}, ${t.c2x} ${t.c2y}, ${t.ex} ${t.ey}`} stroke={colors.light} strokeWidth="6" fill="none" strokeLinecap="round" strokeDasharray="3 14" opacity="0.55" />
+          {/* VISIBLE SUCKERS — light circles along the tentacle's underside.
+              Real octopi have ~200 suckers per arm; we show ~4-5 prominent ones. */}
+          <g>
+            {t.suckers.map(([sx, sy], j) => (
+              <g key={j}>
+                <circle cx={sx} cy={sy} r="3.5" fill={colors.light} opacity="0.85" />
+                <circle cx={sx} cy={sy} r="1.8" fill={colors.shade} opacity="0.6" />
+              </g>
+            ))}
+          </g>
         </g>
       ))}
 
+      {/* MANTLE (head bulb) — slightly elongated at the top to suggest the
+          siphon/breathing direction */}
       <ellipse cx="200" cy="125" rx="86" ry="70" fill={colors.shade} />
       <ellipse cx="200" cy="120" rx="80" ry="64" fill={colors.main} />
       <ellipse cx="175" cy="80" rx="40" ry="22" fill="white" opacity="0.35" />
       <ellipse cx="180" cy="100" rx="55" ry="30" fill={colors.light} opacity="0.45" />
+      {/* subtle mantle texture spots (chromatophore hint) */}
+      <g fill={colors.shade} opacity="0.4">
+        <circle cx="155" cy="100" r="2.5" />
+        <circle cx="195" cy="85" r="2" />
+        <circle cx="225" cy="95" r="2.5" />
+        <circle cx="215" cy="155" r="2" />
+        <circle cx="175" cy="160" r="2.5" />
+      </g>
 
+      {/* SIPHON — tube on the side of the mantle (jet propulsion) */}
+      <ellipse cx="276" cy="155" rx="8" ry="5" fill={colors.shade} transform="rotate(20 276 155)" />
+      <ellipse cx="276" cy="154" rx="5" ry="3" fill="#0a1820" transform="rotate(20 276 154)" />
+
+      {/* LARGE EXPRESSIVE EYES — the iconic octopus look */}
       <g className="eye-blink" style={{ transformOrigin: '170px 130px' }}>
         <circle cx="170" cy="130" r="13" fill="white" stroke="#222" strokeWidth="0.7" />
         <ellipse cx="170" cy="130" rx="6" ry="11" fill="#1a1a1a" />
+        {/* horizontal rectangular pupil — octopus characteristic */}
+        <rect x="164" y="128" width="12" height="4" rx="1.5" fill="#000" />
         <circle cx="173" cy="124" r="3.5" fill="white" />
       </g>
       <g className="eye-blink" style={{ transformOrigin: '230px 130px' }}>
         <circle cx="230" cy="130" r="13" fill="white" stroke="#222" strokeWidth="0.7" />
         <ellipse cx="230" cy="130" rx="6" ry="11" fill="#1a1a1a" />
+        <rect x="224" y="128" width="12" height="4" rx="1.5" fill="#000" />
         <circle cx="233" cy="124" r="3.5" fill="white" />
       </g>
 
-      <path d="M 184 158 Q 200 168 216 158" stroke="#3a2118" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      {/* slight curved mouth/beak hint */}
+      <path d="M 184 158 Q 200 170 216 158" stroke="#3a2118" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <ellipse cx="200" cy="164" rx="3" ry="2" fill="#1a1208" opacity="0.6" />
 
       <ellipse cx="200" cy="285" rx="120" ry="6" fill="rgba(0,0,0,0.18)" />
     </svg>
@@ -496,30 +547,46 @@ export function DolphinShape({ colors }: { colors: ColorOverride }) {
       <path d="M 190 130 Q 195 80 235 110 Q 215 130 200 140 Z" fill={colors.shade} />
       <path d="M 192 132 Q 198 95 225 115 Q 213 130 200 138 Z" fill={colors.main} />
 
-      <path d="M 305 158 L 380 105 L 372 175 L 340 175 Z" fill={colors.shade} />
-      <path d="M 308 162 L 370 115 L 364 168 L 340 172 Z" fill={colors.main} />
-      <path d="M 305 188 L 380 230 L 365 195 L 340 188 Z" fill={colors.shade} />
-      <path d="M 308 186 L 370 220 L 360 195 L 340 188 Z" fill={colors.main} />
+      {/* HORIZONTAL FLUKE — smoother, more rounded.
+          Dolphins and whales have horizontal flukes (vs. vertical fish tails).
+          Two lobes splayed up and down with a central notch. */}
+      <path d="M 305 175 Q 348 145 388 110 Q 386 145 360 175 Q 350 178 320 178 Z" fill={colors.shade} />
+      <path d="M 310 175 Q 348 152 378 122 Q 378 148 358 174 Q 348 176 322 176 Z" fill={colors.main} />
+      <path d="M 305 175 Q 348 205 388 240 Q 386 205 360 175 Q 350 172 320 172 Z" fill={colors.shade} />
+      <path d="M 310 175 Q 348 198 378 228 Q 378 202 358 176 Q 348 174 322 174 Z" fill={colors.main} />
+      {/* central notch highlight */}
+      <ellipse cx="340" cy="175" rx="18" ry="4" fill={colors.light} opacity="0.6" />
 
+      {/* PECTORAL FIN — angled side flipper */}
       <ellipse cx="118" cy="210" rx="22" ry="11" fill={colors.shade} transform="rotate(28 118 210)" />
       <ellipse cx="118" cy="208" rx="18" ry="8" fill={colors.main} transform="rotate(28 118 208)" />
 
-      <path d="M 50 175 L 28 168 L 32 178 L 18 178 L 32 185 L 28 195 L 50 188 Z" fill={colors.shade} />
-      <path d="M 52 178 L 35 172 L 36 180 L 28 180 L 36 187 L 35 192 L 52 187 Z" fill={colors.main} />
+      {/* ROSTRUM (beak) — the dolphin's pointed snout */}
+      <path d="M 60 175 L 22 168 L 28 178 L 14 180 L 28 188 L 22 198 L 60 192 Z" fill={colors.shade} />
+      <path d="M 62 178 L 30 172 L 32 180 L 24 182 L 32 188 L 30 192 L 62 188 Z" fill={colors.main} />
 
-      <line x1="32" y1="178" x2="48" y2="182" stroke="#3a2118" strokeWidth="2" strokeLinecap="round" />
-      <path d="M 25 184 q 4 3 12 1" stroke="#3a2118" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      {/* ICONIC SMILE — the dolphin's signature upturned-mouth curve.
+          A bold smile line that goes from the rostrum tip back along the cheek. */}
+      <path d="M 22 184 Q 38 198 70 192" stroke="#1a0a08" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      {/* second smile-shadow for depth */}
+      <path d="M 24 185 Q 40 196 68 191" stroke="#3a2118" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.6" />
 
+      {/* BRIGHT FRIENDLY EYE — large, expressive, with a happy gleam */}
       <g className="eye-blink" style={{ transformOrigin: '70px 168px' }}>
-        <circle cx="70" cy="168" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <circle cx="70" cy="168" r="3" fill="#1a1a1a" />
-        <circle cx="72" cy="166" r="1.3" fill="white" />
+        <circle cx="70" cy="168" r="5.5" fill="white" stroke="#222" strokeWidth="0.7" />
+        <circle cx="70" cy="168" r="3.5" fill="#1a1a1a" />
+        <circle cx="72" cy="166" r="1.6" fill="white" />
+        <circle cx="68" cy="170" r="0.8" fill="white" opacity="0.8" />
       </g>
 
-      <ellipse cx="118" cy="135" rx="5" ry="2.5" fill={colors.shade} />
+      {/* BLOWHOLE — clearer indentation on top of the head */}
+      <ellipse cx="118" cy="135" rx="6" ry="3" fill={colors.shade} />
+      <ellipse cx="118" cy="134" rx="4" ry="2" fill="#1a0a08" opacity="0.7" />
+      {/* water spout from blowhole */}
       <g opacity="0.55" className="bob-breathe" style={{ transformOrigin: '118px 120px' }}>
         <ellipse cx="118" cy="100" rx="15" ry="6" fill="#cfeefb" />
         <ellipse cx="112" cy="80" rx="10" ry="4" fill="#cfeefb" opacity="0.8" />
+        <ellipse cx="124" cy="84" rx="7" ry="3" fill="#cfeefb" opacity="0.7" />
       </g>
 
       <ellipse cx="200" cy="262" rx="115" ry="7" fill="rgba(0,0,0,0.15)" />
@@ -892,27 +959,67 @@ export function EagleShape({ colors }: { colors: ColorOverride }) {
         <line x1="210" y1="220" x2="210" y2="234" />
       </g>
 
-      <ellipse cx="200" cy="140" rx="26" ry="22" fill="#f4ede0" />
-      <ellipse cx="200" cy="138" rx="22" ry="18" fill="white" />
-
-      <polygon points="200,140 195,166 224,154 220,148" fill="#fa9a30" />
-      <polygon points="200,148 205,160 218,154 212,150" fill="#d8851a" />
-
-      <g className="eye-blink" style={{ transformOrigin: '194px 135px' }}>
-        <circle cx="194" cy="135" r="4.5" fill="#ffd34a" stroke="#222" strokeWidth="0.6" />
-        <circle cx="195" cy="135" r="2.5" fill="#1a1a1a" />
-        <circle cx="196" cy="133" r="1.2" fill="white" />
+      {/* WHITE HEAD — bald eagle hood with a slight crest at the back */}
+      <ellipse cx="200" cy="140" rx="28" ry="24" fill="#f4ede0" />
+      <ellipse cx="200" cy="138" rx="24" ry="20" fill="white" />
+      {/* feather lines on the head crown */}
+      <g stroke="#d4cdc0" strokeWidth="0.8" fill="none" opacity="0.7">
+        <path d="M 184 130 q 4 -2 6 0" />
+        <path d="M 196 124 q 4 -2 6 0" />
+        <path d="M 208 126 q 4 -2 6 0" />
+        <path d="M 188 142 q 4 -2 6 0" />
+        <path d="M 212 142 q 4 -2 6 0" />
       </g>
 
-      <polygon points="195,108 200,90 205,108" fill={colors.shade} />
+      {/* HOOKED BEAK — the signature feature. Sharper, more recurved.
+          Bright yellow with a darker hook tip. */}
+      <path d="M 198 142 Q 226 144 240 158 Q 232 168 220 165 Q 210 160 200 156 Z" fill="#fa9a30" />
+      <path d="M 200 144 Q 222 146 234 158 Q 228 164 220 162 Q 212 158 202 154 Z" fill="#ffb850" />
+      {/* hook tip - darker */}
+      <path d="M 228 156 Q 240 158 240 158 Q 234 168 220 165 Q 226 160 232 156 Z" fill="#c8741a" />
+      {/* nostril */}
+      <ellipse cx="212" cy="150" rx="1.4" ry="1" fill="#3a2010" />
 
-      <g stroke={colors.shade} strokeWidth="3" strokeLinecap="round" fill="none">
-        <line x1="190" y1="232" x2="186" y2="240" />
-        <line x1="190" y1="232" x2="192" y2="245" />
-        <line x1="195" y1="232" x2="198" y2="245" />
-        <line x1="210" y1="232" x2="214" y2="240" />
-        <line x1="210" y1="232" x2="208" y2="245" />
-        <line x1="205" y1="232" x2="202" y2="245" />
+      {/* INTENSE EYE — yellow with a deep brow ridge */}
+      <path d="M 184 130 Q 192 126 200 130" stroke={colors.shade} strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <g className="eye-blink" style={{ transformOrigin: '194px 135px' }}>
+        <circle cx="194" cy="135" r="5" fill="#ffd34a" stroke="#222" strokeWidth="0.8" />
+        <circle cx="195" cy="135" r="3" fill="#1a1a1a" />
+        <circle cx="196" cy="133" r="1.3" fill="white" />
+      </g>
+
+      {/* TAIL FEATHERS — white tail (mature bald eagle), splayed below the body */}
+      <g>
+        <path d="M 200 232 Q 184 256 178 274 L 200 264 Z" fill="#f4ede0" stroke={colors.shade} strokeWidth="0.8" />
+        <path d="M 200 232 Q 192 258 194 278 L 200 264 Z" fill="#fff" stroke={colors.shade} strokeWidth="0.6" />
+        <path d="M 200 232 Q 208 258 206 278 L 200 264 Z" fill="#fff" stroke={colors.shade} strokeWidth="0.6" />
+        <path d="M 200 232 Q 216 256 222 274 L 200 264 Z" fill="#f4ede0" stroke={colors.shade} strokeWidth="0.8" />
+      </g>
+
+      {/* TALONS — large yellow legs with curved black CLAWS gripping prey.
+          Real eagles have massive talons; this is the signature predator feature. */}
+      <g>
+        {/* left leg */}
+        <path d="M 188 230 L 184 250" stroke="#e0a040" strokeWidth="5" strokeLinecap="round" />
+        <path d="M 184 250 L 180 260" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 184 250 L 186 262" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 184 250 L 192 260" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 184 250 L 178 256" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        {/* claw tips — pointed black */}
+        <circle cx="180" cy="260" r="1.4" fill="#1a1a1a" />
+        <circle cx="186" cy="262" r="1.4" fill="#1a1a1a" />
+        <circle cx="192" cy="260" r="1.4" fill="#1a1a1a" />
+        <circle cx="178" cy="256" r="1.4" fill="#1a1a1a" />
+        {/* right leg */}
+        <path d="M 212 230 L 216 250" stroke="#e0a040" strokeWidth="5" strokeLinecap="round" />
+        <path d="M 216 250 L 220 260" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 216 250 L 214 262" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 216 250 L 208 260" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 216 250 L 222 256" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="220" cy="260" r="1.4" fill="#1a1a1a" />
+        <circle cx="214" cy="262" r="1.4" fill="#1a1a1a" />
+        <circle cx="208" cy="260" r="1.4" fill="#1a1a1a" />
+        <circle cx="222" cy="256" r="1.4" fill="#1a1a1a" />
       </g>
     </svg>
   );
@@ -1142,44 +1249,78 @@ export function SharkShape({ colors }: { colors: ColorOverride }) {
         <circle cx="350" cy="240" r="2.5" />
       </g>
 
+      {/* BODY — torpedo silhouette with sharp countershading:
+          dark grey top / pale white belly (great white shark colors) */}
       <ellipse cx="195" cy="175" rx="135" ry="42" fill={colors.shade} />
       <ellipse cx="195" cy="170" rx="128" ry="36" fill={colors.main} />
-      <ellipse cx="195" cy="192" rx="120" ry="20" fill={colors.light} opacity="0.85" />
+      {/* BRIGHT WHITE BELLY — distinctive countershade contrast */}
+      <ellipse cx="195" cy="195" rx="118" ry="18" fill="#fff8e8" opacity="0.95" />
+      <ellipse cx="195" cy="202" rx="110" ry="10" fill="#ffffff" opacity="0.85" />
       <ellipse cx="170" cy="148" rx="80" ry="10" fill="white" opacity="0.2" />
 
-      <line x1="100" y1="170" x2="115" y2="175" stroke={colors.shade} strokeWidth="1.5" />
-      <line x1="115" y1="170" x2="125" y2="175" stroke={colors.shade} strokeWidth="1.5" />
-      <line x1="130" y1="170" x2="140" y2="175" stroke={colors.shade} strokeWidth="1.5" />
-      <line x1="145" y1="170" x2="155" y2="175" stroke={colors.shade} strokeWidth="1.5" />
-
-      <polygon points="180,140 200,80 220,140" fill={colors.shade} />
-      <polygon points="184,142 200,90 216,142" fill={colors.main} />
-
-      <polygon points="115,200 90,235 145,210" fill={colors.shade} />
-      <polygon points="285,200 310,235 255,210" fill={colors.shade} />
-
-      <path d="M 320 168 L 380 100 L 365 175 L 380 248 L 320 178 Z" fill={colors.shade} />
-      <path d="M 322 170 L 372 110 L 360 174 L 372 240 L 322 176 Z" fill={colors.main} />
-
-      <g className="eye-blink" style={{ transformOrigin: '85px 165px' }}>
-        <circle cx="85" cy="165" r="5" fill="#1a1a1a" stroke="#222" strokeWidth="0.5" />
-        <circle cx="86" cy="163" r="1.4" fill="white" />
+      {/* FIVE GILL SLITS — real great whites have exactly 5 vertical slits */}
+      <g stroke={colors.shade} strokeWidth="2.2" fill="none" strokeLinecap="round" opacity="0.85">
+        <path d="M 105 160 q -2 12 0 24" />
+        <path d="M 118 160 q -2 12 0 24" />
+        <path d="M 131 160 q -2 12 0 24" />
+        <path d="M 144 160 q -2 12 0 24" />
+        <path d="M 157 160 q -2 12 0 24" />
       </g>
 
-      <ellipse cx="70" cy="190" rx="18" ry="3" fill={colors.shade} />
-      <ellipse cx="68" cy="186" rx="14" ry="2" fill={colors.shade} opacity="0.7" />
+      {/* DORSAL FIN — the iconic shark silhouette. Bigger, sharper,
+          slightly swept back (real great white proportions). */}
+      <path d="M 172 135 Q 200 60 220 135 L 218 142 Z" fill={colors.shade} />
+      <path d="M 176 138 Q 200 72 216 140 L 214 144 Z" fill={colors.main} />
+      {/* darker tip — apex predator detail */}
+      <path d="M 196 80 Q 200 60 208 90 L 200 90 Z" fill="#1a2530" opacity="0.4" />
 
-      <path d="M 60 188 Q 80 186 95 192" stroke="#1a1a1a" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-      <g fill="white">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <polygon key={i} points={`${62 + i * 4},188 ${64 + i * 4},194 ${66 + i * 4},188`} />
+      {/* SECOND DORSAL FIN (smaller, behind the main one) */}
+      <path d="M 282 158 Q 290 138 300 158 Z" fill={colors.shade} />
+      <path d="M 284 160 Q 290 144 298 160 Z" fill={colors.main} />
+
+      {/* PECTORAL FINS — big sweeping triangles on the sides */}
+      <path d="M 115 200 L 80 244 Q 100 232 145 212 Z" fill={colors.shade} />
+      <path d="M 118 202 L 90 240 Q 108 230 142 214 Z" fill={colors.main} />
+      <path d="M 285 200 L 320 244 Q 300 232 255 212 Z" fill={colors.shade} />
+      <path d="M 282 202 L 310 240 Q 292 230 258 214 Z" fill={colors.main} />
+
+      {/* PELVIC FIN (smaller, underside, mid-body) */}
+      <path d="M 220 210 L 235 234 Q 245 222 248 210 Z" fill={colors.shade} />
+
+      {/* CAUDAL FIN — asymmetric heterocercal tail (top lobe bigger,
+          characteristic of great whites). Two lobes with notch. */}
+      <path d="M 320 168 L 388 88 L 374 175 L 384 256 L 320 178 Z" fill={colors.shade} />
+      <path d="M 322 170 L 380 100 L 368 174 L 376 248 L 322 176 Z" fill={colors.main} />
+      <path d="M 374 175 Q 366 178 360 175" stroke={colors.shade} strokeWidth="1.5" fill="none" />
+
+      {/* INTENSE BLACK EYE — predator eye, pure black, slightly larger */}
+      <g className="eye-blink" style={{ transformOrigin: '78px 162px' }}>
+        <circle cx="78" cy="162" r="6.5" fill="#1a1a1a" stroke="#0a0a0a" strokeWidth="0.8" />
+        <circle cx="78" cy="162" r="5" fill="#000" />
+        <circle cx="80" cy="160" r="1.4" fill="white" opacity="0.7" />
+      </g>
+      {/* dark eye ring for menace */}
+      <path d="M 70 158 Q 78 154 88 158" stroke={colors.shade} strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+      {/* MOUTH — wider, more menacing, slightly opened with VISIBLE
+          TRIANGULAR TEETH (the signature shark trait) */}
+      <path d="M 50 192 Q 80 184 102 196 Q 80 210 50 200 Z" fill="#1a0808" />
+      <path d="M 52 194 Q 80 188 100 196 Q 80 206 52 198 Z" fill="#3a1010" opacity="0.7" />
+      {/* upper row of teeth — bigger, sharper triangles */}
+      <g fill="white" stroke="#888" strokeWidth="0.4">
+        {Array.from({ length: 11 }).map((_, i) => (
+          <polygon key={`u${i}`} points={`${56 + i * 4.5},193 ${58 + i * 4.5},200 ${60 + i * 4.5},193`} />
         ))}
       </g>
-      <g fill="white">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <polygon key={i} points={`${62 + i * 4},188 ${64 + i * 4},182 ${66 + i * 4},188`} />
+      {/* lower row of teeth */}
+      <g fill="white" stroke="#888" strokeWidth="0.4">
+        {Array.from({ length: 11 }).map((_, i) => (
+          <polygon key={`l${i}`} points={`${56 + i * 4.5},199 ${58 + i * 4.5},192 ${60 + i * 4.5},199`} />
         ))}
       </g>
+
+      {/* nostril hint */}
+      <circle cx="60" cy="172" r="1.2" fill={colors.shade} opacity="0.7" />
 
       <ellipse cx="200" cy="262" rx="130" ry="7" fill="rgba(0,0,0,0.15)" />
     </svg>
@@ -1539,22 +1680,54 @@ export function PolarBearShape({ colors }: { colors: ColorOverride }) {
       <ellipse cx="200" cy="288" rx="200" ry="14" fill="white" />
       <ellipse cx="200" cy="290" rx="130" ry="6" fill="rgba(0,0,0,0.12)" />
 
+      {/* short tail nub */}
       <ellipse cx="78" cy="210" rx="14" ry="10" fill={colors.shade} />
       <ellipse cx="78" cy="208" rx="11" ry="8" fill={colors.main} />
 
+      {/* stocky legs with bigger paws */}
       <rect x="100" y="220" width="32" height="58" fill={colors.shade} rx="8" />
       <rect x="160" y="222" width="32" height="56" fill={colors.shade} rx="8" />
       <rect x="230" y="222" width="32" height="56" fill={colors.shade} rx="8" />
       <rect x="288" y="220" width="32" height="58" fill={colors.shade} rx="8" />
-      <ellipse cx="116" cy="282" rx="20" ry="5" fill="#3a2118" />
-      <ellipse cx="176" cy="282" rx="20" ry="5" fill="#3a2118" />
-      <ellipse cx="246" cy="282" rx="20" ry="5" fill="#3a2118" />
-      <ellipse cx="304" cy="282" rx="20" ry="5" fill="#3a2118" />
+      <ellipse cx="116" cy="282" rx="22" ry="6" fill="#3a2118" />
+      <ellipse cx="176" cy="282" rx="22" ry="6" fill="#3a2118" />
+      <ellipse cx="246" cy="282" rx="22" ry="6" fill="#3a2118" />
+      <ellipse cx="304" cy="282" rx="22" ry="6" fill="#3a2118" />
+      {/* ICONIC CURVED CLAWS — 4 per paw, pointing forward */}
+      <g fill="#1a1208" stroke="#000" strokeWidth="0.4">
+        {[100, 110, 120, 130].map((x, i) => (
+          <path key={`fl${i}`} d={`M ${x + 1} 282 q -1 4 -3 6 q 2 -2 4 -3 z`} />
+        ))}
+        {[160, 170, 180, 190].map((x, i) => (
+          <path key={`fr${i}`} d={`M ${x + 1} 282 q -1 4 -3 6 q 2 -2 4 -3 z`} />
+        ))}
+        {[230, 240, 250, 260].map((x, i) => (
+          <path key={`bl${i}`} d={`M ${x + 1} 282 q -1 4 -3 6 q 2 -2 4 -3 z`} />
+        ))}
+        {[288, 298, 308, 318].map((x, i) => (
+          <path key={`br${i}`} d={`M ${x + 1} 282 q -1 4 -3 6 q 2 -2 4 -3 z`} />
+        ))}
+      </g>
 
+      {/* BODY — bears are STOCKY, with a clear back arch */}
       <ellipse cx="200" cy="190" rx="135" ry="55" fill={colors.shade} />
       <ellipse cx="200" cy="184" rx="128" ry="50" fill={colors.main} />
       <ellipse cx="200" cy="215" rx="105" ry="18" fill={colors.light} opacity="0.7" />
       <ellipse cx="175" cy="150" rx="80" ry="12" fill="white" opacity="0.4" />
+
+      {/* SHOULDER HUMP — distinctive muscular bear feature.
+          A raised bulge above the shoulders, where the trapezius muscles
+          power the digging arms. Grizzlies and polar bears have this;
+          black bears don't (the easy way to tell them apart). */}
+      <path d="M 220 150 Q 250 122 280 138 Q 290 156 282 170 Q 250 162 220 168 Z" fill={colors.shade} />
+      <path d="M 224 152 Q 252 128 276 142 Q 285 156 278 168 Q 252 162 224 168 Z" fill={colors.main} />
+      <ellipse cx="258" cy="145" rx="14" ry="6" fill="white" opacity="0.3" />
+      {/* fur strokes on the hump */}
+      <g stroke={colors.shade} strokeWidth="1" fill="none" opacity="0.5">
+        <path d="M 244 142 q 2 -6 8 -8" />
+        <path d="M 258 138 q 2 -6 8 -6" />
+        <path d="M 272 142 q 0 -4 4 -6" />
+      </g>
 
       <g fill="none" stroke={colors.shade} strokeWidth="1.4" strokeLinecap="round" opacity="0.7">
         {[...Array(20)].map((_, i) => {
@@ -2648,6 +2821,15 @@ export function FoxkitShape({ colors }: { colors: ColorOverride }) {
         <path d="M 286 135 q 22 -34 58 -25" />
         <path d="M 302 151 q 28 -8 42 -29" />
         <path d="M 274 144 q 16 5 31 1" />
+      </g>
+      {/* ICONIC WHITE TAIL TIP — red foxes have this distinctive marker.
+          Bright white at the very tip of the curled brush. */}
+      <ellipse cx="376" cy="106" rx="13" ry="10" fill="white" stroke={OUT} strokeWidth="2.5" transform="rotate(20 376 106)" />
+      <ellipse cx="378" cy="104" rx="9" ry="7" fill="#fff8e8" transform="rotate(20 378 104)" />
+      {/* fluff lines on the white tip */}
+      <g stroke="#d4cdc0" strokeWidth="0.8" fill="none" opacity="0.7">
+        <path d="M 372 100 q 4 -3 8 -2" />
+        <path d="M 376 110 q 4 -3 8 -2" />
       </g>
 
       {/* rear legs */}
