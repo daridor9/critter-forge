@@ -119,6 +119,9 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
   const [done, setDone] = useState(false);
   const [windPhase, setWindPhase] = useState(0);
   const [hit, setHit] = useState<{ x: number; y: number; t: number } | null>(null);
+  // Lightning: stores the current bolt's path + a fading opacity. Fires
+  // randomly during storm + tornado severities.
+  const [lightning, setLightning] = useState<{ d: string; opacity: number } | null>(null);
 
   const stabilityRef = useRef(100);
   const elapsedRef = useRef(0);
@@ -172,6 +175,25 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
       elapsedRef.current += dt;
       setElapsed(elapsedRef.current);
       setWindPhase((p) => p + dt * 8);
+
+      // Random lightning on storm + tornado severity
+      const lightningChance = env.id === 'tornado' ? 0.025 : env.id === 'storm' ? 0.012 : 0;
+      if (lightningChance > 0 && Math.random() < lightningChance) {
+        // Generate a zig-zag bolt path from cloud-line down
+        const startX = 80 + Math.random() * (W - 160);
+        const segments = 4 + Math.floor(Math.random() * 3);
+        let pathStr = `M ${startX} 10`;
+        let cx = startX;
+        let cy = 10;
+        for (let i = 0; i < segments; i++) {
+          cx += (Math.random() - 0.5) * 40;
+          cy += (GROUND_Y - 10) / segments;
+          pathStr += ` L ${cx} ${cy}`;
+        }
+        setLightning({ d: pathStr, opacity: 1 });
+        window.setTimeout(() => setLightning({ d: pathStr, opacity: 0.5 }), 60);
+        window.setTimeout(() => setLightning(null), 180);
+      }
 
       // Stance modifiers
       let stanceGripMult = 1;
@@ -340,40 +362,192 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
         <defs>
           <linearGradient id="storm-sky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={env.sky[0]} />
-            <stop offset="1" stopColor={env.sky[1]} />
+            <stop offset="0.6" stopColor={env.sky[1]} />
+            <stop offset="1" stopColor={env.id === 'tornado' ? '#1a1018' : env.sky[1]} />
+          </linearGradient>
+          {/* radial vignette over the whole scene — adds depth */}
+          <radialGradient id="storm-vignette" cx="0.5" cy="0.5" r="0.75">
+            <stop offset="0.55" stopColor="black" stopOpacity="0" />
+            <stop offset="1" stopColor="black" stopOpacity={env.id === 'tornado' ? '0.45' : env.id === 'storm' ? '0.25' : '0.1'} />
+          </radialGradient>
+          {/* Tornado funnel gradient — darker at the bottom */}
+          <linearGradient id="storm-funnel" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#5a6a78" />
+            <stop offset="1" stopColor="#1a2028" />
+          </linearGradient>
+          <linearGradient id="storm-funnel-core" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#3a4858" />
+            <stop offset="1" stopColor="#0a0f18" />
           </linearGradient>
         </defs>
-        <rect x="0" y="0" width={W} height={GROUND_Y} fill="url(#storm-sky)" />
-        <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="#5a4828" />
 
-        {/* TORNADO FUNNEL (only on tornado severity) */}
-        {env.id === 'tornado' && (
-          <g opacity="0.75">
-            <path d={`M ${W * 0.2} 0 L ${W * 0.4} ${GROUND_Y} L ${W * 0.6} ${GROUND_Y} L ${W * 0.8} 0 Z`}
-              fill="#3a4a5a" />
-            <path d={`M ${W * 0.3} 0 L ${W * 0.45} ${GROUND_Y} L ${W * 0.55} ${GROUND_Y} L ${W * 0.7} 0 Z`}
-              fill="#2a3a4a" />
-            {/* spinning swirl lines */}
-            <g stroke="#7a8a9a" strokeWidth="1.2" fill="none" opacity="0.5">
-              {Array.from({ length: 6 }).map((_, i) => {
-                const y = i * (GROUND_Y / 6);
-                const offset = Math.sin(windPhase + i) * 8;
-                const w = (W * 0.4) * (1 - i / 8);
-                return (
-                  <path key={i} d={`M ${W / 2 - w / 2 + offset} ${y} q ${w / 2} 10 ${w} 0`} />
-                );
-              })}
-            </g>
+        {/* SKY base */}
+        <rect x="0" y="0" width={W} height={GROUND_Y} fill="url(#storm-sky)" />
+
+        {/* STORM CLOUDS — rolling dark clouds at the top */}
+        {env.id !== 'gust' && (
+          <g opacity={env.id === 'tornado' ? 0.95 : 0.85}>
+            {Array.from({ length: 6 }).map((_, i) => {
+              const cx = ((i * 110 + windPhase * 8) % (W + 200)) - 100;
+              const cy = 20 + (i % 2) * 12;
+              const fill = env.id === 'tornado' ? '#1a1a26' : '#3a4858';
+              return (
+                <g key={i}>
+                  <ellipse cx={cx} cy={cy} rx="60" ry="14" fill={fill} />
+                  <ellipse cx={cx + 30} cy={cy - 4} rx="34" ry="10" fill={fill} opacity="0.85" />
+                  <ellipse cx={cx - 20} cy={cy - 2} rx="28" ry="9" fill={fill} opacity="0.85" />
+                </g>
+              );
+            })}
           </g>
         )}
 
-        {/* WIND STREAKS */}
-        <g stroke="#cfe9f5" strokeWidth="1.4" fill="none" opacity="0.5" strokeLinecap="round">
-          {Array.from({ length: 18 }).map((_, i) => {
-            const y = 10 + (i * 13) % (GROUND_Y - 20);
-            const x = ((i * 47 + windPhase * 40) % (W + 80)) - 40;
-            const len = 22 + (i % 4) * 8;
-            return <line key={i} x1={x} y1={y} x2={x + len} y2={y - 2} />;
+        {/* LIGHTNING — random bolt + sky flash */}
+        {lightning && (
+          <g>
+            {/* full-sky brightening flash */}
+            <rect x="0" y="0" width={W} height={GROUND_Y} fill="#fffce8" opacity={lightning.opacity * 0.4} />
+            {/* the bolt itself with a glow halo */}
+            <path d={lightning.d} stroke="#fff7a0" strokeWidth="8" fill="none" opacity={lightning.opacity * 0.4} strokeLinecap="round" />
+            <path d={lightning.d} stroke="#ffffff" strokeWidth="3" fill="none" opacity={lightning.opacity} strokeLinecap="round" />
+            <path d={lightning.d} stroke="#fff7a0" strokeWidth="1.2" fill="none" opacity={lightning.opacity} />
+          </g>
+        )}
+
+        {/* DISTANT BACKGROUND TREES — silhouettes leaning with the wind */}
+        <g opacity="0.55">
+          {[60, 130, 480, 540].map((tx, i) => {
+            const lean = Math.sin(windPhase * 0.6 + i) * env.baseWindForce * 2;
+            return (
+              <g key={i} transform={`translate(${tx} ${GROUND_Y}) rotate(${lean})`}>
+                <rect x="-2" y="-50" width="4" height="50" fill="#2a1808" />
+                <ellipse cx="0" cy="-58" rx="14" ry="10" fill="#3a4828" />
+                <ellipse cx="-6" cy="-66" rx="10" ry="8" fill="#3a4828" />
+                <ellipse cx="6" cy="-66" rx="10" ry="8" fill="#3a4828" />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* RAIN — diagonal streaks on storm + tornado */}
+        {env.id !== 'gust' && (
+          <g stroke={env.id === 'tornado' ? '#7a8a9a' : '#aec0d8'} strokeWidth="1" opacity="0.55" strokeLinecap="round">
+            {Array.from({ length: env.id === 'tornado' ? 80 : 50 }).map((_, i) => {
+              const baseX = (i * 23 + windPhase * 90) % (W + 100);
+              const baseY = ((i * 41) % (GROUND_Y - 20)) + (windPhase * 240) % 240;
+              const y = baseY % (GROUND_Y - 10);
+              return (
+                <line key={i} x1={W + 20 - baseX} y1={y} x2={W + 20 - baseX - 14} y2={y + 18} />
+              );
+            })}
+          </g>
+        )}
+
+        {/* GROUND with grass tufts */}
+        <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="#5a4828" />
+        <rect x="0" y={GROUND_Y} width={W} height="4" fill="#3a3018" opacity="0.6" />
+        {/* grass tufts bent in the wind */}
+        <g stroke="#7a8848" strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.7">
+          {Array.from({ length: 24 }).map((_, i) => {
+            const x = 15 + i * 25;
+            const lean = Math.sin(windPhase * 1.5 + i * 0.5) * 3 + env.baseWindForce * 2;
+            return (
+              <g key={i}>
+                <path d={`M ${x} ${GROUND_Y + 2} q ${-lean} ${-4} ${-lean - 1} ${-8}`} />
+                <path d={`M ${x + 3} ${GROUND_Y + 2} q ${-lean * 0.8} ${-3} ${-lean - 1} ${-6}`} />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* PUDDLES on storm + tornado */}
+        {env.id !== 'gust' && (
+          <g opacity="0.4">
+            <ellipse cx={W * 0.18} cy={GROUND_Y + 14} rx="40" ry="3" fill="#5a7080" />
+            <ellipse cx={W * 0.65} cy={GROUND_Y + 18} rx="60" ry="3" fill="#5a7080" />
+            <ellipse cx={W * 0.88} cy={GROUND_Y + 12} rx="28" ry="2" fill="#5a7080" />
+          </g>
+        )}
+
+        {/* TORNADO FUNNEL — multilayered swirling vortex */}
+        {env.id === 'tornado' && (() => {
+          // Funnel narrows toward the bottom-center; sways subtly with wind
+          const baseX = W / 2 + Math.sin(windPhase * 0.3) * 8;
+          const topW = W * 0.62;
+          const botW = W * 0.12;
+          const topLeft = baseX - topW / 2;
+          const topRight = baseX + topW / 2;
+          const botLeft = baseX - botW / 2;
+          const botRight = baseX + botW / 2;
+          return (
+            <g>
+              {/* outer funnel envelope */}
+              <path d={`M ${topLeft} 0 Q ${topLeft - 10} ${GROUND_Y / 2} ${botLeft - 10} ${GROUND_Y - 4}
+                       L ${botRight + 10} ${GROUND_Y - 4} Q ${topRight + 10} ${GROUND_Y / 2} ${topRight} 0 Z`}
+                fill="url(#storm-funnel)" opacity="0.85" />
+              {/* inner core */}
+              <path d={`M ${topLeft + 40} 0 Q ${topLeft + 30} ${GROUND_Y / 2} ${botLeft + 4} ${GROUND_Y - 4}
+                       L ${botRight - 4} ${GROUND_Y - 4} Q ${topRight - 30} ${GROUND_Y / 2} ${topRight - 40} 0 Z`}
+                fill="url(#storm-funnel-core)" opacity="0.85" />
+              {/* multiple spiral lines — denser, more dramatic */}
+              <g stroke="#8a98a8" strokeWidth="1.5" fill="none" opacity="0.7">
+                {Array.from({ length: 14 }).map((_, i) => {
+                  const t = i / 14;
+                  const y = t * (GROUND_Y - 4);
+                  const w = (topW - botW) * (1 - t) + botW;
+                  const offset = Math.sin(windPhase * 2 + i * 0.7) * (8 + 6 * (1 - t));
+                  return (
+                    <path key={i}
+                      d={`M ${baseX - w / 2 + offset} ${y} q ${w / 2} ${10 + t * 8} ${w} 0`} />
+                  );
+                })}
+              </g>
+              {/* lighter highlight lines */}
+              <g stroke="#cfdae5" strokeWidth="0.8" fill="none" opacity="0.5">
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const t = (i + 0.5) / 8;
+                  const y = t * (GROUND_Y - 4);
+                  const w = (topW - botW) * (1 - t) + botW;
+                  const offset = Math.cos(windPhase * 2 + i * 0.9) * (10 + 7 * (1 - t));
+                  return (
+                    <path key={i}
+                      d={`M ${baseX - w / 2 + offset} ${y} q ${w / 2} ${-12 - t * 6} ${w} 0`} />
+                  );
+                })}
+              </g>
+              {/* DUST CLOUD at the base — where the funnel touches the ground */}
+              <g>
+                <ellipse cx={baseX} cy={GROUND_Y + 6} rx={botW * 2.2} ry="14" fill="#6a5848" opacity="0.6" />
+                <ellipse cx={baseX - 30} cy={GROUND_Y + 4} rx="28" ry="10" fill="#7a6858" opacity="0.5" />
+                <ellipse cx={baseX + 35} cy={GROUND_Y + 8} rx="34" ry="11" fill="#7a6858" opacity="0.5" />
+                <ellipse cx={baseX - 60} cy={GROUND_Y + 12} rx="22" ry="6" fill="#8a7868" opacity="0.4" />
+                <ellipse cx={baseX + 70} cy={GROUND_Y + 14} rx="26" ry="7" fill="#8a7868" opacity="0.4" />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* WIND STREAKS — denser + more curved on stronger storms */}
+        <g stroke="#cfe9f5" fill="none" opacity={env.id === 'tornado' ? 0.65 : 0.55} strokeLinecap="round">
+          {Array.from({ length: env.id === 'tornado' ? 28 : env.id === 'storm' ? 22 : 18 }).map((_, i) => {
+            const y = 10 + (i * 11) % (GROUND_Y - 20);
+            const x = ((i * 47 + windPhase * 60 * env.baseWindForce) % (W + 100)) - 50;
+            const len = 28 + (i % 4) * 10;
+            const sw = 1.2 + (i % 3) * 0.4;
+            // Slight curve gives streaks a "blown-by-the-wind" feel
+            return (
+              <path key={i} d={`M ${x} ${y} q ${len / 2} ${-1} ${len} -3`} strokeWidth={sw} />
+            );
+          })}
+        </g>
+
+        {/* AIRBORNE DUST PARTICLES — small swirling specks */}
+        <g fill="#a89878" opacity="0.55">
+          {Array.from({ length: env.id === 'tornado' ? 35 : env.id === 'storm' ? 22 : 12 }).map((_, i) => {
+            const x = ((i * 73 + windPhase * 80 * env.baseWindForce) % (W + 60)) - 30;
+            const y = 30 + ((i * 29) % (GROUND_Y - 40)) + Math.sin(windPhase * 2 + i) * 6;
+            const r = 1.2 + (i % 3) * 0.5;
+            return <circle key={i} cx={x} cy={y} r={r} />;
           })}
         </g>
 
@@ -382,34 +556,68 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
           {debris.map((d) => (
             <g key={d.id} transform={`translate(${d.x} ${d.y}) rotate(${d.rot})`}>
               {d.type === 'branch' && (
-                <rect x={-d.size / 2} y="-2" width={d.size} height="4" fill="#5a3a18" rx="1" />
+                <g>
+                  {/* branch with tiny side twigs */}
+                  <rect x={-d.size / 2} y="-2" width={d.size} height="4" fill="#5a3a18" rx="1" />
+                  <line x1="0" y1="-2" x2="-4" y2="-7" stroke="#5a3a18" strokeWidth="1.4" />
+                  <line x1="2" y1="2" x2="6" y2="6" stroke="#5a3a18" strokeWidth="1.4" />
+                </g>
               )}
               {d.type === 'rock' && (
-                <ellipse cx="0" cy="0" rx={d.size / 2} ry={d.size / 2.5} fill="#5a5648" />
+                <g>
+                  <ellipse cx="0" cy="0" rx={d.size / 2} ry={d.size / 2.5} fill="#5a5648" />
+                  <ellipse cx={-d.size / 6} cy={-d.size / 8} rx={d.size / 5} ry={d.size / 7} fill="#7a7668" opacity="0.6" />
+                </g>
               )}
               {d.type === 'leaf' && (
-                <ellipse cx="0" cy="0" rx={d.size / 2} ry={d.size / 4} fill="#5a7838" opacity="0.8" />
+                <g>
+                  <ellipse cx="0" cy="0" rx={d.size / 2} ry={d.size / 4} fill="#5a7838" opacity="0.85" />
+                  <path d={`M ${-d.size / 2} 0 L ${d.size / 2} 0`} stroke="#3a5828" strokeWidth="0.7" opacity="0.6" />
+                </g>
               )}
             </g>
           ))}
         </g>
 
-        {/* Hit flash */}
-        {hit && (
-          <g>
-            <circle cx={hit.x} cy={hit.y} r="20" fill="white" opacity="0.6" />
-            <text x={hit.x} y={hit.y + 5} textAnchor="middle" fontSize="20" fontWeight="700" fill="#ff4040">💥</text>
+        {/* MOTION TRAIL behind the fastest debris (tornado only) */}
+        {env.id === 'tornado' && debris.length > 0 && (
+          <g opacity="0.3">
+            {debris.filter((d) => d.type !== 'leaf').slice(0, 6).map((d) => (
+              <ellipse key={`tr-${d.id}`} cx={d.x + 18} cy={d.y} rx="14" ry="2.5" fill="#888" />
+            ))}
           </g>
         )}
 
-        {/* TREES / ROCKS (shelter visual) */}
-        {stance === 'shelter' && (
+        {/* Hit flash */}
+        {hit && (
           <g>
-            {/* sheltering rock */}
-            <ellipse cx={creatureX - 50} cy={GROUND_Y - 30} rx="55" ry="40" fill="#7a6a48" />
-            <ellipse cx={creatureX - 50} cy={GROUND_Y - 30} rx="45" ry="32" fill="#8a7a58" />
+            <circle cx={hit.x} cy={hit.y} r="28" fill="white" opacity="0.7" />
+            <circle cx={hit.x} cy={hit.y} r="18" fill="#ffd040" opacity="0.6" />
+            <text x={hit.x} y={hit.y + 5} textAnchor="middle" fontSize="26" fontWeight="700" fill="#ff4040">💥</text>
           </g>
         )}
+
+        {/* SHELTER ROCKS — bigger, with grass on top */}
+        {stance === 'shelter' && (
+          <g>
+            {/* main rock */}
+            <ellipse cx={creatureX - 60} cy={GROUND_Y - 30} rx="62" ry="44" fill="#5a4830" />
+            <ellipse cx={creatureX - 60} cy={GROUND_Y - 32} rx="55" ry="38" fill="#7a6a48" />
+            <ellipse cx={creatureX - 70} cy={GROUND_Y - 50} rx="22" ry="6" fill="#8a7a58" opacity="0.8" />
+            {/* moss on top */}
+            <g fill="#5a7838" opacity="0.85">
+              <ellipse cx={creatureX - 78} cy={GROUND_Y - 68} rx="12" ry="3" />
+              <ellipse cx={creatureX - 56} cy={GROUND_Y - 70} rx="14" ry="3" />
+              <ellipse cx={creatureX - 38} cy={GROUND_Y - 64} rx="10" ry="3" />
+            </g>
+            {/* small adjacent rock */}
+            <ellipse cx={creatureX - 110} cy={GROUND_Y - 12} rx="22" ry="14" fill="#7a6a48" />
+          </g>
+        )}
+
+        {/* Vignette overlay — gives the whole scene a stormy "edge of frame goes dark" feel */}
+        <rect x="0" y="0" width={W} height={H} fill="url(#storm-vignette)" pointerEvents="none" />
+
 
         {/* HUD */}
         <rect x="6" y="6" width="260" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
