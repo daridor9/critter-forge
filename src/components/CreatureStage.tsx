@@ -5,6 +5,7 @@ import { hybridCatalog } from '../data/hybrids';
 import { sizeToMass } from '../physics';
 import { ArenaFitView } from './ArenaFitView';
 import { LabView } from './LabView';
+import { GeneMapView } from './GeneMapView';
 
 const W = 400;
 const H = 300;
@@ -83,6 +84,8 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
         <LabView creature={creature} W={W} H={H} />
       ) : effLayer === 'fit' ? (
         <ArenaFitView creature={creature} W={W} H={H} />
+      ) : effLayer === 'genes' ? (
+        <GeneMapView creature={creature} W={W} H={H} />
       ) : (
         <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={skinScale} animate="breathe" />
       )}

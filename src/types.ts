@@ -56,8 +56,9 @@ export interface Creature {
  *  - skin: normal habitat view (what users see when designing)
  *  - lab:  biophysics annotations — stats labelled to body parts
  *  - fit:  arena fitness — projected win-grade per arena + best strategy
+ *  - genes: chromosome-style trait map with real-world references
  */
-export type AnatomyLayer = 'skin' | 'lab' | 'fit';
+export type AnatomyLayer = 'skin' | 'lab' | 'fit' | 'genes';
 
 export const defaultCreature: Creature = {
   sizeUnit: 40,

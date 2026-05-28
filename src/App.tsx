@@ -72,6 +72,7 @@ const QuestsModal = lazy(() => import('./components/QuestsModal').then((m) => ({
 const FamilyModal = lazy(() => import('./components/FamilyModal').then((m) => ({ default: m.FamilyModal })));
 const ShareModal = lazy(() => import('./components/ShareModal').then((m) => ({ default: m.ShareModal })));
 const GameShareModal = lazy(() => import('./components/GameShareModal').then((m) => ({ default: m.GameShareModal })));
+const EvolutionRoadmapModal = lazy(() => import('./components/EvolutionRoadmapModal').then((m) => ({ default: m.EvolutionRoadmapModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -187,6 +188,7 @@ export default function App() {
   const [showFamily, setShowFamily] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showGameShare, setShowGameShare] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -213,8 +215,8 @@ export default function App() {
   const [showBattle, setShowBattle] = useState(false);
   const [showBracket, setShowBracket] = useState(false);
   // Creature-view layer: skin (habitat view), lab (biophysics annotations),
-  // or fit (per-arena fitness prediction).
-  const [anatomyLayer, setAnatomyLayer] = useState<'skin' | 'lab' | 'fit'>('skin');
+  // fit (per-arena fitness prediction), or genes (chromosome trait map).
+  const [anatomyLayer, setAnatomyLayer] = useState<'skin' | 'lab' | 'fit' | 'genes'>('skin');
   // Lineage pointer — restore from localStorage if the stored id still
   // resolves to a node in the lineage map; otherwise plant a new root.
   const [lineageId, setLineageIdRaw] = useState<string | null>(() => {
@@ -638,6 +640,7 @@ export default function App() {
                 <div className="more-divider" />
                 {moreItem('✏️ Suggest name', doSuggestName)}
                 {moreItem('📸 Export PNG', () => exportCreatureCard(creature, stats))}
+                {moreItem('🗺️ Evolution roadmap', () => setShowRoadmap(true))}
                 {moreItem('📲 Share game (QR)', () => setShowGameShare(true))}
                 <div className="more-divider" />
                 {moreItem('ℹ About', () => setShowAbout(true))}
@@ -710,7 +713,7 @@ export default function App() {
                     🖼 <span className="portrait-launch-label">Upload portrait</span>
                   </button>
                   <div className="anatomy-toggle" role="tablist" aria-label="Creature view">
-                    {(['skin', 'lab', 'fit'] as const).map((id) => (
+                    {(['skin', 'lab', 'fit', 'genes'] as const).map((id) => (
                       <button
                         key={id}
                         type="button"
@@ -718,11 +721,16 @@ export default function App() {
                         aria-selected={anatomyLayer === id}
                         className={anatomyLayer === id ? 'anatomy-toggle-btn active' : 'anatomy-toggle-btn'}
                         onClick={() => { setAnatomyLayer(id); sounds.click(); }}
-                        title={id === 'skin' ? 'Normal habitat view' : id === 'lab' ? 'Biophysics annotations — stats labelled to body parts' : 'Arena fit — predicted win-grade per arena + best strategy'}
+                        title={
+                          id === 'skin' ? 'Normal habitat view' :
+                          id === 'lab' ? 'Biophysics annotations — stats labelled to body parts' :
+                          id === 'fit' ? 'Arena fit — predicted win-grade per arena + best strategy' :
+                          'Gene map — all traits as chromosome-style genes with real-world references'
+                        }
                       >
-                        {id === 'skin' ? '🐾' : id === 'lab' ? '🔬' : '🎯'}{' '}
+                        {id === 'skin' ? '🐾' : id === 'lab' ? '🔬' : id === 'fit' ? '🎯' : '🧬'}{' '}
                         <span className="anatomy-toggle-label">
-                          {id === 'skin' ? 'Skin' : id === 'lab' ? 'Lab' : 'Arena fit'}
+                          {id === 'skin' ? 'Skin' : id === 'lab' ? 'Lab' : id === 'fit' ? 'Arena fit' : 'Genes'}
                         </span>
                       </button>
                     ))}
@@ -857,6 +865,9 @@ export default function App() {
         )}
         {showGameShare && (
           <GameShareModal onClose={() => setShowGameShare(false)} />
+        )}
+        {showRoadmap && (
+          <EvolutionRoadmapModal creature={creature} onClose={() => setShowRoadmap(false)} />
         )}
         {showGauntlet && (
           <GauntletModal
