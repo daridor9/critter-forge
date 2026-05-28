@@ -15,7 +15,7 @@ export type ArenaResult =
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed' | 'crossed' | 'exhausted' | 'caught' | 'landed' | 'stalled' | 'no-wings'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number }
   | { arena: 'storm'; won: boolean; reason: 'survived' | 'blown-away' | 'struck-by-debris'; secondsHeld: number; severity?: 'gust' | 'storm' | 'tornado' }
-  | { arena: 'nest'; won: boolean; reason: 'defended' | 'eggs-stolen'; eggsLost: number; wavesSurvived: number }
+  | { arena: 'nest'; won: boolean; reason: 'defended' | 'eggs-stolen' | 'collapsed'; eggsLost: number; wavesSurvived: number }
   | { arena: 'migrate'; won: boolean; reason: 'arrived' | 'lost' | 'starved'; kmTravelled: number; goalKm: number }
   | { arena: 'plague'; won: boolean; reason: 'recovered' | 'succumbed'; daysSurvived: number; goalDays: number };
 
@@ -279,10 +279,16 @@ function pickNest(r: Extract<ArenaResult, { arena: 'nest' }>): Insight {
       'broken wing to lure predators away. Cassowaries kill leopards. Defending eggs is what evolved venom, ' +
       'spurs, claws, and aggressive displays in countless species.' };
   }
+  if (r.reason === 'collapsed') {
+    return { id: 'nest-collapsed', won: false, title: `Energy gave out after ${r.wavesSurvived} waves`, text:
+      'A parent who doesn\'t eat or drink can\'t defend forever. Real bird parents lose 20-30% of their ' +
+      'body weight during nesting because they barely leave the nest. Forage between waves, find water, ' +
+      'and use camouflage to skip an encounter or two.' };
+  }
   return { id: 'nest-lost', won: false, title: `${r.eggsLost} eggs lost`, text:
     'Speed + size + defense are what protect nests. Without one, predators slip past. ' +
     'A tiny unarmored creature has to outrun, hide, or pick a high inaccessible nest site. Try a bigger build ' +
-    'or add stoneskin / venom for active defense.' };
+    'or add stoneskin / venom for active defense. Camouflage hides the nest entirely from less-perceptive predators.' };
 }
 
 function pickMigrate(r: Extract<ArenaResult, { arena: 'migrate' }>): Insight {

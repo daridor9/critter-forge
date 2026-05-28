@@ -4,11 +4,14 @@ import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
 
+// While no predator is present, parent decides what to do.
+export type NestActivity = 'watch' | 'forage' | 'drink' | 'camo';
+// When a predator is approaching, parent picks a defense stance.
 export type NestStance = 'block' | 'attack' | 'bluff';
 
 export type NestOutcome = {
   won: boolean;
-  reason: 'defended' | 'eggs-stolen';
+  reason: 'defended' | 'eggs-stolen' | 'collapsed';
   eggsLost: number;
   wavesSurvived: number;
 };
@@ -25,39 +28,45 @@ const H = 240;
 const GROUND_Y = 198;
 const NEST_X = 110;
 const NEST_Y = GROUND_Y - 8;
+const TICK_MS = 50;
+const MAX_EGG_LOSS = 3;
+const TOTAL_WAVES_BASE = 5;
 
-// 5 waves of egg-thieves. Each gets harder.
 interface Predator {
   emoji: string;
   name: string;
   speed: number;       // px/sec approaching the nest
   threat: number;      // base difficulty of repelling them
+  perception: number;  // how well they spot camouflaged nests (1.0 = baseline)
 }
 const WAVES: Predator[] = [
-  { emoji: '🐍', name: 'Snake', speed: 45, threat: 1.0 },
-  { emoji: '🦊', name: 'Fox', speed: 80, threat: 1.5 },
-  { emoji: '🦅', name: 'Hawk', speed: 110, threat: 2.0 },
-  { emoji: '🐀', name: 'Rat pack', speed: 65, threat: 2.5 },
-  { emoji: '🐺', name: 'Wolf', speed: 95, threat: 3.5 },
+  { emoji: '🐍', name: 'Snake', speed: 45, threat: 1.0, perception: 1.0 },
+  { emoji: '🦊', name: 'Fox', speed: 80, threat: 1.5, perception: 1.3 },
+  { emoji: '🦅', name: 'Hawk', speed: 110, threat: 2.0, perception: 1.6 },
+  { emoji: '🐀', name: 'Rat pack', speed: 65, threat: 2.5, perception: 0.8 },
+  { emoji: '🐺', name: 'Wolf', speed: 95, threat: 3.5, perception: 1.4 },
 ];
-const WAVE_GAP_S = 7;     // seconds between waves
-const TICK_MS = 50;
-const MAX_EGG_LOSS = 3;
+const WAVE_GAP_S = 9;
 
 interface ThreatState {
-  index: number;             // which WAVES entry
-  x: number;                 // current x position
-  resolved: boolean;         // true once the encounter happened
-  outcome?: 'defended' | 'stolen';
-  flashUntil?: number;        // engagement flash timer
+  index: number;
+  x: number;
+  resolved: boolean;
+  outcome?: 'defended' | 'stolen' | 'fooled';
+  flashUntil?: number;
 }
 
 export function NestingArena({ creature, stats, generation = 1, onFinish }: Props) {
-  const totalWaves = WAVES.length + Math.floor((generation - 1) / 2);  // generation bumps add tougher repeats
+  const totalWaves = TOTAL_WAVES_BASE + Math.floor((generation - 1) / 2);
+
+  // Defense stance state (used when threat present)
   const [stance, setStance] = useState<NestStance>('block');
   const stanceRef = useRef<NestStance>('block');
+  // Activity state (used when no threat)
+  const [activity, setActivity] = useState<NestActivity>('watch');
+  const activityRef = useRef<NestActivity>('watch');
 
-  // Defense rating based on stance + creature build
+  // ─── Stats derived from creature ─────────────────────────────────────
   const massKg = stats.massKg;
   const blockBase = creature.defenseTier + (massKg > 50 ? 1.5 : massKg > 10 ? 0.7 : 0)
     + (creature.hybrids.includes('stoneskin') ? 1.5 : 0)
@@ -70,8 +79,18 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     + creature.brainTier * 0.4
     + (creature.hybrids.includes('camouflage') ? 0.8 : 0)
     + (creature.hybrids.includes('mimicry') ? 1.8 : 0);
+  // Foraging effectiveness (food/water find rate)
+  const foragingSkill = 0.6 + creature.sensorTier * 0.15 + creature.brainTier * 0.1
+    + (creature.hybrids.includes('symbiosis') ? 0.2 : 0)
+    + (creature.hybrids.includes('photosynthesis') ? 0.4 : 0);
+  // Innate camo bonus (the camouflage hybrid starts you with more nest concealment)
+  const innateCamoBonus = creature.hybrids.includes('camouflage') ? 25 : creature.hybrids.includes('mimicry') ? 15 : 0;
 
+  // ─── Resources ──────────────────────────────────────────────────────
   const [eggs, setEggs] = useState(5);
+  const [energy, setEnergy] = useState(100);
+  const [hydration, setHydration] = useState(80);
+  const [camo, setCamo] = useState(innateCamoBonus);
   const [waveIdx, setWaveIdx] = useState(0);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
@@ -80,6 +99,9 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   const [log, setLog] = useState<string[]>([]);
 
   const eggsRef = useRef(5);
+  const energyRef = useRef(100);
+  const hydrationRef = useRef(80);
+  const camoRef = useRef(innateCamoBonus);
   const waveIdxRef = useRef(0);
   const elapsedRef = useRef(0);
   const threatRef = useRef<ThreatState | null>(null);
@@ -87,13 +109,23 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
 
   function reset() {
     eggsRef.current = 5;
+    energyRef.current = 100;
+    hydrationRef.current = 80;
+    camoRef.current = innateCamoBonus;
     waveIdxRef.current = 0;
     elapsedRef.current = 0;
     threatRef.current = null;
+    activityRef.current = 'watch';
+    stanceRef.current = 'block';
     setEggs(5);
+    setEnergy(100);
+    setHydration(80);
+    setCamo(innateCamoBonus);
     setWaveIdx(0);
     setElapsed(0);
     setThreat(null);
+    setActivity('watch');
+    setStance('block');
     setLog([]);
   }
 
@@ -117,20 +149,32 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     stanceRef.current = s;
     setStance(s);
   }
+  function pickActivity(a: NestActivity) {
+    activityRef.current = a;
+    setActivity(a);
+  }
 
   function pushLog(msg: string) {
     setLog((prev) => [...prev.slice(-4), msg]);
   }
 
-  function resolveEncounter(t: ThreatState): 'defended' | 'stolen' {
+  function resolveEncounter(t: ThreatState): 'defended' | 'stolen' | 'fooled' {
     const pred = WAVES[t.index % WAVES.length];
     const tierBonus = Math.floor(t.index / WAVES.length) * 0.5;
     const threatPower = pred.threat + tierBonus;
+
+    // CAMOUFLAGE: chance predator never finds the nest at all
+    const camoEffective = Math.max(0, camoRef.current - (pred.perception - 1) * 25);
+    if (Math.random() < camoEffective / 100) {
+      return 'fooled';
+    }
+
+    // Energy modifier — low energy = weaker defense
+    const energyMod = Math.max(0.3, energyRef.current / 100);
     const stancePower =
-      stanceRef.current === 'block' ? blockBase :
-      stanceRef.current === 'attack' ? attackBase :
-      bluffBase;
-    // Add a luck swing
+      (stanceRef.current === 'block' ? blockBase :
+       stanceRef.current === 'attack' ? attackBase :
+       bluffBase) * energyMod;
     const luck = (Math.random() - 0.5) * 1.5;
     const margin = stancePower + luck - threatPower;
     return margin > 0 ? 'defended' : 'stolen';
@@ -144,9 +188,32 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
       elapsedRef.current += dt;
       setElapsed(elapsedRef.current);
 
-      // Spawn a wave if it's time and no current threat
+      // ─── Activity ticks (only when no current threat) ───────────
+      if (!threatRef.current) {
+        const act = activityRef.current;
+        // Idle drain — watching costs less than running around
+        const baseEnergyDrain = act === 'watch' ? 0.3 : 0.6;
+        const baseHydroDrain = act === 'watch' ? 0.3 : 0.6;
+        energyRef.current = Math.max(0, energyRef.current - baseEnergyDrain * dt);
+        hydrationRef.current = Math.max(0, hydrationRef.current - baseHydroDrain * dt);
+
+        // Activity gains
+        if (act === 'forage') {
+          energyRef.current = Math.min(100, energyRef.current + 6 * dt * foragingSkill);
+        } else if (act === 'drink') {
+          hydrationRef.current = Math.min(100, hydrationRef.current + 8 * dt * foragingSkill);
+        } else if (act === 'camo') {
+          camoRef.current = Math.min(75, camoRef.current + 3 * dt * foragingSkill);
+        }
+
+        setEnergy(energyRef.current);
+        setHydration(hydrationRef.current);
+        setCamo(camoRef.current);
+      }
+
+      // ─── Spawn next wave if it's time ────────────────────────────
       if (!threatRef.current && waveIdxRef.current < totalWaves) {
-        const dueAt = waveIdxRef.current * WAVE_GAP_S + 2;
+        const dueAt = waveIdxRef.current * WAVE_GAP_S + 4;
         if (elapsedRef.current >= dueAt) {
           const newThreat: ThreatState = {
             index: waveIdxRef.current,
@@ -162,30 +229,44 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
         }
       }
 
-      // Update active threat
+      // ─── Update active threat ────────────────────────────────────
       if (threatRef.current) {
         const t = threatRef.current;
         const pred = WAVES[t.index % WAVES.length];
         if (!t.resolved) {
           t.x -= pred.speed * dt;
-          // Engagement happens at x ≈ 170 (player creature position)
           if (t.x <= 200) {
             const outcome = resolveEncounter(t);
             t.resolved = true;
             t.outcome = outcome;
             t.flashUntil = elapsedRef.current + 0.6;
-            if (outcome === 'stolen') {
+            if (outcome === 'fooled') {
+              // Camo worked — predator never engages. Costs some camo (disturbed)
+              camoRef.current = Math.max(0, camoRef.current - 8);
+              setCamo(camoRef.current);
+              pushLog(`🍃 ${pred.emoji} walked right past — nest hidden!`);
+            } else if (outcome === 'stolen') {
               eggsRef.current -= 1;
               setEggs(eggsRef.current);
-              pushLog(`💔 ${pred.emoji} stole an egg! (${eggsRef.current} left)`);
+              // Defense still cost energy even if you lost
+              const cost = stanceRef.current === 'attack' ? 18 : stanceRef.current === 'block' ? 12 : 6;
+              energyRef.current = Math.max(0, energyRef.current - cost);
+              setEnergy(energyRef.current);
+              pushLog(`💔 ${pred.emoji} stole an egg! (${eggsRef.current} left, -${cost} energy)`);
             } else {
-              pushLog(`✅ ${pred.emoji} repelled by ${stanceRef.current}!`);
+              const cost = stanceRef.current === 'attack' ? 15 : stanceRef.current === 'block' ? 10 : 5;
+              energyRef.current = Math.max(0, energyRef.current - cost);
+              setEnergy(energyRef.current);
+              pushLog(`✅ ${pred.emoji} repelled by ${stanceRef.current}! (-${cost} energy)`);
             }
           }
           setThreat({ ...t });
         } else {
-          // After encounter — predator either flees right or runs off with the egg
-          const flee = t.outcome === 'defended' ? +1 : -1;   // defended = back to right, stolen = off-screen left
+          // After encounter — predator leaves
+          let flee: number;
+          if (t.outcome === 'fooled') flee = -1;          // walks past, exits left
+          else if (t.outcome === 'defended') flee = +1;   // retreats right
+          else flee = -1;                                  // ran off left with egg
           const fleeSpeed = pred.speed * 1.4;
           t.x += fleeSpeed * dt * flee;
           if (t.x < -40 || t.x > W + 40) {
@@ -197,7 +278,11 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
         }
       }
 
-      // End conditions
+      // ─── End conditions ──────────────────────────────────────────
+      if (energyRef.current <= 0 && !threatRef.current) {
+        stop({ won: false, reason: 'collapsed', eggsLost: 5 - eggsRef.current, wavesSurvived: waveIdxRef.current });
+        return;
+      }
       if (eggsRef.current <= 5 - MAX_EGG_LOSS) {
         stop({ won: false, reason: 'eggs-stolen', eggsLost: 5 - eggsRef.current, wavesSurvived: waveIdxRef.current });
         return;
@@ -224,40 +309,75 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
 
   const predator = threat ? WAVES[threat.index % WAVES.length] : null;
   const engagementFlash = threat?.flashUntil !== undefined && elapsed < threat.flashUntil;
+  const threatPresent = threat !== null && !threat.resolved && threat.x > 200;
 
   return (
     <div className="arena">
       <h2>The Nest — 🥚 Defend the clutch <small className="arena-env">· {totalWaves} waves</small></h2>
       <p className="arena-help">
-        Predators approach from the right. Stand between them and the nest. Defense + speed + size all matter,
-        plus your active stance. Lose <strong>3 eggs</strong> and your lineage ends. Survive all waves to win.
+        Predators approach in waves. Between attacks, <strong>forage</strong> to keep your energy up,
+        <strong> drink</strong> to stay hydrated, or <strong>hide</strong> the nest in leaves and dirt.
+        Defense burns energy — run out and you collapse before the last wave.
       </p>
 
-      {/* Stance picker */}
-      <div className="drought-activity-label">
-        <strong>How do you defend?</strong> <small>(switch any time)</small>
-      </div>
-      <div className="prey-tabs">
-        {([
-          { id: 'block' as const, emoji: '🛡️', label: 'Block', sub: 'tank · defense + size',
-            title: 'Stand firm between predator and nest. Best with armor + heavy body.' },
-          { id: 'attack' as const, emoji: '⚔️', label: 'Attack', sub: 'charge · speed + venom',
-            title: 'Charge the predator. Best with high speed or venom/electric/fire.' },
-          { id: 'bluff' as const, emoji: '😤', label: 'Bluff', sub: 'display · size + brain',
-            title: 'Threaten with display (puffed-up appearance). Best with big body + brain or mimicry.' },
-        ]).map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            className={`prey-tab${stance === s.id ? ' active' : ''}`}
-            onClick={() => pickStance(s.id)}
-            title={s.title}
-          >
-            <span className="prey-emoji">{s.emoji}</span>
-            <span className="prey-name">{s.label}<small> {s.sub}</small></span>
-          </button>
-        ))}
-      </div>
+      {/* Picker switches based on whether a threat is approaching */}
+      {threatPresent ? (
+        <>
+          <div className="drought-activity-label">
+            <strong>{predator?.emoji} {predator?.name} incoming — defend!</strong>
+          </div>
+          <div className="prey-tabs">
+            {([
+              { id: 'block' as const, emoji: '🛡️', label: 'Block', sub: '-10 energy · tank',
+                title: 'Stand firm. Best with armor + heavy body.' },
+              { id: 'attack' as const, emoji: '⚔️', label: 'Attack', sub: '-15 energy · charge',
+                title: 'Charge the predator. Best with speed or venom/electric/fire.' },
+              { id: 'bluff' as const, emoji: '😤', label: 'Bluff', sub: '-5 energy · cheap',
+                title: 'Threaten with display. Cheapest in energy. Best with big body + mimicry.' },
+            ]).map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`prey-tab${stance === s.id ? ' active' : ''}`}
+                onClick={() => pickStance(s.id)}
+                title={s.title}
+              >
+                <span className="prey-emoji">{s.emoji}</span>
+                <span className="prey-name">{s.label}<small> {s.sub}</small></span>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="drought-activity-label">
+            <strong>Between waves — what are you doing?</strong> <small>(switch any time)</small>
+          </div>
+          <div className="prey-tabs">
+            {([
+              { id: 'watch' as const, emoji: '👁️', label: 'Watch', sub: 'low drain',
+                title: 'Stay alert by the nest. Lowest energy drain.' },
+              { id: 'forage' as const, emoji: '🌿', label: 'Forage', sub: '+energy',
+                title: 'Search for food. Refills energy. Costs more drain too — net gain.' },
+              { id: 'drink' as const, emoji: '💧', label: 'Drink', sub: '+hydration',
+                title: 'Find water. Refills hydration.' },
+              { id: 'camo' as const, emoji: '🍃', label: 'Camouflage', sub: '+hide %',
+                title: 'Cover the nest with leaves and dirt. Higher camo = chance predators walk right past.' },
+            ]).map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                className={`prey-tab${activity === a.id ? ' active' : ''}`}
+                onClick={() => pickActivity(a.id)}
+                title={a.title}
+              >
+                <span className="prey-emoji">{a.emoji}</span>
+                <span className="prey-name">{a.label}<small> {a.sub}</small></span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet">
         <defs>
@@ -276,7 +396,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           })}
         </g>
 
-        {/* sky decoration — distant trees */}
+        {/* distant trees */}
         <g opacity="0.5">
           {[20, 380, 470].map((tx, i) => (
             <g key={i} transform={`translate(${tx} ${GROUND_Y - 4})`}>
@@ -286,12 +406,42 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           ))}
         </g>
 
-        {/* NEST — twigs + eggs */}
-        <g transform={`translate(${NEST_X} ${NEST_Y})`}>
-          {/* nest base — twig pile */}
+        {/* Action-specific scene props (when no threat) */}
+        {!threatPresent && activity === 'forage' && (
+          <g transform={`translate(${W * 0.55} ${GROUND_Y - 4})`}>
+            <ellipse cx="0" cy="0" rx="26" ry="14" fill="#3a5828" />
+            <ellipse cx="6" cy="-6" rx="16" ry="9" fill="#5a7838" />
+            <g fill="#a83040">
+              {[-12, -4, 4, 12, 0].map((x, i) => (
+                <circle key={i} cx={x} cy={-2 + (i % 2) * 4} r="2" />
+              ))}
+            </g>
+          </g>
+        )}
+        {!threatPresent && activity === 'drink' && (
+          <g transform={`translate(${W * 0.55} ${GROUND_Y + 4})`}>
+            <ellipse cx="0" cy="0" rx="38" ry="6" fill="#3a85b8" opacity="0.85" />
+            <ellipse cx="0" cy="-2" rx="32" ry="4" fill="#74c4dc" opacity="0.7" />
+          </g>
+        )}
+        {!threatPresent && activity === 'camo' && (
+          <g>
+            {/* leaves piling around the nest */}
+            <g fill="#5a7838" opacity="0.7">
+              <ellipse cx={NEST_X - 14} cy={NEST_Y + 4} rx="8" ry="3" />
+              <ellipse cx={NEST_X + 14} cy={NEST_Y + 4} rx="8" ry="3" />
+              <ellipse cx={NEST_X - 22} cy={NEST_Y - 2} rx="6" ry="3" />
+              <ellipse cx={NEST_X + 22} cy={NEST_Y - 2} rx="6" ry="3" />
+            </g>
+          </g>
+        )}
+
+        {/* NEST */}
+        <g transform={`translate(${NEST_X} ${NEST_Y})`} opacity={camo > 40 ? 0.55 + (1 - camo / 100) * 0.45 : 1}>
+          {/* nest base */}
           <ellipse cx="0" cy="6" rx="44" ry="8" fill="#5a3a18" />
           <ellipse cx="0" cy="2" rx="40" ry="10" fill="#7a5828" />
-          {/* twigs around the rim */}
+          {/* twigs */}
           <g stroke="#5a3a18" strokeWidth="1.2" strokeLinecap="round">
             {Array.from({ length: 10 }).map((_, i) => {
               const a = (i / 10) * Math.PI * 2;
@@ -302,7 +452,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />;
             })}
           </g>
-          {/* the eggs */}
+          {/* eggs */}
           {Array.from({ length: 5 }).map((_, i) => {
             const lost = i >= eggs;
             const x = -22 + i * 11;
@@ -320,9 +470,17 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               />
             );
           })}
-          {/* nest label */}
-          <text x="0" y={-20} textAnchor="middle" fontSize="10" fontWeight="700" fill="#3a2010">
-            NEST · {eggs}/5
+          {/* leaves overlay when heavily camouflaged */}
+          {camo > 25 && (
+            <g fill="#3a5828" opacity={Math.min(0.7, camo / 80)}>
+              <ellipse cx="-15" cy="-4" rx="10" ry="5" />
+              <ellipse cx="12" cy="-3" rx="9" ry="4" />
+              <ellipse cx="-2" cy="-8" rx="7" ry="4" />
+              <ellipse cx="22" cy="-5" rx="6" ry="3" />
+            </g>
+          )}
+          <text x="0" y={-22} textAnchor="middle" fontSize="10" fontWeight="700" fill="#3a2010">
+            NEST · 🥚 {eggs}/5 · 🍃 {Math.round(camo)}%
           </text>
         </g>
 
@@ -338,6 +496,9 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
             {threat.resolved && threat.outcome === 'defended' && (
               <text x="0" y="-32" textAnchor="middle" fontSize="14">💨</text>
             )}
+            {threat.resolved && threat.outcome === 'fooled' && (
+              <text x="0" y="-32" textAnchor="middle" fontSize="12">❓</text>
+            )}
             {threat.resolved && threat.outcome === 'stolen' && (
               <text x="-18" y="-8" fontSize="14">🥚</text>
             )}
@@ -347,11 +508,11 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
         {/* Engagement flash */}
         {engagementFlash && (
           <text x={W * 0.45} y={GROUND_Y - 50} textAnchor="middle" fontSize="38">
-            {stance === 'attack' ? '⚔️' : stance === 'bluff' ? '😤' : '🛡️'}
+            {threat?.outcome === 'fooled' ? '🍃' : stance === 'attack' ? '⚔️' : stance === 'bluff' ? '😤' : '🛡️'}
           </text>
         )}
 
-        {/* PLAYER CREATURE — guarding the nest */}
+        {/* PLAYER CREATURE */}
         {hasBespokeShape(creature) ? (
           <BespokeInScene
             creature={creature}
@@ -359,7 +520,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
             y={GROUND_Y - 70}
             width={100}
             height={80}
-            animate={stance === 'attack' ? 'run' : 'breathe'}
+            animate={(stance === 'attack' && threatPresent) || activity === 'forage' ? 'run' : 'breathe'}
           />
         ) : (
           <CreatureBody
@@ -367,23 +528,32 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
             cx={W * 0.32}
             footY={GROUND_Y}
             scale={0.32}
-            animate={stance === 'attack' ? 'run' : 'breathe'}
+            animate={(stance === 'attack' && threatPresent) || activity === 'forage' ? 'run' : 'breathe'}
           />
         )}
 
-        {/* HUD */}
-        <rect x="6" y="6" width="220" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
-        <text x="14" y="22" fontSize="11" fill="#333">
-          Wave {Math.min(totalWaves, waveIdx + (threat ? 0 : 0))} / {totalWaves} · 🥚 {eggs}/5
-        </text>
+        {/* HUD — three bars stacked: energy + hydration + camo */}
+        <rect x="6" y="6" width="240" height="62" fill="rgba(255,255,255,0.92)" rx="4" stroke="#bbb" />
+        <text x="14" y="18" fontSize="10" fill="#333">🔥 energy</text>
+        <rect x="86" y="11" width="156" height="8" fill="#eee" stroke="#999" />
+        <rect x="86" y="11" width={Math.max(0, 156 * (energy / 100))} height="8"
+          fill={energy > 50 ? '#5cc46a' : energy > 20 ? '#e0a040' : '#c44'} />
+        <text x="14" y="36" fontSize="10" fill="#333">💧 hydration</text>
+        <rect x="86" y="29" width="156" height="8" fill="#eee" stroke="#999" />
+        <rect x="86" y="29" width={Math.max(0, 156 * (hydration / 100))} height="8"
+          fill={hydration > 30 ? '#5cc46a' : '#c44'} />
+        <text x="14" y="54" fontSize="10" fill="#333">🍃 hidden</text>
+        <rect x="86" y="47" width="156" height="8" fill="#eee" stroke="#999" />
+        <rect x="86" y="47" width={Math.max(0, 156 * (camo / 75))} height="8" fill="#5a8a30" />
+
         <rect x={W - 154} y="6" width="148" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
         <text x={W - 8} y="22" textAnchor="end" fontSize="11" fill="#333">
-          {Math.round(elapsed)}s
+          Wave {waveIdx}/{totalWaves} · 🥚 {eggs}/5
         </text>
 
         {/* mini-log */}
         <g transform={`translate(${W - 240} ${GROUND_Y - 80})`}>
-          {log.slice(-3).map((line, i) => (
+          {log.slice(-4).map((line, i) => (
             <text key={i} x="0" y={i * 14} fontSize="11" fill="#3a2010">{line}</text>
           ))}
         </g>
@@ -408,6 +578,8 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
         {!running && !done && (
           <small className="arena-meta">
             block: {blockBase.toFixed(1)} · attack: {attackBase.toFixed(1)} · bluff: {bluffBase.toFixed(1)}
+            · foraging: {foragingSkill.toFixed(1)}
+            {innateCamoBonus > 0 && ` · innate camo: +${innateCamoBonus}%`}
           </small>
         )}
       </div>
