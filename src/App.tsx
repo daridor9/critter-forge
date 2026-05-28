@@ -14,6 +14,7 @@ import { DroughtArena } from './components/DroughtArena';
 import { HuntArena } from './components/HuntArena';
 import { DeepArena } from './components/DeepArena';
 import { MazeArena } from './components/MazeArena';
+import { StormArena } from './components/StormArena';
 import { InsightCard } from './components/InsightCard';
 import { AlbumPanel } from './components/AlbumPanel';
 import { AchievementToast } from './components/AchievementToast';
@@ -81,7 +82,7 @@ const CampaignModal = lazy(() => import('./components/CampaignModal').then((m) =
 const BreedingModal = lazy(() => import('./components/BreedingModal').then((m) => ({ default: m.BreedingModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
-type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
+type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze' | 'storm';
 type StageView = 'creature' | ArenaId;
 
 const arenaTabs: { id: ArenaId; label: string }[] = [
@@ -91,6 +92,7 @@ const arenaTabs: { id: ArenaId; label: string }[] = [
   { id: 'drought', label: '☀️ Drought' },
   { id: 'deep', label: '🌊 Deep' },
   { id: 'maze', label: '🧩 Maze' },
+  { id: 'storm', label: '🌪️ Storm' },
 ];
 // ─── Session persistence ────────────────────────────────────────────────
 // The current creature + its lineage-chain pointer used to live in React
@@ -570,6 +572,7 @@ export default function App() {
     if (id === 'drought') return <DroughtArena creature={creature} stats={stats} generation={gen} onFinish={(o) => finish({ arena: 'drought', ...o })} />;
     if (id === 'deep') return <DeepArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'deep', ...o })} />;
     if (id === 'maze') return <MazeArena creature={creature} stats={stats} onFinish={(o) => finish({ arena: 'maze', ...o })} />;
+    if (id === 'storm') return <StormArena creature={creature} stats={stats} generation={gen} onFinish={(o) => finish({ arena: 'storm', ...o })} />;
     return null;
   }
 

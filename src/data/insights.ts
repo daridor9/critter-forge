@@ -13,7 +13,8 @@ export type ArenaResult =
   | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved' | 'dehydrated'; daysSurvived: number; severity?: 'dry' | 'drought' | 'megadrought' | 'apocalypse' }
   | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught'; env?: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean'; strategy?: 'hide' | 'run' | 'fight'; difficulty?: 'normal' | 'tough' | 'apex' }
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed' | 'crossed' | 'exhausted' | 'caught' | 'landed' | 'stalled' | 'no-wings'; maxDepth: number }
-  | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number };
+  | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number }
+  | { arena: 'storm'; won: boolean; reason: 'survived' | 'blown-away' | 'struck-by-debris'; secondsHeld: number; severity?: 'gust' | 'storm' | 'tornado' };
 
 export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature): Insight {
   switch (r.arena) {
@@ -23,6 +24,7 @@ export function pickInsight(r: ArenaResult, massKg: number, creature?: Creature)
     case 'hunt':    return pickHunt(r);
     case 'deep':    return pickDeep(r, massKg, creature);
     case 'maze':    return pickMaze(r, creature);
+    case 'storm':   return pickStorm(r);
   }
 }
 
@@ -243,4 +245,23 @@ function pickDeep(r: Extract<ArenaResult, { arena: 'deep' }>, massKg: number, c?
   return { id: 'deep-generic', won: false, title: 'The ocean is unforgiving', text:
     'Different routes demand different builds. Dive needs lungs and pressure resistance. Swim needs streamlining ' +
     'and stamina. Glide needs wings and tailwind. Match the body to the challenge.' };
+}
+
+function pickStorm(r: Extract<ArenaResult, { arena: 'storm' }>): Insight {
+  if (r.won) {
+    return { id: 'storm-won', won: true, title: `Survived the ${r.severity ?? 'storm'}! (${r.secondsHeld}s held)`, text:
+      'Heavy bodies and low profiles win against wind. Elephants and rhinos barely flinch in hurricanes; ' +
+      'birds and insects get blown miles. Real-world record: a wildebeest survived a Category 5 hurricane by ' +
+      'lying flat in a depression and weighting itself with a tree limb across the back. Mass + grip + ' +
+      'insulation = storm survivor.' };
+  }
+  if (r.reason === 'blown-away') {
+    return { id: 'storm-blown', won: false, title: `Blown away after ${r.secondsHeld}s`, text:
+      'Wind force scales with surface area — and small light creatures take most of it. A 5 kg cat in 200 km/h ' +
+      'winds catches the same force as a 50 kg human (lower mass means lower friction holding you down). ' +
+      'Try a bigger body, runner-tier legs for grip, or shelter under thick fur to reduce profile.' };
+  }
+  return { id: 'storm-debris', won: false, title: `Struck by debris at ${r.secondsHeld}s`, text:
+    'Flying debris is the real killer in tornadoes. A 100 mph 2x4 hits like a bullet. Armor (defense tier 2) or ' +
+    'the stoneskin hybrid would have absorbed the impact. Bigger bodies also have more mass to spread the hit.' };
 }

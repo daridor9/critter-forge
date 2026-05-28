@@ -1,7 +1,7 @@
 import type { Creature } from '../types';
 import { computeStats, sizeToMass } from '../physics';
 
-export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze';
+export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze' | 'storm';
 export type Fit = 'great' | 'ok' | 'tough';
 
 export interface ArenaFit {
@@ -57,6 +57,14 @@ export function arenaFitFor(arena: ArenaId, c: Creature): ArenaFit {
       if (c.brainTier === 2) return { fit: 'great', reason: 'Big brain solves puzzles.' };
       if (c.brainTier === 0) return { fit: 'tough', reason: 'Tiny brain gets lost.' };
       return { fit: 'ok', reason: 'Can muddle through.' };
+    }
+    case 'storm': {
+      const m = sizeToMass(c.sizeUnit);
+      if (m > 500 && c.defenseTier >= 1) return { fit: 'great', reason: 'Heavy + armored — wind barely budges you.' };
+      if (m < 5 && (c.bodyPlan === 'bird' || c.hybrids.includes('wings'))) return { fit: 'tough', reason: 'Light + winged — gets blown miles.' };
+      if (m > 100) return { fit: 'great', reason: 'Big body grips the ground.' };
+      if (m < 5) return { fit: 'tough', reason: 'Too light to anchor — winds carry you.' };
+      return { fit: 'ok', reason: 'Mid-mass — hunker down to survive.' };
     }
   }
 }

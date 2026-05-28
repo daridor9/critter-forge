@@ -238,6 +238,15 @@ export function pointsForArenaResult(r: ArenaResult, generation: number): Points
         description = `Summited ${terr} (Gen ${generation})`;
       }
       break;
+    case 'storm':
+      {
+        const sev = r.severity ?? 'gust';
+        const sevMult = sev === 'tornado' ? 2.5 : sev === 'storm' ? 1.6 : 1.0;
+        key = `arena-storm-${sev}-gen${generation}`;
+        specificMult = sevMult;
+        description = `Survived ${sev} (${r.secondsHeld}s)`;
+      }
+      break;
   }
 
   const difficulty = base * genMult * specificMult;

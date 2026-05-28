@@ -2,11 +2,15 @@ import type { ArenaResult } from './insights';
 import type { Creature } from '../types';
 import { computeStats } from '../physics';
 
-export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze';
+export type ArenaId = 'chase' | 'hunt' | 'climb' | 'drought' | 'deep' | 'maze' | 'storm';
 
+// Storm is excluded from the tournament 6-arena rotation by design — it's
+// a standalone challenge. The tournament keeps its original 6 to preserve
+// existing save data + the 6/6 apex achievement.
 export const TOURNAMENT_ORDER: ArenaId[] = ['chase', 'hunt', 'climb', 'drought', 'deep', 'maze'];
 
 export const ARENA_LABELS: Record<ArenaId, { label: string; emoji: string }> = {
+  storm:   { label: 'The Storm',   emoji: '🌪️' },
   chase:   { label: 'The Chase',   emoji: '🦌' },
   hunt:    { label: 'The Hunt',    emoji: '🌳' },
   climb:   { label: 'The Climb',   emoji: '🏔' },
@@ -22,6 +26,7 @@ const BASE_POINTS: Record<ArenaId, number> = {
   drought: 3,
   deep:    4,
   maze:    3,
+  storm:   4,    // tornado is brutal; reflects it
 };
 
 export function difficultyFor(arena: ArenaId, generation: number): number {
@@ -55,6 +60,7 @@ export const MEDAL_NAMES: Record<ArenaId, string> = {
   drought: 'Drought-Survivor',
   deep:    'Abyss-Diver',
   maze:    'Maze-Solver',
+  storm:   'Wind-Defier',
 };
 
 export interface FinalRank {
