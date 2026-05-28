@@ -195,7 +195,9 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   }, [stats.coldTolerance, stats.massKg, terrainId]);
 
   const climbFrac = Math.min(1, altitude / altGoal);
-  const baseY = H - 24;
+  // Start the creature at the visible base of the mountain (y=H), not 24px
+  // above it. topY=36 keeps the head from clipping the very top of the SVG.
+  const baseY = H - 4;
   const topY = 36;
   const footY = baseY - climbFrac * (baseY - topY);
   const cx = W / 2;
@@ -442,7 +444,11 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
         ))}
 
         {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={cx - 50} y={footY - 80} width={100} height={80} animate="run" />
+          // Bespoke shapes use a 400×300 viewBox with hooves/feet around y≈262-282.
+          // After letterboxing into a 100×80 foreignObject, the visible feet sit
+          // ~10-12px above the box's bottom edge. y={footY - 70} (instead of -80)
+          // compensates so the feet land on footY (the mountain base / climb path).
+          <BespokeInScene creature={creature} x={cx - 50} y={footY - 70} width={100} height={80} animate="run" />
         ) : (
           <CreatureBody creature={creature} cx={cx - 4} footY={footY} scale={0.32} facingRight={true} animate="run" />
         )}
