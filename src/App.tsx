@@ -675,6 +675,12 @@ export default function App() {
           <button
             className="header-btn"
             type="button"
+            onClick={() => { setShowRoadmap(true); sounds.click(); }}
+            title="Evolution Roadmap — recommended next mutations for any goal"
+          >🗺️ Roadmap</button>
+          <button
+            className="header-btn"
+            type="button"
             onClick={() => { setShowShare(true); sounds.click(); }}
             title="Share creature (QR code + challenge mode)"
           >🔗 Share</button>
