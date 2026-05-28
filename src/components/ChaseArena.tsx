@@ -779,7 +779,7 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
 
         {running && <DustPuffs x={playerX - 22} y={GROUND_Y - 2} />}
         {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={playerX - 65} y={GROUND_Y - 86} width={130} height={100} animate="run" />
+          <BespokeInScene creature={creature} x={playerX - 65} y={GROUND_Y - 88} width={130} height={100} animate="run" />
         ) : (
           <g transform={`translate(${playerX} 0)`}>
             <CreatureBody creature={creature} cx={0} footY={GROUND_Y} scale={0.55} animate="run" />

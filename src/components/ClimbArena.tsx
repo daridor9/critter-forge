@@ -195,9 +195,9 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   }, [stats.coldTolerance, stats.massKg, terrainId]);
 
   const climbFrac = Math.min(1, altitude / altGoal);
-  // Start the creature at the visible base of the mountain (y=H), not 24px
-  // above it. topY=36 keeps the head from clipping the very top of the SVG.
-  const baseY = H - 4;
+  // Start the creature at the visible base of the mountain (y=H), not above
+  // it. topY=36 keeps the head from clipping the very top of the SVG.
+  const baseY = H;
   const topY = 36;
   const footY = baseY - climbFrac * (baseY - topY);
   const cx = W / 2;
@@ -444,7 +444,7 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
         ))}
 
         {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={cx - 50} y={footY - 68} width={100} height={80} animate="run" />
+          <BespokeInScene creature={creature} x={cx - 50} y={footY - 70} width={100} height={80} animate="run" />
         ) : (
           <CreatureBody creature={creature} cx={cx - 4} footY={footY} scale={0.32} facingRight={true} animate="run" />
         )}

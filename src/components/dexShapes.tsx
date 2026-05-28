@@ -1795,16 +1795,169 @@ export function BespokeInScene({ creature, x, y, width, height, animate = 'none'
   if (!Bespoke || !creature.colors) return null;
   const animClass = animate === 'run' ? 'bob-run' : animate === 'breathe' ? 'bob-breathe' : '';
   const flipStyle = facingRight ? undefined : { transform: 'scaleX(-1)', transformOrigin: 'center' };
+  const hasHybrids = creature.hybrids && creature.hybrids.length > 0;
   return (
     <foreignObject x={x} y={y} width={width} height={height} style={{ overflow: 'visible' }}>
       <div
         // SVG-inside-foreignObject in React: namespace handled automatically
         className={`dex-bare ${animClass}`.trim()}
-        style={{ width: '100%', height: '100%', ...flipStyle }}
+        style={{ width: '100%', height: '100%', position: 'relative', ...flipStyle }}
       >
         <Bespoke colors={creature.colors} />
+        {hasHybrids && (
+          // Overlay SVG aligned to the same 400×300 coordinate space as every
+          // dex shape — draws hybrid decorations (wings, fur, armor, etc.) on
+          // top of the parent shape so the goat-with-wings actually shows wings.
+          <svg
+            viewBox="0 0 400 300"
+            preserveAspectRatio="xMidYMax meet"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+          >
+            <HybridOverlay hybrids={creature.hybrids} colors={creature.colors} />
+          </svg>
+        )}
       </div>
     </foreignObject>
+  );
+}
+
+// ─── HybridOverlay ──────────────────────────────────────────────────────
+// Decorations drawn on top of a bespoke shape to visually indicate hybrid
+// traits. Positions are tuned for the standard 400×300 dex viewBox with a
+// generic side-view quadruped body in the upper 87% (most dex shapes).
+function HybridOverlay({ hybrids, colors }: { hybrids: import('../types').Hybrid[]; colors: ColorOverride }) {
+  return (
+    <g>
+      {/* WINGS — feathered wings sweeping up from the back */}
+      {hybrids.includes('wings') && (
+        <g transform="translate(180 150)" opacity="0.92">
+          <path d="M 0 0 Q -30 -60 -90 -50 Q -100 -20 -70 0 Q -40 8 -10 4 Z" fill={colors.shade ?? '#a89878'} stroke="#3a2a14" strokeWidth="1.5" />
+          <path d="M 0 0 Q -30 -50 -75 -42 Q -85 -22 -60 -6 Q -35 0 -8 -2 Z" fill={colors.main ?? '#d8c890'} />
+          {/* feather lines */}
+          <g stroke="#3a2a14" strokeWidth="0.6" fill="none" opacity="0.65">
+            <line x1="-10" y1="-2" x2="-30" y2="-22" />
+            <line x1="-20" y1="-4" x2="-44" y2="-26" />
+            <line x1="-30" y1="-6" x2="-58" y2="-30" />
+            <line x1="-40" y1="-8" x2="-70" y2="-32" />
+          </g>
+        </g>
+      )}
+
+      {/* DRAGON — twin spiral horns from the head */}
+      {hybrids.includes('dragon') && (
+        <g transform="translate(310 110)" opacity="0.9">
+          <path d="M 0 0 Q -6 -22 -10 -32 L -6 -20 Z" fill="#3a2814" stroke="#1a1208" strokeWidth="1" />
+          <path d="M 12 4 Q 14 -16 18 -28 L 14 -16 Z" fill="#3a2814" stroke="#1a1208" strokeWidth="1" />
+        </g>
+      )}
+
+      {/* THICK FUR — fluffy halo of fur tufts around the body */}
+      {hybrids.includes('thick-fur') && (
+        <g opacity="0.55" fill={colors.light ?? '#fff'}>
+          {[[120, 170, 8], [150, 145, 7], [200, 135, 9], [250, 145, 7], [280, 175, 8],
+            [115, 200, 7], [285, 200, 7], [100, 230, 6], [300, 230, 6]].map(([cx, cy, r], i) => (
+            <circle key={i} cx={cx} cy={cy} r={r} />
+          ))}
+        </g>
+      )}
+
+      {/* STONESKIN — grey armor plates on the back */}
+      {hybrids.includes('stoneskin') && (
+        <g opacity="0.85">
+          <ellipse cx="160" cy="160" rx="22" ry="14" fill="#7a7468" stroke="#3a342a" strokeWidth="1" />
+          <ellipse cx="195" cy="150" rx="22" ry="14" fill="#8a8478" stroke="#3a342a" strokeWidth="1" />
+          <ellipse cx="232" cy="160" rx="22" ry="14" fill="#7a7468" stroke="#3a342a" strokeWidth="1" />
+        </g>
+      )}
+
+      {/* VENOM — drip from the mouth, fangs hint */}
+      {hybrids.includes('venom') && (
+        <g transform="translate(348 162)" opacity="0.95">
+          <ellipse cx="0" cy="6" rx="3" ry="6" fill="#58c850" stroke="#1a4818" strokeWidth="0.8" />
+          <circle cx="0" cy="14" r="2" fill="#58c850" />
+          <circle cx="2" cy="20" r="1.4" fill="#58c850" />
+        </g>
+      )}
+
+      {/* FIREBREATH — flame plume from the mouth */}
+      {hybrids.includes('firebreath') && (
+        <g transform="translate(354 160)" opacity="0.95">
+          <path d="M 0 0 Q 20 -6 38 -2 Q 30 4 38 10 Q 20 8 0 6 Z" fill="#ff7820" />
+          <path d="M 4 -2 Q 18 -4 30 0 Q 22 4 30 8 Q 18 6 4 4 Z" fill="#ffd040" />
+        </g>
+      )}
+
+      {/* ELECTRIC — yellow spark zigzags around the body */}
+      {hybrids.includes('electric') && (
+        <g stroke="#ffd040" strokeWidth="2" fill="none" opacity="0.95" strokeLinecap="round">
+          <path d="M 100 130 L 90 138 L 100 142 L 90 152" />
+          <path d="M 310 130 L 320 138 L 312 144 L 322 152" />
+          <path d="M 200 80 L 196 92 L 204 90 L 198 102" />
+        </g>
+      )}
+
+      {/* GILLS — three slits on the neck */}
+      {hybrids.includes('gills') && (
+        <g transform="translate(270 158)" opacity="0.85" stroke="#5a3030" strokeWidth="2" fill="none" strokeLinecap="round">
+          <path d="M 0 0 q -2 4 0 8" />
+          <path d="M 6 0 q -2 4 0 8" />
+          <path d="M 12 0 q -2 4 0 8" />
+        </g>
+      )}
+
+      {/* ANTIFREEZE — pale blue frost glow */}
+      {hybrids.includes('antifreeze') && (
+        <g opacity="0.45" fill="#aef0ff">
+          {[[140, 175, 3], [240, 170, 3], [180, 200, 2.5], [220, 200, 2.5]].map(([cx, cy, r], i) => (
+            <g key={i} transform={`translate(${cx} ${cy})`}>
+              <line x1={-r} y1="0" x2={r} y2="0" stroke="#aef0ff" strokeWidth="1" />
+              <line x1="0" y1={-r} x2="0" y2={r} stroke="#aef0ff" strokeWidth="1" />
+              <line x1={-r * 0.7} y1={-r * 0.7} x2={r * 0.7} y2={r * 0.7} stroke="#aef0ff" strokeWidth="1" />
+              <line x1={-r * 0.7} y1={r * 0.7} x2={r * 0.7} y2={-r * 0.7} stroke="#aef0ff" strokeWidth="1" />
+            </g>
+          ))}
+        </g>
+      )}
+
+      {/* ECHOLOCATION — sound waves emitting from the head */}
+      {hybrids.includes('echolocation') && (
+        <g transform="translate(340 138)" stroke="#9a60d0" strokeWidth="1.4" fill="none" opacity="0.7">
+          <path d="M 0 0 q 8 -10 18 0" />
+          <path d="M -4 4 q 14 -16 28 0" />
+          <path d="M -8 8 q 20 -22 38 0" />
+        </g>
+      )}
+
+      {/* CAMOUFLAGE — soft dappled patches over the body */}
+      {hybrids.includes('camouflage') && (
+        <g opacity="0.4" fill={colors.pattern ?? '#3a342a'}>
+          <ellipse cx="160" cy="175" rx="12" ry="6" />
+          <ellipse cx="200" cy="190" rx="14" ry="7" />
+          <ellipse cx="240" cy="170" rx="10" ry="5" />
+          <ellipse cx="220" cy="160" rx="9" ry="4" />
+        </g>
+      )}
+
+      {/* SYMBIOSIS — small companion bird perched on the back */}
+      {hybrids.includes('symbiosis') && (
+        <g transform="translate(220 130)" opacity="0.95">
+          <ellipse cx="0" cy="0" rx="8" ry="5" fill="#d4d0c4" />
+          <circle cx="6" cy="-2" r="3" fill="#d4d0c4" />
+          <circle cx="7" cy="-3" r="0.8" fill="#1a1208" />
+          <path d="M 9 -2 L 13 0 L 9 1 Z" fill="#ffb030" />
+          <line x1="-6" y1="2" x2="-12" y2="4" stroke="#d4d0c4" strokeWidth="2" />
+        </g>
+      )}
+
+      {/* HYPERSONIC — motion blur lines streaming back */}
+      {hybrids.includes('hypersonic') && (
+        <g stroke="#c0d8e8" strokeWidth="2.5" fill="none" opacity="0.65" strokeLinecap="round">
+          <line x1="50" y1="160" x2="100" y2="160" />
+          <line x1="40" y1="180" x2="95" y2="180" />
+          <line x1="50" y1="200" x2="100" y2="200" />
+        </g>
+      )}
+    </g>
   );
 }
 

@@ -596,8 +596,25 @@ h2 {
 /* ─── Bespoke dex shape embedded inside another scene ──────────────────
    The bespoke shape components include their own background rect (400×300)
    and a horizon line. When we drop one into an arena scene, those would
-   block the arena background. Hide them by their stable attributes. */
-.dex-bare svg { width: 100%; height: 100%; display: block; }
+   block the arena background. Hide them by their stable attributes.
+
+   Also: the dex shapes draw the body in the upper ~87% of their 300-tall
+   viewBox, leaving ~13% empty below. The default xMidYMid alignment used
+   in those <svg> elements would center the shape, floating the feet above
+   the foreignObject's bottom edge. We force YMax-equivalent alignment via
+   flex: align the SVG to the bottom of its container, and let height auto-
+   compute from the viewBox aspect so the shape isn't stretched. */
+.dex-bare {
+  display: flex;
+  align-items: flex-end;
+  overflow: visible;
+}
+.dex-bare svg {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+}
 .dex-bare svg > rect[width="400"][height="300"] { display: none; }
 .dex-bare svg > line[stroke-dasharray="3 4"] { display: none; }
 .dex-bare svg > defs { /* keep — gradients no longer reach the BG */ }

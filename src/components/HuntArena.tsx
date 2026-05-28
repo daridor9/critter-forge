@@ -551,7 +551,7 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
             <BespokeInScene
               creature={creature}
               x={W * 0.28 - 50}
-              y={GROUND_Y - 68}
+              y={GROUND_Y - 70}
               width={100}
               height={80}
               animate={playing && playingStrategy === 'run' ? 'run' : 'breathe'}
