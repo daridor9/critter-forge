@@ -1433,6 +1433,141 @@ h2 {
 .gene-combo-text strong { font-size: 11.5px; color: #5a3b18; }
 .gene-combo-text small { font-size: 10px; color: #8a6238; }
 
+/* ─── Campaign modal — "The Adapting" ──────────────────────────── */
+.campaign-modal { max-width: 760px; }
+.campaign-progress {
+  margin-bottom: 16px;
+}
+.campaign-progress-bar {
+  background: #eee;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  height: 10px;
+  overflow: hidden;
+}
+.campaign-progress-fill {
+  background: linear-gradient(90deg, #5cc46a, #c0843a);
+  height: 100%;
+  transition: width 0.4s ease;
+}
+.campaign-progress small {
+  display: block;
+  text-align: right;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.campaign-chapter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.campaign-chapter {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.campaign-chapter.done {
+  border-color: #5cc46a;
+  background: #f0f6e8;
+}
+.campaign-chapter.locked {
+  opacity: 0.5;
+}
+.campaign-chapter.open {
+  border-color: var(--accent);
+}
+.campaign-chapter-head {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 48px 32px 1fr 30px;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.campaign-chapter-head:disabled { cursor: not-allowed; }
+.campaign-chapter-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--fg-dim);
+  letter-spacing: 0.05em;
+}
+.campaign-chapter-emoji { font-size: 24px; text-align: center; }
+.campaign-chapter-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.campaign-chapter-title strong {
+  font-size: 14px;
+  color: var(--fg);
+}
+.campaign-chapter-title small {
+  font-size: 11px;
+  color: var(--fg-dim);
+  font-style: italic;
+}
+.campaign-chapter-status {
+  font-size: 16px;
+  text-align: center;
+}
+.campaign-chapter-body {
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  background: #fbfaf3;
+}
+.campaign-premise {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.campaign-detail-row {
+  font-size: 12.5px;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+.campaign-bio-fact {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 8px 0;
+  color: var(--fg);
+}
+.campaign-actions {
+  margin-top: 8px;
+}
+.campaign-done-msg {
+  color: #2a8050;
+  font-weight: 700;
+  font-size: 13px;
+  margin: 6px 0;
+}
+.campaign-victory {
+  background: linear-gradient(135deg, #fff8d8, #ffe4a0);
+  border: 2px solid #d8a040;
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a3b18;
+  margin-bottom: 14px;
+}
+
 /* ─── Lifecycle modal — baby / adult / elder ──────────────────── */
 .lifecycle-modal { max-width: 880px; }
 .lifecycle-name-row {

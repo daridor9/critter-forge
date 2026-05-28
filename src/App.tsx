@@ -77,6 +77,7 @@ const EvolutionRoadmapModal = lazy(() => import('./components/EvolutionRoadmapMo
 const DesignLabModal = lazy(() => import('./components/DesignLabModal').then((m) => ({ default: m.DesignLabModal })));
 const DailyEncounterModal = lazy(() => import('./components/DailyEncounterModal').then((m) => ({ default: m.DailyEncounterModal })));
 const LifecycleModal = lazy(() => import('./components/LifecycleModal').then((m) => ({ default: m.LifecycleModal })));
+const CampaignModal = lazy(() => import('./components/CampaignModal').then((m) => ({ default: m.CampaignModal })));
 const GauntletModal = lazy(() => import('./components/GauntletModal').then((m) => ({ default: m.GauntletModal })));
 
 type ArenaId = 'chase' | 'climb' | 'drought' | 'hunt' | 'deep' | 'maze';
@@ -196,6 +197,7 @@ export default function App() {
   const [showDesignLab, setShowDesignLab] = useState(false);
   const [showDailyWild, setShowDailyWild] = useState(false);
   const [showLifecycle, setShowLifecycle] = useState(false);
+  const [showCampaign, setShowCampaign] = useState(false);
   const [showGauntlet, setShowGauntlet] = useState(false);
   // Incoming challenge: when a share link arrives with a pre-set venue,
   // remember the opponent creature so we can offer to start the battle
@@ -348,6 +350,21 @@ export default function App() {
     const statsGot = checkStatsAchievements();
     if (statsGot.length > 0) pushToasts(statsGot);
 
+    // Campaign progress — check if this arena win cleared the current chapter.
+    if (r.won) {
+      import('./data/campaign').then(({ checkChapterClear }) => {
+        const cleared = checkChapterClear(r);
+        if (cleared) {
+          pushToasts([{
+            id: `_chapter-${cleared.id}`,
+            emoji: cleared.emoji,
+            name: `Chapter ${cleared.num} cleared: ${cleared.title}`,
+            description: cleared.bioFact.split('.')[0] + '.',
+          }]);
+        }
+      });
+    }
+
     // Award points for the win — keyed by (creature config, challenge
     // conditions). Same exact creature can't farm the same conditions
     // twice; different prey / biome / strategy / generation = new key.
@@ -409,6 +426,18 @@ export default function App() {
         if (wins === TOURNAMENT_ORDER.length) {
           const a = tryUnlock('tournament-apex');
           if (a) pushToasts([a]);
+          // Also marks the final campaign chapter complete.
+          import('./data/campaign').then(({ markApexClear }) => {
+            const ch = markApexClear();
+            if (ch) {
+              pushToasts([{
+                id: `_chapter-${ch.id}`,
+                emoji: ch.emoji,
+                name: `🏆 Final chapter cleared: ${ch.title}`,
+                description: 'You completed The Adapting campaign!',
+              }]);
+            }
+          });
         }
         if (wins >= 5) {
           const a = tryUnlock('tournament-champ');
@@ -653,6 +682,7 @@ export default function App() {
                 {moreItem('📅 Daily quest', () => setShowDaily(true))}
                 {moreItem('🐺 Daily wild encounter', () => setShowDailyWild(true))}
                 {moreItem('🐣 Lifecycle (baby/adult/elder)', () => setShowLifecycle(true))}
+                {moreItem('🌍 The Adapting (campaign)', () => setShowCampaign(true))}
                 {moreItem('👤 Profile', () => setShowProfile(true))}
                 {moreItem('👥 Family', () => setShowFamily(true))}
                 {moreItem('🏅 Achievements', () => setShowAchievements(true))}
@@ -912,6 +942,13 @@ export default function App() {
         )}
         {showLifecycle && (
           <LifecycleModal creature={creature} onClose={() => setShowLifecycle(false)} />
+        )}
+        {showCampaign && (
+          <CampaignModal
+            onClose={() => setShowCampaign(false)}
+            onStartArena={(arena) => pickArena(arena as ArenaId)}
+            onStartGauntlet={() => setShowGauntlet(true)}
+          />
         )}
         {showGauntlet && (
           <GauntletModal
