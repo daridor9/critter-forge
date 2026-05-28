@@ -66,6 +66,15 @@ export const sounds = {
     { freq: 440, at: 0, duration: 0.08 },
     { freq: 660, at: 60, duration: 0.1 },
   ]),
+  // Bright 5-note arpeggio fanfare for achievements (C E G C E).
+  // More celebratory than `save` — used when an achievement actually unlocks.
+  achievement: () => sequence([
+    { freq: 523, at: 0,   duration: 0.10, gain: 0.07 },
+    { freq: 659, at: 70,  duration: 0.10, gain: 0.07 },
+    { freq: 784, at: 140, duration: 0.10, gain: 0.07 },
+    { freq: 1047, at: 210, duration: 0.10, gain: 0.07 },
+    { freq: 1319, at: 280, duration: 0.30, gain: 0.07 },
+  ]),
 };
 
 export function isMuted(): boolean {

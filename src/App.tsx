@@ -238,10 +238,13 @@ export default function App() {
     for (const item of items) {
       const id = window.setTimeout(() => {
         setToasts((prev) => prev.filter((x) => x.id !== item.id));
-      }, 4500);
+      }, 5200);
       toastTimers.current.push(id);
     }
-    sounds.save();
+    // Don't blast the fanfare on +N-points toasts (they fire constantly); only
+    // play the celebration sound for real achievement unlocks.
+    const realAchievement = items.some((i) => !i.id.startsWith('_'));
+    if (realAchievement) sounds.achievement();
   }
 
   useEffect(() => {
@@ -875,7 +878,12 @@ export default function App() {
       {toasts.length > 0 && (
         <div className="toast-stack">
           {toasts.map((a, i) => (
-            <AchievementToast key={`${a.id}-${i}`} name={a.name} emoji={a.emoji} />
+            <AchievementToast
+              key={`${a.id}-${i}`}
+              name={a.name}
+              emoji={a.emoji}
+              description={a.description}
+            />
           ))}
         </div>
       )}
