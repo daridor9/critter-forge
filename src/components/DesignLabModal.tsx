@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react';
 import type { Creature } from '../types';
+import { defaultCreature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { sizeToMass, topSpeedKmh } from '../physics';
 import { getActiveCombo } from '../data/hybridCombos';
 import { suggestEvolutions } from '../utils/evolutionSuggest';
+import { ANIMAL_DEX } from '../data/animalDex';
+import { randomCreature } from '../data/randomCreature';
 
 interface Props {
   current: Creature;
@@ -37,6 +40,22 @@ function clearSlot(id: SlotId): void {
   try { localStorage.removeItem(slotKey(id)); } catch { /* ignore */ }
 }
 
+// ─── Album loader — read saved creatures from localStorage ───────────
+interface AlbumEntry {
+  id: string;
+  name: string;
+  creature: Creature;
+  savedAt?: number;
+}
+function loadAlbum(): AlbumEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem('critter-forge:album') || '[]');
+  } catch { return []; }
+}
+
+// All possible sources the player can pull a creature from.
+type LoadSource = 'dex' | 'album' | 'random' | 'default' | null;
+
 // Mini stat preview for a creature card.
 function quickStats(c: Creature): { mass: string; speed: string; brain: string; combo: string | null } {
   const m = sizeToMass(c.sizeUnit);
@@ -52,6 +71,7 @@ function quickStats(c: Creature): { mass: string; speed: string; brain: string; 
 
 export function DesignLabModal({ current, onLoad, onClose, onGoToBuilder }: Props) {
   const [tick, setTick] = useState(0);
+  const [openSource, setOpenSource] = useState<LoadSource>(null);
   const slots = useMemo<Record<SlotId, SlotState | null>>(() => ({
     A: loadSlot('A'),
     B: loadSlot('B'),
@@ -59,6 +79,13 @@ export function DesignLabModal({ current, onLoad, onClose, onGoToBuilder }: Prop
   // re-evaluate whenever the user saves/clears
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [tick]);
+
+  const album = useMemo(() => loadAlbum(), [tick]);
+
+  function loadFromSource(c: Creature, sourceName: string) {
+    const ok = window.confirm(`Load this creature from ${sourceName}?\n\nYour current creature will be replaced.\n(Tip: save current to a slot first if you want to keep it.)`);
+    if (ok) onLoad(c);
+  }
 
   function refresh() { setTick((t) => t + 1); }
 
@@ -135,8 +162,113 @@ export function DesignLabModal({ current, onLoad, onClose, onGoToBuilder }: Prop
             </div>
           </div>
 
+          {/* ─── LOAD FROM: lets the player pull a creature from any source ─── */}
+          <div className="design-lab-slots-label">LOAD A CREATURE FROM</div>
+          <div className="design-lab-sources">
+            <button
+              type="button"
+              className={`design-lab-source${openSource === 'dex' ? ' active' : ''}`}
+              onClick={() => setOpenSource(openSource === 'dex' ? null : 'dex')}
+              title="Pick a canonical animal from the dex catalog"
+            >
+              <span className="design-lab-source-emoji">📚</span>
+              <span className="design-lab-source-text">
+                <strong>Dex</strong>
+                <small>{ANIMAL_DEX.length} real animals</small>
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`design-lab-source${openSource === 'album' ? ' active' : ''}`}
+              onClick={() => setOpenSource(openSource === 'album' ? null : 'album')}
+              title="Pick a creature from your Family album"
+            >
+              <span className="design-lab-source-emoji">💾</span>
+              <span className="design-lab-source-text">
+                <strong>Family album</strong>
+                <small>{album.length} saved</small>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="design-lab-source"
+              onClick={() => loadFromSource(randomCreature(), 'Random')}
+              title="Generate a completely random creature"
+            >
+              <span className="design-lab-source-emoji">🎲</span>
+              <span className="design-lab-source-text">
+                <strong>Random</strong>
+                <small>roll the dice</small>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="design-lab-source"
+              onClick={() => loadFromSource(defaultCreature, 'Default')}
+              title="Reset to the default starter creature"
+            >
+              <span className="design-lab-source-emoji">♻️</span>
+              <span className="design-lab-source-text">
+                <strong>Default</strong>
+                <small>fresh start</small>
+              </span>
+            </button>
+          </div>
+
+          {/* Inline picker for the active source */}
+          {openSource === 'dex' && (
+            <div className="design-lab-picker">
+              <p style={{ fontSize: 12, color: 'var(--fg-dim)', marginBottom: 8 }}>
+                Tap any animal to load it as your current creature.
+              </p>
+              <div className="design-lab-pick-grid">
+                {ANIMAL_DEX.map((a) => (
+                  <button
+                    key={a.name}
+                    type="button"
+                    className="design-lab-pick"
+                    onClick={() => loadFromSource(a.creature, `Dex (${a.name})`)}
+                    title={`${a.name} — ${a.creature.bodyPlan}, ${a.creature.warmBlooded ? 'warm' : 'cold'}-blooded`}
+                  >
+                    <span className="design-lab-pick-thumb"><CreatureSVG creature={a.creature} /></span>
+                    <span className="design-lab-pick-name">{a.emoji} {a.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {openSource === 'album' && (
+            <div className="design-lab-picker">
+              {album.length === 0 ? (
+                <p style={{ fontSize: 13, color: 'var(--fg-dim)', padding: 12 }}>
+                  Your Family album is empty. Save a creature via the More menu → 💾 first.
+                </p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: 'var(--fg-dim)', marginBottom: 8 }}>
+                    Tap any creature to load it as your current.
+                  </p>
+                  <div className="design-lab-pick-grid">
+                    {album.map((entry) => (
+                      <button
+                        key={entry.id}
+                        type="button"
+                        className="design-lab-pick"
+                        onClick={() => loadFromSource(entry.creature, `Album (${entry.name})`)}
+                        title={entry.name}
+                      >
+                        <span className="design-lab-pick-thumb"><CreatureSVG creature={entry.creature} /></span>
+                        <span className="design-lab-pick-name">{entry.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {/* SLOTS A / B / C */}
-          <div className="design-lab-slots-label">SAVED VARIANTS</div>
+          <div className="design-lab-slots-label">SAVED VARIANTS (your own snapshots)</div>
           <div className="design-lab-slot-grid">
             {SLOT_IDS.map((id) => {
               const slot = slots[id];
