@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Creature } from '../types';
 import { ANIMAL_DEX } from '../data/animalDex';
 import { CreatureSVG } from './CreatureSVG';
+import { BattleArenaScene } from './BattleArenaScene';
 import { simulateBattle, VENUE_META } from '../data/battle';
 import type { Venue, BattleStep, BattleResult } from '../data/battle';
 import { hybridCatalog } from '../data/hybrids';
@@ -200,47 +201,22 @@ export function BattleModal({ current, onClose }: Props) {
 
           {(step === 'play' || step === 'done') && result && (
             <>
-              <div className="battle-arena">
-                <div className={`battle-arena-side${flash === 'A' ? ' flash' : ''}`}>
-                  <div className="battle-thumb"><CreatureSVG creature={cA} /></div>
-                  <div className="battle-name">{cA.name}</div>
-                  {(venue === 'brawl') && (
-                    <div className="battle-hp">
-                      <div className="battle-hp-bar"><div className="battle-hp-fill" style={{ width: `${Math.max(0, hpA) * 100}%` }} /></div>
-                      <small>HP {Math.round(hpA * 100)}%</small>
-                    </div>
-                  )}
-                  {(venue === 'race' || venue === 'maze' || venue === 'dive') && (
-                    <div className="battle-hp">
-                      <div className="battle-hp-bar"><div className="battle-hp-fill battle-pos-fill" style={{ width: `${Math.max(0, posA) * 100}%` }} /></div>
-                      <small>{venue === 'dive' ? 'depth' : 'progress'} {Math.round(posA * 100)}%</small>
-                    </div>
-                  )}
-                </div>
-
-                <div className="battle-arena-mid">
-                  {venue === 'brawl' && <span className="battle-icon">{logIdx < result.steps.length ? '💥' : (result.winner === 'A' ? '🏆' : result.winner === 'B' ? '🏆' : '🤝')}</span>}
-                  {venue === 'race' && <span className="battle-icon">🏁</span>}
-                  {venue === 'maze' && <span className="battle-icon">🧩</span>}
-                  {venue === 'dive' && <span className="battle-icon">🌊</span>}
-                </div>
-
-                <div className={`battle-arena-side${flash === 'B' ? ' flash' : ''}`}>
-                  <div className="battle-thumb"><CreatureSVG creature={cB} /></div>
-                  <div className="battle-name">{cB.name}</div>
-                  {(venue === 'brawl') && (
-                    <div className="battle-hp">
-                      <div className="battle-hp-bar"><div className="battle-hp-fill" style={{ width: `${Math.max(0, hpB) * 100}%` }} /></div>
-                      <small>HP {Math.round(hpB * 100)}%</small>
-                    </div>
-                  )}
-                  {(venue === 'race' || venue === 'maze' || venue === 'dive') && (
-                    <div className="battle-hp">
-                      <div className="battle-hp-bar"><div className="battle-hp-fill battle-pos-fill" style={{ width: `${Math.max(0, posB) * 100}%` }} /></div>
-                      <small>{venue === 'dive' ? 'depth' : 'progress'} {Math.round(posB * 100)}%</small>
-                    </div>
-                  )}
-                </div>
+              {/* Visual battle arena — creatures actually fight/race/maze/dive
+                  inside a venue-specific scene instead of just sitting in thumb
+                  boxes with HP bars. */}
+              <div className={`battle-scene${flash ? ' battle-scene-flash' : ''}`}>
+                <BattleArenaScene
+                  creatureA={cA}
+                  creatureB={cB}
+                  venue={venue}
+                  posA={posA}
+                  posB={posB}
+                  hpA={hpA}
+                  hpB={hpB}
+                  flash={flash}
+                  winner={step === 'done' ? result.winner : null}
+                  finished={step === 'done'}
+                />
               </div>
 
               <div className="battle-log">
