@@ -3,7 +3,7 @@ import { CreatureBody } from './CreatureSVG';
 import { getBespokeShape } from './dexShapes';
 import { hybridCatalog } from '../data/hybrids';
 import { sizeToMass } from '../physics';
-import { SizeCompareView } from './SizeCompareView';
+import { ArenaFitView } from './ArenaFitView';
 import { LabView } from './LabView';
 
 const W = 400;
@@ -81,8 +81,8 @@ export function CreatureStage({ creature, xray = false, layer }: Props) {
 
       {effLayer === 'lab' ? (
         <LabView creature={creature} W={W} H={H} />
-      ) : effLayer === 'compare' ? (
-        <SizeCompareView creature={creature} W={W} H={H} />
+      ) : effLayer === 'fit' ? (
+        <ArenaFitView creature={creature} W={W} H={H} />
       ) : (
         <CreatureBody creature={creature} cx={W / 2} footY={footY} scale={skinScale} animate="breathe" />
       )}

@@ -3888,29 +3888,6 @@ h2 {
   margin: 0;
 }
 
-/* ─── Size-compare reference picker (inside the creature stage SVG) ── */
-.size-compare-picker {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  height: 100%;
-  align-items: center;
-}
-.size-compare-picker button {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid #c8b890;
-  border-radius: 6px;
-  padding: 2px 6px;
-  cursor: pointer;
-  font: inherit;
-  line-height: 1;
-}
-.size-compare-picker button.active {
-  background: #ffd089;
-  border-color: #8a6a3a;
-  box-shadow: 0 0 0 2px rgba(216, 160, 64, 0.4);
-}
-
 /* ─── Combo badge on the creature stage (top-right floating chip) ──── */
 .combo-badge-stage {
   position: absolute;
