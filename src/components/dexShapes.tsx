@@ -1758,151 +1758,140 @@ export function SharkShape({ colors }: { colors: ColorOverride }) {
   );
 }
 
+// ─── Cheetah — CARTOON STYLE ──────────────────────────────────────────
+// Matches the cartoon Lion treatment: bold black outlines, solid colors,
+// big sparkle eyes, friendly smile. Cheetah signature features preserved:
+// dense spots, iconic tear lines, ringed tail with black tip, sleek build.
 export function CheetahShape({ colors }: { colors: ColorOverride }) {
+  const OUT = '#2a1810';
+  const OUT_W = 3;
+  const body = colors.main;
+  const bodyShade = colors.shade;
+  const belly = '#fff5d8';
   const spot = colors.pattern ?? '#1a1208';
-  const tailRing = '#1a1208';
+  const tear = '#1a1208';        // tear-line color
+  const innerEar = '#f4b8a0';
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
 
-      {/* TAIL — long, arched, RINGED with black bands ending in a BLACK TIP.
-          Cheetahs use this tail as a rudder when sprint-cornering. */}
-      <path d="M 85 198 Q 50 184 22 200 Q 8 218 18 240 Q 26 256 40 258" stroke={colors.shade} strokeWidth="13" fill="none" strokeLinecap="round" />
-      <path d="M 85 198 Q 50 184 22 200 Q 8 218 18 240 Q 26 256 40 258" stroke={colors.main} strokeWidth="9" fill="none" strokeLinecap="round" />
-      {/* black rings along the tail */}
-      <g fill={tailRing} opacity="0.9">
-        <ellipse cx="68" cy="194" rx="3" ry="6" transform="rotate(-15 68 194)" />
-        <ellipse cx="52" cy="190" rx="3" ry="6" transform="rotate(-25 52 190)" />
-        <ellipse cx="36" cy="194" rx="3" ry="6" transform="rotate(-50 36 194)" />
-        <ellipse cx="20" cy="212" rx="3" ry="6" transform="rotate(-70 20 212)" />
-        <ellipse cx="14" cy="232" rx="3" ry="6" transform="rotate(-95 14 232)" />
+      {/* TAIL — bold arched curve with black bands and a solid black tip */}
+      <path d="M 95 200 Q 55 188 25 205 Q 8 222 20 245 Q 30 262 48 264"
+        stroke={OUT} strokeWidth={OUT_W + 8} fill="none" strokeLinecap="round" />
+      <path d="M 95 200 Q 55 188 25 205 Q 8 222 20 245 Q 30 262 48 264"
+        stroke={body} strokeWidth={OUT_W + 4} fill="none" strokeLinecap="round" />
+      {/* solid black tail bands */}
+      <g fill={spot}>
+        <ellipse cx="70" cy="195" rx="3.5" ry="7" transform="rotate(-15 70 195)" />
+        <ellipse cx="50" cy="194" rx="3.5" ry="7" transform="rotate(-30 50 194)" />
+        <ellipse cx="30" cy="208" rx="3.5" ry="7" transform="rotate(-55 30 208)" />
+        <ellipse cx="20" cy="230" rx="3.5" ry="7" transform="rotate(-80 20 230)" />
       </g>
-      {/* solid BLACK TIP at the end */}
-      <ellipse cx="40" cy="258" rx="8" ry="10" fill={tailRing} />
+      {/* big black tail tip */}
+      <ellipse cx="48" cy="264" rx="11" ry="13" fill={spot} stroke={OUT} strokeWidth={OUT_W - 1} />
 
-      {/* LEGS — longer + thinner than the average quadruped (cheetah signature) */}
-      <path d="M 108 208 Q 102 248 116 282" stroke={colors.shade} strokeWidth="9" fill="none" strokeLinecap="round" />
-      <path d="M 142 208 Q 138 250 148 282" stroke={colors.shade} strokeWidth="9" fill="none" strokeLinecap="round" />
-      <path d="M 232 208 Q 226 250 238 282" stroke={colors.shade} strokeWidth="9" fill="none" strokeLinecap="round" />
-      <path d="M 268 208 Q 262 248 272 282" stroke={colors.shade} strokeWidth="9" fill="none" strokeLinecap="round" />
-      {/* mid-leg highlight (lighter tone) */}
-      <path d="M 108 208 Q 102 248 116 282" stroke={colors.main} strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.7" />
-      <path d="M 142 208 Q 138 250 148 282" stroke={colors.main} strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.7" />
-      <path d="M 232 208 Q 226 250 238 282" stroke={colors.main} strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.7" />
-      <path d="M 268 208 Q 262 248 272 282" stroke={colors.main} strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.7" />
-      {/* paws */}
-      <ellipse cx="118" cy="282" rx="10" ry="3.5" fill="#1a1208" />
-      <ellipse cx="150" cy="282" rx="10" ry="3.5" fill="#1a1208" />
-      <ellipse cx="240" cy="282" rx="10" ry="3.5" fill="#1a1208" />
-      <ellipse cx="274" cy="282" rx="10" ry="3.5" fill="#1a1208" />
+      {/* LEGS — long thin sprinter legs with bold outline + dark paw */}
+      {[112, 152, 230, 270].map((x, i) => (
+        <g key={i}>
+          <path d={`M ${x} 218 Q ${x - 5} 250 ${x + 5} 280`}
+            stroke={OUT} strokeWidth={OUT_W + 6} fill="none" strokeLinecap="round" />
+          <path d={`M ${x} 218 Q ${x - 5} 250 ${x + 5} 280`}
+            stroke={i % 2 ? body : bodyShade} strokeWidth={OUT_W + 2} fill="none" strokeLinecap="round" />
+          <ellipse cx={x + 5} cy="282" rx="11" ry="4" fill={OUT} />
+          {/* small spot on each leg */}
+          <circle cx={x - 1} cy={232} r="2" fill={spot} />
+          <circle cx={x + 1} cy={250} r="1.6" fill={spot} />
+        </g>
+      ))}
 
-      {/* BODY — slimmer and longer than the original. Real cheetahs have a
-          deep chest + narrow waist for sprinting. */}
-      <ellipse cx="190" cy="200" rx="112" ry="26" fill={colors.shade} />
-      <ellipse cx="190" cy="196" rx="108" ry="22" fill={colors.main} />
-      {/* WHITE BELLY — bright underside, distinctive cheetah feature */}
-      <ellipse cx="190" cy="216" rx="95" ry="11" fill="#fff8e8" opacity="0.92" />
-      <ellipse cx="190" cy="220" rx="90" ry="7" fill="#ffffff" opacity="0.7" />
-      {/* subtle topline shading */}
-      <ellipse cx="165" cy="180" rx="60" ry="6" fill="white" opacity="0.2" />
+      {/* BODY — slim sprinter silhouette as a single bold ellipse */}
+      <ellipse cx="190" cy="200" rx="108" ry="28"
+        fill={body} stroke={OUT} strokeWidth={OUT_W} />
+      {/* WHITE BELLY — distinctive cheetah feature, sits inside the outline */}
+      <ellipse cx="190" cy="215" rx="92" ry="11" fill={belly} />
 
-      {/* SPOTS — dense distribution across body + legs + tail base.
-          Real cheetahs have ~2,000 spots. We approximate with ~40 small
-          irregular dots clustered across the back and flanks. */}
-      <g fill={spot} opacity="0.92">
-        {/* upper back row */}
-        <circle cx="100" cy="194" r="2.2" />
-        <circle cx="112" cy="186" r="2.4" />
-        <circle cx="125" cy="190" r="2.6" />
-        <circle cx="138" cy="184" r="2.4" />
-        <circle cx="152" cy="190" r="2.8" />
-        <circle cx="168" cy="182" r="2.4" />
-        <circle cx="182" cy="186" r="2.6" />
-        <circle cx="198" cy="184" r="2.4" />
-        <circle cx="214" cy="188" r="2.6" />
-        <circle cx="230" cy="184" r="2.8" />
-        <circle cx="246" cy="186" r="2.4" />
-        <circle cx="262" cy="190" r="2.6" />
-        <circle cx="278" cy="194" r="2.4" />
-        {/* mid row */}
-        <circle cx="106" cy="202" r="2.2" />
-        <circle cx="118" cy="200" r="2.6" />
-        <circle cx="132" cy="204" r="2.4" />
-        <circle cx="146" cy="202" r="2.8" />
-        <circle cx="162" cy="200" r="2.4" />
-        <circle cx="178" cy="204" r="2.6" />
-        <circle cx="194" cy="200" r="2.4" />
-        <circle cx="210" cy="204" r="2.6" />
-        <circle cx="226" cy="202" r="2.4" />
-        <circle cx="242" cy="204" r="2.6" />
-        <circle cx="258" cy="202" r="2.4" />
-        <circle cx="272" cy="206" r="2.2" />
-        {/* lower row — flanks */}
-        <circle cx="124" cy="214" r="2.2" />
-        <circle cx="142" cy="216" r="2.4" />
-        <circle cx="162" cy="214" r="2.2" />
-        <circle cx="182" cy="216" r="2.4" />
-        <circle cx="202" cy="214" r="2.2" />
-        <circle cx="222" cy="216" r="2.4" />
-        <circle cx="242" cy="214" r="2.2" />
-        <circle cx="260" cy="216" r="2.4" />
-        {/* spots on the legs */}
-        <circle cx="110" cy="226" r="1.8" />
-        <circle cx="115" cy="240" r="1.6" />
-        <circle cx="144" cy="226" r="1.8" />
-        <circle cx="149" cy="240" r="1.6" />
-        <circle cx="234" cy="226" r="1.8" />
-        <circle cx="239" cy="240" r="1.6" />
-        <circle cx="270" cy="226" r="1.8" />
-        <circle cx="275" cy="240" r="1.6" />
-        {/* a few smaller spots on the head */}
-        <circle cx="285" cy="170" r="1.6" />
-        <circle cx="298" cy="170" r="1.6" />
-        <circle cx="278" cy="186" r="1.6" />
+      {/* SPOTS — bold, varied sizes, sparse-but-readable. Cartoon style
+          uses fewer larger spots vs the painterly 40-spot density. */}
+      <g fill={spot}>
+        {/* upper back */}
+        <ellipse cx="115" cy="186" rx="3.2" ry="2.6" />
+        <ellipse cx="135" cy="190" rx="3.6" ry="2.8" />
+        <ellipse cx="158" cy="184" rx="3.2" ry="2.6" />
+        <ellipse cx="180" cy="188" rx="3.6" ry="2.8" />
+        <ellipse cx="202" cy="184" rx="3.2" ry="2.6" />
+        <ellipse cx="222" cy="188" rx="3.6" ry="2.8" />
+        <ellipse cx="245" cy="184" rx="3.2" ry="2.6" />
+        <ellipse cx="268" cy="190" rx="3.6" ry="2.8" />
+        {/* mid */}
+        <ellipse cx="125" cy="200" rx="3.2" ry="2.6" />
+        <ellipse cx="148" cy="204" rx="3.6" ry="2.8" />
+        <ellipse cx="172" cy="200" rx="3.2" ry="2.6" />
+        <ellipse cx="194" cy="204" rx="3.6" ry="2.8" />
+        <ellipse cx="218" cy="200" rx="3.2" ry="2.6" />
+        <ellipse cx="240" cy="204" rx="3.6" ry="2.8" />
+        <ellipse cx="262" cy="200" rx="3.2" ry="2.6" />
       </g>
 
-      {/* HEAD — small relative to body (cheetah feature) */}
-      <circle cx="298" cy="186" r="24" fill={colors.shade} />
-      <circle cx="298" cy="184" r="20" fill={colors.main} />
-      <ellipse cx="292" cy="178" rx="13" ry="4" fill={colors.light} opacity="0.5" />
+      {/* HEAD — round small head sits at the front, bold outlined */}
+      <circle cx="302" cy="186" r="28" fill={body} stroke={OUT} strokeWidth={OUT_W} />
+      {/* light face patch */}
+      <ellipse cx="296" cy="178" rx="14" ry="5" fill={belly} opacity="0.85" />
 
-      {/* small rounded ears (cheetahs have smaller ears than lions) */}
-      <ellipse cx="287" cy="166" rx="6" ry="8" fill={colors.shade} transform="rotate(-15 287 166)" />
-      <ellipse cx="287" cy="167" rx="3" ry="5" fill="#f4b8a0" transform="rotate(-15 287 167)" />
-      <ellipse cx="309" cy="166" rx="6" ry="8" fill={colors.shade} transform="rotate(15 309 166)" />
-      <ellipse cx="309" cy="167" rx="3" ry="5" fill="#f4b8a0" transform="rotate(15 309 167)" />
+      {/* EARS — small rounded perky cartoon ears */}
+      <g>
+        <ellipse cx="286" cy="164" rx="9" ry="11" fill={body} stroke={OUT} strokeWidth={OUT_W}
+          transform="rotate(-18 286 164)" />
+        <ellipse cx="287" cy="167" rx="5" ry="7" fill={innerEar} transform="rotate(-18 287 167)" />
+        <ellipse cx="318" cy="164" rx="9" ry="11" fill={body} stroke={OUT} strokeWidth={OUT_W}
+          transform="rotate(18 318 164)" />
+        <ellipse cx="317" cy="167" rx="5" ry="7" fill={innerEar} transform="rotate(18 317 167)" />
+      </g>
 
-      {/* MUZZLE — small light area */}
-      <ellipse cx="314" cy="194" rx="10" ry="7" fill={colors.main} />
-      <ellipse cx="312" cy="196" rx="8" ry="5" fill="#fff8e8" opacity="0.7" />
-      <ellipse cx="320" cy="196" rx="3" ry="2" fill="#1a1a1a" />
-
-      {/* EYES — bright amber, alert */}
+      {/* BIG CARTOON EYES — amber with big black pupil + sparkles */}
       <g className="eye-blink" style={{ transformOrigin: '290px 180px' }}>
-        <circle cx="290" cy="180" r="4.5" fill="white" stroke="#222" strokeWidth="0.5" />
-        <ellipse cx="291" cy="180" rx="2" ry="3.4" fill="#e0a040" />
-        <ellipse cx="291" cy="180" rx="1" ry="3" fill="#1a1a1a" />
+        <circle cx="290" cy="180" r="9" fill="white" stroke={OUT} strokeWidth={OUT_W - 1} />
+        <circle cx="291" cy="181" r="6.5" fill="#e0a040" />
+        <circle cx="291" cy="181" r="4.5" fill={OUT} />
+        <circle cx="293" cy="178" r="2.2" fill="white" />
+        <circle cx="289" cy="183" r="1" fill="white" />
       </g>
-      <g className="eye-blink" style={{ transformOrigin: '304px 180px' }}>
-        <circle cx="304" cy="180" r="4.5" fill="white" stroke="#222" strokeWidth="0.5" />
-        <ellipse cx="305" cy="180" rx="2" ry="3.4" fill="#e0a040" />
-        <ellipse cx="305" cy="180" rx="1" ry="3" fill="#1a1a1a" />
+      <g className="eye-blink" style={{ transformOrigin: '314px 180px' }}>
+        <circle cx="314" cy="180" r="9" fill="white" stroke={OUT} strokeWidth={OUT_W - 1} />
+        <circle cx="315" cy="181" r="6.5" fill="#e0a040" />
+        <circle cx="315" cy="181" r="4.5" fill={OUT} />
+        <circle cx="317" cy="178" r="2.2" fill="white" />
+        <circle cx="313" cy="183" r="1" fill="white" />
       </g>
 
-      {/* ICONIC TEAR LINES — bold dark stripes from inner eye down to mouth.
-          Real cheetahs have these to reduce glare from the sun, like an
-          eye-black sticker on a baseball player. Make them THICK and
-          curved for visual punch. */}
-      <path d="M 289 184 Q 287 192 290 200" stroke={spot} strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      <path d="M 305 184 Q 307 192 308 200" stroke={spot} strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      {/* slight inner-line shadow for depth */}
-      <path d="M 290 186 Q 288 192 290 198" stroke="#3a2010" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.6" />
-      <path d="M 305 186 Q 307 192 308 198" stroke="#3a2010" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.6" />
+      {/* ICONIC TEAR LINES — bold cartoon-thick stripes from eye to mouth.
+          Cheetah's natural sun-glare reducer (the signature feature). */}
+      <path d="M 290 189 Q 287 198 291 207"
+        stroke={tear} strokeWidth={OUT_W + 1} fill="none" strokeLinecap="round" />
+      <path d="M 314 189 Q 317 198 313 207"
+        stroke={tear} strokeWidth={OUT_W + 1} fill="none" strokeLinecap="round" />
 
-      {/* mouth */}
-      <path d="M 312 202 Q 318 208 324 204" stroke="#3a2118" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      {/* MUZZLE — light snout area */}
+      <ellipse cx="302" cy="206" rx="14" ry="9" fill={belly} stroke={OUT} strokeWidth={OUT_W - 1} />
+
+      {/* NOSE — triangular cartoon nose */}
+      <path d="M 296 202 L 308 202 L 302 211 Z" fill={OUT} strokeLinejoin="round" />
+
+      {/* MOUTH — small friendly smile */}
+      <path d="M 302 211 L 302 215" stroke={OUT} strokeWidth={OUT_W - 1} strokeLinecap="round" />
+      <path d="M 293 215 Q 302 222 311 215" stroke={OUT} strokeWidth={OUT_W - 1} fill="none" strokeLinecap="round" />
+      {/* tiny fangs hint */}
+      <polygon points="297,217 298,222 300,217" fill="white" stroke={OUT} strokeWidth="0.5" />
+      <polygon points="304,217 306,222 307,217" fill="white" stroke={OUT} strokeWidth="0.5" />
+
+      {/* whisker dots */}
+      <g fill={OUT}>
+        <circle cx="293" cy="208" r="1" />
+        <circle cx="291" cy="212" r="1" />
+        <circle cx="313" cy="208" r="1" />
+        <circle cx="315" cy="212" r="1" />
+      </g>
 
       <ellipse cx="195" cy="288" rx="135" ry="6" fill="rgba(0,0,0,0.22)" />
     </svg>
