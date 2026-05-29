@@ -386,6 +386,17 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
     } else {
       creatureDY = playWon ? 18 : 6;      // mammal crouch
     }
+    // CAMOUFLAGE / MIMICRY hybrid further drops opacity — small camo'd
+    // creatures effectively vanish from the predator's vision. Mass
+    // scaled, same curve used in NestingArena.
+    const m = sizeToMass(creature.sizeUnit);
+    const concealFactor = m <= 50 ? 1.0 : Math.max(0.2, 1 - Math.log10(m / 50) * 0.4);
+    if (creature.hybrids.includes('camouflage')) {
+      creatureOpacity *= (1 - 0.5 * concealFactor);
+    }
+    if (creature.hybrids.includes('mimicry')) {
+      creatureOpacity *= (1 - 0.35 * concealFactor);
+    }
     predDX = playWon ? -160 : -(basePredX - baseCreatureX);
   } else if (playing && playingStrategy === 'run') {
     // Body-plan-specific RUN:

@@ -811,6 +811,27 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           );
         })()}
 
+        {/* PHOTOSYNTHESIS SUN BEAM — radiating yellow rays around the
+            creature whenever it's NOT under threat (between waves, in
+            the sun). Mirrors the Drought arena treatment. */}
+        {creature.hybrids.includes('photosynthesis') && !threatPresent && (
+          <g opacity="0.7" stroke="#ffd34a" strokeWidth="1.6" fill="none" strokeLinecap="round">
+            {Array.from({ length: 10 }).map((_, i) => {
+              const a = (i / 10) * Math.PI * 2;
+              const cxp = W * 0.32;
+              const cyp = GROUND_Y - 38;
+              return (
+                <line key={i}
+                  x1={cxp + Math.cos(a) * 50}
+                  y1={cyp + Math.sin(a) * 50}
+                  x2={cxp + Math.cos(a) * 64}
+                  y2={cyp + Math.sin(a) * 64}
+                />
+              );
+            })}
+          </g>
+        )}
+
         {/* PLAYER CREATURE — visibly fades into the background when the
             camo bar is high. At camo=75% (cap), creature drops to 0.45
             opacity so the player sees their camo skill working. */}
