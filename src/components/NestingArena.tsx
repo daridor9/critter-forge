@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
@@ -39,14 +39,138 @@ interface Predator {
   threat: number;      // base difficulty of repelling them
   perception: number;  // how well they spot camouflaged nests (1.0 = baseline)
 }
-const WAVES: Predator[] = [
-  { emoji: '🐍', name: 'Snake', speed: 45, threat: 1.0, perception: 1.0 },
-  { emoji: '🦊', name: 'Fox', speed: 80, threat: 1.5, perception: 1.3 },
-  { emoji: '🦅', name: 'Hawk', speed: 110, threat: 2.0, perception: 1.6 },
-  { emoji: '🐀', name: 'Rat pack', speed: 65, threat: 2.5, perception: 0.8 },
-  { emoji: '🐺', name: 'Wolf', speed: 95, threat: 3.5, perception: 1.4 },
+
+// Ecological niches — used to pick natural enemies for each defender.
+// A lion's cubs face hyenas + leopards + rival lions, NOT generic
+// hawks-and-foxes that a mouse would face.
+type NestNiche = 'apex' | 'medium' | 'small' | 'ungulate'
+  | 'aquatic' | 'avian' | 'reptile' | 'arctic' | 'dinosaur';
+
+const NICHE_BY_SHAPE: Record<string, NestNiche> = {
+  // Apex / big cats / wolves
+  lion: 'apex', tiger: 'apex', snowleopard: 'apex', cheetah: 'apex', wolf: 'apex',
+  crocodile: 'apex',
+  // Medium-sized carnivores / omnivores
+  foxkit: 'medium', cat: 'medium', dog: 'medium', bat: 'medium',
+  // Small mammals / vulnerable prey
+  mouse: 'small', sloth: 'small',
+  // Large herbivores / ungulates — graze in herds, face apex hunters
+  sheep: 'ungulate', cow: 'ungulate', horse: 'ungulate', pig: 'ungulate',
+  giraffe: 'ungulate', donkey: 'ungulate', goat: 'ungulate', kangaroo: 'ungulate',
+  camel: 'ungulate', elephant: 'ungulate', rhino: 'ungulate', gorilla: 'ungulate',
+  // Aquatic
+  whale: 'aquatic', dolphin: 'aquatic', octopus: 'aquatic', shark: 'aquatic',
+  jellyfish: 'aquatic',
+  // Birds
+  eagle: 'avian', owl: 'avian', ostrich: 'avian', hummingbird: 'avian',
+  rooster: 'avian',
+  // Reptiles
+  snake: 'reptile', chameleon: 'reptile', tortoise: 'reptile',
+  // Arctic-adapted
+  polarbear: 'arctic', penguin: 'arctic',
+  // Dinosaurs
+  trex: 'dinosaur', raptor: 'dinosaur', triceratops: 'dinosaur',
+  stegosaurus: 'dinosaur', pterodactyl: 'dinosaur',
+};
+
+const PREDATOR_POOLS: Record<NestNiche, Predator[]> = {
+  apex: [
+    { emoji: '🐆', name: 'Leopard',       speed: 95,  threat: 2.5, perception: 1.4 },
+    { emoji: '🐍', name: 'Constrictor',   speed: 30,  threat: 2.0, perception: 1.0 },
+    { emoji: '🐊', name: 'Crocodile',     speed: 70,  threat: 3.0, perception: 1.3 },
+    { emoji: '🦅', name: 'Vulture',       speed: 130, threat: 1.0, perception: 1.6 },
+    { emoji: '🦁', name: 'Rival apex',    speed: 100, threat: 4.0, perception: 1.4 },
+  ],
+  medium: [
+    { emoji: '🦅', name: 'Eagle',         speed: 115, threat: 2.5, perception: 1.6 },
+    { emoji: '🐺', name: 'Wolf',          speed: 95,  threat: 3.5, perception: 1.4 },
+    { emoji: '🐍', name: 'Snake',         speed: 45,  threat: 1.5, perception: 1.0 },
+    { emoji: '🐻', name: 'Bear',          speed: 70,  threat: 4.0, perception: 1.2 },
+    { emoji: '🦊', name: 'Rival fox',     speed: 85,  threat: 2.0, perception: 1.3 },
+  ],
+  small: [
+    { emoji: '🐍', name: 'Snake',         speed: 45,  threat: 1.0, perception: 1.0 },
+    { emoji: '🦊', name: 'Fox',           speed: 80,  threat: 1.5, perception: 1.3 },
+    { emoji: '🦅', name: 'Hawk',          speed: 110, threat: 2.0, perception: 1.6 },
+    { emoji: '🦉', name: 'Owl',           speed: 90,  threat: 1.8, perception: 1.7 },
+    { emoji: '🐈', name: 'Feral cat',     speed: 75,  threat: 1.5, perception: 1.4 },
+  ],
+  ungulate: [
+    { emoji: '🦁', name: 'Lion pride',    speed: 100, threat: 3.5, perception: 1.4 },
+    { emoji: '🐺', name: 'Wolf pack',     speed: 90,  threat: 3.0, perception: 1.5 },
+    { emoji: '🐆', name: 'Cheetah',       speed: 140, threat: 2.5, perception: 1.6 },
+    { emoji: '🐊', name: 'River croc',    speed: 50,  threat: 3.5, perception: 1.2 },
+    { emoji: '🐕', name: 'Hyena clan',    speed: 85,  threat: 2.8, perception: 1.3 },
+  ],
+  aquatic: [
+    { emoji: '🦈', name: 'Shark',         speed: 100, threat: 3.5, perception: 1.5 },
+    { emoji: '🐳', name: 'Orca pod',      speed: 110, threat: 4.5, perception: 1.5 },
+    { emoji: '🐙', name: 'Giant octopus', speed: 50,  threat: 2.5, perception: 1.3 },
+    { emoji: '🪼', name: 'Box jelly',     speed: 30,  threat: 2.0, perception: 0.8 },
+    { emoji: '🛟', name: 'Trawler net',   speed: 60,  threat: 3.5, perception: 1.0 },
+  ],
+  avian: [
+    { emoji: '🐈', name: 'Cat',           speed: 80,  threat: 2.0, perception: 1.4 },
+    { emoji: '🐍', name: 'Tree snake',    speed: 45,  threat: 1.5, perception: 1.1 },
+    { emoji: '🦅', name: 'Bigger raptor', speed: 130, threat: 3.0, perception: 1.7 },
+    { emoji: '🐀', name: 'Egg rat',       speed: 70,  threat: 1.2, perception: 0.9 },
+    { emoji: '🦊', name: 'Fox',           speed: 85,  threat: 2.0, perception: 1.4 },
+  ],
+  reptile: [
+    { emoji: '🦅', name: 'Hawk',          speed: 115, threat: 2.5, perception: 1.6 },
+    { emoji: '🦡', name: 'Honey badger',  speed: 95,  threat: 3.2, perception: 1.4 },
+    { emoji: '🐗', name: 'Wild boar',     speed: 80,  threat: 2.5, perception: 1.0 },
+    { emoji: '🐍', name: 'Bigger snake',  speed: 45,  threat: 2.8, perception: 1.1 },
+    { emoji: '🦦', name: 'Mongoose',      speed: 100, threat: 2.6, perception: 1.5 },
+  ],
+  arctic: [
+    { emoji: '🐳', name: 'Orca',          speed: 110, threat: 4.5, perception: 1.5 },
+    { emoji: '🦅', name: 'Skua',          speed: 110, threat: 2.0, perception: 1.6 },
+    { emoji: '🦭', name: 'Leopard seal',  speed: 80,  threat: 3.5, perception: 1.4 },
+    { emoji: '🐻‍❄️', name: 'Polar bear',    speed: 70,  threat: 4.0, perception: 1.2 },
+    { emoji: '🦊', name: 'Arctic fox',    speed: 90,  threat: 1.8, perception: 1.3 },
+  ],
+  dinosaur: [
+    { emoji: '🦖', name: 'Tyrannosaur',   speed: 80,  threat: 4.5, perception: 1.4 },
+    { emoji: '🦖', name: 'Raptor pack',   speed: 120, threat: 3.5, perception: 1.6 },
+    { emoji: '🦕', name: 'Sauropod tail', speed: 40,  threat: 2.5, perception: 0.8 },
+    { emoji: '🦅', name: 'Pterosaur',     speed: 130, threat: 2.8, perception: 1.6 },
+    { emoji: '☄️', name: 'Bolide',        speed: 200, threat: 5.0, perception: 2.0 },
+  ],
+};
+
+// Hybrid predators — when the defender has hybrids, attract bigger
+// hybrid-tier threats. Each one mimics a chimeric apex predator.
+const HYBRID_PREDATORS: Predator[] = [
+  { emoji: '🐉', name: 'Dragon-wolf hybrid', speed: 110, threat: 5.0, perception: 1.7 },
+  { emoji: '🦇', name: 'Vampire raptor',     speed: 130, threat: 4.5, perception: 1.8 },
+  { emoji: '👹', name: 'Stone-fang shadow',  speed: 90,  threat: 4.8, perception: 1.5 },
 ];
+
+function getPredatorRoster(creature: Creature): Predator[] {
+  const niche = NICHE_BY_SHAPE[creature.shape ?? ''] ?? 'medium';
+  let predators = [...PREDATOR_POOLS[niche]];
+  // Hybrid defenders draw the attention of hybrid-tier predators AND
+  // boost every threat's stats (they hunt smarter prey more aggressively).
+  const hybridCount = creature.hybrids.length;
+  if (hybridCount > 0) {
+    predators = predators.map((p) => ({
+      ...p,
+      threat: p.threat + hybridCount * 0.3,
+      perception: p.perception + hybridCount * 0.08,
+    }));
+    predators.push(...HYBRID_PREDATORS.slice(0, Math.min(2, hybridCount)));
+  }
+  return predators;
+}
+
 const WAVE_GAP_S = 9;
+// Cooperative defense — neighbors / allies. Costs immediate food +
+// energy AND adds a persistent drain (you'll have to help them back).
+const MAX_HELP = 2;
+const HELP_COST_ENERGY = 10;
+const HELP_COST_HYDRATION = 25;
+const HELP_DEBT_DRAIN = 0.45;  // extra energy per second, per outstanding favor
 
 interface ThreatState {
   index: number;
@@ -58,6 +182,10 @@ interface ThreatState {
 
 export function NestingArena({ creature, stats, generation = 1, onFinish }: Props) {
   const totalWaves = TOTAL_WAVES_BASE + Math.floor((generation - 1) / 2);
+  // Species-aware predator roster. Defender's natural enemies — bigger
+  // and more numerous when the defender has hybrids (attracts hybrid
+  // predators in return).
+  const waves = useMemo(() => getPredatorRoster(creature), [creature.shape, creature.hybrids]);
 
   // Defense stance state (used when threat present)
   const [stance, setStance] = useState<NestStance>('block');
@@ -107,6 +235,15 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   const threatRef = useRef<ThreatState | null>(null);
   const timerRef = useRef<number | null>(null);
 
+  // ─── Cooperative defense — call neighbors for help ─────────────────
+  // Costs food + energy NOW, and adds a persistent drain (the favor you
+  // owe: you'll have to help them defend later, so your forage time
+  // splits between two nests).
+  const [helpsUsed, setHelpsUsed] = useState(0);
+  const helpsUsedRef = useRef(0);
+  const [helpDebt, setHelpDebt] = useState(0);
+  const helpDebtRef = useRef(0);
+
   function reset() {
     eggsRef.current = 5;
     energyRef.current = 100;
@@ -127,6 +264,10 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     setActivity('watch');
     setStance('block');
     setLog([]);
+    helpsUsedRef.current = 0;
+    helpDebtRef.current = 0;
+    setHelpsUsed(0);
+    setHelpDebt(0);
   }
 
   function start() {
@@ -158,9 +299,33 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     setLog((prev) => [...prev.slice(-4), msg]);
   }
 
+  // Call neighbors for cooperative defense. Auto-resolves the current
+  // wave as defended, but at a real cost: food + energy now, plus a
+  // permanent drain (favor owed). Capped so it can't be spammed.
+  function callForHelp() {
+    if (!threatRef.current || threatRef.current.resolved) return;
+    if (helpsUsedRef.current >= MAX_HELP) return;
+    if (energyRef.current < HELP_COST_ENERGY || hydrationRef.current < HELP_COST_HYDRATION) return;
+    const t = threatRef.current;
+    const pred = waves[t.index % waves.length];
+    energyRef.current -= HELP_COST_ENERGY;
+    hydrationRef.current -= HELP_COST_HYDRATION;
+    helpDebtRef.current += 1;
+    helpsUsedRef.current += 1;
+    setEnergy(energyRef.current);
+    setHydration(hydrationRef.current);
+    setHelpDebt(helpDebtRef.current);
+    setHelpsUsed(helpsUsedRef.current);
+    t.resolved = true;
+    t.outcome = 'defended';
+    t.flashUntil = elapsedRef.current + 0.6;
+    setThreat({ ...t });
+    pushLog(`🤝 Allies repelled ${pred.emoji} ${pred.name} (-${HELP_COST_ENERGY} energy, -${HELP_COST_HYDRATION} food, owe favor)`);
+  }
+
   function resolveEncounter(t: ThreatState): 'defended' | 'stolen' | 'fooled' {
-    const pred = WAVES[t.index % WAVES.length];
-    const tierBonus = Math.floor(t.index / WAVES.length) * 0.5;
+    const pred = waves[t.index % waves.length];
+    const tierBonus = Math.floor(t.index / waves.length) * 0.5;
     const threatPower = pred.threat + tierBonus;
 
     // CAMOUFLAGE: chance predator never finds the nest at all
@@ -191,8 +356,11 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
       // ─── Activity ticks (only when no current threat) ───────────
       if (!threatRef.current) {
         const act = activityRef.current;
-        // Idle drain — watching costs less than running around
-        const baseEnergyDrain = act === 'watch' ? 0.3 : 0.6;
+        // Idle drain — watching costs less than running around. Each
+        // outstanding favor adds a constant extra drain (you're spending
+        // time helping the neighbors who helped you).
+        const debtDrain = helpDebtRef.current * HELP_DEBT_DRAIN;
+        const baseEnergyDrain = (act === 'watch' ? 0.3 : 0.6) + debtDrain;
         const baseHydroDrain = act === 'watch' ? 0.3 : 0.6;
         energyRef.current = Math.max(0, energyRef.current - baseEnergyDrain * dt);
         hydrationRef.current = Math.max(0, hydrationRef.current - baseHydroDrain * dt);
@@ -222,7 +390,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           };
           threatRef.current = newThreat;
           setThreat({ ...newThreat });
-          const pred = WAVES[waveIdxRef.current % WAVES.length];
+          const pred = waves[waveIdxRef.current % waves.length];
           pushLog(`Wave ${waveIdxRef.current + 1}: ${pred.emoji} ${pred.name} approaches`);
           waveIdxRef.current += 1;
           setWaveIdx(waveIdxRef.current);
@@ -232,7 +400,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
       // ─── Update active threat ────────────────────────────────────
       if (threatRef.current) {
         const t = threatRef.current;
-        const pred = WAVES[t.index % WAVES.length];
+        const pred = waves[t.index % waves.length];
         if (!t.resolved) {
           t.x -= pred.speed * dt;
           if (t.x <= 200) {
@@ -307,7 +475,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.massKg]);
 
-  const predator = threat ? WAVES[threat.index % WAVES.length] : null;
+  const predator = threat ? waves[threat.index % waves.length] : null;
   const engagementFlash = threat?.flashUntil !== undefined && elapsed < threat.flashUntil;
   const threatPresent = threat !== null && !threat.resolved && threat.x > 200;
 
@@ -324,9 +492,14 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     <div className="arena">
       <h2>{siteTitle} — {youngEmoji} Defend the {clutchWord} <small className="arena-env">· {totalWaves} waves</small></h2>
       <p className="arena-help">
-        Predators approach in waves. Between attacks, <strong>forage</strong> to keep your energy up,
-        <strong> drink</strong> to stay hydrated, or <strong>hide</strong> the nest in leaves and dirt.
-        Defense burns energy — run out and you collapse before the last wave.
+        Your natural enemies approach in waves — {creature.hybrids.length > 0 ? (
+          <>hybrid creatures attract bigger threats (including other hybrids).</>
+        ) : (
+          <>each species faces different predators.</>
+        )} Between attacks, <strong>forage</strong> for energy, <strong>drink</strong> water,
+        or <strong>hide</strong> the nest. When overwhelmed, <strong>call for help</strong> —
+        allies will repel a wave, but you'll owe them food + energy AND a permanent drain
+        (you'll need to help them back).
       </p>
 
       {/* Picker switches based on whether a threat is approaching */}
@@ -355,6 +528,25 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
                 <span className="prey-name">{s.label}<small> {s.sub}</small></span>
               </button>
             ))}
+            {/* CALL FOR HELP — auto-defend at cost. Only shown while a wave
+                is actively present, can only be used MAX_HELP times. */}
+            <button
+              type="button"
+              className="prey-tab"
+              onClick={callForHelp}
+              disabled={
+                helpsUsed >= MAX_HELP ||
+                energy < HELP_COST_ENERGY ||
+                hydration < HELP_COST_HYDRATION
+              }
+              title={`Allies repel this wave instantly. Costs ${HELP_COST_ENERGY} energy + ${HELP_COST_HYDRATION} food, and adds a permanent +${HELP_DEBT_DRAIN}/s energy drain (favor owed). Max ${MAX_HELP} uses.`}
+            >
+              <span className="prey-emoji">🤝</span>
+              <span className="prey-name">
+                Call for help
+                <small>{helpsUsed}/{MAX_HELP} used · costs favor</small>
+              </span>
+            </button>
           </div>
         </>
       ) : (
@@ -571,9 +763,9 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
         <rect x="86" y="47" width="156" height="8" fill="#eee" stroke="#999" />
         <rect x="86" y="47" width={Math.max(0, 156 * (camo / 75))} height="8" fill="#5a8a30" />
 
-        <rect x={W - 154} y="6" width="148" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
+        <rect x={W - 184} y="6" width="178" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
         <text x={W - 8} y="22" textAnchor="end" fontSize="11" fill="#333">
-          Wave {waveIdx}/{totalWaves} · {youngEmoji} {eggs}/5
+          Wave {waveIdx}/{totalWaves} · {youngEmoji} {eggs}/5{helpDebt > 0 ? ` · 🤝 ${helpDebt} owed` : ''}
         </text>
 
         {/* mini-log */}
