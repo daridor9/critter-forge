@@ -112,15 +112,16 @@ function HybridSection({ creature, onChange }: { creature: Creature; onChange: (
           const locked = unlockable && !isHybridUnlocked(h.id);
           const cost = unlockable ? unlockCost(h.id) : undefined;
           const disabled = locked || !validity.valid || (!selected && atMax);
+          const titleBody = `${h.tagline}\n\n${h.fact}`;
           const title = locked
-            ? `${h.fact}\n\n🔒 Unlocks at ${cost} 🏅 points (you have ${totalPoints})`
+            ? `${titleBody}\n\n🔒 Unlocks at ${cost} 🏅 points (you have ${totalPoints})`
             : selected
-              ? h.fact
+              ? titleBody
               : !validity.valid
-                ? `${h.fact}\n\n⚠ ${validity.reason}`
+                ? `${titleBody}\n\n⚠ ${validity.reason}`
                 : atMax
-                  ? `${h.fact}\n\n(already at ${MAX_HYBRIDS}/2 — deselect one first)`
-                  : h.fact;
+                  ? `${titleBody}\n\n(already at ${MAX_HYBRIDS}/2 — deselect one first)`
+                  : titleBody;
           return (
             <button
               key={h.id}

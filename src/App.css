@@ -2860,90 +2860,69 @@ h2 {
 }
 .hybrid-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 .hybrid-chip {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border: 1.5px solid var(--line);
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: 1px solid var(--line);
   background: white;
   border-radius: 10px;
   cursor: pointer;
   font: inherit;
-  text-align: left;
+  text-align: center;
   position: relative;
-  min-height: 58px;
-  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
-}
-/* Category-tinted backdrops — soft gradient so the emoji pops. */
-.hybrid-chip[data-category="sense"]   { background: linear-gradient(135deg, #f3eaff 0%, #ffffff 70%); }
-.hybrid-chip[data-category="move"]    { background: linear-gradient(135deg, #e6f4ff 0%, #ffffff 70%); }
-.hybrid-chip[data-category="combat"]  { background: linear-gradient(135deg, #ffe9e0 0%, #ffffff 70%); }
-.hybrid-chip[data-category="bio"]     { background: linear-gradient(135deg, #e9f6e2 0%, #ffffff 70%); }
-.hybrid-chip[data-category="stealth"] { background: linear-gradient(135deg, #f0ead4 0%, #ffffff 70%); }
-.hybrid-chip[data-category="mythic"]  {
-  background: linear-gradient(135deg, #fff3c0 0%, #ffe080 35%, #ffffff 90%);
-  border-color: #d8a040;
+  min-height: 70px;
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, background 0.12s;
 }
 .hybrid-chip:hover:not(.disabled) {
   border-color: var(--accent);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 .hybrid-chip.selected {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
 }
-.hybrid-chip.selected .hybrid-tagline {
-  color: rgba(255,255,255,0.85);
-}
-.hybrid-chip.mythic.selected {
-  background: linear-gradient(135deg, #d8a040 0%, #b87820 100%);
-  color: white;
-  border-color: #b87820;
-}
 .hybrid-chip.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 .hybrid-emoji {
-  font-size: 36px;
+  font-size: 30px;
   line-height: 1;
-  flex: 0 0 auto;
-  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.18));
 }
 .hybrid-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.hybrid-name {
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.15;
 }
 .hybrid-tagline {
-  font-size: 10.5px;
-  line-height: 1.25;
-  color: var(--fg-dim);
-  font-weight: 400;
+  display: none;  /* tagline lives in the title= tooltip only */
+}
+.hybrid-name {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 .hybrid-warn {
-  font-size: 9px;
+  font-size: 8px;
   color: #c44;
   position: absolute;
-  bottom: 4px;
-  right: 8px;
+  bottom: 2px;
+  right: 4px;
+  background: rgba(255,255,255,0.85);
+  padding: 0 3px;
+  border-radius: 3px;
 }
 .hybrid-chip.selected .hybrid-warn {
   color: white;
+  background: rgba(0,0,0,0.25);
 }
 
 .insight-overlay {
