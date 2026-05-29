@@ -173,7 +173,11 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   const bluffBase = (massKg > 100 ? 2 : massKg > 30 ? 1.2 : 0.3)
     + creature.brainTier * 0.4
     + (creature.hybrids.includes('camouflage') ? 0.8 : 0)
-    + (creature.hybrids.includes('mimicry') ? 1.8 : 0);
+    + (creature.hybrids.includes('mimicry') ? 1.8 : 0)
+    // Wings make the creature look TWICE its size when spread — even
+    // a heavy creature that can't actually fly bluffs better with wings.
+    + (creature.hybrids.includes('wings') ? 0.9 : 0)
+    + (creature.bodyPlan === 'bird' ? 0.5 : 0);
   // Foraging effectiveness (food/water find rate)
   const foragingSkill = 0.6 + creature.sensorTier * 0.15 + creature.brainTier * 0.1
     + (creature.hybrids.includes('symbiosis') ? 0.2 : 0)

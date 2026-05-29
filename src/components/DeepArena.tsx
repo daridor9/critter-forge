@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
+import { sizeToMass } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
@@ -267,16 +268,41 @@ function isDiveAdapted(c: Creature): boolean {
   return c.adaptations?.some((a) => a.includes('diver') || a.includes('gills') || a.includes('deep-diving')) ?? false;
 }
 
-function canGlide(c: Creature): boolean {
-  return c.bodyPlan === 'bird' || c.hybrids.includes('wings');
+// Real-world mass limits for flight / glide:
+// - Heaviest powered-flight bird: Kori bustard ~22 kg
+// - Heaviest gliders (vultures, albatrosses): ~12–15 kg
+// - Wings-hybrid on non-bird (e.g. flying squirrel scale): ~5 kg
+// Beyond this cap, wings/feathers don't generate enough lift no matter
+// what — the creature still has wings for display + bluff + defense,
+// just can't actually take off.
+function flyMassCap(c: Creature): number {
+  let cap = 0;
+  if (c.bodyPlan === 'bird') cap += 22;
+  if (c.hybrids.includes('wings')) cap += 5;
+  // Hypersonic implies extreme muscle power — pushes the cap higher.
+  if (c.hybrids.includes('hypersonic')) cap *= 1.3;
+  // Dragon mythic = lift-by-magic. Generous cap.
+  if (c.hybrids.includes('dragon')) cap = Math.max(cap, 60);
+  return cap;
 }
 
-// "Bird+something" creatures with the wings hybrid glide better than a pure bird
-// without; cyclone routes basically demand the combo.
+function canGlide(c: Creature): boolean {
+  const hasWings = c.bodyPlan === 'bird' || c.hybrids.includes('wings');
+  if (!hasWings) return false;
+  return sizeToMass(c.sizeUnit) <= flyMassCap(c);
+}
+
+// "Bird+something" with the wings hybrid glides better than a pure
+// bird without. Quality degrades as mass approaches the cap — a
+// 20kg bird flies, but worse than a 1kg sparrow.
 function glideQuality(c: Creature): number {
+  if (!canGlide(c)) return 0;
   let q = 0;
   if (c.bodyPlan === 'bird') q += 1;
   if (c.hybrids.includes('wings')) q += 1.2;
+  // Mass burden — at the cap, lose 60% of quality.
+  const burden = sizeToMass(c.sizeUnit) / Math.max(1, flyMassCap(c));
+  q *= Math.max(0.3, 1 - burden * 0.6);
   return q;
 }
 
@@ -580,9 +606,19 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
         {headerDesc}{' '}
         {travelMode === 'dive' && <>Dive to <strong>{TARGET_DEPTH}m</strong> and return. Past {PRESSURE_SAFE_DEPTH}m the pressure crushes you without armor or a fish body.</>}
         {travelMode === 'swim' && <>Cross <strong>{swimRoute.distanceM}m</strong> of {swimRoute.river ? 'fast river' : 'surface water'}. {aq ? 'Gills + a fish body keep you tireless.' : swimRoute.river ? 'The current drags you downstream — strong legs + the underwater style help you push across.' : 'Non-aquatic creatures tire — stamina runs out.'}</>}
-        {travelMode === 'glide' && (gliderOk
-          ? <>Glide <strong>{glideRoute.distanceM}m</strong> from cliff to landing point. Don't let altitude hit zero.</>
-          : <strong style={{ color: '#c44' }}>Glide mode needs wings — give your creature the wings hybrid or a bird body plan.</strong>)}
+        {travelMode === 'glide' && (() => {
+          const hasWings = creature.bodyPlan === 'bird' || creature.hybrids.includes('wings');
+          const cap = flyMassCap(creature);
+          const mass = stats.massKg;
+          if (gliderOk) {
+            return <>Glide <strong>{glideRoute.distanceM}m</strong> from cliff to landing point. Don't let altitude hit zero.</>;
+          }
+          if (!hasWings) {
+            return <strong style={{ color: '#c44' }}>Glide mode needs wings — give your creature the wings hybrid or a bird body plan.</strong>;
+          }
+          // Has wings but too heavy
+          return <strong style={{ color: '#c44' }}>Too heavy to fly ({mass.toFixed(1)} kg vs {cap.toFixed(0)} kg lift cap). Wings still help with defense + threat display in other arenas.</strong>;
+        })()}
       </p>
 
       {/* Travel-mode tabs */}
