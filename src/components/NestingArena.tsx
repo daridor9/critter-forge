@@ -280,17 +280,25 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     setLog((prev) => [...prev.slice(-4), msg]);
   }
 
+  // Symbiosis hybrid = pre-built alliance network. Help costs less,
+  // you can call MORE times, and the favor-debt drain is reduced.
+  const hasSymbiosis = creature.hybrids.includes('symbiosis');
+  const maxHelp = hasSymbiosis ? 4 : MAX_HELP;
+  const helpEnergyCost = hasSymbiosis ? Math.round(HELP_COST_ENERGY * 0.5) : HELP_COST_ENERGY;
+  const helpHydrationCost = hasSymbiosis ? Math.round(HELP_COST_HYDRATION * 0.5) : HELP_COST_HYDRATION;
+  const helpDebtRate = hasSymbiosis ? HELP_DEBT_DRAIN * 0.55 : HELP_DEBT_DRAIN;
+
   // Call neighbors for cooperative defense. Auto-resolves the current
   // wave as defended, but at a real cost: food + energy now, plus a
   // permanent drain (favor owed). Capped so it can't be spammed.
   function callForHelp() {
     if (!threatRef.current || threatRef.current.resolved) return;
-    if (helpsUsedRef.current >= MAX_HELP) return;
-    if (energyRef.current < HELP_COST_ENERGY || hydrationRef.current < HELP_COST_HYDRATION) return;
+    if (helpsUsedRef.current >= maxHelp) return;
+    if (energyRef.current < helpEnergyCost || hydrationRef.current < helpHydrationCost) return;
     const t = threatRef.current;
     const pred = waves[t.index % waves.length];
-    energyRef.current -= HELP_COST_ENERGY;
-    hydrationRef.current -= HELP_COST_HYDRATION;
+    energyRef.current -= helpEnergyCost;
+    hydrationRef.current -= helpHydrationCost;
     helpDebtRef.current += 1;
     helpsUsedRef.current += 1;
     setEnergy(energyRef.current);
@@ -301,7 +309,8 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     t.outcome = 'defended';
     t.flashUntil = elapsedRef.current + 0.6;
     setThreat({ ...t });
-    pushLog(`🤝 Allies repelled ${pred.emoji} ${pred.name} (-${HELP_COST_ENERGY} energy, -${HELP_COST_HYDRATION} food, owe favor)`);
+    const suffix = hasSymbiosis ? ' (symbiosis discount)' : '';
+    pushLog(`🤝 Allies repelled ${pred.emoji} ${pred.name} (-${helpEnergyCost} energy, -${helpHydrationCost} food, owe favor)${suffix}`);
   }
 
   function resolveEncounter(t: ThreatState): 'defended' | 'stolen' | 'fooled' {
@@ -340,7 +349,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
         // Idle drain — watching costs less than running around. Each
         // outstanding favor adds a constant extra drain (you're spending
         // time helping the neighbors who helped you).
-        const debtDrain = helpDebtRef.current * HELP_DEBT_DRAIN;
+        const debtDrain = helpDebtRef.current * helpDebtRate;
         const baseEnergyDrain = (act === 'watch' ? 0.3 : 0.6) + debtDrain;
         const baseHydroDrain = act === 'watch' ? 0.3 : 0.6;
         energyRef.current = Math.max(0, energyRef.current - baseEnergyDrain * dt);
@@ -516,16 +525,16 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               className="prey-tab"
               onClick={callForHelp}
               disabled={
-                helpsUsed >= MAX_HELP ||
-                energy < HELP_COST_ENERGY ||
-                hydration < HELP_COST_HYDRATION
+                helpsUsed >= maxHelp ||
+                energy < helpEnergyCost ||
+                hydration < helpHydrationCost
               }
-              title={`Allies repel this wave instantly. Costs ${HELP_COST_ENERGY} energy + ${HELP_COST_HYDRATION} food, and adds a permanent +${HELP_DEBT_DRAIN}/s energy drain (favor owed). Max ${MAX_HELP} uses.`}
+              title={`Allies repel this wave instantly. Costs ${helpEnergyCost} energy + ${helpHydrationCost} food, and adds a permanent +${helpDebtRate.toFixed(2)}/s energy drain (favor owed). Max ${maxHelp} uses.${hasSymbiosis ? ' Symbiosis hybrid: discounted costs + more uses.' : ''}`}
             >
               <span className="prey-emoji">🤝</span>
               <span className="prey-name">
                 Call for help
-                <small>{helpsUsed}/{MAX_HELP} used · costs favor</small>
+                <small>{helpsUsed}/{maxHelp} used{hasSymbiosis ? ' · symbiosis discount' : ' · costs favor'}</small>
               </span>
             </button>
           </div>

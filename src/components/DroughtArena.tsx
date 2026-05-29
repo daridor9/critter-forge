@@ -209,6 +209,13 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
     const dt = TICK_MS / 1000;
     const foodMult = comboEffects(creature).droughtFoodMult ?? 1;
     const baseFoodBurn = stats.foodKcalPerDay * foodMult;
+    // PHOTOSYNTHESIS — the desert is the sunniest arena. Photosynthetic
+    // creatures generate extra calories per day even while sheltering,
+    // since sunlight reaches them. Apocalypse/megadrought = even more
+    // brutal sun = more energy. Sheltering halves the bonus (less light).
+    const hasPhoto = creature.hybrids.includes('photosynthesis');
+    const sunStrength = env.id === 'apocalypse' ? 1.6 : env.id === 'megadrought' ? 1.35 : env.id === 'drought' ? 1.15 : 1.0;
+    const photoBaseKcal = hasPhoto ? 220 * sunStrength : 0;
 
     timerRef.current = window.setInterval(() => {
       const act = activityRef.current;
@@ -217,9 +224,11 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
       // energy, less happens per real-second.
       const paceMult = act === 'shelter' ? 0.7 : 1;
       const daysElapsed = DAYS_PER_SEC * dt * paceMult;
+      // Photosynthesis halves under shelter (out of direct sun).
+      const photoKcal = act === 'shelter' ? photoBaseKcal * 0.5 : photoBaseKcal;
 
       // Net daily change for food and water given the picked activity.
-      const foodNetPerDay = AVAIL_KCAL_PER_DAY * mod.foodGainMult - baseFoodBurn * mod.foodDrainMult;
+      const foodNetPerDay = AVAIL_KCAL_PER_DAY * mod.foodGainMult - baseFoodBurn * mod.foodDrainMult + photoKcal;
       const waterNetPerDay = env.availWater * mod.waterGainMult - baseWaterDrain * mod.waterDrainMult;
 
       reserveRef.current = Math.min(R0, reserveRef.current + foodNetPerDay * daysElapsed);

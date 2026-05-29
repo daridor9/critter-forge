@@ -221,7 +221,17 @@ function predictRun(s: CreatureStats, p: Predator) {
 }
 function predictFight(c: Creature, s: CreatureStats, p: Predator) {
   const power = fightPower(c, s);
-  return { score: power, opp: p.bite, margin: power - p.bite };
+  // SIZE MISMATCH — a venomous mouse can technically kill a lion (cobra
+  // bites have done it), but the lion crushes the mouse before the
+  // toxin acts in most matchups. Above 50x size diff, predator gets a
+  // big effective bite bonus to reflect "squashed before payload lands".
+  // Bite stat ~3 kg per unit (calibrated: lion bite 70 ≈ 200 kg).
+  const estPredMass = p.bite * 3;
+  let sizePenalty = 0;
+  if (estPredMass > s.massKg * 50) sizePenalty = 30;
+  else if (estPredMass > s.massKg * 20) sizePenalty = 15;
+  else if (estPredMass > s.massKg * 8) sizePenalty = 6;
+  return { score: power, opp: p.bite + sizePenalty, margin: power - p.bite - sizePenalty };
 }
 
 const LUCK_SWING = 15;
