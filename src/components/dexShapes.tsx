@@ -1,5 +1,4 @@
 import type { ColorOverride } from './CreatureSVG';
-import { SnakeShape } from './SnakeShape';
 import type { ComponentType } from 'react';
 
 const BG_DEFS = (
@@ -2614,55 +2613,109 @@ export function PenguinShape({ colors }: { colors: ColorOverride }) {
   );
 }
 
+// ─── EmojiShape ─────────────────────────────────────────────────────────
+// Big centered emoji on a soft backdrop. The OS emoji font (Apple Color
+// Emoji on iOS/Mac, Noto on Android, Segoe on Windows) does the heavy
+// illustrative work — a single glyph is professionally illustrated at
+// every size and looks crisp on any display.
+//
+// `colors` is accepted for API parity with the bespoke shape signature
+// but is not used — emoji glyphs are pre-colored by the system font.
+
+const SHAPE_EMOJI: Record<string, string> = {
+  snake: '🐍',
+  octopus: '🐙',
+  whale: '🐋',
+  dolphin: '🐬',
+  penguin: '🐧',
+  lion: '🦁',
+  cheetah: '🐆',
+  snowleopard: '🐆',
+  wolf: '🐺',
+  foxkit: '🦊',
+  polarbear: '🐻‍❄️',
+  mouse: '🐭',
+  hummingbird: '🐦',
+  bat: '🦇',
+  sloth: '🦥',
+  kangaroo: '🦘',
+  elephant: '🐘',
+  gorilla: '🦍',
+  camel: '🐪',
+  ostrich: '🪿',
+  eagle: '🦅',
+  owl: '🦉',
+  tortoise: '🐢',
+  crocodile: '🐊',
+  shark: '🦈',
+  chameleon: '🦎',
+  raptor: '🦖',
+  triceratops: '🦕',
+  stegosaurus: '🦕',
+  pterodactyl: '🦅',
+  tiger: '🐯',
+  trex: '🦖',
+  jellyfish: '🪼',
+  sheep: '🐑',
+  cow: '🐄',
+  horse: '🐎',
+  pig: '🐖',
+  giraffe: '🦒',
+  rooster: '🐓',
+  donkey: '🫏',
+  rhino: '🦏',
+  cat: '🐈',
+  dog: '🐕',
+  goat: '🐐',
+};
+
+// Aquatic species get the water gradient; ice species the ice gradient;
+// everything else uses the default warm backdrop.
+const SHAPE_BG: Record<string, string> = {
+  octopus: 'shape-bg-water',
+  whale: 'shape-bg-water',
+  dolphin: 'shape-bg-water',
+  shark: 'shape-bg-water',
+  jellyfish: 'shape-bg-water',
+  penguin: 'shape-bg-ice',
+  polarbear: 'shape-bg-ice',
+  snowleopard: 'shape-bg-ice',
+};
+
+function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverride }> {
+  const emoji = SHAPE_EMOJI[shapeName] ?? '🐾';
+  const bg = SHAPE_BG[shapeName] ?? 'shape-bg';
+  const Component: ComponentType<{ colors: ColorOverride }> = () => (
+    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
+      {BG_DEFS}
+      <rect width="400" height="300" fill={`url(#${bg})`} />
+      {/* soft ground shadow */}
+      <ellipse cx="200" cy="258" rx="105" ry="9" fill="rgba(0,0,0,0.18)" />
+      {/* the emoji itself — large enough to dominate the tile */}
+      <text
+        x="200"
+        y="150"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="210"
+        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))' }}
+      >
+        {emoji}
+      </text>
+    </svg>
+  );
+  Component.displayName = `EmojiShape(${shapeName})`;
+  return Component;
+}
+
 // Registry: shape-name → component. Used by CreatureStage / CreatureSVG /
 // DexModal so a creature loaded straight from the dex can render its
-// canonical silhouette anywhere in the app.
-export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverride }>> = {
-  snake: SnakeShape,
-  octopus: OctopusShape,
-  whale: WhaleShape,
-  dolphin: DolphinShape,
-  penguin: PenguinShape,
-  lion: LionShape,
-  cheetah: CheetahShape,
-  snowleopard: SnowLeopardShape,
-  wolf: WolfShape,
-  foxkit: FoxkitShape,
-  polarbear: PolarBearShape,
-  mouse: MouseShape,
-  hummingbird: HummingbirdShape,
-  bat: BatShape,
-  sloth: SlothShape,
-  kangaroo: KangarooShape,
-  elephant: ElephantShape,
-  gorilla: GorillaShape,
-  camel: CamelShape,
-  ostrich: OstrichShape,
-  eagle: EagleShape,
-  owl: OwlShape,
-  tortoise: TortoiseShape,
-  crocodile: CrocodileShape,
-  shark: SharkShape,
-  chameleon: ChameleonShape,
-  raptor: RaptorShape,
-  triceratops: TriceratopsShape,
-  stegosaurus: StegosaurusShape,
-  pterodactyl: PterodactylShape,
-  tiger: TigerShape,
-  trex: TRexShape,
-  jellyfish: JellyfishShape,
-  sheep: SheepShape,
-  cow: CowShape,
-  horse: HorseShape,
-  pig: PigShape,
-  giraffe: GiraffeShape,
-  rooster: RoosterShape,
-  donkey: DonkeyShape,
-  rhino: RhinoShape,
-  cat: CatShape,
-  dog: DogShape,
-  goat: GoatShape,
-};
+// canonical silhouette anywhere in the app. As of the emoji-art pivot,
+// every entry is an EmojiShape — the OS emoji font outclasses anything
+// we can hand-code in SVG.
+export const BESPOKE_SHAPES: Record<string, ComponentType<{ colors: ColorOverride }>> = Object.fromEntries(
+  Object.keys(SHAPE_EMOJI).map((shape) => [shape, makeEmojiShape(shape)])
+);
 
 export function getBespokeShape(name?: string): ComponentType<{ colors: ColorOverride }> | null {
   if (!name || name === 'default') return null;
