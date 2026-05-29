@@ -415,7 +415,24 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               const cost = stanceRef.current === 'attack' ? 15 : stanceRef.current === 'block' ? 10 : 5;
               energyRef.current = Math.max(0, energyRef.current - cost);
               setEnergy(energyRef.current);
-              pushLog(`✅ ${pred.emoji} repelled by ${stanceRef.current}! (-${cost} energy)`);
+              // List the special traits that visibly fired during this engagement
+              const procEmojis: string[] = [];
+              if (stanceRef.current === 'attack') {
+                if (creature.hybrids.includes('firebreath')) procEmojis.push('🔥');
+                if (creature.hybrids.includes('electric')) procEmojis.push('⚡');
+                if (creature.hybrids.includes('venom')) procEmojis.push('🐍');
+              } else if (stanceRef.current === 'block') {
+                if (creature.hybrids.includes('stoneskin')) procEmojis.push('🪨');
+                if (creature.hybrids.includes('thick-fur')) procEmojis.push('🌬');
+                if (creature.hybrids.includes('regeneration')) procEmojis.push('💗');
+              } else {
+                if (creature.hybrids.includes('mimicry')) procEmojis.push('🎭');
+                if (creature.hybrids.includes('wings')) procEmojis.push('🪽');
+                if (creature.hybrids.includes('dragon')) procEmojis.push('🐉');
+                if (creature.hybrids.includes('bioluminescence')) procEmojis.push('✨');
+              }
+              const procSuffix = procEmojis.length > 0 ? ` ${procEmojis.join('')}` : '';
+              pushLog(`✅ ${pred.emoji} repelled by ${stanceRef.current}!${procSuffix} (-${cost} energy)`);
             }
           }
           setThreat({ ...t });
@@ -712,12 +729,56 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           </g>
         )}
 
-        {/* Engagement flash */}
+        {/* Engagement flash — base stance icon */}
         {engagementFlash && (
           <text x={W * 0.45} y={GROUND_Y - 50} textAnchor="middle" fontSize="38">
             {threat?.outcome === 'fooled' ? '🍃' : stance === 'attack' ? '⚔️' : stance === 'bluff' ? '😤' : '🛡️'}
           </text>
         )}
+
+        {/* HYBRID PROC FX — fires alongside the stance icon when an engagement
+            happens, showing which special trait fired. Position varies so
+            multi-hybrid creatures show all their procs visibly. */}
+        {engagementFlash && threat?.outcome !== 'fooled' && (() => {
+          const procs: { emoji: string; x: number; y: number; label: string }[] = [];
+          const baseX = W * 0.32 + 40; // just right of the creature
+          const baseY = GROUND_Y - 60;
+          // Attack stance — offensive traits fire
+          if (stance === 'attack') {
+            if (creature.hybrids.includes('firebreath')) procs.push({ emoji: '🔥', x: baseX, y: baseY, label: 'firebreath!' });
+            if (creature.hybrids.includes('electric')) procs.push({ emoji: '⚡', x: baseX + 16, y: baseY - 14, label: 'electric!' });
+            if (creature.hybrids.includes('venom')) procs.push({ emoji: '🐍', x: baseX - 14, y: baseY + 4, label: 'venom!' });
+          }
+          // Block stance — defensive traits fire
+          if (stance === 'block') {
+            if (creature.hybrids.includes('stoneskin')) procs.push({ emoji: '🪨', x: baseX, y: baseY, label: 'stoneskin!' });
+            if (creature.hybrids.includes('thick-fur')) procs.push({ emoji: '🌬', x: baseX + 16, y: baseY - 12, label: 'fur puff!' });
+            if (creature.hybrids.includes('regeneration')) procs.push({ emoji: '💗', x: baseX - 14, y: baseY + 4, label: 'regen!' });
+          }
+          // Bluff stance — display traits fire
+          if (stance === 'bluff') {
+            if (creature.hybrids.includes('mimicry')) procs.push({ emoji: '🎭', x: baseX, y: baseY, label: 'mimic!' });
+            if (creature.hybrids.includes('wings')) procs.push({ emoji: '🪽', x: baseX + 18, y: baseY - 12, label: 'wing spread!' });
+            if (creature.hybrids.includes('dragon')) procs.push({ emoji: '🐉', x: baseX - 16, y: baseY + 4, label: 'dragon!' });
+            if (creature.hybrids.includes('bioluminescence')) procs.push({ emoji: '✨', x: baseX, y: baseY + 18, label: 'dazzle!' });
+          }
+          return (
+            <g style={{ transformOrigin: `${baseX}px ${baseY}px` }} className="bob-breathe">
+              {procs.map((p, i) => (
+                <g key={i}>
+                  <text x={p.x} y={p.y} textAnchor="middle" fontSize="26"
+                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}>
+                    {p.emoji}
+                  </text>
+                  <text x={p.x} y={p.y + 16} textAnchor="middle" fontSize="9"
+                    fill="#3a2010" fontWeight="700">
+                    {p.label}
+                  </text>
+                </g>
+              ))}
+            </g>
+          );
+        })()}
 
         {/* PLAYER CREATURE */}
         {hasBespokeShape(creature) ? (

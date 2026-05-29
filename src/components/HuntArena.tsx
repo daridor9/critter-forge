@@ -817,6 +817,35 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
                   <text x="26" y="20" fontSize="14">⚡</text>
                 </>
               )}
+              {/* HYBRID PROC FX — shows which special trait fired this clash,
+                  so a venomous mouse landing a bite or a firebreath dragon
+                  actually LOOKS like its trait fired. */}
+              {playingStrategy === 'fight' && (
+                <g>
+                  {creature.hybrids.includes('firebreath') && (
+                    <text x="-44" y="-8" fontSize="30">🔥</text>
+                  )}
+                  {creature.hybrids.includes('electric') && (
+                    <text x="36" y="-10" fontSize="28">⚡</text>
+                  )}
+                  {creature.hybrids.includes('venom') && (
+                    <text x="-30" y="32" fontSize="22">🐍</text>
+                  )}
+                  {creature.hybrids.includes('stoneskin') && fightBeat === 1 && (
+                    <text x="30" y="32" fontSize="22">🪨</text>
+                  )}
+                </g>
+              )}
+              {playingStrategy === 'hide' && (
+                <g>
+                  {creature.hybrids.includes('camouflage') && (
+                    <text x="0" y="-20" fontSize="24">🍃</text>
+                  )}
+                  {creature.hybrids.includes('mimicry') && (
+                    <text x="0" y="-20" fontSize="24">🎭</text>
+                  )}
+                </g>
+              )}
             </g>
             {/* ground-level dust cloud during fight clashes */}
             {playingStrategy === 'fight' && (
