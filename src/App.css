@@ -7214,3 +7214,37 @@ main {
 .mission-board h2 {
   margin-top: 0;
 }
+
+/* ============================================================
+   CAFE-SKIN: 3-COLUMN OPENING VIEW
+   Reshape .stage-creature so the StatsPanel + MissionBoard sit
+   BESIDE the creature stage (right inset column) instead of
+   STACKED BELOW it. Result on the home page: matches the demo's
+   builder | stage | stats 3-column rhythm.
+
+   When the player clicks into an arena, the stage-creature view
+   is replaced by .stage-arena, so this side-panel layout
+   disappears automatically and the arena gets full focus.
+   ============================================================ */
+@media (min-width: 1180px) {
+  .stage-creature {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+    grid-template-areas:
+      "stage  info"
+      "name   info";
+    gap: 14px !important;
+    align-items: start;
+  }
+  .stage-creature > .creature-stage,
+  .stage-creature > .creature-stage-habitat { grid-area: stage; }
+  .stage-creature > .creature-name { grid-area: name; }
+  .stage-creature > .creature-info { grid-area: info; }
+
+  /* Inside the info column, stack stats and food vertically instead
+     of side-by-side — they have a narrower column now. */
+  .creature-info {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+}
