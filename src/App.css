@@ -7130,16 +7130,25 @@ header {
   box-shadow: var(--shadow-2);
 }
 
-.creature-stage, .creature-stage-habitat {
+/* Force the dark backdrop on the stage habitat — !important wins over
+   the line-6920 sky+grass gradient that the "Design pass" baked in. */
+.creature-stage,
+.creature-stage-habitat,
+.stage-creature .creature-stage {
   background:
-    radial-gradient(ellipse 320px 220px at center 40%, rgba(232, 130, 96, 0.05), transparent 70%),
-    linear-gradient(180deg, var(--bg-soft), var(--bg-deep));
-  border-color: var(--line);
+    radial-gradient(ellipse 320px 220px at center 40%, rgba(232, 130, 96, 0.06), transparent 70%),
+    linear-gradient(180deg, var(--bg-soft), var(--bg-deep)) !important;
+  border-color: var(--line) !important;
+}
+.creature-stage-habitat::before {
+  display: none !important;  /* hides the cyan/cream/green sky+grass overlay */
 }
 
 /* Force any explicit rgba(255,255,255,0.9x) bg used by the design
    pass back to the dark panel. */
-.rail[style], .stage[style] { background: var(--panel) !important; }
+.rail, .stage, .album-dock {
+  background: var(--panel) !important;
+}
 
 /* Header / stage-tab pinks → dark panel + accent text */
 .header-icon:hover:not(:disabled),
@@ -7147,3 +7156,7 @@ header {
   background: var(--accent-bg);
   color: var(--accent);
 }
+
+/* The .app container — body bg is dark but .app might paint over it */
+.app { background: transparent !important; }
+main { background: transparent !important; }
