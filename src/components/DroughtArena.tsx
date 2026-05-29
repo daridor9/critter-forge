@@ -13,7 +13,7 @@ export type DroughtOutcome = {
   severity?: DroughtSeverityId;
 };
 
-export type DroughtSeverityId = 'dry' | 'drought' | 'megadrought' | 'apocalypse';
+export type DroughtSeverityId = 'dry' | 'drought' | 'megadrought' | 'apocalypse' | 'arctic';
 export type DroughtActivity = 'forage' | 'water' | 'shelter' | 'both';
 
 interface ActivityModifier {
@@ -57,6 +57,8 @@ interface DroughtSeverity {
   difficultyLabel: string;
   dustStorm?: boolean;
   bones?: boolean;
+  arctic?: boolean;         // arctic crossing — frozen, snowy. Cold biology flips
+                            // the warm/cold blood penalties.
 }
 
 const DROUGHT_SEVERITIES: DroughtSeverity[] = [
@@ -107,6 +109,18 @@ const DROUGHT_SEVERITIES: DroughtSeverity[] = [
     dustStorm: true,
     bones: true,
   },
+  {
+    id: 'arctic',
+    label: 'Arctic crossing',
+    emoji: '🥶',
+    description: 'A frozen tundra. Water is locked as ice — you have to melt or chip it. Warm-bloods shiver and burn through fat fast; cold-bloods slow into torpor (which actually helps survive). Antifreeze + thick fur are king here.',
+    sky: ['#c8d8e8', '#e8f0f5'],
+    ground: ['#e8eef2', '#a8b8c8'],
+    sun: '#fef6c8', sunRayColor: '#d8d0a8',  // weak winter sun
+    availFood: 6, availWater: 1.0, daysGoal: 75,
+    rewardMult: 2.0, difficultyLabel: 'extreme',
+    arctic: true,
+  },
 ];
 
 const DAYS_PER_SEC = 2;
@@ -136,16 +150,43 @@ function waterReserveUnits(massKg: number, warmBlooded: boolean, hybrids: string
 // barely lose any. Fish in a desert lose water FAST — they're meant to
 // be submerged. Gills hybrid is even worse (filaments dry out and stop
 // working entirely).
+//
+// Arctic flips the warm/cold blood penalty: warm-bloods lose extra
+// water through respiration vapor + shivering metabolism, cold-bloods
+// drop into torpor and barely lose any. Antifreeze halves the warm-
+// blood penalty (specialized cold biology).
 function waterDrainPerDay(massKg: number, warmBlooded: boolean, severity: DroughtSeverityId, bodyPlan: string, hybrids: string[]): number {
   const heat = severity === 'apocalypse' ? 1.4 : severity === 'megadrought' ? 1.25 : severity === 'drought' ? 1.1 : 1;
   const base = Math.max(0.4, massKg * 0.05);
-  const bloodMult = warmBlooded ? 1 : 0.25;
+  let bloodMult = warmBlooded ? 1 : 0.25;
+  if (severity === 'arctic') {
+    bloodMult = warmBlooded
+      ? (hybrids.includes('antifreeze') ? 1.0 : 1.5)
+      : 0.10;  // cold-blood goes deep torpor in arctic
+  }
   // Aquatic body plan: 3x drain (skin not adapted to retain water).
-  // Gills hybrid on non-fish: 1.8x drain (extra exposed filaments).
+  // Gills hybrid on non-fish: 1.8x drain. Both still apply — fish on
+  // ice still desiccate fast.
   let aquaticMult = 1;
   if (bodyPlan === 'fish') aquaticMult = 3.0;
   else if (hybrids.includes('gills')) aquaticMult = 1.8;
   return base * bloodMult * heat * aquaticMult;
+}
+
+// Arctic food drain — warm-bloods burn extra calories shivering;
+// cold-bloods slow into torpor and burn way less. Returns a multiplier
+// applied to baseFoodBurn (1.0 = normal).
+function arcticFoodMult(warmBlooded: boolean, hybrids: string[]): number {
+  if (warmBlooded) {
+    // shivering thermogenesis: ~60% more food. Thick fur halves it,
+    // antifreeze cuts another chunk.
+    let m = 1.6;
+    if (hybrids.includes('thick-fur')) m *= 0.6;
+    if (hybrids.includes('antifreeze')) m *= 0.75;
+    return m;
+  }
+  // Cold-blooded: torpor. Burn 30% of normal food.
+  return 0.3;
 }
 
 export function DroughtArena({ creature, stats, generation = 1, onFinish }: Props) {
@@ -209,13 +250,23 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
     if (!running) return;
     const dt = TICK_MS / 1000;
     const foodMult = comboEffects(creature).droughtFoodMult ?? 1;
-    const baseFoodBurn = stats.foodKcalPerDay * foodMult;
+    // Arctic flips food burn — warm-bloods shiver and need way more,
+    // cold-bloods drop into torpor and need way less.
+    const coldFoodMult = env.id === 'arctic'
+      ? arcticFoodMult(creature.warmBlooded, creature.hybrids)
+      : 1;
+    const baseFoodBurn = stats.foodKcalPerDay * foodMult * coldFoodMult;
     // PHOTOSYNTHESIS — the desert is the sunniest arena. Photosynthetic
     // creatures generate extra calories per day even while sheltering,
     // since sunlight reaches them. Apocalypse/megadrought = even more
     // brutal sun = more energy. Sheltering halves the bonus (less light).
+    // Arctic: weak winter sun, only 35% of base.
     const hasPhoto = creature.hybrids.includes('photosynthesis');
-    const sunStrength = env.id === 'apocalypse' ? 1.6 : env.id === 'megadrought' ? 1.35 : env.id === 'drought' ? 1.15 : 1.0;
+    const sunStrength = env.id === 'apocalypse' ? 1.6
+      : env.id === 'megadrought' ? 1.35
+      : env.id === 'drought' ? 1.15
+      : env.id === 'arctic' ? 0.35
+      : 1.0;
     const photoBaseKcal = hasPhoto ? 220 * sunStrength : 0;
 
     timerRef.current = window.setInterval(() => {
@@ -517,6 +568,62 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
           </g>
         )}
 
+        {/* ARCTIC — snowdrifts on the ground, falling snow, frozen ice
+            pond (where the water hole would be), dormant pine snags. */}
+        {env.arctic && (
+          <g>
+            {/* snowdrifts piling along the ground */}
+            <g fill="#fafcfe" opacity="0.95">
+              <ellipse cx={W * 0.18} cy={GROUND_Y + 4} rx="70" ry="6" />
+              <ellipse cx={W * 0.5} cy={GROUND_Y + 6} rx="90" ry="7" />
+              <ellipse cx={W * 0.82} cy={GROUND_Y + 4} rx="60" ry="6" />
+            </g>
+            {/* frozen pond (the water source is locked as ice) */}
+            <g transform={`translate(${W * 0.55} ${GROUND_Y + 14})`}>
+              <ellipse cx="0" cy="0" rx="48" ry="8" fill="#c8e4f0" stroke="#8aa8b8" strokeWidth="1.2" />
+              <ellipse cx="0" cy="-2" rx="44" ry="5" fill="#e0eef5" opacity="0.85" />
+              {/* ice crack lines */}
+              <g stroke="#7a98ae" strokeWidth="0.7" fill="none" opacity="0.6" strokeLinecap="round">
+                <path d="M -28 -2 L -8 0 L 4 -4 L 22 0" />
+                <path d="M -14 2 L 0 4 L 14 1" />
+              </g>
+              <text x="-26" y="-10" fontSize="9" fill="#3a5878" fontWeight="700">🧊 frozen</text>
+            </g>
+            {/* dormant pine snags */}
+            <g stroke="#5a4828" strokeWidth="2" fill="none" strokeLinecap="round">
+              <path d={`M 80 ${GROUND_Y} L 80 ${GROUND_Y - 36}`} />
+              <path d={`M 80 ${GROUND_Y - 16} L 70 ${GROUND_Y - 22}`} />
+              <path d={`M 80 ${GROUND_Y - 24} L 88 ${GROUND_Y - 30}`} />
+              <path d={`M 430 ${GROUND_Y} L 430 ${GROUND_Y - 30}`} />
+              <path d={`M 430 ${GROUND_Y - 14} L 422 ${GROUND_Y - 20}`} />
+            </g>
+            {/* snow caps on the snags */}
+            <g fill="#fff">
+              <ellipse cx="80" cy={GROUND_Y - 36} rx="6" ry="2" />
+              <ellipse cx="430" cy={GROUND_Y - 30} rx="5" ry="2" />
+            </g>
+            {/* falling snowflakes drifting down */}
+            <g fill="white" opacity="0.85">
+              {Array.from({ length: 28 }).map((_, i) => (
+                <circle key={i}
+                  cx={(i * 31 + 9) % W}
+                  cy={(i * 19) % GROUND_Y}
+                  r={1.3 + (i % 3) * 0.4}
+                  className="snowflake"
+                  style={{ animationDuration: `${5 + (i % 4)}s`, animationDelay: `-${i * 0.4}s` }}
+                />
+              ))}
+            </g>
+            {/* aurora bands in the sky (subtle) */}
+            <g opacity="0.4">
+              <path d={`M 0 30 q ${W * 0.25} 12 ${W * 0.5} 0 t ${W * 0.5} 0`}
+                stroke="#7ae5b8" strokeWidth="6" fill="none" />
+              <path d={`M 0 44 q ${W * 0.25} -8 ${W * 0.5} 0 t ${W * 0.5} 0`}
+                stroke="#c47ae5" strokeWidth="5" fill="none" />
+            </g>
+          </g>
+        )}
+
         {/* DUST STORM — sweeping red dust particles + wall of dust.
             When sheltered, the dust opacity drops (you're inside) and
             a SHELTER ROCK draws over the creature. */}
@@ -625,6 +732,40 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
             <text x={W / 2 + 5} y={GROUND_Y - 90} fontSize="16" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
             <text x={W / 2 + 15} y={GROUND_Y - 102} fontSize="12" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
             <text x={W / 2 - 25} y={GROUND_Y - 100} fontSize="10" fill="#5a4a36" fontWeight="700">torpor</text>
+          </g>
+        )}
+
+        {/* ANTIFREEZE FROST CRYSTALS — pale blue crystals around the
+            creature in the arctic biome. Visible "trait working" sign:
+            this reptile/fish is moving thanks to antifreeze blood. */}
+        {env.arctic && creature.hybrids.includes('antifreeze') && (
+          <g opacity="0.7" stroke="#aef0ff" strokeWidth="1.4" strokeLinecap="round">
+            {[
+              { x: W / 2 - 50, y: GROUND_Y - 70 },
+              { x: W / 2 - 5, y: GROUND_Y - 80 },
+              { x: W / 2 + 40, y: GROUND_Y - 65 },
+              { x: W / 2 + 5, y: GROUND_Y - 30 },
+            ].map((p, i) => {
+              const r = 4;
+              return (
+                <g key={i}>
+                  <line x1={p.x - r} y1={p.y} x2={p.x + r} y2={p.y} />
+                  <line x1={p.x} y1={p.y - r} x2={p.x} y2={p.y + r} />
+                  <line x1={p.x - r * 0.7} y1={p.y - r * 0.7} x2={p.x + r * 0.7} y2={p.y + r * 0.7} />
+                  <line x1={p.x - r * 0.7} y1={p.y + r * 0.7} x2={p.x + r * 0.7} y2={p.y - r * 0.7} />
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* WARM BREATH PUFFS — visible exhale clouds when warm-blooded
+            creatures are in the arctic. Underscores that the warm body
+            is venting heat (= burning food + losing water vapor). */}
+        {env.arctic && creature.warmBlooded && (
+          <g opacity="0.55" fill="white" className="bob-breathe">
+            <ellipse cx={W / 2 + 30} cy={GROUND_Y - 64} rx="6" ry="3" />
+            <ellipse cx={W / 2 + 38} cy={GROUND_Y - 70} rx="4" ry="2.5" />
           </g>
         )}
 

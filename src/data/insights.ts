@@ -10,7 +10,7 @@ export interface Insight {
 export type ArenaResult =
   | { arena: 'chase'; won: boolean; reason: 'caught' | 'lost-speed' | 'lost-stamina' | 'lost-distance'; preyId?: 'rabbit' | 'gazelle' | 'kangaroo'; reward?: number; biome?: 'savanna' | 'forest' | 'tundra' | 'desert' | 'night' }
   | { arena: 'climb'; won: boolean; reason: 'reached-top' | 'froze' | 'exhausted'; terrain?: 'alpine' | 'volcanic' | 'glacial' | 'aurora' }
-  | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved' | 'dehydrated'; daysSurvived: number; severity?: 'dry' | 'drought' | 'megadrought' | 'apocalypse' }
+  | { arena: 'drought'; won: boolean; reason: 'survived' | 'starved' | 'dehydrated'; daysSurvived: number; severity?: 'dry' | 'drought' | 'megadrought' | 'apocalypse' | 'arctic' }
   | { arena: 'hunt'; won: boolean; reason: 'hidden' | 'outran' | 'tanked' | 'fought' | 'caught'; env?: 'savanna' | 'forest' | 'mountain' | 'desert' | 'ocean'; strategy?: 'hide' | 'run' | 'fight'; difficulty?: 'normal' | 'tough' | 'apex' }
   | { arena: 'deep'; won: boolean; reason: 'foraged' | 'drowned' | 'crushed' | 'crossed' | 'exhausted' | 'caught' | 'landed' | 'stalled' | 'no-wings'; maxDepth: number }
   | { arena: 'maze'; won: boolean; reason: 'escaped' | 'exhausted'; stepsTaken: number; stepsNeeded: number }
