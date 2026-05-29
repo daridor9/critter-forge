@@ -2696,29 +2696,70 @@ export function isMammalShape(shape?: string): boolean {
   return !!shape && MAMMAL_SHAPES.has(shape);
 }
 
+// Background gradient (CSS) — mirrors the SVG gradient defs so the HTML-
+// rendered EmojiShape looks identical to the old SVG-rendered backdrops.
+const BG_GRADIENT: Record<string, string> = {
+  'shape-bg':       'linear-gradient(to bottom, #fdfaf0, #f0ead7)',
+  'shape-bg-water': 'linear-gradient(to bottom, #bfe1ee, #5a8ab4)',
+  'shape-bg-ice':   'linear-gradient(to bottom, #d8e9f0, #f5f1e3)',
+};
+
 function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverride }> {
   const emoji = SHAPE_EMOJI[shapeName] ?? '🐾';
   const bg = SHAPE_BG[shapeName] ?? 'shape-bg';
+  // HTML-based render with flexbox centering + container query units. SVG
+  // <text> with text-anchor proved unreliable for emoji glyph centering
+  // (the visible bounding box of an emoji glyph differs from its advance
+  // width, so text-anchor=middle was off-center in many cases). Flexbox
+  // centers by VISIBLE BOX, not advance width — rock-solid.
   const Component: ComponentType<{ colors: ColorOverride }> = () => (
-    <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
-      {BG_DEFS}
-      <rect width="400" height="300" fill={`url(#${bg})`} />
-      {/* soft ground shadow */}
-      <ellipse cx="200" cy="278" rx="105" ry="9" fill="rgba(0,0,0,0.18)" />
-      {/* the emoji itself — bottom-anchored so the glyph's paws/base sit
-          on the ground line instead of typographically centering inside
-          an oversized em-box (which made the creature appear to float
-          in the upper half of the tile, especially inside arena scenes). */}
-      <text
-        x="200"
-        y="275"
-        textAnchor="middle"
-        fontSize="240"
-        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))' }}
+    <div
+      className="emoji-shape"
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        containerType: 'size',
+        overflow: 'hidden',
+      }}
+    >
+      {/* backdrop — hidden inside .dex-bare via CSS, visible elsewhere */}
+      <div
+        className="emoji-shape-bg"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: BG_GRADIENT[bg],
+          zIndex: 0,
+        }}
+      />
+      {/* flex-centered glyph anchored to the bottom of the tile so feet
+          are on the ground in arena scenes. */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          zIndex: 1,
+        }}
       >
-        {emoji}
-      </text>
-    </svg>
+        <span
+          className="emoji-shape-glyph"
+          style={{
+            fontSize: 'min(85cqh, 85cqw)',
+            lineHeight: 0.9,
+            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
+            paddingBottom: '4%',
+            userSelect: 'none',
+          }}
+          aria-hidden="true"
+        >
+          {emoji}
+        </span>
+      </div>
+    </div>
   );
   Component.displayName = `EmojiShape(${shapeName})`;
   return Component;
