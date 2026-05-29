@@ -7066,3 +7066,84 @@ textarea:focus-visible {
     padding: 9px;
   }
 }
+
+/* ============================================================
+   CAFE DARK SKIN — final override.
+   Cascade order matters: this block is dead-last, so it wins
+   over the earlier "Design pass" :root and surface bgs that
+   were re-asserting cream/green colors. Keep this block at
+   the END of the file.
+   ============================================================ */
+:root {
+  /* Re-assert the warm dark palette as the final word. */
+  --bg: #1f1810;
+  --bg-soft: #2a2117;
+  --bg-deep: #18130c;
+  --fg: #c4b59a;
+  --fg-h: #f5e9d0;
+  --fg-dim: #9a8a72;
+  --accent: #e88260;
+  --accent-deep: #b8623e;
+  --accent-light: #f0a382;
+  --accent-bg: rgba(232, 130, 96, 0.15);
+  --accent-border: rgba(232, 130, 96, 0.50);
+  --accent2: #6cb0ef;
+  --accent2-deep: #3a7fc8;
+  --leaf: #9bb87a;
+  --success: #7cd47a;
+  --warning: #f0b35c;
+  --danger: #e87070;
+  --panel: #2a2117;
+  --panel-soft: #2a2117;
+  --line: #3a2e22;
+  --line-strong: #5a4a30;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 10px 40px rgba(0, 0, 0, 0.65);
+}
+
+body {
+  background:
+    radial-gradient(ellipse 900px 700px at top right, rgba(232, 130, 96, 0.06), transparent 70%),
+    radial-gradient(ellipse 700px 500px at bottom left, rgba(155, 184, 122, 0.04), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--fg);
+}
+body::before {
+  /* The "lab grid" overlay was painted in dark-grid-on-light. Flip to
+     light-grid-on-dark so it stays visible without dominating. */
+  background-image:
+    linear-gradient(rgba(245, 233, 208, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 233, 208, 0.025) 1px, transparent 1px);
+}
+
+header {
+  background: linear-gradient(135deg, var(--panel), var(--bg-soft));
+  border-color: var(--line);
+  border-left-color: var(--accent2);
+}
+
+.rail, .stage, .album-dock {
+  background: var(--panel);
+  border-color: var(--line);
+  box-shadow: var(--shadow-2);
+}
+
+.creature-stage, .creature-stage-habitat {
+  background:
+    radial-gradient(ellipse 320px 220px at center 40%, rgba(232, 130, 96, 0.05), transparent 70%),
+    linear-gradient(180deg, var(--bg-soft), var(--bg-deep));
+  border-color: var(--line);
+}
+
+/* Force any explicit rgba(255,255,255,0.9x) bg used by the design
+   pass back to the dark panel. */
+.rail[style], .stage[style] { background: var(--panel) !important; }
+
+/* Header / stage-tab pinks → dark panel + accent text */
+.header-icon:hover:not(:disabled),
+.more-item:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
