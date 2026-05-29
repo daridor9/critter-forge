@@ -2696,6 +2696,45 @@ export function isMammalShape(shape?: string): boolean {
   return !!shape && MAMMAL_SHAPES.has(shape);
 }
 
+// Ecological niches — used by arenas to pick natural enemies, allied
+// species, or contextually-correct flavor. Shared across arenas so a
+// lion's nest and a lion's hunt face the same logic.
+export type Niche =
+  | 'apex' | 'medium' | 'small' | 'ungulate'
+  | 'aquatic' | 'avian' | 'reptile' | 'arctic' | 'dinosaur';
+
+export const NICHE_BY_SHAPE: Record<string, Niche> = {
+  // Apex / big cats / wolves
+  lion: 'apex', tiger: 'apex', snowleopard: 'apex', cheetah: 'apex',
+  wolf: 'apex', crocodile: 'apex',
+  // Medium-sized carnivores / omnivores
+  foxkit: 'medium', cat: 'medium', dog: 'medium', bat: 'medium',
+  // Small mammals / vulnerable prey
+  mouse: 'small', sloth: 'small',
+  // Large herbivores / ungulates — graze in herds, face apex hunters
+  sheep: 'ungulate', cow: 'ungulate', horse: 'ungulate', pig: 'ungulate',
+  giraffe: 'ungulate', donkey: 'ungulate', goat: 'ungulate',
+  kangaroo: 'ungulate', camel: 'ungulate', elephant: 'ungulate',
+  rhino: 'ungulate', gorilla: 'ungulate',
+  // Aquatic
+  whale: 'aquatic', dolphin: 'aquatic', octopus: 'aquatic',
+  shark: 'aquatic', jellyfish: 'aquatic',
+  // Birds
+  eagle: 'avian', owl: 'avian', ostrich: 'avian',
+  hummingbird: 'avian', rooster: 'avian',
+  // Reptiles
+  snake: 'reptile', chameleon: 'reptile', tortoise: 'reptile',
+  // Arctic-adapted
+  polarbear: 'arctic', penguin: 'arctic',
+  // Dinosaurs
+  trex: 'dinosaur', raptor: 'dinosaur', triceratops: 'dinosaur',
+  stegosaurus: 'dinosaur', pterodactyl: 'dinosaur',
+};
+
+export function getNiche(shape?: string): Niche {
+  return (shape && NICHE_BY_SHAPE[shape]) || 'medium';
+}
+
 function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverride }> {
   const emoji = SHAPE_EMOJI[shapeName] ?? '🐾';
   const bg = SHAPE_BG[shapeName] ?? 'shape-bg';

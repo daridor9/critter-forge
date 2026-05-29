@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
-import { BespokeInScene, hasBespokeShape, isMammalShape, SHAPE_EMOJI } from './dexShapes';
+import { BespokeInScene, hasBespokeShape, isMammalShape, SHAPE_EMOJI, NICHE_BY_SHAPE, type Niche } from './dexShapes';
 
 // While no predator is present, parent decides what to do.
 export type NestActivity = 'watch' | 'forage' | 'drink' | 'camo';
@@ -40,40 +40,7 @@ interface Predator {
   perception: number;  // how well they spot camouflaged nests (1.0 = baseline)
 }
 
-// Ecological niches — used to pick natural enemies for each defender.
-// A lion's cubs face hyenas + leopards + rival lions, NOT generic
-// hawks-and-foxes that a mouse would face.
-type NestNiche = 'apex' | 'medium' | 'small' | 'ungulate'
-  | 'aquatic' | 'avian' | 'reptile' | 'arctic' | 'dinosaur';
-
-const NICHE_BY_SHAPE: Record<string, NestNiche> = {
-  // Apex / big cats / wolves
-  lion: 'apex', tiger: 'apex', snowleopard: 'apex', cheetah: 'apex', wolf: 'apex',
-  crocodile: 'apex',
-  // Medium-sized carnivores / omnivores
-  foxkit: 'medium', cat: 'medium', dog: 'medium', bat: 'medium',
-  // Small mammals / vulnerable prey
-  mouse: 'small', sloth: 'small',
-  // Large herbivores / ungulates — graze in herds, face apex hunters
-  sheep: 'ungulate', cow: 'ungulate', horse: 'ungulate', pig: 'ungulate',
-  giraffe: 'ungulate', donkey: 'ungulate', goat: 'ungulate', kangaroo: 'ungulate',
-  camel: 'ungulate', elephant: 'ungulate', rhino: 'ungulate', gorilla: 'ungulate',
-  // Aquatic
-  whale: 'aquatic', dolphin: 'aquatic', octopus: 'aquatic', shark: 'aquatic',
-  jellyfish: 'aquatic',
-  // Birds
-  eagle: 'avian', owl: 'avian', ostrich: 'avian', hummingbird: 'avian',
-  rooster: 'avian',
-  // Reptiles
-  snake: 'reptile', chameleon: 'reptile', tortoise: 'reptile',
-  // Arctic-adapted
-  polarbear: 'arctic', penguin: 'arctic',
-  // Dinosaurs
-  trex: 'dinosaur', raptor: 'dinosaur', triceratops: 'dinosaur',
-  stegosaurus: 'dinosaur', pterodactyl: 'dinosaur',
-};
-
-const PREDATOR_POOLS: Record<NestNiche, Predator[]> = {
+const PREDATOR_POOLS: Record<Niche, Predator[]> = {
   apex: [
     { emoji: '🐆', name: 'Leopard',       speed: 95,  threat: 2.5, perception: 1.4 },
     { emoji: '🐍', name: 'Constrictor',   speed: 30,  threat: 2.0, perception: 1.0 },

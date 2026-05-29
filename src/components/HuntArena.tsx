@@ -3,7 +3,7 @@ import type { CreatureStats } from '../physics';
 import { sizeToMass } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
-import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { BespokeInScene, hasBespokeShape, getNiche, type Niche } from './dexShapes';
 import { comboEffects, getActiveCombo } from '../data/hybridCombos';
 
 export type HuntOutcome = {
@@ -73,38 +73,103 @@ interface Predator {
   envNote: string;
 }
 
-const PREDATORS: Record<EnvId, Predator> = {
+// Per-env visuals (sky, ground, env label). Predator picked separately
+// by creature niche — a mouse and a lion in the SAME savanna face very
+// different threats.
+interface HuntEnv {
+  envName: string;
+  envEmoji: string;
+  sky: [string, string];
+  ground: [string, string];
+}
+const HUNT_ENVS: Record<EnvId, HuntEnv> = {
+  savanna:  { envName: 'Savanna',  envEmoji: '🌾', sky: ['#9fd4ee', '#f8d68a'], ground: ['#f3d27d', '#c9a05a'] },
+  forest:   { envName: 'Forest',   envEmoji: '🌳', sky: ['#7fa663', '#cfd7a0'], ground: ['#7a6a3a', '#54472a'] },
+  mountain: { envName: 'Mountain', envEmoji: '🏔', sky: ['#b8c8d4', '#e5eef3'], ground: ['#c0ccd3', '#8089a0'] },
+  desert:   { envName: 'Desert',   envEmoji: '🏜', sky: ['#ffd589', '#fbe9b0'], ground: ['#e3b06a', '#a07a45'] },
+  ocean:    { envName: 'Ocean',    envEmoji: '🌊', sky: ['#74c4dc', '#2a5a85'], ground: ['#2a5a85', '#0c2a45'] },
+};
+
+// Predator's combat profile only — name/emoji/stats. The env visuals
+// and label come from HUNT_ENVS above.
+interface PredatorCore {
+  name: string;
+  emoji: string;
+  topKmh: number;
+  perception: number;
+  bite: number;
+  envNote: string;
+}
+
+// Niche-aware predator selection. For each environment, what KIND of
+// hunter pursues YOU depends on your size class. A mouse in savanna gets
+// chased by a vulture; a wildebeest gets chased by a lion pride; a
+// rival lion gets stalked by an even bigger rival.
+const HUNT_PREDATORS: Record<EnvId, Partial<Record<Niche, PredatorCore>>> = {
   savanna: {
-    envName: 'Savanna', envEmoji: '🌾',
-    name: 'Lion', emoji: '🦁', topKmh: 80, perception: 55, bite: 70,
-    sky: ['#9fd4ee', '#f8d68a'], ground: ['#f3d27d', '#c9a05a'],
-    envNote: 'Open grassland. Lions run in pride; long sightlines.',
+    small:    { name: 'Vulture',       emoji: '🦅', topKmh: 70,  perception: 60, bite: 25, envNote: 'Carrion bird. Sees you from 1km up.' },
+    medium:   { name: 'Hyena clan',    emoji: '🐕', topKmh: 65,  perception: 55, bite: 60, envNote: 'Bone-crushers that hunt in packs.' },
+    ungulate: { name: 'Lion pride',    emoji: '🦁', topKmh: 80,  perception: 55, bite: 70, envNote: 'Open grassland. Lions hunt in pride.' },
+    apex:     { name: 'Rival pride',   emoji: '🦁', topKmh: 85,  perception: 60, bite: 75, envNote: 'Territorial dispute. Both sides serious.' },
+    aquatic:  { name: 'Waterhole croc',emoji: '🐊', topKmh: 50,  perception: 50, bite: 80, envNote: 'Hidden at the only watering hole for miles.' },
+    avian:    { name: 'Martial eagle', emoji: '🦅', topKmh: 110, perception: 70, bite: 40, envNote: 'Africa\'s heaviest raptor.' },
+    reptile:  { name: 'Honey badger',  emoji: '🦡', topKmh: 60,  perception: 55, bite: 60, envNote: 'Famous for fearlessness.' },
+    dinosaur: { name: 'Tyrannosaur',   emoji: '🦖', topKmh: 80,  perception: 60, bite: 95, envNote: 'Bite force 12,800 N.' },
   },
   forest: {
-    envName: 'Forest', envEmoji: '🌳',
-    name: 'Wolf', emoji: '🐺', topKmh: 65, perception: 70, bite: 50,
-    sky: ['#7fa663', '#cfd7a0'], ground: ['#7a6a3a', '#54472a'],
-    envNote: 'Dense trees + scent tracking. Wolves work in packs.',
+    small:    { name: 'Great horned owl', emoji: '🦉', topKmh: 65,  perception: 80, bite: 30, envNote: 'Silent flight. Kills before you hear it.' },
+    medium:   { name: 'Wolf',             emoji: '🐺', topKmh: 65,  perception: 70, bite: 50, envNote: 'Dense trees + scent tracking.' },
+    ungulate: { name: 'Wolf pack',        emoji: '🐺', topKmh: 70,  perception: 75, bite: 65, envNote: 'Coordinated relay hunting.' },
+    apex:     { name: 'Brown bear',       emoji: '🐻', topKmh: 55,  perception: 65, bite: 85, envNote: 'Will fight anything — and win.' },
+    aquatic:  { name: 'Otter pack',       emoji: '🦦', topKmh: 35,  perception: 60, bite: 30, envNote: 'River raiders.' },
+    avian:    { name: 'Goshawk',          emoji: '🦅', topKmh: 100, perception: 75, bite: 35, envNote: 'Threads dense canopy at full speed.' },
+    reptile:  { name: 'Wild boar',        emoji: '🐗', topKmh: 65,  perception: 55, bite: 60, envNote: 'Tramples and gores.' },
+    dinosaur: { name: 'Raptor pack',      emoji: '🦖', topKmh: 95,  perception: 70, bite: 70, envNote: 'Sickle claws + pack tactics.' },
   },
   mountain: {
-    envName: 'Mountain', envEmoji: '🏔',
-    name: 'Snow Leopard', emoji: '🐆', topKmh: 60, perception: 85, bite: 55,
-    sky: ['#b8c8d4', '#e5eef3'], ground: ['#c0ccd3', '#8089a0'],
-    envNote: 'Snow + cliffs. Ambush hunter, near-invisible against rock.',
+    small:    { name: 'Golden eagle',    emoji: '🦅', topKmh: 105, perception: 85, bite: 30, envNote: 'Snatches prey off cliffs.' },
+    medium:   { name: 'Lynx',            emoji: '🐈', topKmh: 70,  perception: 75, bite: 50, envNote: 'Tufted ears, silent paws.' },
+    ungulate: { name: 'Snow Leopard',    emoji: '🐆', topKmh: 60,  perception: 85, bite: 55, envNote: 'Ambush hunter, near-invisible against rock.' },
+    apex:     { name: 'Rival big cat',   emoji: '🐆', topKmh: 65,  perception: 80, bite: 65, envNote: 'Same predator, opposite team.' },
+    aquatic:  { name: 'River otter',     emoji: '🦦', topKmh: 30,  perception: 55, bite: 25, envNote: 'Mountain stream raider.' },
+    avian:    { name: 'Peregrine falcon',emoji: '🦅', topKmh: 130, perception: 85, bite: 30, envNote: 'Stoops at 320 km/h. Mid-air kill.' },
+    reptile:  { name: 'Lammergeier',     emoji: '🦅', topKmh: 105, perception: 80, bite: 35, envNote: 'Drops bones from height to crack them.' },
+    arctic:   { name: 'Polar bear',      emoji: '🐻‍❄️', topKmh: 60,  perception: 65, bite: 85, envNote: 'Outweighs everything else by tons.' },
+    dinosaur: { name: 'Pterosaur',       emoji: '🦅', topKmh: 130, perception: 75, bite: 50, envNote: 'Wing-spans of 10 metres.' },
   },
   desert: {
-    envName: 'Desert', envEmoji: '🏜',
-    name: 'Hyena', emoji: '🐺', topKmh: 60, perception: 50, bite: 75,
-    sky: ['#ffd589', '#fbe9b0'], ground: ['#e3b06a', '#a07a45'],
-    envNote: 'Bone-crushing bite force, but distracted in heat.',
+    small:    { name: 'Sidewinder',      emoji: '🐍', topKmh: 30,  perception: 50, bite: 50, envNote: 'Heat-pit vision. Strikes from concealment.' },
+    medium:   { name: 'Hyena',           emoji: '🐺', topKmh: 60,  perception: 50, bite: 75, envNote: 'Bone-crushing bite, distracted in heat.' },
+    ungulate: { name: 'Hyena pack',      emoji: '🐺', topKmh: 70,  perception: 55, bite: 80, envNote: 'Endurance pursuit over the dunes.' },
+    apex:     { name: 'Migrating lion',  emoji: '🦁', topKmh: 75,  perception: 55, bite: 70, envNote: 'Stray apex looking for any kill.' },
+    aquatic:  { name: 'Salt-water croc', emoji: '🐊', topKmh: 35,  perception: 55, bite: 80, envNote: 'Hidden at the wadi.' },
+    avian:    { name: 'Saker falcon',    emoji: '🦅', topKmh: 125, perception: 75, bite: 30, envNote: 'Open-sky ambush.' },
+    reptile:  { name: 'Sand viper',      emoji: '🐍', topKmh: 30,  perception: 50, bite: 65, envNote: 'Buried in the dunes.' },
+    dinosaur: { name: 'Allosaur',        emoji: '🦖', topKmh: 70,  perception: 60, bite: 85, envNote: 'Apex of its desert epoch.' },
   },
   ocean: {
-    envName: 'Ocean', envEmoji: '🌊',
-    name: 'Shark', emoji: '🦈', topKmh: 50, perception: 65, bite: 85,
-    sky: ['#74c4dc', '#2a5a85'], ground: ['#2a5a85', '#0c2a45'],
-    envNote: 'Electroreception + smell. Bite ignores most armor.',
+    small:    { name: 'Tuna school',     emoji: '🐟', topKmh: 65,  perception: 55, bite: 25, envNote: 'Bigger fish eat smaller fish.' },
+    medium:   { name: 'Barracuda',       emoji: '🐟', topKmh: 70,  perception: 60, bite: 55, envNote: 'Lightning strike from cover.' },
+    ungulate: { name: 'Killer whale',    emoji: '🐳', topKmh: 65,  perception: 75, bite: 90, envNote: 'Orcas hunt anything that swims.' },
+    apex:     { name: 'Rival orca pod',  emoji: '🐳', topKmh: 65,  perception: 75, bite: 90, envNote: 'Territorial pod dispute.' },
+    aquatic:  { name: 'Great white',     emoji: '🦈', topKmh: 50,  perception: 65, bite: 85, envNote: 'Electroreception + smell. Bite ignores most armor.' },
+    avian:    { name: 'Diving osprey',   emoji: '🦅', topKmh: 90,  perception: 70, bite: 30, envNote: 'Plunges 30m below the surface.' },
+    reptile:  { name: 'Saltie',          emoji: '🐊', topKmh: 45,  perception: 50, bite: 80, envNote: 'Estuary ambush.' },
+    arctic:   { name: 'Orca pod',        emoji: '🐳', topKmh: 65,  perception: 75, bite: 90, envNote: 'Coordinated pack hunt.' },
+    dinosaur: { name: 'Mosasaur',        emoji: '🦕', topKmh: 50,  perception: 60, bite: 90, envNote: 'Marine reptile, apex of its seas.' },
   },
 };
+
+// Fallback when no niche-specific predator exists for an env+niche pair
+// (e.g. arctic creature in savanna). Falls back to the medium predator.
+function pickPredator(envId: EnvId, creature: Creature): Predator {
+  const env = HUNT_ENVS[envId];
+  const niche = getNiche(creature.shape);
+  const core = HUNT_PREDATORS[envId][niche]
+    ?? HUNT_PREDATORS[envId].medium
+    ?? HUNT_PREDATORS[envId].ungulate!;
+  return { ...env, ...core };
+}
 
 function stealthScore(c: Creature): number {
   const m = sizeToMass(c.sizeUnit);
@@ -193,8 +258,9 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
 
   const diff = HUNT_DIFFICULTIES.find((d) => d.id === difficultyId) ?? HUNT_DIFFICULTIES[0];
 
-  // Scale the predator by the chosen difficulty.
-  const basePred = PREDATORS[envId];
+  // Pick a niche-aware predator (mouse vs lion in the same savanna face
+  // very different threats), then scale by the chosen difficulty.
+  const basePred = pickPredator(envId, creature);
   const p: Predator = {
     ...basePred,
     perception: Math.round(basePred.perception * diff.perceptionMult),
@@ -355,19 +421,24 @@ export function HuntArena({ creature, stats, onFinish }: Props) {
       })()}
 
       <div className="prey-tabs">
-        {(Object.entries(PREDATORS) as [EnvId, Predator][]).map(([id, def]) => (
-          <button
-            key={id}
-            type="button"
-            className={`prey-tab${envId === id ? ' active' : ''}`}
-            onClick={() => { setEnvId(id); reset(); }}
-            disabled={done || playing}
-            title={`${def.envName} — ${def.name}`}
-          >
-            <span className="prey-emoji">{def.envEmoji}</span>
-            <span className="prey-name">{def.envName}<small> {def.emoji}</small></span>
-          </button>
-        ))}
+        {(Object.entries(HUNT_ENVS) as [EnvId, HuntEnv][]).map(([id, env]) => {
+          // Show the niche-aware predator preview so the user sees who
+          // they'll actually face in each biome — different per creature.
+          const previewPred = pickPredator(id, creature);
+          return (
+            <button
+              key={id}
+              type="button"
+              className={`prey-tab${envId === id ? ' active' : ''}`}
+              onClick={() => { setEnvId(id); reset(); }}
+              disabled={done || playing}
+              title={`${env.envName} — ${previewPred.name}`}
+            >
+              <span className="prey-emoji">{env.envEmoji}</span>
+              <span className="prey-name">{env.envName}<small> {previewPred.emoji}</small></span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="prey-tabs">
