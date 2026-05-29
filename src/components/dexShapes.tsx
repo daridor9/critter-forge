@@ -2817,230 +2817,252 @@ export function BespokeInScene({ creature, x, y, width, height, animate = 'none'
 }
 
 // ─── HybridOverlay ──────────────────────────────────────────────────────
-// Decorations drawn on top of a bespoke shape to visually indicate hybrid
-// traits. Positions are tuned for the standard 400×300 dex viewBox with a
-// generic side-view quadruped body in the upper 87% (most dex shapes).
+// Decorations drawn on top of an EmojiShape to visually indicate hybrid
+// traits. Re-anchored for the emoji glyph layout: emoji is bottom-anchored
+// in arena scenes (.dex-bare), centered horizontally at x=200, visible
+// vertically y≈148–260. Most overlays now sit symmetrically around the
+// emoji body center (~200, 200).
 function HybridOverlay({ hybrids, colors }: { hybrids: import('../types').Hybrid[]; colors: ColorOverride }) {
   return (
     <g>
-      {/* WINGS — feathered wings sweeping up from the back */}
+      {/* WINGS — twin feathered wings sweeping UP+OUT behind the emoji */}
       {hybrids.includes('wings') && (
-        <g transform="translate(180 150)" opacity="0.92">
-          <path d="M 0 0 Q -30 -60 -90 -50 Q -100 -20 -70 0 Q -40 8 -10 4 Z" fill={colors.shade ?? '#a89878'} stroke="#3a2a14" strokeWidth="1.5" />
-          <path d="M 0 0 Q -30 -50 -75 -42 Q -85 -22 -60 -6 Q -35 0 -8 -2 Z" fill={colors.main ?? '#d8c890'} />
-          {/* feather lines */}
-          <g stroke="#3a2a14" strokeWidth="0.6" fill="none" opacity="0.65">
-            <line x1="-10" y1="-2" x2="-30" y2="-22" />
-            <line x1="-20" y1="-4" x2="-44" y2="-26" />
-            <line x1="-30" y1="-6" x2="-58" y2="-30" />
-            <line x1="-40" y1="-8" x2="-70" y2="-32" />
+        <g opacity="0.92">
+          {/* left wing */}
+          <g transform="translate(150 195)">
+            <path d="M 0 0 Q -30 -40 -75 -38 Q -90 -10 -55 4 Q -28 8 -2 4 Z" fill={colors.shade ?? '#a89878'} stroke="#3a2a14" strokeWidth="1.5" />
+            <path d="M -2 -2 Q -28 -32 -62 -30 Q -78 -10 -48 0 Q -25 2 -4 -2 Z" fill={colors.main ?? '#d8c890'} />
+            <g stroke="#3a2a14" strokeWidth="0.6" fill="none" opacity="0.65">
+              <line x1="-10" y1="-2" x2="-26" y2="-18" />
+              <line x1="-22" y1="-4" x2="-42" y2="-22" />
+              <line x1="-34" y1="-6" x2="-58" y2="-26" />
+            </g>
+          </g>
+          {/* right wing (mirror) */}
+          <g transform="translate(250 195) scale(-1 1)">
+            <path d="M 0 0 Q -30 -40 -75 -38 Q -90 -10 -55 4 Q -28 8 -2 4 Z" fill={colors.shade ?? '#a89878'} stroke="#3a2a14" strokeWidth="1.5" />
+            <path d="M -2 -2 Q -28 -32 -62 -30 Q -78 -10 -48 0 Q -25 2 -4 -2 Z" fill={colors.main ?? '#d8c890'} />
+            <g stroke="#3a2a14" strokeWidth="0.6" fill="none" opacity="0.65">
+              <line x1="-10" y1="-2" x2="-26" y2="-18" />
+              <line x1="-22" y1="-4" x2="-42" y2="-22" />
+              <line x1="-34" y1="-6" x2="-58" y2="-26" />
+            </g>
           </g>
         </g>
       )}
 
-      {/* DRAGON — twin spiral horns from the head */}
+      {/* DRAGON — two horns sprouting UP from the top of the emoji */}
       {hybrids.includes('dragon') && (
-        <g transform="translate(310 110)" opacity="0.9">
-          <path d="M 0 0 Q -6 -22 -10 -32 L -6 -20 Z" fill="#3a2814" stroke="#1a1208" strokeWidth="1" />
-          <path d="M 12 4 Q 14 -16 18 -28 L 14 -16 Z" fill="#3a2814" stroke="#1a1208" strokeWidth="1" />
+        <g opacity="0.9">
+          <path d="M 184 150 Q 178 130 172 112 L 182 132 Z" fill="#3a2814" stroke="#1a1208" strokeWidth="1" />
+          <path d="M 216 150 Q 222 130 228 112 L 218 132 Z" fill="#3a2814" stroke="#1a1208" strokeWidth="1" />
         </g>
       )}
 
-      {/* THICK FUR — fluffy halo of fur tufts around the body */}
+      {/* THICK FUR — fluffy halo of tufts surrounding the emoji */}
       {hybrids.includes('thick-fur') && (
-        <g opacity="0.55" fill={colors.light ?? '#fff'}>
-          {[[120, 170, 8], [150, 145, 7], [200, 135, 9], [250, 145, 7], [280, 175, 8],
-            [115, 200, 7], [285, 200, 7], [100, 230, 6], [300, 230, 6]].map(([cx, cy, r], i) => (
+        <g opacity="0.5" fill={colors.light ?? '#fff'}>
+          {[[125, 200, 10], [135, 165, 9], [165, 145, 8], [200, 138, 10], [235, 145, 8],
+            [265, 165, 9], [275, 200, 10], [140, 240, 8], [200, 252, 9], [260, 240, 8]
+          ].map(([cx, cy, r], i) => (
             <circle key={i} cx={cx} cy={cy} r={r} />
           ))}
         </g>
       )}
 
-      {/* STONESKIN — grey armor plates on the back */}
+      {/* STONESKIN — three grey armor plates across the top of the emoji */}
       {hybrids.includes('stoneskin') && (
         <g opacity="0.85">
-          <ellipse cx="160" cy="160" rx="22" ry="14" fill="#7a7468" stroke="#3a342a" strokeWidth="1" />
-          <ellipse cx="195" cy="150" rx="22" ry="14" fill="#8a8478" stroke="#3a342a" strokeWidth="1" />
-          <ellipse cx="232" cy="160" rx="22" ry="14" fill="#7a7468" stroke="#3a342a" strokeWidth="1" />
+          <ellipse cx="160" cy="170" rx="22" ry="14" fill="#7a7468" stroke="#3a342a" strokeWidth="1" />
+          <ellipse cx="200" cy="160" rx="24" ry="15" fill="#8a8478" stroke="#3a342a" strokeWidth="1" />
+          <ellipse cx="240" cy="170" rx="22" ry="14" fill="#7a7468" stroke="#3a342a" strokeWidth="1" />
         </g>
       )}
 
-      {/* VENOM — drip from the mouth, fangs hint */}
+      {/* VENOM — green drip falling from beneath the emoji */}
       {hybrids.includes('venom') && (
-        <g transform="translate(348 162)" opacity="0.95">
-          <ellipse cx="0" cy="6" rx="3" ry="6" fill="#58c850" stroke="#1a4818" strokeWidth="0.8" />
-          <circle cx="0" cy="14" r="2" fill="#58c850" />
-          <circle cx="2" cy="20" r="1.4" fill="#58c850" />
+        <g transform="translate(200 250)" opacity="0.95">
+          <ellipse cx="0" cy="6" rx="4" ry="8" fill="#58c850" stroke="#1a4818" strokeWidth="0.8" />
+          <circle cx="-2" cy="18" r="2.5" fill="#58c850" />
+          <circle cx="3" cy="26" r="1.6" fill="#58c850" />
         </g>
       )}
 
-      {/* FIREBREATH — flame plume from the mouth */}
+      {/* FIREBREATH — flame plume rising up from the emoji */}
       {hybrids.includes('firebreath') && (
-        <g transform="translate(354 160)" opacity="0.95">
-          <path d="M 0 0 Q 20 -6 38 -2 Q 30 4 38 10 Q 20 8 0 6 Z" fill="#ff7820" />
-          <path d="M 4 -2 Q 18 -4 30 0 Q 22 4 30 8 Q 18 6 4 4 Z" fill="#ffd040" />
+        <g transform="translate(200 135)" opacity="0.95">
+          <path d="M -18 0 Q -8 -25 0 -32 Q 8 -25 18 0 Q 8 -8 0 -4 Q -8 -8 -18 0 Z" fill="#ff7820" />
+          <path d="M -12 -2 Q -5 -20 0 -26 Q 5 -20 12 -2 Q 5 -8 0 -6 Q -5 -8 -12 -2 Z" fill="#ffd040" />
         </g>
       )}
 
-      {/* ELECTRIC — yellow spark zigzags around the body */}
+      {/* ELECTRIC — yellow spark zigzags at four corners around the emoji */}
       {hybrids.includes('electric') && (
-        <g stroke="#ffd040" strokeWidth="2" fill="none" opacity="0.95" strokeLinecap="round">
-          <path d="M 100 130 L 90 138 L 100 142 L 90 152" />
-          <path d="M 310 130 L 320 138 L 312 144 L 322 152" />
-          <path d="M 200 80 L 196 92 L 204 90 L 198 102" />
+        <g stroke="#ffd040" strokeWidth="2.2" fill="none" opacity="0.95" strokeLinecap="round">
+          <path d="M 125 160 L 115 168 L 125 172 L 115 182" />
+          <path d="M 275 160 L 285 168 L 275 172 L 285 182" />
+          <path d="M 125 230 L 115 238 L 125 242 L 115 252" />
+          <path d="M 275 230 L 285 238 L 275 242 L 285 252" />
         </g>
       )}
 
-      {/* GILLS — three slits on the neck */}
+      {/* GILLS — three slits on each side of the emoji */}
       {hybrids.includes('gills') && (
-        <g transform="translate(270 158)" opacity="0.85" stroke="#5a3030" strokeWidth="2" fill="none" strokeLinecap="round">
-          <path d="M 0 0 q -2 4 0 8" />
-          <path d="M 6 0 q -2 4 0 8" />
-          <path d="M 12 0 q -2 4 0 8" />
+        <g opacity="0.85" stroke="#5a3030" strokeWidth="2" fill="none" strokeLinecap="round">
+          <g transform="translate(135 195)">
+            <path d="M 0 0 q -2 4 0 8" />
+            <path d="M 6 0 q -2 4 0 8" />
+            <path d="M 12 0 q -2 4 0 8" />
+          </g>
+          <g transform="translate(263 195) scale(-1 1)">
+            <path d="M 0 0 q -2 4 0 8" />
+            <path d="M 6 0 q -2 4 0 8" />
+            <path d="M 12 0 q -2 4 0 8" />
+          </g>
         </g>
       )}
 
-      {/* ANTIFREEZE — pale blue frost glow */}
+      {/* ANTIFREEZE — pale blue frost crystals around the emoji */}
       {hybrids.includes('antifreeze') && (
-        <g opacity="0.45" fill="#aef0ff">
-          {[[140, 175, 3], [240, 170, 3], [180, 200, 2.5], [220, 200, 2.5]].map(([cx, cy, r], i) => (
+        <g opacity="0.55">
+          {[[145, 175, 3.5], [255, 175, 3.5], [180, 245, 3], [220, 245, 3], [200, 145, 3]].map(([cx, cy, r], i) => (
             <g key={i} transform={`translate(${cx} ${cy})`}>
-              <line x1={-r} y1="0" x2={r} y2="0" stroke="#aef0ff" strokeWidth="1" />
-              <line x1="0" y1={-r} x2="0" y2={r} stroke="#aef0ff" strokeWidth="1" />
-              <line x1={-r * 0.7} y1={-r * 0.7} x2={r * 0.7} y2={r * 0.7} stroke="#aef0ff" strokeWidth="1" />
-              <line x1={-r * 0.7} y1={r * 0.7} x2={r * 0.7} y2={-r * 0.7} stroke="#aef0ff" strokeWidth="1" />
+              <line x1={-r} y1="0" x2={r} y2="0" stroke="#aef0ff" strokeWidth="1.2" />
+              <line x1="0" y1={-r} x2="0" y2={r} stroke="#aef0ff" strokeWidth="1.2" />
+              <line x1={-r * 0.7} y1={-r * 0.7} x2={r * 0.7} y2={r * 0.7} stroke="#aef0ff" strokeWidth="1.2" />
+              <line x1={-r * 0.7} y1={r * 0.7} x2={r * 0.7} y2={-r * 0.7} stroke="#aef0ff" strokeWidth="1.2" />
             </g>
           ))}
         </g>
       )}
 
-      {/* ECHOLOCATION — sound waves emitting from the head */}
+      {/* ECHOLOCATION — sound waves on both sides of the emoji's head area */}
       {hybrids.includes('echolocation') && (
-        <g transform="translate(340 138)" stroke="#9a60d0" strokeWidth="1.4" fill="none" opacity="0.7">
-          <path d="M 0 0 q 8 -10 18 0" />
-          <path d="M -4 4 q 14 -16 28 0" />
-          <path d="M -8 8 q 20 -22 38 0" />
+        <g stroke="#9a60d0" strokeWidth="1.6" fill="none" opacity="0.7">
+          <g transform="translate(130 165)">
+            <path d="M 0 0 q -8 -10 -18 0" />
+            <path d="M 4 4 q -14 -16 -28 0" />
+            <path d="M 8 8 q -20 -22 -38 0" />
+          </g>
+          <g transform="translate(270 165)">
+            <path d="M 0 0 q 8 -10 18 0" />
+            <path d="M -4 4 q 14 -16 28 0" />
+            <path d="M -8 8 q 20 -22 38 0" />
+          </g>
         </g>
       )}
 
-      {/* CAMOUFLAGE — soft dappled patches over the body */}
+      {/* CAMOUFLAGE — soft dappled patches across the emoji body area */}
       {hybrids.includes('camouflage') && (
-        <g opacity="0.4" fill={colors.pattern ?? '#3a342a'}>
-          <ellipse cx="160" cy="175" rx="12" ry="6" />
-          <ellipse cx="200" cy="190" rx="14" ry="7" />
-          <ellipse cx="240" cy="170" rx="10" ry="5" />
-          <ellipse cx="220" cy="160" rx="9" ry="4" />
+        <g opacity="0.38" fill={colors.pattern ?? '#3a342a'}>
+          <ellipse cx="170" cy="195" rx="14" ry="7" />
+          <ellipse cx="220" cy="180" rx="12" ry="6" />
+          <ellipse cx="200" cy="215" rx="16" ry="8" />
+          <ellipse cx="240" cy="220" rx="11" ry="5" />
+          <ellipse cx="160" cy="225" rx="10" ry="5" />
         </g>
       )}
 
-      {/* SYMBIOSIS — small companion bird perched on the back */}
+      {/* SYMBIOSIS — a small companion bird perched on top of the emoji */}
       {hybrids.includes('symbiosis') && (
-        <g transform="translate(220 130)" opacity="0.95">
-          <ellipse cx="0" cy="0" rx="8" ry="5" fill="#d4d0c4" />
-          <circle cx="6" cy="-2" r="3" fill="#d4d0c4" />
-          <circle cx="7" cy="-3" r="0.8" fill="#1a1208" />
-          <path d="M 9 -2 L 13 0 L 9 1 Z" fill="#ffb030" />
-          <line x1="-6" y1="2" x2="-12" y2="4" stroke="#d4d0c4" strokeWidth="2" />
+        <g transform="translate(245 145)" opacity="0.95">
+          <ellipse cx="0" cy="0" rx="9" ry="6" fill="#d4d0c4" stroke="#5a4828" strokeWidth="0.6" />
+          <circle cx="7" cy="-3" r="4" fill="#d4d0c4" stroke="#5a4828" strokeWidth="0.6" />
+          <circle cx="8" cy="-4" r="1" fill="#1a1208" />
+          <path d="M 11 -3 L 16 -1 L 11 1 Z" fill="#ffb030" />
+          <line x1="-8" y1="3" x2="-14" y2="6" stroke="#d4d0c4" strokeWidth="2" />
         </g>
       )}
 
-      {/* HYPERSONIC — motion blur lines streaming back */}
+      {/* HYPERSONIC — motion blur lines on BOTH sides (omnidirectional speed) */}
       {hybrids.includes('hypersonic') && (
         <g stroke="#c0d8e8" strokeWidth="2.5" fill="none" opacity="0.65" strokeLinecap="round">
-          <line x1="50" y1="160" x2="100" y2="160" />
-          <line x1="40" y1="180" x2="95" y2="180" />
-          <line x1="50" y1="200" x2="100" y2="200" />
+          <line x1="80" y1="180" x2="125" y2="180" />
+          <line x1="70" y1="200" x2="120" y2="200" />
+          <line x1="80" y1="220" x2="125" y2="220" />
+          <line x1="275" y1="180" x2="320" y2="180" />
+          <line x1="280" y1="200" x2="330" y2="200" />
+          <line x1="275" y1="220" x2="320" y2="220" />
         </g>
       )}
 
-      {/* PHOTOSYNTHESIS — green leafy patches + sun rays around the body */}
+      {/* PHOTOSYNTHESIS — leafy patches on the back + sun rays overhead */}
       {hybrids.includes('photosynthesis') && (
         <g>
-          {/* leafy patches on the back */}
+          {/* leafy patches across the top of the emoji */}
           <g fill="#5a9a4a" stroke="#3a7a2a" strokeWidth="0.6">
-            <ellipse cx="160" cy="160" rx="8" ry="5" transform="rotate(-20 160 160)" />
-            <ellipse cx="195" cy="155" rx="9" ry="6" transform="rotate(0 195 155)" />
-            <ellipse cx="230" cy="160" rx="8" ry="5" transform="rotate(20 230 160)" />
-            <ellipse cx="180" cy="175" rx="6" ry="4" transform="rotate(-15 180 175)" />
-            <ellipse cx="215" cy="175" rx="6" ry="4" transform="rotate(15 215 175)" />
+            <ellipse cx="165" cy="170" rx="9" ry="6" transform="rotate(-20 165 170)" />
+            <ellipse cx="200" cy="160" rx="10" ry="7" />
+            <ellipse cx="235" cy="170" rx="9" ry="6" transform="rotate(20 235 170)" />
+            <ellipse cx="180" cy="185" rx="7" ry="4" transform="rotate(-15 180 185)" />
+            <ellipse cx="220" cy="185" rx="7" ry="4" transform="rotate(15 220 185)" />
           </g>
-          {/* leaf veins */}
-          <g stroke="#3a7a2a" strokeWidth="0.6" fill="none" opacity="0.7">
-            <path d="M 160 160 q 3 0 6 -1" />
-            <path d="M 195 155 q 4 0 7 -1" />
-            <path d="M 230 160 q 3 0 6 -1" />
+          {/* sun above the emoji — small radiating rays */}
+          <g stroke="#ffd34a" strokeWidth="1.4" fill="none" opacity="0.8" strokeLinecap="round">
+            <line x1="200" y1="105" x2="200" y2="92" />
+            <line x1="182" y1="110" x2="174" y2="100" />
+            <line x1="218" y1="110" x2="226" y2="100" />
+            <line x1="166" y1="122" x2="156" y2="116" />
+            <line x1="234" y1="122" x2="244" y2="116" />
           </g>
-          {/* sun rays overhead — small radiating lines */}
-          <g stroke="#ffd34a" strokeWidth="1.4" fill="none" opacity="0.7" strokeLinecap="round">
-            <line x1="195" y1="95" x2="195" y2="85" />
-            <line x1="180" y1="98" x2="174" y2="90" />
-            <line x1="210" y1="98" x2="216" y2="90" />
-            <line x1="165" y1="108" x2="158" y2="103" />
-            <line x1="225" y1="108" x2="232" y2="103" />
-          </g>
+          <circle cx="200" cy="120" r="6" fill="#ffd34a" opacity="0.8" />
         </g>
       )}
 
-      {/* REGENERATION — pink heart-shaped pulse + healing sparkles */}
+      {/* REGENERATION — pink healing pulse ring + sparkles around the emoji */}
       {hybrids.includes('regeneration') && (
         <g>
-          {/* glowing pulse around the body */}
-          <ellipse cx="200" cy="185" rx="120" ry="50" fill="none" stroke="#ff7ab0" strokeWidth="1.4" opacity="0.5" strokeDasharray="4 6" />
-          {/* tiny heal sparkles */}
-          <g fill="#ff7ab0" opacity="0.85">
-            <path d="M 140 180 l 2 -5 l 2 5 l 5 2 l -5 2 l -2 5 l -2 -5 l -5 -2 z" />
-            <path d="M 250 175 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" />
-            <path d="M 210 200 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" />
+          <ellipse cx="200" cy="205" rx="105" ry="60" fill="none" stroke="#ff7ab0" strokeWidth="1.6" opacity="0.55" strokeDasharray="4 6" />
+          <g fill="#ff7ab0" opacity="0.9">
+            <path d="M 130 195 l 2 -5 l 2 5 l 5 2 l -5 2 l -2 5 l -2 -5 l -5 -2 z" />
+            <path d="M 268 190 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" />
+            <path d="M 200 250 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" />
           </g>
         </g>
       )}
 
-      {/* BIOLUMINESCENCE — glowing spots on the body */}
+      {/* BIOLUMINESCENCE — glowing cyan spots across the emoji body */}
       {hybrids.includes('bioluminescence') && (
         <g>
-          {/* core spots — bright cyan */}
           <g fill="#aef0ff" opacity="0.95">
-            <circle cx="160" cy="175" r="2.5" />
-            <circle cx="180" cy="190" r="2" />
-            <circle cx="200" cy="180" r="3" />
-            <circle cx="220" cy="190" r="2" />
-            <circle cx="240" cy="175" r="2.5" />
-            <circle cx="195" cy="200" r="2" />
-            <circle cx="215" cy="200" r="2" />
+            <circle cx="160" cy="190" r="3" />
+            <circle cx="180" cy="215" r="2.5" />
+            <circle cx="200" cy="195" r="3.5" />
+            <circle cx="220" cy="215" r="2.5" />
+            <circle cx="240" cy="190" r="3" />
+            <circle cx="190" cy="240" r="2.5" />
+            <circle cx="210" cy="240" r="2.5" />
           </g>
-          {/* outer halo around each spot */}
           <g fill="#88c8ee" opacity="0.35">
-            <circle cx="160" cy="175" r="6" />
-            <circle cx="200" cy="180" r="7" />
-            <circle cx="240" cy="175" r="6" />
+            <circle cx="160" cy="190" r="7" />
+            <circle cx="200" cy="195" r="8" />
+            <circle cx="240" cy="190" r="7" />
           </g>
-          {/* head lure (anglerfish-style) */}
-          <line x1="320" y1="160" x2="332" y2="142" stroke="#88c8ee" strokeWidth="1.2" />
-          <circle cx="332" cy="142" r="4" fill="#aef0ff" />
-          <circle cx="332" cy="142" r="7" fill="#aef0ff" opacity="0.3" />
+          {/* anglerfish lure dangling above */}
+          <line x1="200" y1="155" x2="210" y2="130" stroke="#88c8ee" strokeWidth="1.4" />
+          <circle cx="210" cy="130" r="5" fill="#aef0ff" />
+          <circle cx="210" cy="130" r="9" fill="#aef0ff" opacity="0.3" />
         </g>
       )}
 
-      {/* MIMICRY — wavy shimmer outline + question marks */}
+      {/* MIMICRY — shimmery wave outlines + floating question marks */}
       {hybrids.includes('mimicry') && (
-        <g opacity="0.7">
-          {/* shimmery wave around the body */}
-          <path d="M 120 165 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0"
-            stroke="#c8a8ff" strokeWidth="1.4" fill="none" opacity="0.7" />
-          <path d="M 120 210 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0"
-            stroke="#c8a8ff" strokeWidth="1.4" fill="none" opacity="0.7" />
-          {/* question marks floating */}
-          <text x="120" y="140" fontSize="14" fill="#9a60d0" opacity="0.8" fontWeight="700">?</text>
-          <text x="270" y="135" fontSize="12" fill="#9a60d0" opacity="0.8" fontWeight="700">?</text>
+        <g opacity="0.75">
+          <path d="M 130 165 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0"
+            stroke="#c8a8ff" strokeWidth="1.4" fill="none" />
+          <path d="M 130 245 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0 q 10 -8 20 0 q 10 8 20 0"
+            stroke="#c8a8ff" strokeWidth="1.4" fill="none" />
+          <text x="130" y="155" fontSize="16" fill="#9a60d0" opacity="0.85" fontWeight="700">?</text>
+          <text x="275" y="150" fontSize="14" fill="#9a60d0" opacity="0.85" fontWeight="700">?</text>
         </g>
       )}
 
-      {/* HIBERNATION — sleeping Zzz over the head */}
+      {/* HIBERNATION — sleeping Zzz floating up from above the emoji */}
       {hybrids.includes('hibernation') && (
-        <g opacity="0.85">
-          <text x="320" y="120" fontSize="20" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
-          <text x="328" y="105" fontSize="16" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
-          <text x="338" y="92" fontSize="12" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+        <g opacity="0.9">
+          <text x="245" y="155" fontSize="22" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+          <text x="258" y="135" fontSize="17" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+          <text x="268" y="118" fontSize="13" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
         </g>
       )}
     </g>
