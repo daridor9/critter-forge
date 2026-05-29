@@ -125,13 +125,17 @@ function HybridSection({ creature, onChange }: { creature: Creature; onChange: (
             <button
               key={h.id}
               type="button"
+              data-category={h.category}
               className={`hybrid-chip${selected ? ' selected' : ''}${disabled ? ' disabled' : ''}${locked ? ' locked' : ''}${unlockable ? ' mythic' : ''}`}
               onClick={() => !disabled && toggle(h.id)}
               title={title}
               aria-disabled={disabled}
             >
               <span className="hybrid-emoji">{h.emoji}</span>
-              <span className="hybrid-name">{h.name}</span>
+              <span className="hybrid-text">
+                <span className="hybrid-name">{h.name}</span>
+                <span className="hybrid-tagline">{h.tagline}</span>
+              </span>
               {locked && <span className="hybrid-lock">🔒 {cost} pts</span>}
               {!locked && !validity.valid && <span className="hybrid-warn">{validity.reason}</span>}
             </button>
