@@ -181,6 +181,14 @@ function stealthScore(c: Creature): number {
     const concealFactor = m <= 50 ? 1.0 : Math.max(0.2, 1 - Math.log10(m / 50) * 0.4);
     s += 30 * concealFactor;
   }
+  // MIMICRY — predators can't decide what you are, hesitate to attack.
+  // The mimic-octopus impersonates 15 species; viceroys copy monarchs.
+  // Same mass-scaling as camo (an elephant pretending to be a rock is
+  // still an elephant).
+  if (c.hybrids.includes('mimicry')) {
+    const concealFactor = m <= 50 ? 1.0 : Math.max(0.2, 1 - Math.log10(m / 50) * 0.4);
+    s += 22 * concealFactor;
+  }
   if (c.defenseTier === 1) s += 5;
   if (c.defenseTier === 2) s -= 15;
   if (c.sensorTier === 2) s += 10;
@@ -220,7 +228,11 @@ function predictRun(s: CreatureStats, p: Predator) {
   return { score: s.topSpeedKmh, opp: p.topKmh, margin: s.topSpeedKmh - p.topKmh };
 }
 function predictFight(c: Creature, s: CreatureStats, p: Predator) {
-  const power = fightPower(c, s);
+  let power = fightPower(c, s);
+  // FIREBREATH — primal fear effect. Predators that face a 100°C jet
+  // pull back even if they could technically win the bite trade.
+  // Effective +20 to fight power as the predator hesitates / retreats.
+  if (c.hybrids.includes('firebreath')) power += 20;
   // SIZE MISMATCH — a venomous mouse can technically kill a lion (cobra
   // bites have done it), but the lion crushes the mouse before the
   // toxin acts in most matchups. Above 50x size diff, predator gets a

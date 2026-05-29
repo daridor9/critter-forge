@@ -256,8 +256,12 @@ function pickPath(c: Creature, paths: PathDef[]): PathDef {
   return paths[2];
 }
 
-function energyPerStep(stats: CreatureStats): number {
-  return 2 + Math.sqrt(stats.massKg) * 0.3;
+function energyPerStep(c: Creature, stats: CreatureStats): number {
+  // Each step costs more for heavy creatures. Stoneskin armor adds
+  // its own weight tax — protective in any rockfall, but every
+  // corridor costs more energy to traverse.
+  const stonePenalty = c.hybrids.includes('stoneskin') ? 0.8 : 0;
+  return 2 + Math.sqrt(stats.massKg) * 0.3 + stonePenalty;
 }
 
 // The maze is a brain puzzle, not a marathon — a clever creature can solve it
@@ -271,12 +275,16 @@ function staminaBudget(c: Creature, stats: CreatureStats): number {
   const brainBudget = c.brainTier * 22;     // tier 0=0, 1=22, 2=44, 3=66
   const sensorBudget = c.sensorTier * 6;
   const echoBudget = c.hybrids.includes('echolocation') ? 18 : 0;
+  // Stoneskin offers passive damage resistance against falling rocks
+  // / collapse hazards (small stamina bonus = soaked impacts that
+  // would have ended other creatures).
+  const stoneBudget = c.hybrids.includes('stoneskin') ? 12 : 0;
   const comboBonus = comboEffects(c).mazeStaminaBonus ?? 0;
-  return base + enduranceBudget + brainBudget + sensorBudget + echoBudget + comboBonus;
+  return base + enduranceBudget + brainBudget + sensorBudget + echoBudget + stoneBudget + comboBonus;
 }
 
 function maxStepsFor(c: Creature, stats: CreatureStats): number {
-  return staminaBudget(c, stats) / energyPerStep(stats);
+  return staminaBudget(c, stats) / energyPerStep(c, stats);
 }
 
 // Total probability of success: sum of (pick-probability × can-this-path-finish-on-stamina).

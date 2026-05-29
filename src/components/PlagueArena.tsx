@@ -224,6 +224,19 @@ export function PlagueArena({ creature, stats, generation = 1, onFinish }: Props
         }
       }
 
+      // REGENERATION daily heal pulse — axolotl-style tissue regrowth
+      // actively pushes infection back each day, on top of the passive
+      // immune boost. Stronger when not in "cure" mode (energy already
+      // spent on the brew).
+      if (isNewDay && creature.hybrids.includes('regeneration')) {
+        const healAmount = actionRef.current === 'cure' ? 3 : 6;
+        infectionRef.current = Math.max(0, infectionRef.current - healAmount);
+        if (Math.floor(dayRef.current) > lastEventDay.current) {
+          pushLog(`🦎 Day ${Math.floor(dayRef.current)}: tissue regenerates (-${healAmount}%)`);
+          lastEventDay.current = Math.floor(dayRef.current);
+        }
+      }
+
       // Herb find
       if (isNewDay && Math.random() < herbChance) {
         herbsRef.current = Math.min(5, herbsRef.current + 1);
