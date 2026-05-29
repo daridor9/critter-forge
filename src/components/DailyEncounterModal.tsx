@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import type { Creature } from '../types';
 import { CreatureSVG } from './CreatureSVG';
 import { hybridCatalog } from '../data/hybrids';
+import { getActiveCombo } from '../data/hybridCombos';
 import {
   dailyRival, getDailyStatus, getStreak, getBestStreak,
   todayKey,
@@ -182,11 +183,34 @@ function RivalBriefing({
           </div>
           {rival.hybrids.length > 0 && (
             <div className="daily-rival-hybrids">
-              <strong>Hybrid traits:</strong>{' '}
-              {rival.hybrids.map((h) => {
-                const info = hybridCatalog.find((x) => x.id === h);
-                return <span key={h} className="daily-hybrid">{info?.emoji} {info?.name}</span>;
-              })}
+              <strong>Hybrid traits:</strong>
+              <div className="daily-hybrid-list">
+                {rival.hybrids.map((h) => {
+                  const info = hybridCatalog.find((x) => x.id === h);
+                  if (!info) return null;
+                  return (
+                    <span key={h} className="daily-hybrid" title={info.fact}>
+                      <span className="daily-hybrid-emoji">{info.emoji}</span>
+                      <span className="daily-hybrid-text">
+                        <strong>{info.name}</strong>
+                        <small>{info.tagline}</small>
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+              {(() => {
+                const combo = getActiveCombo(rival);
+                if (!combo) return null;
+                return (
+                  <div className="combo-badge" style={{ marginTop: 8 }} title={combo.description}>
+                    <span className="combo-badge-emoji">{combo.emoji}</span>
+                    <span className="combo-badge-text">
+                      <strong>{combo.name}</strong> combo active — be careful!
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>

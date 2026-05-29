@@ -2004,17 +2004,39 @@ h2 {
 }
 .daily-rival-hybrids {
   font-size: 12px;
+  margin-top: 6px;
+}
+.daily-hybrid-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 4px;
 }
 .daily-hybrid {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: #fff8d8;
   border: 1px solid #d8a040;
-  border-radius: 4px;
-  padding: 2px 8px;
-  margin: 2px 4px 2px 0;
+  border-radius: 8px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: 600;
+  text-align: left;
+}
+.daily-hybrid-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+.daily-hybrid-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.daily-hybrid-text small {
+  font-weight: 400;
+  color: var(--fg-dim);
+  font-size: 10px;
 }
 .daily-briefing-flavour {
   font-size: 13px;
