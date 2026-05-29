@@ -328,7 +328,18 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
   // build.
   const zoneBreathBonus = zone.id === 'abyss' ? 1.6 : zone.id === 'twilight' ? 1.25 : 1.0;
   const comboBreath = comboEffects(creature).deepBreathBonus ?? 1;
-  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus * (diveAdapted ? 2.8 : 1) * zoneBreathBonus * comboBreath;
+  // BIOLUMINESCENCE — actually meaningful in the dark. Lights your way
+  // in the twilight/abyss zones, effectively extending O2 budget
+  // because you don't waste breath blundering around.
+  const bioluminescent = creature.hybrids.includes('bioluminescence');
+  const lightingBonus = bioluminescent && (zone.id === 'twilight' || zone.id === 'abyss')
+    ? (zone.id === 'abyss' ? 1.35 : 1.18)
+    : 1.0;
+  // ECHOLOCATION — sees through darkness AND pressure. Bats + dolphins
+  // dive guided by sonar; gives a smaller but reliable breath buffer.
+  const echolocating = creature.hybrids.includes('echolocation');
+  const sonarBonus = echolocating && (zone.id === 'twilight' || zone.id === 'abyss') ? 1.20 : 1.0;
+  const o2Capacity = aq ? 999 : (4 + Math.sqrt(stats.massKg) * 1.8) * brainBonus * (diveAdapted ? 2.8 : 1) * zoneBreathBonus * comboBreath * lightingBonus * sonarBonus;
   const pressureProof = aq || diveAdapted || creature.defenseTier === 2;
 
   // Swim physics: speed in m/s. Aquatic body is huge; legTier + computed top

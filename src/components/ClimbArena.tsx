@@ -168,14 +168,28 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
     const hasGills = creature.hybrids.includes('gills');
     const fishPenalty = isFish ? (hasGills ? 1.5 : 2.0) : 1.0;
     const fishClimbMult = isFish ? (hasGills ? 0.5 : 0.3) : 1.0;
+    // COLD-BLOODED SLUGGISHNESS — reptiles/fish can't generate body
+    // heat. On alpine/glacial peaks they're sluggish: climb 50% slower
+    // and energy drains faster (no metabolic warmth to keep moving).
+    // Antifreeze hybrid halves the penalty (specialized cold biology).
+    const cold = env.id === 'alpine' || env.id === 'glacial' || env.id === 'aurora';
+    const isColdBlooded = !creature.warmBlooded;
+    const hasAntifreeze = creature.hybrids.includes('antifreeze');
+    const sluggishMult = cold && isColdBlooded
+      ? (hasAntifreeze ? 0.75 : 0.5)
+      : 1.0;
+    const sluggishDrain = cold && isColdBlooded
+      ? (hasAntifreeze ? 1.3 : 1.6)
+      : 1.0;
 
     timerRef.current = window.setInterval(() => {
       const mod = CLIMB_EFFORT_MODS[effortRef.current];
       // Cold drain is constant (you feel the cold whether you push or rest).
       // Effort drain scales with the picked effort. Fish on land bleed
       // extra energy from desiccation + struggling out of element.
-      energyRef.current -= (coldDrain + effortDrain * mod.drainMult * fishPenalty) * dt;
-      altRef.current += ALT_PER_SEC * brainPath * mod.climbMult * fishClimbMult * dt;
+      // Cold-blooded creatures bleed extra at altitude (no internal heat).
+      energyRef.current -= (coldDrain * sluggishDrain + effortDrain * mod.drainMult * fishPenalty) * dt;
+      altRef.current += ALT_PER_SEC * brainPath * mod.climbMult * fishClimbMult * sluggishMult * dt;
       setEnergy(energyRef.current);
       setAltitude(altRef.current);
 

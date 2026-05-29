@@ -111,6 +111,14 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
   const wingPenalty = (creature.bodyPlan === 'bird' || creature.hybrids.includes('wings')) && massKg < 5 ? 1.5 : 1;
   // legTier improves grip
   const gripBonus = 1 + creature.legTier * 0.25;
+  // COLD-BLOODED creatures react slowly in cold winds — reflexes are
+  // metabolism-dependent. They lose stance grip 30% faster in storms
+  // (15% if antifreeze hybrid). Doesn't apply in tornado (warm) winds.
+  const isColdBlooded = !creature.warmBlooded;
+  const hasAntifreeze = creature.hybrids.includes('antifreeze');
+  const reflexPenalty = isColdBlooded
+    ? (hasAntifreeze ? 1.15 : 1.30)
+    : 1.0;
 
   const [stability, setStability] = useState(100);
   const [elapsed, setElapsed] = useState(0);
@@ -215,10 +223,11 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
           break;
       }
 
-      // Net wind force loss per second
+      // Net wind force loss per second. Cold-blooded reflexes are
+      // slow — the wind takes more from them before they can compensate.
       const grip = massGrip * gripBonus * stanceGripMult;
       const profile = wingPenalty * stanceProfileMult;
-      const netDrain = Math.max(0, env.baseWindForce * profile * 3 - grip * 1.2);
+      const netDrain = Math.max(0, env.baseWindForce * profile * 3 - grip * 1.2) * reflexPenalty;
       stabilityRef.current -= netDrain * dt;
 
       // Random debris strike
