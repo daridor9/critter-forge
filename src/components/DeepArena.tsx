@@ -1016,6 +1016,26 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           depth {Math.round(depth)} m
         </text>
 
+        {/* BIOLUMINESCENCE AURA — cyan halo around the creature in dark
+            zones (twilight/abyss), where the trait actually does work.
+            Pulses gently via bob-breathe animation. */}
+        {bioluminescent && (zone.id === 'twilight' || zone.id === 'abyss') && (
+          <g className="bob-breathe" style={{ transformOrigin: `${W / 2}px ${creatureY}px` }}>
+            <circle cx={W / 2} cy={creatureY} r={zone.id === 'abyss' ? 70 : 55}
+              fill="#aef0ff" opacity="0.22" />
+            <circle cx={W / 2} cy={creatureY} r={zone.id === 'abyss' ? 45 : 35}
+              fill="#88c8ee" opacity="0.3" />
+          </g>
+        )}
+        {/* ECHOLOCATION PING — sound waves rippling out, marks the
+            trait actively scanning the dark. */}
+        {echolocating && (zone.id === 'twilight' || zone.id === 'abyss') && (
+          <g stroke="#c8a8ff" strokeWidth="2" fill="none" opacity="0.65" strokeLinecap="round">
+            <ellipse cx={W / 2} cy={creatureY} rx="60" ry="20" />
+            <ellipse cx={W / 2} cy={creatureY} rx="90" ry="30" opacity="0.4" />
+          </g>
+        )}
+
         {hasBespokeShape(creature) ? (
           <BespokeInScene creature={creature} x={W / 2 - 50} y={creatureY - 50} width={100} height={80} animate="breathe" />
         ) : (

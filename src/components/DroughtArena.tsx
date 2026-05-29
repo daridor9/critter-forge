@@ -613,6 +613,30 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
            '🌿💧 splitting time'}
         </text>
 
+        {/* PHOTOSYNTHESIS SUN BEAM — yellow rays radiating around the
+            creature when not in shelter. Visible "trait powering me"
+            indicator for the desert / drought arenas where it shines. */}
+        {creature.hybrids.includes('photosynthesis') && activity !== 'shelter' && (
+          <g opacity="0.7" stroke="#ffd34a" strokeWidth="1.6" fill="none" strokeLinecap="round">
+            {Array.from({ length: 10 }).map((_, i) => {
+              const a = (i / 10) * Math.PI * 2;
+              const r1 = 50;
+              const r2 = 68;
+              const cx = W / 2 - 25;
+              const cy = GROUND_Y - 38;
+              return (
+                <line key={i}
+                  x1={cx + Math.cos(a) * r1}
+                  y1={cy + Math.sin(a) * r1}
+                  x2={cx + Math.cos(a) * r2}
+                  y2={cy + Math.sin(a) * r2}
+                />
+              );
+            })}
+            <circle cx={W / 2 - 25} cy={GROUND_Y - 38} r="42" fill="#ffd34a" opacity="0.08" />
+          </g>
+        )}
+
         {/* Animation reflects the activity — active scrounging when
             foraging/water/both, calm breathe when hidden in shelter. */}
         {(() => {

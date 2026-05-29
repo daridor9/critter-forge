@@ -474,6 +474,32 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
           />
         ))}
 
+        {/* ANTIFREEZE — pale-blue frost crystals around the creature in
+            cold envs (alpine/glacial/aurora). Visible "trait working"
+            indicator: this reptile/fish is moving thanks to antifreeze
+            blood, not despite it. */}
+        {creature.hybrids.includes('antifreeze')
+          && (env.id === 'alpine' || env.id === 'glacial' || env.id === 'aurora') && (
+          <g opacity="0.7" stroke="#aef0ff" strokeWidth="1.5" strokeLinecap="round">
+            {[
+              { x: climbX - 25, y: climbY - 70 },
+              { x: climbX + 28, y: climbY - 60 },
+              { x: climbX - 30, y: climbY - 30 },
+              { x: climbX + 30, y: climbY - 25 },
+            ].map((p, i) => {
+              const r = 4;
+              return (
+                <g key={i}>
+                  <line x1={p.x - r} y1={p.y} x2={p.x + r} y2={p.y} />
+                  <line x1={p.x} y1={p.y - r} x2={p.x} y2={p.y + r} />
+                  <line x1={p.x - r * 0.7} y1={p.y - r * 0.7} x2={p.x + r * 0.7} y2={p.y + r * 0.7} />
+                  <line x1={p.x - r * 0.7} y1={p.y + r * 0.7} x2={p.x + r * 0.7} y2={p.y - r * 0.7} />
+                </g>
+              );
+            })}
+          </g>
+        )}
+
         {hasBespokeShape(creature) ? (
           // 80x80 box, bottom edge anchored at climbY so the creature
           // visibly stands on the ground at the start and the flag at

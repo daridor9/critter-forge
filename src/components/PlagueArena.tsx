@@ -58,6 +58,7 @@ export function PlagueArena({ creature, stats, generation = 1, onFinish }: Props
   const [cureIngredients, setCureIngredients] = useState(0);
   const [cureBrewed, setCureBrewed] = useState(false);
   const [feverFlash, setFeverFlash] = useState(false);
+  const [regenFlash, setRegenFlash] = useState(false);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
   const [log, setLog] = useState<string[]>([]);
@@ -231,6 +232,8 @@ export function PlagueArena({ creature, stats, generation = 1, onFinish }: Props
       if (isNewDay && creature.hybrids.includes('regeneration')) {
         const healAmount = actionRef.current === 'cure' ? 3 : 6;
         infectionRef.current = Math.max(0, infectionRef.current - healAmount);
+        setRegenFlash(true);
+        window.setTimeout(() => setRegenFlash(false), 600);
         if (Math.floor(dayRef.current) > lastEventDay.current) {
           pushLog(`🦎 Day ${Math.floor(dayRef.current)}: tissue regenerates (-${healAmount}%)`);
           lastEventDay.current = Math.floor(dayRef.current);
@@ -496,6 +499,21 @@ export function PlagueArena({ creature, stats, generation = 1, onFinish }: Props
           <g fill="#aef0ff" opacity="0.85">
             <ellipse cx={cx - 30} cy={groundY - 80} rx="2" ry="4" />
             <ellipse cx={cx + 35} cy={groundY - 70} rx="2.5" ry="5" />
+          </g>
+        )}
+
+        {/* REGENERATION PULSE — pink heart ring + sparkles when the daily
+            regen tick fires. Visible "trait did its thing" moment. */}
+        {regenFlash && (
+          <g style={{ transformOrigin: `${cx}px ${groundY - 40}px` }} className="bob-breathe">
+            <ellipse cx={cx} cy={groundY - 40} rx="55" ry="35"
+              fill="none" stroke="#ff7ab0" strokeWidth="3" opacity="0.65" strokeDasharray="4 4" />
+            <text x={cx} y={groundY - 60} fontSize="28" textAnchor="middle"
+              style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}>💗</text>
+            <text x={cx - 38} y={groundY - 30} fontSize="16">✨</text>
+            <text x={cx + 36} y={groundY - 32} fontSize="16">✨</text>
+            <text x={cx} y={groundY - 18} fontSize="10" textAnchor="middle"
+              fill="#ff7ab0" fontWeight="700">regenerate!</text>
           </g>
         )}
 
