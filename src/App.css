@@ -609,9 +609,6 @@ h2 {
 .dex-bare svg > rect[width="400"][height="300"] { display: none; }
 .dex-bare svg > line[stroke-dasharray="3 4"] { display: none; }
 .dex-bare svg > defs { /* keep — gradients no longer reach the BG */ }
-/* HTML-based EmojiShape: strip the soft backdrop inside arena scenes
-   so the emoji floats over the arena background, not its own tile bg. */
-.dex-bare .emoji-shape-bg { display: none; }
 
 .arena-tabs {
   display: flex;

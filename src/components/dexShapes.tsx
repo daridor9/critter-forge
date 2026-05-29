@@ -2696,70 +2696,57 @@ export function isMammalShape(shape?: string): boolean {
   return !!shape && MAMMAL_SHAPES.has(shape);
 }
 
-// Background gradient (CSS) — mirrors the SVG gradient defs so the HTML-
-// rendered EmojiShape looks identical to the old SVG-rendered backdrops.
-const BG_GRADIENT: Record<string, string> = {
-  'shape-bg':       'linear-gradient(to bottom, #fdfaf0, #f0ead7)',
-  'shape-bg-water': 'linear-gradient(to bottom, #bfe1ee, #5a8ab4)',
-  'shape-bg-ice':   'linear-gradient(to bottom, #d8e9f0, #f5f1e3)',
-};
-
 function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverride }> {
   const emoji = SHAPE_EMOJI[shapeName] ?? '🐾';
   const bg = SHAPE_BG[shapeName] ?? 'shape-bg';
-  // HTML-based render with flexbox centering + container query units. SVG
-  // <text> with text-anchor proved unreliable for emoji glyph centering
-  // (the visible bounding box of an emoji glyph differs from its advance
-  // width, so text-anchor=middle was off-center in many cases). Flexbox
-  // centers by VISIBLE BOX, not advance width — rock-solid.
+  // SVG outer scaffold (so viewBox handles scaling reliably across any
+  // container) + INNER foreignObject hosting an HTML flexbox that
+  // bottom-center-aligns the emoji. SVG <text> text-anchor=middle proved
+  // unreliable (centers by glyph advance width, not visible box) and pure
+  // HTML w/ container queries failed inside .arena where the outer
+  // container-type is `inline-size` (cqh resolves to 0). This hybrid
+  // approach works in every context.
   const Component: ComponentType<{ colors: ColorOverride }> = () => (
-    <div
-      className="emoji-shape"
-      style={{
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-        containerType: 'size',
-        overflow: 'hidden',
-      }}
+    <svg
+      viewBox="0 0 400 300"
+      width="100%"
+      height="100%"
+      preserveAspectRatio="xMidYMax meet"
     >
-      {/* backdrop — hidden inside .dex-bare via CSS, visible elsewhere */}
-      <div
-        className="emoji-shape-bg"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: BG_GRADIENT[bg],
-          zIndex: 0,
-        }}
-      />
-      {/* flex-centered glyph anchored to the bottom of the tile so feet
-          are on the ground in arena scenes. */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-          zIndex: 1,
-        }}
-      >
-        <span
-          className="emoji-shape-glyph"
+      {BG_DEFS}
+      {/* backdrop — hidden in arena scenes by .dex-bare svg > rect[400×300] */}
+      <rect width="400" height="300" fill={`url(#${bg})`} />
+      {/* soft ground shadow */}
+      <ellipse cx="200" cy="282" rx="110" ry="9" fill="rgba(0,0,0,0.18)" />
+      {/* inner foreignObject — HTML flexbox bottom-anchors the emoji glyph
+          dead-center horizontally. fontSize is in viewBox px so it scales
+          with the SVG via viewBox math. */}
+      <foreignObject x="0" y="0" width="400" height="300">
+        <div
           style={{
-            fontSize: 'min(85cqh, 85cqw)',
-            lineHeight: 0.9,
-            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
-            paddingBottom: '4%',
-            userSelect: 'none',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            paddingBottom: '14px',
+            boxSizing: 'border-box',
           }}
-          aria-hidden="true"
         >
-          {emoji}
-        </span>
-      </div>
-    </div>
+          <span
+            style={{
+              fontSize: '240px',
+              lineHeight: 0.9,
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
+              userSelect: 'none',
+            }}
+            aria-hidden="true"
+          >
+            {emoji}
+          </span>
+        </div>
+      </foreignObject>
+    </svg>
   );
   Component.displayName = `EmojiShape(${shapeName})`;
   return Component;
