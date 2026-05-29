@@ -2729,13 +2729,13 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'center',
-            paddingBottom: '14px',
+            paddingBottom: '24px',
             boxSizing: 'border-box',
           }}
         >
           <span
             style={{
-              fontSize: '240px',
+              fontSize: '170px',
               lineHeight: 0.9,
               filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
               userSelect: 'none',
