@@ -2717,33 +2717,20 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
       {BG_DEFS}
       {/* backdrop — hidden in arena scenes by .dex-bare svg > rect[400×300] */}
       <rect width="400" height="300" fill={`url(#${bg})`} />
-      {/* inner foreignObject — HTML flexbox centers the emoji dead-center
-          horizontally + vertically inside the tile. fontSize is in
-          viewBox px so it scales with the SVG via viewBox math. */}
-      <foreignObject x="0" y="0" width="400" height="300">
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxSizing: 'border-box',
-          }}
-        >
-          <span
-            style={{
-              fontSize: '200px',
-              lineHeight: 0.9,
-              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
-              userSelect: 'none',
-            }}
-            aria-hidden="true"
-          >
-            {emoji}
-          </span>
-        </div>
-      </foreignObject>
+      {/* Plain SVG text — most reliable cross-browser path. foreignObject
+          + HTML flexbox didn't always scale predictably inside arena/dex
+          containers. text-anchor=middle + dominant-baseline=central
+          centers the glyph on (200, 150), the dead center of the viewBox. */}
+      <text
+        x="200"
+        y="150"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="140"
+        aria-hidden="true"
+      >
+        {emoji}
+      </text>
     </svg>
   );
   Component.displayName = `EmojiShape(${shapeName})`;
