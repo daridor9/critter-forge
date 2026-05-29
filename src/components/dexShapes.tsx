@@ -559,107 +559,131 @@ export function PterodactylShape({ colors }: { colors: ColorOverride }) {
   );
 }
 
+// ─── Lion — CARTOON STYLE TEST ────────────────────────────────────────
+// Experimental redesign: bold black outlines, solid colors (no gradients),
+// big expressive eyes, friendly proportions. If this style works better
+// than the painterly approach, we apply it across the rest of the dex.
 export function LionShape({ colors }: { colors: ColorOverride }) {
-  const maneOuter = '#4a2e10';   // darkest outer ring
-  const maneColor = '#6e4818';   // mid mane
-  const maneInner = '#a07238';   // inner highlight tufts
-  const tailTuft = '#3a2008';    // black tuft at end of tail
+  const OUT = '#2a1810';            // bold cartoon outline
+  const OUT_W = 3;                  // outline stroke width
+  const body = colors.main;
+  const bodyShade = colors.shade;
+  const belly = colors.light;
+  const mane = '#8a5018';           // bold solid mane color
+  const maneDark = '#5a2c08';       // mane shadow
+  const tailTuft = '#2a1810';       // black tuft
+  const noseColor = '#3a1810';
+  const tongue = '#d04848';
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
       <rect width="400" height="300" fill="url(#shape-bg)" />
       <line x1="20" y1="282" x2="380" y2="282" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
 
-      {/* TAIL — long sinuous curve with the iconic dark TUFT at the end */}
-      <path d="M 90 205 Q 60 220 36 215 Q 20 210 16 196" stroke={colors.shade} strokeWidth="13" fill="none" strokeLinecap="round" />
-      <path d="M 90 205 Q 60 220 36 215 Q 20 210 16 196" stroke={colors.main} strokeWidth="8" fill="none" strokeLinecap="round" />
-      {/* black tuft */}
-      <ellipse cx="14" cy="192" rx="9" ry="14" fill={tailTuft} transform="rotate(-15 14 192)" />
-      <ellipse cx="16" cy="188" rx="6" ry="10" fill="#1a0e04" transform="rotate(-15 16 188)" opacity="0.7" />
-      {/* tuft hair lines */}
-      <g stroke="#1a0e04" strokeWidth="1.2" strokeLinecap="round">
-        <line x1="10" y1="180" x2="6" y2="170" />
-        <line x1="18" y1="178" x2="20" y2="166" />
-        <line x1="22" y1="182" x2="28" y2="172" />
-      </g>
+      {/* TAIL — bold cartoon arc with chunky tuft */}
+      <path d="M 95 215 Q 55 235 25 215 Q 10 205 18 188"
+        stroke={OUT} strokeWidth={OUT_W + 6} fill="none" strokeLinecap="round" />
+      <path d="M 95 215 Q 55 235 25 215 Q 10 205 18 188"
+        stroke={body} strokeWidth={OUT_W + 2} fill="none" strokeLinecap="round" />
+      {/* dark tail tuft — single bold shape */}
+      <ellipse cx="15" cy="184" rx="12" ry="16"
+        fill={tailTuft} stroke={OUT} strokeWidth={OUT_W - 1} transform="rotate(-20 15 184)" />
 
-      {/* legs */}
-      <rect x="105" y="220" width="20" height="58" fill={colors.shade} rx="4" />
-      <rect x="148" y="222" width="20" height="56" fill={colors.shade} rx="4" />
-      <rect x="220" y="222" width="20" height="56" fill={colors.shade} rx="4" />
-      <rect x="262" y="220" width="20" height="58" fill={colors.shade} rx="4" />
-      <ellipse cx="115" cy="280" rx="14" ry="4" fill="#3a2118" />
-      <ellipse cx="158" cy="280" rx="14" ry="4" fill="#3a2118" />
-      <ellipse cx="230" cy="280" rx="14" ry="4" fill="#3a2118" />
-      <ellipse cx="272" cy="280" rx="14" ry="4" fill="#3a2118" />
+      {/* LEGS — chunky rounded rectangles with bold outlines */}
+      {[110, 152, 218, 260].map((x, i) => (
+        <g key={i}>
+          <rect x={x - 11} y="215" width="22" height="60" rx="8"
+            fill={i % 2 ? body : bodyShade} stroke={OUT} strokeWidth={OUT_W} />
+          {/* paw pad — dark oval at base */}
+          <ellipse cx={x} cy="278" rx="14" ry="4" fill={OUT} />
+        </g>
+      ))}
 
-      {/* body */}
-      <ellipse cx="195" cy="195" rx="100" ry="42" fill={colors.shade} />
-      <ellipse cx="195" cy="190" rx="95" ry="38" fill={colors.main} />
-      <ellipse cx="195" cy="218" rx="78" ry="14" fill={colors.light} opacity="0.55" />
-      <ellipse cx="170" cy="160" rx="50" ry="11" fill="white" opacity="0.2" />
+      {/* BODY — single bold ellipse */}
+      <ellipse cx="180" cy="200" rx="100" ry="44"
+        fill={body} stroke={OUT} strokeWidth={OUT_W} />
+      {/* light belly */}
+      <ellipse cx="180" cy="222" rx="80" ry="14" fill={belly} opacity="0.85" />
 
-      {/* ─── MANE ─── three layers of irregular tufts for depth.
-          Outer ring (darkest), middle ring (mid), inner ring (highlighted).
-          Tuft sizes vary so the mane doesn't look like a uniform sunburst. */}
+      {/* MANE — bold solid ring with cartoon scallop edges (no fluffy noise) */}
       <g>
-        {/* outer dark ring — bigger asymmetric tufts behind the head */}
-        {[
-          [225, 130, 18], [248, 110, 17], [275, 100, 19], [305, 95, 18],
-          [338, 100, 19], [362, 115, 17], [378, 140, 18], [380, 170, 19],
-          [375, 200, 18], [358, 224, 17], [330, 232, 19], [298, 230, 18],
-          [268, 228, 17], [240, 222, 19], [222, 205, 16], [218, 178, 18],
-          [220, 152, 17],
-        ].map(([cx, cy, r], i) => (
-          <circle key={`o-${i}`} cx={cx} cy={cy} r={r} fill={maneOuter} />
-        ))}
-        {/* mid ring — slightly tighter to the face, regular mane color */}
-        {[
-          [240, 142, 16], [260, 122, 15], [285, 116, 17], [310, 112, 16],
-          [336, 118, 15], [358, 132, 16], [368, 155, 15], [368, 184, 17],
-          [358, 210, 15], [335, 222, 16], [310, 222, 15], [284, 220, 17],
-          [258, 215, 15], [240, 196, 14], [236, 168, 16],
-        ].map(([cx, cy, r], i) => (
-          <circle key={`m-${i}`} cx={cx} cy={cy} r={r} fill={maneColor} />
-        ))}
-        {/* base disk under the face */}
-        <circle cx="298" cy="172" r="50" fill={maneColor} />
-        {/* highlight tufts on top of the mane (catches the light) */}
-        {[[268, 130, 9], [298, 122, 10], [328, 128, 9], [344, 148, 8], [352, 172, 9]].map(([cx, cy, r], i) => (
-          <circle key={`i-${i}`} cx={cx} cy={cy} r={r} fill={maneInner} opacity="0.7" />
-        ))}
+        {/* outer scalloped mane silhouette as a path with bumps */}
+        <path
+          d={[
+            'M 240 130',
+            'C 235 105, 255 95, 265 105',
+            'C 270 90, 290 88, 295 100',
+            'C 305 85, 325 90, 325 105',
+            'C 340 92, 360 100, 358 118',
+            'C 375 115, 385 135, 372 150',
+            'C 388 158, 388 178, 372 188',
+            'C 385 200, 378 220, 360 220',
+            'C 360 240, 340 245, 325 232',
+            'C 322 248, 300 252, 292 238',
+            'C 282 250, 260 248, 258 230',
+            'C 240 240, 225 225, 232 208',
+            'C 215 205, 215 185, 230 180',
+            'C 215 170, 220 150, 235 148',
+            'C 225 140, 230 128, 240 130',
+            'Z',
+          ].join(' ')}
+          fill={mane} stroke={OUT} strokeWidth={OUT_W}
+        />
+        {/* darker mane shading on lower-right (gives depth without gradients) */}
+        <path
+          d="M 358 188 C 385 200 378 220 360 220 C 360 240 340 245 325 232 C 322 248 300 252 292 238 C 320 230 350 215 358 188 Z"
+          fill={maneDark} opacity="0.55"
+        />
       </g>
 
-      <circle cx="300" cy="180" r="36" fill={colors.main} />
-      <ellipse cx="290" cy="170" rx="22" ry="10" fill={colors.light} opacity="0.5" />
+      {/* FACE — round and prominent */}
+      <circle cx="298" cy="178" r="42" fill={body} stroke={OUT} strokeWidth={OUT_W} />
+      {/* lighter snout area */}
+      <ellipse cx="305" cy="200" rx="28" ry="18" fill={belly} opacity="0.9" />
 
-      <ellipse cx="322" cy="187" rx="14" ry="10" fill={colors.main} />
-      <ellipse cx="322" cy="187" rx="13" ry="8" fill="#f0c890" opacity="0.4" />
-      <ellipse cx="332" cy="183" rx="3" ry="2" fill="#1a1a1a" />
-
-      <g className="eye-blink" style={{ transformOrigin: '290px 175px' }}>
-        <circle cx="290" cy="175" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="291" cy="175" rx="3" ry="4.5" fill="#1a1a1a" />
-        <circle cx="293" cy="172" r="1.6" fill="white" />
-      </g>
-      <g className="eye-blink" style={{ transformOrigin: '312px 174px' }}>
-        <circle cx="312" cy="174" r="5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="313" cy="174" rx="2.5" ry="3.8" fill="#1a1a1a" />
-        <circle cx="314" cy="171" r="1.4" fill="white" />
+      {/* EARS — perky triangles peeking through the mane */}
+      <g>
+        <path d="M 256 140 L 252 116 L 274 132 Z" fill={body} stroke={OUT} strokeWidth={OUT_W} />
+        <path d="M 256 140 L 256 124 L 268 134 Z" fill="#f4b8a0" />
+        <path d="M 338 140 L 342 116 L 322 132 Z" fill={body} stroke={OUT} strokeWidth={OUT_W} />
+        <path d="M 338 140 L 338 124 L 326 134 Z" fill="#f4b8a0" />
       </g>
 
-      <path d="M 305 197 Q 315 205 326 200" stroke="#3a2118" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M 320 200 Q 327 207 333 200" stroke="#3a2118" strokeWidth="2" fill="none" strokeLinecap="round" />
-
-      <g stroke="#3a2118" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.6">
-        <line x1="322" y1="194" x2="345" y2="190" />
-        <line x1="322" y1="198" x2="346" y2="198" />
-        <line x1="322" y1="202" x2="345" y2="208" />
+      {/* BIG CARTOON EYES — large white sclera, big black pupil, sparkle highlight */}
+      <g className="eye-blink" style={{ transformOrigin: '286px 175px' }}>
+        <circle cx="286" cy="175" r="11" fill="white" stroke={OUT} strokeWidth={OUT_W - 1} />
+        <circle cx="288" cy="176" r="6.5" fill={OUT} />
+        <circle cx="290" cy="173" r="2.8" fill="white" />
+        <circle cx="286" cy="178" r="1.4" fill="white" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '316px 175px' }}>
+        <circle cx="316" cy="175" r="11" fill="white" stroke={OUT} strokeWidth={OUT_W - 1} />
+        <circle cx="318" cy="176" r="6.5" fill={OUT} />
+        <circle cx="320" cy="173" r="2.8" fill="white" />
+        <circle cx="316" cy="178" r="1.4" fill="white" />
       </g>
 
-      <polygon points="248,148 252,128 260,148" fill={maneColor} />
-      <polygon points="338,148 346,128 350,148" fill={maneColor} />
+      {/* NOSE — solid triangle with a soft top edge */}
+      <path d="M 295 195 L 311 195 L 303 205 Z" fill={noseColor} stroke={OUT} strokeWidth={OUT_W - 1} strokeLinejoin="round" />
 
+      {/* MOUTH — friendly cartoon smile with peek of tongue */}
+      <path d="M 303 205 L 303 211" stroke={OUT} strokeWidth={OUT_W - 1} strokeLinecap="round" />
+      <path d="M 286 213 Q 303 226 320 213" stroke={OUT} strokeWidth={OUT_W} fill="none" strokeLinecap="round" />
+      {/* small pink tongue tip */}
+      <path d="M 297 218 Q 303 226 309 218 Q 303 222 297 218 Z" fill={tongue} stroke={OUT} strokeWidth={OUT_W - 2} />
+      {/* two tiny fangs hint */}
+      <polygon points="295,215 296,221 298,215" fill="white" stroke={OUT} strokeWidth="0.6" />
+      <polygon points="308,215 310,221 311,215" fill="white" stroke={OUT} strokeWidth="0.6" />
+
+      {/* whisker dots */}
+      <g fill={OUT}>
+        <circle cx="288" cy="202" r="1" />
+        <circle cx="293" cy="207" r="1" />
+        <circle cx="313" cy="207" r="1" />
+        <circle cx="318" cy="202" r="1" />
+      </g>
+
+      {/* ground shadow */}
       <ellipse cx="195" cy="287" rx="125" ry="6" fill="rgba(0,0,0,0.22)" />
     </svg>
   );
