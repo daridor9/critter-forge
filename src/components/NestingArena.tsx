@@ -811,25 +811,43 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           );
         })()}
 
-        {/* PLAYER CREATURE */}
-        {hasBespokeShape(creature) ? (
-          <BespokeInScene
-            creature={creature}
-            x={W * 0.32 - 50}
-            y={GROUND_Y - 70}
-            width={100}
-            height={80}
-            animate={(stance === 'attack' && threatPresent) || activity === 'forage' ? 'run' : 'breathe'}
-          />
-        ) : (
-          <CreatureBody
-            creature={creature}
-            cx={W * 0.32}
-            footY={GROUND_Y}
-            scale={0.32}
-            animate={(stance === 'attack' && threatPresent) || activity === 'forage' ? 'run' : 'breathe'}
-          />
-        )}
+        {/* PLAYER CREATURE — visibly fades into the background when the
+            camo bar is high. At camo=75% (cap), creature drops to 0.45
+            opacity so the player sees their camo skill working. */}
+        {(() => {
+          const camoFade = Math.max(0.45, 1 - (camo / 75) * 0.55);
+          // MIMICRY SHAPE-SHIFT — when bluffing with mimicry, the creature
+          // briefly disguises as a scary predator emoji overlay.
+          const isMimicBluff = engagementFlash && stance === 'bluff' && creature.hybrids.includes('mimicry');
+          return (
+            <g style={{ opacity: camoFade, transition: 'opacity 0.4s ease-out' }}>
+              {hasBespokeShape(creature) ? (
+                <BespokeInScene
+                  creature={creature}
+                  x={W * 0.32 - 50}
+                  y={GROUND_Y - 70}
+                  width={100}
+                  height={80}
+                  animate={(stance === 'attack' && threatPresent) || activity === 'forage' ? 'run' : 'breathe'}
+                />
+              ) : (
+                <CreatureBody
+                  creature={creature}
+                  cx={W * 0.32}
+                  footY={GROUND_Y}
+                  scale={0.32}
+                  animate={(stance === 'attack' && threatPresent) || activity === 'forage' ? 'run' : 'breathe'}
+                />
+              )}
+              {isMimicBluff && (
+                <text x={W * 0.32} y={GROUND_Y - 30} textAnchor="middle" fontSize="42"
+                  style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>
+                  🐍
+                </text>
+              )}
+            </g>
+          );
+        })()}
 
         {/* HUD — three bars stacked: energy + hydration + camo */}
         <rect x="6" y="6" width="240" height="62" fill="rgba(255,255,255,0.92)" rx="4" stroke="#bbb" />

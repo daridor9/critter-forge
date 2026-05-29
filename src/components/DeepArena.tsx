@@ -488,22 +488,27 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
       } else if (travelMode === 'swim') {
         const style = swimStyleRef.current;
         const mod = SWIM_STYLE_MODS[style];
+        // FLYING OVER — small creatures with functional wings just
+        // glide over the river entirely. No current drag, no crocs,
+        // crossing time bound by wing speed (~5 m/s).
+        const flyOver = swimRoute.river && gliderOk;
         // Underwater style ignores wave penalty; restore it for the base speed
         // when needed by recomputing here (swimSpeed already has waves baked in).
         const base = mod.waveImmune
           ? (aq ? 6 : 2) + creature.legTier * 0.8 + Math.min(stats.topSpeedKmh / 25, 3)
           : swimSpeed;
-        const effSpeed = base * mod.speedMult;
+        const effSpeed = flyOver ? 5 + gQ * 1.5 : base * mod.speedMult;
         swimPosRef.current += effSpeed * dt;
         // RIVER CURRENT — drags non-aquatic creatures downstream. Aquatic
         // creatures (fish, gilled) and underwater-style swimmers shrug it
-        // off. Big leg-tier helps push against it.
-        if (swimRoute.currentMps && !aq && style !== 'underwater') {
+        // off. Flyers obviously skip it. Big leg-tier helps push against it.
+        if (swimRoute.currentMps && !aq && style !== 'underwater' && !flyOver) {
           const grip = 1 + creature.legTier * 0.35;
           const drift = (swimRoute.currentMps / grip) * dt;
           swimPosRef.current -= drift;
         }
-        if (!aq) swimStamRef.current -= dt * mod.staminaDrainMult;
+        // Flyers don't tire over a 120m river crossing.
+        if (!aq && !flyOver) swimStamRef.current -= dt * mod.staminaDrainMult;
         setSwimPos(swimPosRef.current);
         setSwimStamina(swimStamRef.current);
 
@@ -515,7 +520,8 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
         }
 
         // Predator interrupt at ~50% on routes with one (shark or croc).
-        if (swimRoute.predator && !predatorTriggered && swimPosRef.current > swimRoute.distanceM * 0.5) {
+        // Flyers skip predators entirely — they're not in the water.
+        if (swimRoute.predator && !predatorTriggered && swimPosRef.current > swimRoute.distanceM * 0.5 && !flyOver) {
           setPredatorTriggered(true);
           // Escape roll: aquatic + legTier + top speed + style bonus.
           // Crocodiles on the river are HARDER for non-swimmers — they're
@@ -1226,21 +1232,41 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
             {Math.round(swimPos)} / {swimRoute.distanceM} m
           </text>
 
-          {/* creature riding the surface */}
-          {hasBespokeShape(creature) ? (
-            <BespokeInScene creature={creature} x={creatureX - 50} y={SURFACE - 40} width={100} height={80} animate="breathe" />
-          ) : (
-            <g transform={`translate(${creatureX} ${SURFACE + 2})`}>
-              <CreatureBody creature={creature} cx={0} footY={20} scale={0.32} animate="breathe" />
+          {/* creature riding the surface — or GLIDING OVER if a flyer */}
+          {(() => {
+            const flyOver = swimRoute.river && gliderOk;
+            const cY = flyOver ? SURFACE - 65 : SURFACE - 40;
+            return (
+              <>
+                {flyOver && (
+                  <g opacity="0.8" className="bob-breathe" style={{ transformOrigin: `${creatureX}px ${cY + 8}px` }}>
+                    <text x={creatureX - 28} y={cY - 4} fontSize="22">🪽</text>
+                    <text x={creatureX + 12} y={cY - 4} fontSize="22" transform={`scale(-1 1) translate(${-2 * (creatureX + 12)} 0)`}>🪽</text>
+                  </g>
+                )}
+                {hasBespokeShape(creature) ? (
+                  <BespokeInScene creature={creature} x={creatureX - 50} y={cY} width={100} height={80} animate="breathe" />
+                ) : (
+                  <g transform={`translate(${creatureX} ${cY + 42})`}>
+                    <CreatureBody creature={creature} cx={0} footY={20} scale={0.32} animate="breathe" />
+                  </g>
+                )}
+                {flyOver && (
+                  <text x={creatureX} y={cY - 18} textAnchor="middle" fontSize="10"
+                    fill="#1a4a78" fontWeight="700">flying over!</text>
+                )}
+              </>
+            );
+          })()}
+
+          {/* splash wake behind creature (only when actually IN the water) */}
+          {!(swimRoute.river && gliderOk) && (
+            <g fill="white" opacity="0.7">
+              <circle cx={creatureX - 30} cy={SURFACE + 4} r="2.5" />
+              <circle cx={creatureX - 38} cy={SURFACE + 8} r="2" />
+              <circle cx={creatureX - 46} cy={SURFACE + 4} r="1.5" />
             </g>
           )}
-
-          {/* splash wake behind creature */}
-          <g fill="white" opacity="0.7">
-            <circle cx={creatureX - 30} cy={SURFACE + 4} r="2.5" />
-            <circle cx={creatureX - 38} cy={SURFACE + 8} r="2" />
-            <circle cx={creatureX - 46} cy={SURFACE + 4} r="1.5" />
-          </g>
         </svg>
         );
       })()}
