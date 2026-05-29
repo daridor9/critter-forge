@@ -148,6 +148,13 @@ const W = 800;
 const H = 420;
 const GROUND_Y = 300;
 
+// Chase camera: player is pinned at PLAYER_X on screen; the prey position
+// shows the REAL gap (px = metres × GAP_SCALE) clamped to stay visible;
+// foreground scenery scrolls left at SCROLL_SCALE px/metre to sell motion.
+const PLAYER_X = 220;
+const GAP_SCALE = 5;
+const SCROLL_SCALE = 8;
+
 type PreyId = 'rabbit' | 'gazelle' | 'kangaroo';
 interface PreyDef {
   id: PreyId;
@@ -544,9 +551,13 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats.enduranceKm, preyId]);
 
-  const scale = W / (TRACK_M + START_GAP_M);
-  const playerX = Math.max(40, Math.min(W - 40, playerDist * scale));
-  const gazelleX = Math.max(80, Math.min(W - 40, gazelleDist * scale));
+  // Camera: player pinned on screen, prey at visible gap, scenery scrolls.
+  // Before the chase starts, both creatures rest closer to the left so the
+  // pre-run scene reads as a starting line.
+  const gapPx = Math.max(0, Math.min(W - PLAYER_X - 70, (gazelleDist - playerDist) * GAP_SCALE));
+  const playerX = running ? PLAYER_X : 90;
+  const gazelleX = running ? PLAYER_X + gapPx : 90 + START_GAP_M * GAP_SCALE;
+  const scrollX = running ? (playerDist * SCROLL_SCALE) % W : 0;
   const energyShown = running || done ? energy : E0;
 
   return (
@@ -707,41 +718,66 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
 
         <rect x="0" y={GROUND_Y} width={W} height={H - GROUND_Y} fill="url(#chase-ground)" />
 
-        {/* Biome-specific scene props — pines for forest/tundra,
-            cacti for desert, snow drifts on top of tundra ground. */}
-        {env.pines ? (
-          TREES.map((t, i) => <PineTree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />)
-        ) : env.cacti ? (
-          [{ x: 60 }, { x: 200 }, { x: 360 }, { x: 510 }, { x: 650 }, { x: 770 }].map((c, i) => (
-            <Cactus key={i} x={c.x} groundY={GROUND_Y} />
-          ))
-        ) : (
-          TREES.map((t, i) => <Tree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />)
-        )}
+        {/* FOREGROUND PARALLAX LAYER — scrolls left at the player's speed
+            so the chase actually feels like motion. Each prop is rendered
+            twice (offset 0 and +W) so the strip loops seamlessly as the
+            transform wraps from 0..W back to 0. */}
+        <g transform={`translate(${-scrollX} 0)`}>
+          {[0, W].map((dx) => (
+            <g key={dx} transform={`translate(${dx} 0)`}>
+              {/* Biome-specific scene props */}
+              {env.pines ? (
+                TREES.map((t, i) => <PineTree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />)
+              ) : env.cacti ? (
+                [{ x: 60 }, { x: 200 }, { x: 360 }, { x: 510 }, { x: 650 }, { x: 770 }].map((c, i) => (
+                  <Cactus key={i} x={c.x} groundY={GROUND_Y} />
+                ))
+              ) : (
+                TREES.map((t, i) => <Tree key={i} {...t} colors={{ main: env.treeMain, mid: env.treeMid, top: env.treeTop }} />)
+              )}
 
-        {/* SNOW DRIFTS for tundra */}
-        {env.snow && (
-          <g>
-            <ellipse cx="120" cy={GROUND_Y + 12} rx="80" ry="8" fill="white" opacity="0.75" />
-            <ellipse cx="400" cy={GROUND_Y + 14} rx="100" ry="10" fill="white" opacity="0.7" />
-            <ellipse cx="680" cy={GROUND_Y + 11} rx="90" ry="8" fill="white" opacity="0.75" />
-            {/* falling snowflakes */}
-            <g fill="white" opacity="0.85">
-              {Array.from({ length: 20 }).map((_, i) => (
-                <circle
-                  key={i}
-                  cx={(i * 53 + 20) % W}
-                  cy={(i * 31) % GROUND_Y}
-                  r={1.5}
-                  className="snowflake"
-                  style={{ animationDuration: `${4 + (i % 4)}s`, animationDelay: `-${i * 0.4}s` }}
-                />
+              {/* SNOW DRIFTS for tundra */}
+              {env.snow && (
+                <g>
+                  <ellipse cx="120" cy={GROUND_Y + 12} rx="80" ry="8" fill="white" opacity="0.75" />
+                  <ellipse cx="400" cy={GROUND_Y + 14} rx="100" ry="10" fill="white" opacity="0.7" />
+                  <ellipse cx="680" cy={GROUND_Y + 11} rx="90" ry="8" fill="white" opacity="0.75" />
+                </g>
+              )}
+
+              {/* GROUND ROCKS */}
+              {Array.from({ length: 14 }).map((_, i) => {
+                const rx = 30 + i * 56;
+                return (
+                  <ellipse key={i} cx={rx} cy={GROUND_Y + 18 + (i % 3) * 4} rx={5 + (i % 3) * 2} ry="2" fill="#7a5a32" opacity="0.4" />
+                );
+              })}
+
+              {/* GRASS TUFTS */}
+              {GRASS_TUFTS.map((g, i) => (
+                <GrassTuft key={i} {...g} />
               ))}
             </g>
+          ))}
+        </g>
+
+        {/* Falling snowflakes — fixed to screen (atmospheric, not parallax) */}
+        {env.snow && (
+          <g fill="white" opacity="0.85">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <circle
+                key={i}
+                cx={(i * 53 + 20) % W}
+                cy={(i * 31) % GROUND_Y}
+                r={1.5}
+                className="snowflake"
+                style={{ animationDuration: `${4 + (i % 4)}s`, animationDelay: `-${i * 0.4}s` }}
+              />
+            ))}
           </g>
         )}
 
-        {/* HEAT SHIMMER for desert */}
+        {/* HEAT SHIMMER for desert — also screen-fixed */}
         {env.id === 'desert' && (
           <g className="heat" stroke="#ffe9a0" strokeWidth="1" opacity="0.4" strokeDasharray="3 5">
             <line x1="40" y1={GROUND_Y - 8} x2="240" y2={GROUND_Y - 8} />
@@ -750,16 +786,17 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
           </g>
         )}
 
-        {Array.from({ length: 14 }).map((_, i) => {
-          const rx = 30 + i * 56;
-          return (
-            <ellipse key={i} cx={rx} cy={GROUND_Y + 18 + (i % 3) * 4} rx={5 + (i % 3) * 2} ry="2" fill="#7a5a32" opacity="0.4" />
-          );
-        })}
-
-        {GRASS_TUFTS.map((g, i) => (
-          <GrassTuft key={i} {...g} />
-        ))}
+        {/* SPEED STREAKS — short horizontal lines whooshing past at ground
+            level during the run, sells the velocity. */}
+        {running && (
+          <g stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" strokeLinecap="round">
+            {Array.from({ length: 7 }).map((_, i) => {
+              const streakX = ((i * 137 - scrollX * 1.4) % W + W) % W;
+              const streakY = GROUND_Y - 30 - (i % 3) * 18;
+              return <line key={i} x1={streakX} y1={streakY} x2={streakX + 28} y2={streakY} />;
+            })}
+          </g>
+        )}
 
         <rect x="10" y="10" width="280" height="28" fill="rgba(255,255,255,0.92)" rx="6" stroke="#bbb" />
         <text x="22" y="29" fontSize="13" fill="#333">stamina</text>

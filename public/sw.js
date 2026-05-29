@@ -4,7 +4,7 @@
 // network-first with fallback for everything else (so deploys propagate
 // quickly but offline still works).
 
-const CACHE = 'critter-forge-v6';
+const CACHE = 'critter-forge-v7';
 const CORE = [
   './',
   './index.html',
