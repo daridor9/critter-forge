@@ -2704,14 +2704,16 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
       {BG_DEFS}
       <rect width="400" height="300" fill={`url(#${bg})`} />
       {/* soft ground shadow */}
-      <ellipse cx="200" cy="258" rx="105" ry="9" fill="rgba(0,0,0,0.18)" />
-      {/* the emoji itself — large enough to dominate the tile */}
+      <ellipse cx="200" cy="278" rx="105" ry="9" fill="rgba(0,0,0,0.18)" />
+      {/* the emoji itself — bottom-anchored so the glyph's paws/base sit
+          on the ground line instead of typographically centering inside
+          an oversized em-box (which made the creature appear to float
+          in the upper half of the tile, especially inside arena scenes). */}
       <text
         x="200"
-        y="150"
+        y="275"
         textAnchor="middle"
-        dominantBaseline="central"
-        fontSize="210"
+        fontSize="240"
         style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))' }}
       >
         {emoji}
