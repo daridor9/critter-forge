@@ -595,11 +595,58 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
            '🌿💧 splitting time'}
         </text>
 
-        {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={W / 2 - 80} y={GROUND_Y - 80} width={110} height={90} animate="breathe" />
-        ) : (
-          <CreatureBody creature={creature} cx={W / 2 - 30} footY={GROUND_Y} scale={0.35} animate="breathe" />
-        )}
+        {/* Animation reflects the activity — active scrounging when
+            foraging/water/both, calm breathe when hidden in shelter. */}
+        {(() => {
+          const animate: 'run' | 'breathe' = (activity === 'forage' || activity === 'water' || activity === 'both')
+            ? 'run' : 'breathe';
+          // Dehydration cues — pant + sweat drops appear as water reserve drops
+          // below 40%. The lower the bar, the more visible the distress.
+          const dehydrated = (waterRes / W0) < 0.4;
+          const critical = (waterRes / W0) < 0.18;
+          const cx = W / 2 - 25;
+          return (
+            <>
+              {/* Dust puffs at the feet while foraging */}
+              {(activity === 'forage' || activity === 'both') && (
+                <g opacity="0.55">
+                  <ellipse cx={cx + 36} cy={GROUND_Y - 2} rx="8" ry="2" fill="#c9a05a" />
+                  <ellipse cx={cx + 46} cy={GROUND_Y - 4} rx="5" ry="1.5" fill="#c9a05a" opacity="0.7" />
+                  <ellipse cx={cx - 36} cy={GROUND_Y - 2} rx="6" ry="1.5" fill="#c9a05a" opacity="0.6" />
+                </g>
+              )}
+              {hasBespokeShape(creature) ? (
+                <BespokeInScene
+                  creature={creature}
+                  x={W / 2 - 80}
+                  y={GROUND_Y - 80}
+                  width={110}
+                  height={90}
+                  animate={animate}
+                />
+              ) : (
+                <CreatureBody creature={creature} cx={cx} footY={GROUND_Y} scale={0.35} animate={animate} />
+              )}
+              {/* Sweat / panting indicators when dehydrated */}
+              {dehydrated && (
+                <g className="bob-breathe" style={{ transformOrigin: `${cx}px ${GROUND_Y - 60}px` }}>
+                  {/* sweat drops on forehead */}
+                  <g fill="#aef0ff" opacity="0.9" stroke="#3a7aa8" strokeWidth="0.5">
+                    <path d={`M ${cx - 14} ${GROUND_Y - 70} q -2 4 -1 7 q 3 0 2 -7 z`} />
+                    <path d={`M ${cx + 16} ${GROUND_Y - 64} q -2 4 -1 7 q 3 0 2 -7 z`} />
+                    {critical && (
+                      <path d={`M ${cx + 2} ${GROUND_Y - 76} q -2 4 -1 7 q 3 0 2 -7 z`} />
+                    )}
+                  </g>
+                  {/* heat shimmer + tongue out when critical */}
+                  {critical && (
+                    <text x={cx + 28} y={GROUND_Y - 36} fontSize="14" opacity="0.85">😵‍💫</text>
+                  )}
+                </g>
+              )}
+            </>
+          );
+        })()}
       </svg>
       <div className="arena-controls">
         {!running && !done && (

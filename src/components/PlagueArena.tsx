@@ -501,10 +501,16 @@ export function PlagueArena({ creature, stats, generation = 1, onFinish }: Props
               y={groundY - 70}
               width={100}
               height={80}
-              animate="breathe"
+              animate={action === 'food' || action === 'water' || action === 'herbs' ? 'run' : 'breathe'}
             />
           ) : (
-            <CreatureBody creature={creature} cx={cx} footY={groundY} scale={0.32} animate="breathe" />
+            <CreatureBody
+              creature={creature}
+              cx={cx}
+              footY={groundY}
+              scale={0.32}
+              animate={action === 'food' || action === 'water' || action === 'herbs' ? 'run' : 'breathe'}
+            />
           )}
         </g>
 
