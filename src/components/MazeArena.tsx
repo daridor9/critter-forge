@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 import { comboEffects, getActiveCombo } from '../data/hybridCombos';
 
 export type MazeOutcome = {
@@ -431,6 +432,7 @@ export function MazeArena({ creature, stats, onFinish }: Props) {
   return (
     <div className="arena">
       <h2>The Maze — {theme.emoji} {theme.label} <small className="arena-env">· {theme.difficultyLabel} · ×{theme.rewardMult.toFixed(1)} reward</small></h2>
+      <ArenaComboBadge creature={creature} arena="maze" />
       <p className="arena-help">{theme.description}</p>
 
       <div className="prey-tabs">

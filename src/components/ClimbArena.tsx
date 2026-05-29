@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 import { comboEffects } from '../data/hybridCombos';
 
 export type ClimbOutcome = { won: boolean; reason: 'reached-top' | 'froze' | 'exhausted'; terrain?: ClimbTerrainId };
@@ -244,6 +245,7 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   return (
     <div className="arena">
       <h2>The Climb — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
+      <ArenaComboBadge creature={creature} arena="climb" />
       <p className="arena-help">{env.description} Climb to <strong>{altGoal} m</strong>. {env.lava ? 'Heat saps cold-blooded creatures.' : 'Cold drains energy fast if your cold tolerance is low.'} Heavy bodies tire fast too.</p>
 
       <div className="prey-tabs">

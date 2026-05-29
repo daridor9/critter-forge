@@ -4,6 +4,7 @@ import { sizeToMass } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 import { comboEffects } from '../data/hybridCombos';
 
 export type DeepOutcome = {
@@ -613,6 +614,7 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
   return (
     <div className="arena">
       <h2>The Deep — {headerLabel} <small className="arena-env">· {headerDifficulty} · ×{headerRewardMult.toFixed(1)} reward</small></h2>
+      <ArenaComboBadge creature={creature} arena="deep" />
       <p className="arena-help">
         {headerDesc}{' '}
         {travelMode === 'dive' && <>Dive to <strong>{TARGET_DEPTH}m</strong> and return. Past {PRESSURE_SAFE_DEPTH}m the pressure crushes you without armor or a fish body.</>}

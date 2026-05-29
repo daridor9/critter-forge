@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 
 export type MigratePace = 'steady' | 'push' | 'detour';
 
@@ -218,6 +219,7 @@ export function MigrationArena({ creature, stats, generation = 1, onFinish }: Pr
   return (
     <div className="arena">
       <h2>The Migration — 🏛 Cross the continent <small className="arena-env">· {goalKm} km</small></h2>
+      <ArenaComboBadge creature={creature} arena="migrate" />
       <p className="arena-help">
         Travel <strong>{goalKm} km</strong> dodging rivers, cliffs, predators, and forests. Endurance fuels you;
         brain helps you not get lost. Food caches refill stamina.

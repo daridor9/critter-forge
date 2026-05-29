@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 
 export type StormSeverityId = 'gust' | 'storm' | 'tornado';
 export type StormStance = 'hunker' | 'anchor' | 'shelter';
@@ -319,6 +320,7 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
   return (
     <div className="arena">
       <h2>The Storm — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
+      <ArenaComboBadge creature={creature} arena="storm" />
       <p className="arena-help">
         {env.description} Hold your ground for <strong>{DURATION} seconds</strong>. Wind drains your stability —
         heavy bodies + good legs grip the ground; armor + thick-fur reduce damage from flying debris.

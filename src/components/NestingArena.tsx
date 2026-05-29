@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape, isMammalShape, SHAPE_EMOJI, NICHE_BY_SHAPE, type Niche } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 
 // While no predator is present, parent decides what to do.
 export type NestActivity = 'watch' | 'forage' | 'drink' | 'camo';
@@ -502,6 +503,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   return (
     <div className="arena">
       <h2>{siteTitle} — {youngEmoji} Defend the {clutchWord} <small className="arena-env">· {totalWaves} waves</small></h2>
+      <ArenaComboBadge creature={creature} arena="nest" />
       <p className="arena-help">
         Your natural enemies approach in waves — {creature.hybrids.length > 0 ? (
           <>hybrid creatures attract bigger threats (including other hybrids).</>

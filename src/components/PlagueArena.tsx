@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 
 export type PlagueAction = 'rest' | 'food' | 'water' | 'herbs' | 'cure';
 
@@ -306,6 +307,7 @@ export function PlagueArena({ creature, stats, generation = 1, onFinish }: Props
   return (
     <div className="arena">
       <h2>The Plague — 🦟 Survive the outbreak <small className="arena-env">· {goalDays} days</small></h2>
+      <ArenaComboBadge creature={creature} arena="plague" />
       <p className="arena-help">
         A virus is spreading. Hold out <strong>{goalDays} days</strong>. Manage food + water + infection.
         Search for <strong>🌿 healing herbs</strong> (consume to reduce infection) or hunt for <strong>🔬 cure

@@ -3,6 +3,7 @@ import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
 import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { ArenaComboBadge } from './ArenaComboBadge';
 import { comboEffects } from '../data/hybridCombos';
 
 export type DroughtOutcome = {
@@ -280,6 +281,7 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
   return (
     <div className="arena">
       <h2>The Drought — {env.emoji} {env.label} <small className="arena-env">· {env.difficultyLabel} · ×{env.rewardMult.toFixed(1)} reward</small></h2>
+      <ArenaComboBadge creature={creature} arena="drought" />
       <p className="arena-help">
         {env.description} Survive <strong>{DAYS_GOAL} days</strong>. Pick what to do each day —
         <strong> forage</strong> for food, <strong>find water</strong>, <strong>shelter</strong> to conserve, or split your time
