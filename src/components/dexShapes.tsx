@@ -2712,6 +2712,7 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
       width="100%"
       height="100%"
       preserveAspectRatio="xMidYMax meet"
+      style={{ display: 'block', width: '100%', height: '100%' }}
     >
       {BG_DEFS}
       {/* backdrop — hidden in arena scenes by .dex-bare svg > rect[400×300] */}
