@@ -2622,7 +2622,7 @@ export function PenguinShape({ colors }: { colors: ColorOverride }) {
 // `colors` is accepted for API parity with the bespoke shape signature
 // but is not used — emoji glyphs are pre-colored by the system font.
 
-const SHAPE_EMOJI: Record<string, string> = {
+export const SHAPE_EMOJI: Record<string, string> = {
   snake: '🐍',
   octopus: '🐙',
   whale: '🐋',
@@ -2681,6 +2681,20 @@ const SHAPE_BG: Record<string, string> = {
   polarbear: 'shape-bg-ice',
   snowleopard: 'shape-bg-ice',
 };
+
+// Species classification — used by arenas to swap egg/clutch language and
+// visuals for live-bearing mammals (litters of cubs/pups) vs. egg-layers
+// (clutches of eggs). Marsupials like kangaroo are included as mammals.
+export const MAMMAL_SHAPES = new Set<string>([
+  'lion', 'cheetah', 'snowleopard', 'tiger', 'wolf', 'foxkit', 'polarbear',
+  'mouse', 'bat', 'sloth', 'kangaroo', 'elephant', 'gorilla', 'camel',
+  'sheep', 'cow', 'horse', 'pig', 'giraffe', 'donkey', 'rhino',
+  'cat', 'dog', 'goat', 'whale', 'dolphin',
+]);
+
+export function isMammalShape(shape?: string): boolean {
+  return !!shape && MAMMAL_SHAPES.has(shape);
+}
 
 function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverride }> {
   const emoji = SHAPE_EMOJI[shapeName] ?? '🐾';

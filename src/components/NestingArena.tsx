@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CreatureStats } from '../physics';
 import type { Creature } from '../types';
 import { CreatureBody } from './CreatureSVG';
-import { BespokeInScene, hasBespokeShape } from './dexShapes';
+import { BespokeInScene, hasBespokeShape, isMammalShape, SHAPE_EMOJI } from './dexShapes';
 
 // While no predator is present, parent decides what to do.
 export type NestActivity = 'watch' | 'forage' | 'drink' | 'camo';
@@ -252,7 +252,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               const cost = stanceRef.current === 'attack' ? 18 : stanceRef.current === 'block' ? 12 : 6;
               energyRef.current = Math.max(0, energyRef.current - cost);
               setEnergy(energyRef.current);
-              pushLog(`💔 ${pred.emoji} stole an egg! (${eggsRef.current} left, -${cost} energy)`);
+              pushLog(`💔 ${pred.emoji} stole a ${isMammalShape(creature.shape) ? 'cub' : 'egg'}! (${eggsRef.current} left, -${cost} energy)`);
             } else {
               const cost = stanceRef.current === 'attack' ? 15 : stanceRef.current === 'block' ? 10 : 5;
               energyRef.current = Math.max(0, energyRef.current - cost);
@@ -311,9 +311,18 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   const engagementFlash = threat?.flashUntil !== undefined && elapsed < threat.flashUntil;
   const threatPresent = threat !== null && !threat.resolved && threat.x > 200;
 
+  // Mammals have live young (cubs/pups), egg-layers have eggs. The biology
+  // matters — swap labels and visuals so a wolf isn't laying eggs.
+  const isMammal = isMammalShape(creature.shape);
+  const speciesEmoji = SHAPE_EMOJI[creature.shape ?? ''] ?? '🐾';
+  const youngEmoji = isMammal ? speciesEmoji : '🥚';
+  const youngSiteLabel = isMammal ? 'DEN' : 'NEST';
+  const clutchWord = isMammal ? 'litter' : 'clutch';
+  const siteTitle = isMammal ? 'The Den' : 'The Nest';
+
   return (
     <div className="arena">
-      <h2>The Nest — 🥚 Defend the clutch <small className="arena-env">· {totalWaves} waves</small></h2>
+      <h2>{siteTitle} — {youngEmoji} Defend the {clutchWord} <small className="arena-env">· {totalWaves} waves</small></h2>
       <p className="arena-help">
         Predators approach in waves. Between attacks, <strong>forage</strong> to keep your energy up,
         <strong> drink</strong> to stay hydrated, or <strong>hide</strong> the nest in leaves and dirt.
@@ -452,10 +461,26 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />;
             })}
           </g>
-          {/* eggs */}
+          {/* eggs / cubs — eggs for egg-layers, mini species emoji for mammals */}
           {Array.from({ length: 5 }).map((_, i) => {
             const lost = i >= eggs;
             const x = -22 + i * 11;
+            if (isMammal) {
+              // tiny cub emoji at the nest spot — fades out when stolen
+              return (
+                <text
+                  key={i}
+                  x={x}
+                  y="4"
+                  textAnchor="middle"
+                  fontSize="14"
+                  opacity={lost ? 0.18 : 1}
+                  style={lost ? { filter: 'grayscale(1)' } : undefined}
+                >
+                  {speciesEmoji}
+                </text>
+              );
+            }
             return (
               <ellipse
                 key={i}
@@ -480,7 +505,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
             </g>
           )}
           <text x="0" y={-22} textAnchor="middle" fontSize="10" fontWeight="700" fill="#3a2010">
-            NEST · 🥚 {eggs}/5 · 🍃 {Math.round(camo)}%
+            {youngSiteLabel} · {youngEmoji} {eggs}/5 · 🍃 {Math.round(camo)}%
           </text>
         </g>
 
@@ -500,7 +525,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
               <text x="0" y="-32" textAnchor="middle" fontSize="12">❓</text>
             )}
             {threat.resolved && threat.outcome === 'stolen' && (
-              <text x="-18" y="-8" fontSize="14">🥚</text>
+              <text x="-18" y="-8" fontSize="14">{youngEmoji}</text>
             )}
           </g>
         )}
@@ -548,7 +573,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
 
         <rect x={W - 154} y="6" width="148" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
         <text x={W - 8} y="22" textAnchor="end" fontSize="11" fill="#333">
-          Wave {waveIdx}/{totalWaves} · 🥚 {eggs}/5
+          Wave {waveIdx}/{totalWaves} · {youngEmoji} {eggs}/5
         </text>
 
         {/* mini-log */}
