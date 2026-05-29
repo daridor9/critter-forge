@@ -2720,17 +2720,21 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
       {/* Plain SVG text — most reliable cross-browser path. foreignObject
           + HTML flexbox didn't always scale predictably inside arena/dex
           containers. text-anchor=middle + dominant-baseline=central
-          centers the glyph on (200, 150), the dead center of the viewBox. */}
-      <text
-        x="200"
-        y="150"
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize="140"
-        aria-hidden="true"
-      >
-        {emoji}
-      </text>
+          centers the glyph on (200, 150). The .emoji-glyph-wrap class
+          gets a CSS translate inside .dex-bare (arena scenes) to push
+          the emoji down so it bottoms-out at the ground line. */}
+      <g className="emoji-glyph-wrap">
+        <text
+          x="200"
+          y="150"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize="140"
+          aria-hidden="true"
+        >
+          {emoji}
+        </text>
+      </g>
     </svg>
   );
   Component.displayName = `EmojiShape(${shapeName})`;
