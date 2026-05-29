@@ -2,6 +2,7 @@ import type { Creature, BodyPlan, Tier, BrainTier, Hybrid } from '../types';
 import { isHybridValid } from '../physics';
 import { hybridCatalog, MAX_HYBRIDS } from '../data/hybrids';
 import { HYBRID_UNLOCKS, isUnlockableHybrid, isHybridUnlocked, loadPointsState } from '../data/points';
+import { HybridGlyph } from './dexShapes';
 
 interface Props {
   creature: Creature;
@@ -132,7 +133,9 @@ function HybridSection({ creature, onChange }: { creature: Creature; onChange: (
               title={title}
               aria-disabled={disabled}
             >
-              <span className="hybrid-emoji">{h.emoji}</span>
+              <span className="hybrid-glyph">
+                <HybridGlyph emoji={h.emoji} />
+              </span>
               <span className="hybrid-text">
                 <span className="hybrid-name">{h.name}</span>
                 <span className="hybrid-tagline">{h.tagline}</span>

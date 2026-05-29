@@ -2627,8 +2627,8 @@ h2 {
   font-weight: 700;
   position: absolute;
   top: 4px;
-  right: 8px;
-  background: rgba(255,255,255,0.85);
+  left: 4px;
+  background: rgba(255,255,255,0.92);
   padding: 1px 5px;
   border-radius: 4px;
 }
@@ -2861,68 +2861,77 @@ h2 {
 .hybrid-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .hybrid-chip {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 8px 4px;
-  border: 1px solid var(--line);
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border: 1.5px solid var(--line);
   background: white;
   border-radius: 10px;
   cursor: pointer;
   font: inherit;
   text-align: center;
   position: relative;
-  min-height: 70px;
-  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, background 0.12s;
+  overflow: hidden;
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
 }
 .hybrid-chip:hover:not(.disabled) {
   border-color: var(--accent);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .hybrid-chip.selected {
-  background: var(--accent);
-  color: white;
   border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent) inset;
 }
 .hybrid-chip.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.hybrid-emoji {
-  font-size: 30px;
-  line-height: 1;
+/* The glyph tile takes the top portion — same look as a dex thumb. */
+.hybrid-glyph {
+  display: block;
+  width: 100%;
+  height: 78px;
+}
+.hybrid-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .hybrid-text {
   display: flex;
   flex-direction: column;
+  padding: 6px 4px 8px;
+  background: white;
+  border-top: 1px solid var(--line);
+}
+.hybrid-name {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 .hybrid-tagline {
   display: none;  /* tagline lives in the title= tooltip only */
 }
-.hybrid-name {
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.2;
+.hybrid-chip.selected .hybrid-text {
+  background: var(--accent);
+  color: white;
 }
 .hybrid-warn {
   font-size: 8px;
   color: #c44;
   position: absolute;
-  bottom: 2px;
+  top: 2px;
   right: 4px;
-  background: rgba(255,255,255,0.85);
-  padding: 0 3px;
+  background: rgba(255,255,255,0.92);
+  padding: 1px 4px;
   border-radius: 3px;
-}
-.hybrid-chip.selected .hybrid-warn {
-  color: white;
-  background: rgba(0,0,0,0.25);
+  font-weight: 600;
 }
 
 .insight-overlay {

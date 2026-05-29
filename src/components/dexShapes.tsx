@@ -2696,6 +2696,35 @@ export function isMammalShape(shape?: string): boolean {
   return !!shape && MAMMAL_SHAPES.has(shape);
 }
 
+// ─── HybridGlyph ────────────────────────────────────────────────────────
+// Same SVG-tile treatment we give animal emojis in the dex: soft gradient
+// backdrop + big centered glyph. Used by the hybrid picker so the trait
+// thumbs match the dex aesthetic instead of being inline-text emojis.
+export function HybridGlyph({ emoji }: { emoji: string }) {
+  return (
+    <svg
+      viewBox="0 0 400 300"
+      width="100%"
+      height="100%"
+      preserveAspectRatio="xMidYMid meet"
+      style={{ display: 'block', width: '100%', height: '100%' }}
+    >
+      {BG_DEFS}
+      <rect width="400" height="300" fill="url(#shape-bg)" />
+      <text
+        x="200"
+        y="150"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="160"
+        aria-hidden="true"
+      >
+        {emoji}
+      </text>
+    </svg>
+  );
+}
+
 // Ecological niches — used by arenas to pick natural enemies, allied
 // species, or contextually-correct flavor. Shared across arenas so a
 // lion's nest and a lion's hunt face the same logic.
