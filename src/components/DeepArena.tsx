@@ -1016,6 +1016,22 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           depth {Math.round(depth)} m
         </text>
 
+        {/* GILLS BUBBLE STREAM — small bubbles rising from the
+            creature's neck area, marks the trait extracting O₂ from
+            water. Visible at any depth so the player sees their gills
+            actually working continuously. */}
+        {(creature.hybrids.includes('gills') || creature.bodyPlan === 'fish') && (
+          <g fill="white" opacity="0.7">
+            {Array.from({ length: 4 }).map((_, i) => {
+              const phase = ((Date.now() / 800 + i * 0.25) % 1);
+              const x = W / 2 + (i - 1.5) * 7;
+              const y = creatureY - 22 - phase * 60;
+              const r = 1.5 + (1 - phase) * 1.5;
+              return <circle key={i} cx={x} cy={y} r={r} opacity={0.85 * (1 - phase)} />;
+            })}
+          </g>
+        )}
+
         {/* BIOLUMINESCENCE AURA — cyan halo around the creature in dark
             zones (twilight/abyss), where the trait actually does work.
             Pulses gently via bob-breathe animation. */}

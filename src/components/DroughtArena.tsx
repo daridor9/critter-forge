@@ -613,6 +613,19 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
            '🌿💧 splitting time'}
         </text>
 
+        {/* HIBERNATION TORPOR — when sheltering with the hibernation
+            trait, drift Zs float above the creature. Visible "trait
+            saving food" indicator (it's why your food bar barely drops
+            during shelter). */}
+        {creature.hybrids.includes('hibernation') && activity === 'shelter' && (
+          <g opacity="0.85" className="bob-breathe" style={{ transformOrigin: `${W / 2 - 25}px ${GROUND_Y - 80}px` }}>
+            <text x={W / 2 - 8} y={GROUND_Y - 76} fontSize="22" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+            <text x={W / 2 + 5} y={GROUND_Y - 90} fontSize="16" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+            <text x={W / 2 + 15} y={GROUND_Y - 102} fontSize="12" fill="#5a4a36" fontWeight="700" fontStyle="italic">z</text>
+            <text x={W / 2 - 25} y={GROUND_Y - 100} fontSize="10" fill="#5a4a36" fontWeight="700">torpor</text>
+          </g>
+        )}
+
         {/* PHOTOSYNTHESIS SUN BEAM — yellow rays radiating around the
             creature when not in shelter. Visible "trait powering me"
             indicator for the desert / drought arenas where it shines. */}

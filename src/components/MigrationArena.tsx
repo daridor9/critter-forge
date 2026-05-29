@@ -286,25 +286,40 @@ export function MigrationArena({ creature, stats, generation = 1, onFinish }: Pr
             fill="#8aa898" />
         </g>
 
-        {/* PLAYER CREATURE — riding the road */}
-        {hasBespokeShape(creature) ? (
-          <BespokeInScene
-            creature={creature}
-            x={creatureX - 50}
-            y={GROUND_Y - 70}
-            width={100}
-            height={80}
-            animate={pace === 'push' ? 'run' : 'breathe'}
-          />
-        ) : (
-          <CreatureBody
-            creature={creature}
-            cx={creatureX}
-            footY={GROUND_Y}
-            scale={0.32}
-            animate={pace === 'push' ? 'run' : 'breathe'}
-          />
-        )}
+        {/* PLAYER CREATURE — riding the road. Light winged creatures
+            visibly glide above the ground line, with a flap arc. */}
+        {(() => {
+          const canFly = stats.massKg <= 5 && (creature.bodyPlan === 'bird' || creature.hybrids.includes('wings'));
+          const yOffset = canFly ? -40 : 0;
+          return (
+            <>
+              {canFly && (
+                <g opacity="0.8" className="bob-breathe" style={{ transformOrigin: `${creatureX}px ${GROUND_Y - 70 + yOffset}px` }}>
+                  <text x={creatureX - 30} y={GROUND_Y - 76 + yOffset} fontSize="20">🪽</text>
+                  <text x={creatureX + 10} y={GROUND_Y - 76 + yOffset} fontSize="20" transform={`scale(-1 1) translate(${-2 * (creatureX + 10)} 0)`}>🪽</text>
+                </g>
+              )}
+              {hasBespokeShape(creature) ? (
+                <BespokeInScene
+                  creature={creature}
+                  x={creatureX - 50}
+                  y={GROUND_Y - 70 + yOffset}
+                  width={100}
+                  height={80}
+                  animate={pace === 'push' ? 'run' : 'breathe'}
+                />
+              ) : (
+                <CreatureBody
+                  creature={creature}
+                  cx={creatureX}
+                  footY={GROUND_Y + yOffset}
+                  scale={0.32}
+                  animate={pace === 'push' ? 'run' : 'breathe'}
+                />
+              )}
+            </>
+          );
+        })()}
 
         {/* HUD */}
         <rect x="6" y="6" width="240" height="22" fill="rgba(255,255,255,0.9)" rx="4" stroke="#bbb" />
