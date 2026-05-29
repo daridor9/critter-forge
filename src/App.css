@@ -7164,3 +7164,53 @@ header {
 /* The .app container — body bg is dark but .app might paint over it */
 .app { background: transparent !important; }
 main { background: transparent !important; }
+
+/* ============================================================
+   CAFE-SKIN: LAYOUT POLISH (final block — wins by cascade)
+   Closer to the demo's clean uniform-card grid feel:
+   - 18px gap between main columns
+   - Uniform 1.5px borders + 14px radius on every panel surface
+   - Consistent padding on card-like containers
+   ============================================================ */
+main {
+  gap: 18px !important;
+}
+
+.rail,
+.stage,
+.album-dock,
+.mission-board,
+.stat-card,
+.creature-info-food .compare,
+.food-economy,
+.builder {
+  border-width: 1.5px;
+  border-style: solid;
+  border-color: var(--line);
+  border-radius: 14px;
+}
+
+.rail,
+.album-dock,
+.mission-board {
+  padding: 18px;
+}
+
+/* The arena tabs row sits in .stage so it doesn't need its own
+   padding — but the section heading + content blocks below it look
+   better with consistent rhythm. */
+.builder > * + *,
+.rail > * + * {
+  margin-top: 14px;
+}
+
+/* Section heading rhythm — every h2 / h3 inside a card gets the
+   same baseline above. Matches the demo where each section block
+   read as a clear unit. */
+.rail h2,
+.rail h3,
+.album-dock h2,
+.album-dock h3,
+.mission-board h2 {
+  margin-top: 0;
+}
