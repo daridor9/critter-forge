@@ -160,13 +160,22 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
     const coldDrain = (100 - stats.coldTolerance) * 0.04 * env.coldDrainMult;
     const effortDrain = Math.sqrt(stats.massKg) * 0.15;
     const brainPath = 1 + creature.brainTier * 0.06;
+    // Habitat mismatch — a fish on a mountain is doomed but it can
+    // still try (flopping its way up). Pure fish climb at 30% speed
+    // and lose energy 2x faster. Aquatic hybrids (gills) get half the
+    // penalty since they at least have some out-of-water adaptation.
+    const isFish = creature.bodyPlan === 'fish';
+    const hasGills = creature.hybrids.includes('gills');
+    const fishPenalty = isFish ? (hasGills ? 1.5 : 2.0) : 1.0;
+    const fishClimbMult = isFish ? (hasGills ? 0.5 : 0.3) : 1.0;
 
     timerRef.current = window.setInterval(() => {
       const mod = CLIMB_EFFORT_MODS[effortRef.current];
       // Cold drain is constant (you feel the cold whether you push or rest).
-      // Effort drain scales with the picked effort.
-      energyRef.current -= (coldDrain + effortDrain * mod.drainMult) * dt;
-      altRef.current += ALT_PER_SEC * brainPath * mod.climbMult * dt;
+      // Effort drain scales with the picked effort. Fish on land bleed
+      // extra energy from desiccation + struggling out of element.
+      energyRef.current -= (coldDrain + effortDrain * mod.drainMult * fishPenalty) * dt;
+      altRef.current += ALT_PER_SEC * brainPath * mod.climbMult * fishClimbMult * dt;
       setEnergy(energyRef.current);
       setAltitude(altRef.current);
 

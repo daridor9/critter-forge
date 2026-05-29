@@ -174,7 +174,13 @@ function pickPredator(envId: EnvId, creature: Creature): Predator {
 function stealthScore(c: Creature): number {
   const m = sizeToMass(c.sizeUnit);
   let s = 55 - Math.log10(Math.max(0.01, m) + 0.1) * 14;
-  if (c.hybrids.includes('camouflage')) s += 30;
+  // Mass-scaled camouflage — small camo'd creatures vanish, large ones
+  // (think a tiger-striped elephant) still get less than half the
+  // benefit a stick insect would.
+  if (c.hybrids.includes('camouflage')) {
+    const concealFactor = m <= 50 ? 1.0 : Math.max(0.2, 1 - Math.log10(m / 50) * 0.4);
+    s += 30 * concealFactor;
+  }
   if (c.defenseTier === 1) s += 5;
   if (c.defenseTier === 2) s -= 15;
   if (c.sensorTier === 2) s += 10;

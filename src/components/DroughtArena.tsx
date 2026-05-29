@@ -131,11 +131,20 @@ function waterReserveUnits(massKg: number, warmBlooded: boolean, hybrids: string
   return base * bloodMult * furMult * stoneMult;
 }
 
-// Per-day water cost — warm-bloods sweat/pant; cold-blooded creatures barely lose any.
-function waterDrainPerDay(massKg: number, warmBlooded: boolean, severity: DroughtSeverityId): number {
+// Per-day water cost — warm-bloods sweat/pant; cold-blooded creatures
+// barely lose any. Fish in a desert lose water FAST — they're meant to
+// be submerged. Gills hybrid is even worse (filaments dry out and stop
+// working entirely).
+function waterDrainPerDay(massKg: number, warmBlooded: boolean, severity: DroughtSeverityId, bodyPlan: string, hybrids: string[]): number {
   const heat = severity === 'apocalypse' ? 1.4 : severity === 'megadrought' ? 1.25 : severity === 'drought' ? 1.1 : 1;
   const base = Math.max(0.4, massKg * 0.05);
-  return base * (warmBlooded ? 1 : 0.25) * heat;
+  const bloodMult = warmBlooded ? 1 : 0.25;
+  // Aquatic body plan: 3x drain (skin not adapted to retain water).
+  // Gills hybrid on non-fish: 1.8x drain (extra exposed filaments).
+  let aquaticMult = 1;
+  if (bodyPlan === 'fish') aquaticMult = 3.0;
+  else if (hybrids.includes('gills')) aquaticMult = 1.8;
+  return base * bloodMult * heat * aquaticMult;
 }
 
 export function DroughtArena({ creature, stats, generation = 1, onFinish }: Props) {
@@ -145,7 +154,7 @@ export function DroughtArena({ creature, stats, generation = 1, onFinish }: Prop
   const AVAIL_KCAL_PER_DAY = env.availFood;
   const R0 = fatReserveKcal(stats.massKg, creature.brainTier);
   const W0 = waterReserveUnits(stats.massKg, creature.warmBlooded, creature.hybrids);
-  const baseWaterDrain = waterDrainPerDay(stats.massKg, creature.warmBlooded, env.id);
+  const baseWaterDrain = waterDrainPerDay(stats.massKg, creature.warmBlooded, env.id, creature.bodyPlan, creature.hybrids);
 
   const [reserve, setReserve] = useState(R0);
   const [waterRes, setWaterRes] = useState(W0);

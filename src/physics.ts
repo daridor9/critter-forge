@@ -244,7 +244,27 @@ export function computeStats(c: Creature): CreatureStats {
   let coldBonus = 0;
   for (const h of c.hybrids) {
     if (!isHybridValid(h, c).valid) continue;
-    const e = hybridEffect(h);
+    let e = hybridEffect(h);
+    // BIOLOGICAL REALISM modifiers — temper hybrid effects by body size.
+    if (h === 'hypersonic') {
+      // Drag scales with cross-section; truly massive creatures can't
+      // realistically be hypersonic. Speed bonus tapers from full
+      // benefit at <50kg to a third at >500kg.
+      const speedFactor = m <= 50 ? 1.0 : Math.max(0.33, 1 - Math.log10(m / 50) * 0.35);
+      e = { ...e, topSpeedMult: e.topSpeedMult ? 1 + (e.topSpeedMult - 1) * speedFactor : 1 };
+    }
+    if (h === 'hibernation') {
+      // Small mammals achieve deep torpor; bears go shallow; whales
+      // can't hibernate. Food-saving bonus shrinks with mass.
+      const torporFactor = m <= 10 ? 1.0 : Math.max(0.1, 1 - Math.log10(m / 10) * 0.45);
+      e = { ...e, foodMult: e.foodMult ? 1 - (1 - e.foodMult) * torporFactor : 1 };
+    }
+    if (h === 'thick-fur') {
+      // Surface-area-to-volume favors small creatures — fur is critical
+      // at <5kg, marginal at >500kg. (Mass scales as r^3, surface as r^2.)
+      const insulFactor = m <= 5 ? 1.0 : Math.max(0.15, 1 - Math.log10(m / 5) * 0.30);
+      e = { ...e, bonusCold: e.bonusCold ? Math.round(e.bonusCold * insulFactor) : 0 };
+    }
     if (e.foodMult) foodMult *= e.foodMult;
     if (e.topSpeedMult) speedMult *= e.topSpeedMult;
     if (e.enduranceMult) enduranceMult *= e.enduranceMult;

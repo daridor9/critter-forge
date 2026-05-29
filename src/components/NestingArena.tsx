@@ -170,10 +170,17 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     + (creature.hybrids.includes('venom') ? 1.5 : 0)
     + (creature.hybrids.includes('electric') ? 1.5 : 0)
     + (creature.hybrids.includes('firebreath') ? 2 : 0);
+  // Mass scaling for camouflage/mimicry — small things hide easier
+  // than big things (an elephant in a bush is still an elephant). At
+  // <50kg: full effect. At 500kg: 60%. At 5000kg: 20%. Never zero —
+  // a camouflaged elephant still does SOMETHING.
+  const concealMassFactor = massKg <= 50
+    ? 1.0
+    : Math.max(0.2, 1 - Math.log10(massKg / 50) * 0.4);
   const bluffBase = (massKg > 100 ? 2 : massKg > 30 ? 1.2 : 0.3)
     + creature.brainTier * 0.4
-    + (creature.hybrids.includes('camouflage') ? 0.8 : 0)
-    + (creature.hybrids.includes('mimicry') ? 1.8 : 0)
+    + (creature.hybrids.includes('camouflage') ? 0.8 * concealMassFactor : 0)
+    + (creature.hybrids.includes('mimicry') ? 1.8 * concealMassFactor : 0)
     // Wings make the creature look TWICE its size when spread — even
     // a heavy creature that can't actually fly bluffs better with wings.
     + (creature.hybrids.includes('wings') ? 0.9 : 0)
@@ -182,8 +189,11 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   const foragingSkill = 0.6 + creature.sensorTier * 0.15 + creature.brainTier * 0.1
     + (creature.hybrids.includes('symbiosis') ? 0.2 : 0)
     + (creature.hybrids.includes('photosynthesis') ? 0.4 : 0);
-  // Innate camo bonus (the camouflage hybrid starts you with more nest concealment)
-  const innateCamoBonus = creature.hybrids.includes('camouflage') ? 25 : creature.hybrids.includes('mimicry') ? 15 : 0;
+  // Innate camo bonus (the camouflage hybrid starts you with more nest
+  // concealment). Mass-scaled — a tiny gecko vanishes; a giraffe doesn't.
+  const innateCamoBonus = Math.round(
+    (creature.hybrids.includes('camouflage') ? 25 : creature.hybrids.includes('mimicry') ? 15 : 0) * concealMassFactor
+  );
 
   // ─── Resources ──────────────────────────────────────────────────────
   const [eggs, setEggs] = useState(5);
