@@ -3401,33 +3401,31 @@ h2 {
 /* ─────────── VISUAL POLISH (overrides) ─────────── */
 
 :root {
-  --bg: #fdfbf2;
-  --bg-deep: #f5efd8;
-  --fg: #2a2120;
-  --fg-dim: #6f6764;
-  --accent: #e07b5b;
-  --accent-deep: #c25541;
-  --accent-light: #f5b399;
-  --accent2: #5b9fe0;
+  /* Keep these in sync with the top-of-file Cafe dark palette so the
+     "Visual Polish" overrides don't accidentally flip back to cream.
+     Extra design tokens that didn't exist in the original palette
+     (--bg-deep, --accent-deep, --line-strong, shadows, radii) live
+     here. */
+  --bg-deep: #18130c;
+  --accent-deep: #b8623e;
+  --accent-light: #f0a382;
   --accent2-deep: #3a7fc8;
   --success: #5cc46a;
   --warning: #e89a3a;
   --danger: #d65a5a;
-  --panel: #ffffff;
-  --panel-soft: #faf6ea;
-  --line: #ecdfb8;
-  --line-strong: #d8c896;
-  --shadow-1: 0 1px 3px rgba(90, 60, 30, 0.08);
-  --shadow-2: 0 4px 14px rgba(90, 60, 30, 0.12);
-  --shadow-3: 0 10px 40px rgba(90, 60, 30, 0.18);
+  --panel-soft: #2a2117;
+  --line-strong: #5a4a30;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 10px 40px rgba(0, 0, 0, 0.65);
   --radius: 12px;
   --radius-lg: 16px;
 }
 
 body {
   background:
-    radial-gradient(ellipse 900px 700px at top right, #fff8e8, transparent 70%),
-    radial-gradient(ellipse 700px 500px at bottom left, #f4ecd0, transparent 70%),
+    radial-gradient(ellipse 900px 700px at top right, rgba(232, 130, 96, 0.05), transparent 70%),
+    radial-gradient(ellipse 700px 500px at bottom left, rgba(155, 184, 122, 0.04), transparent 70%),
     var(--bg);
   background-attachment: fixed;
 }

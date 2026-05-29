@@ -1,19 +1,22 @@
 import type { ColorOverride } from './CreatureSVG';
 import type { ComponentType } from 'react';
 
+// Backdrops for dex tiles + creature-stage. Dark warm browns to match
+// the global Cafe-skin dark theme. Aquatic stays bluish (it's water);
+// ice stays pale to convey cold even on a dark base.
 const BG_DEFS = (
   <defs>
     <linearGradient id="shape-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stopColor="#fdfaf0" />
-      <stop offset="1" stopColor="#f0ead7" />
+      <stop offset="0" stopColor="#2a2117" />
+      <stop offset="1" stopColor="#1f1810" />
     </linearGradient>
     <linearGradient id="shape-bg-water" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stopColor="#bfe1ee" />
-      <stop offset="1" stopColor="#5a8ab4" />
+      <stop offset="0" stopColor="#1a3a58" />
+      <stop offset="1" stopColor="#0a1c30" />
     </linearGradient>
     <linearGradient id="shape-bg-ice" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stopColor="#d8e9f0" />
-      <stop offset="1" stopColor="#f5f1e3" />
+      <stop offset="0" stopColor="#3a4858" />
+      <stop offset="1" stopColor="#2a3848" />
     </linearGradient>
   </defs>
 );
