@@ -224,6 +224,8 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
   const helpsUsedRef = useRef(0);
   const [helpDebt, setHelpDebt] = useState(0);
   const helpDebtRef = useRef(0);
+  // Tracks when the "allies arrive" FX should be visible (post-help call).
+  const [helpFlashUntil, setHelpFlashUntil] = useState(0);
 
   function reset() {
     eggsRef.current = 5;
@@ -249,6 +251,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     helpDebtRef.current = 0;
     setHelpsUsed(0);
     setHelpDebt(0);
+    setHelpFlashUntil(0);
   }
 
   function start() {
@@ -309,6 +312,7 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
     t.outcome = 'defended';
     t.flashUntil = elapsedRef.current + 0.6;
     setThreat({ ...t });
+    setHelpFlashUntil(elapsedRef.current + 1.2);
     const suffix = hasSymbiosis ? ' (symbiosis discount)' : '';
     pushLog(`🤝 Allies repelled ${pred.emoji} ${pred.name} (-${helpEnergyCost} energy, -${helpHydrationCost} food, owe favor)${suffix}`);
   }
@@ -734,6 +738,31 @@ export function NestingArena({ creature, stats, generation = 1, onFinish }: Prop
           <text x={W * 0.45} y={GROUND_Y - 50} textAnchor="middle" fontSize="38">
             {threat?.outcome === 'fooled' ? '🍃' : stance === 'attack' ? '⚔️' : stance === 'bluff' ? '😤' : '🛡️'}
           </text>
+        )}
+
+        {/* ALLIES ARRIVE FX — when "Call for help" was used, show a flock
+            of friendly emoji rushing in to handle the wave. Different
+            visual if you have the symbiosis trait (more allies). */}
+        {elapsed < helpFlashUntil && (
+          <g>
+            {(hasSymbiosis ? ['🐦', '🐺', '🐂', '🐝', '🦊'] : ['🐦', '🐺', '🦊']).map((e, i) => {
+              const startX = W + 40 + i * 30;
+              const endX = W * 0.5 + (i - 2) * 22;
+              const progress = Math.min(1, 1 - (helpFlashUntil - elapsed) / 1.2);
+              const x = startX + (endX - startX) * progress;
+              const y = GROUND_Y - 30 - (i % 2) * 12 + Math.sin(progress * Math.PI) * -8;
+              return (
+                <text key={i} x={x} y={y} fontSize="22"
+                  style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}>
+                  {e}
+                </text>
+              );
+            })}
+            <text x={W * 0.5} y={GROUND_Y - 90} textAnchor="middle" fontSize="11"
+              fill="#3a2010" fontWeight="700">
+              🤝 allies arrive!{hasSymbiosis ? ' (symbiosis network)' : ''}
+            </text>
+          </g>
         )}
 
         {/* HYBRID PROC FX — fires alongside the stance icon when an engagement

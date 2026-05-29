@@ -127,6 +127,9 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
   const [done, setDone] = useState(false);
   const [windPhase, setWindPhase] = useState(0);
   const [hit, setHit] = useState<{ x: number; y: number; t: number } | null>(null);
+  // 'deflect' flag fires when armor absorbed a hit completely (damage=0).
+  // Lights up stoneskin/thick-fur as the trait that saved the creature.
+  const [deflect, setDeflect] = useState(false);
   // Lightning: stores the current bolt's path + a fading opacity. Fires
   // randomly during storm + tornado severities.
   const [lightning, setLightning] = useState<{ d: string; opacity: number } | null>(null);
@@ -259,6 +262,11 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
               stop({ won: false, reason: 'struck-by-debris', secondsHeld: Math.round(elapsedRef.current), severity: env.id });
               return;
             }
+          } else if (creature.hybrids.includes('stoneskin') || creature.hybrids.includes('thick-fur')) {
+            // Armor fully absorbed the impact — visible deflect FX so the
+            // player sees stoneskin / thick-fur actually saving them.
+            setDeflect(true);
+            window.setTimeout(() => setDeflect(false), 350);
           }
         }
       }
@@ -665,6 +673,19 @@ export function StormArena({ creature, stats, generation = 1, onFinish }: Props)
             />
           )}
         </g>
+
+        {/* DEFLECT FX — armor (stoneskin / thick-fur) absorbed a hit.
+            Shows the trait emoji + "deflected!" label briefly. */}
+        {deflect && (
+          <g transform={`translate(${W / 2} ${GROUND_Y - 30})`} className="bob-breathe">
+            <text x="0" y="0" textAnchor="middle" fontSize="32"
+              style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}>
+              {creature.hybrids.includes('stoneskin') ? '🪨' : '🌬'}
+            </text>
+            <text x="0" y="16" textAnchor="middle" fontSize="10"
+              fill="#3a2818" fontWeight="700">deflected!</text>
+          </g>
+        )}
 
         {/* Foot-grip indicator (anchor stance shows roots/claws gripping ground) */}
         {stance === 'anchor' && (

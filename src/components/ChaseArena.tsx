@@ -815,6 +815,35 @@ export function ChaseArena({ creature, stats, generation = 1, onFinish }: Props)
         </g>
 
         {running && <DustPuffs x={playerX - 22} y={GROUND_Y - 2} />}
+
+        {/* HYPERSONIC BLUR — visible streaks trailing behind the
+            creature when running with the hypersonic trait. Stacks
+            with the existing speed-streak background. */}
+        {running && creature.hybrids.includes('hypersonic') && (
+          <g stroke="#aef0ff" strokeWidth="3" strokeLinecap="round" opacity="0.7">
+            {[0, 8, 18, 30, 44].map((dx, i) => (
+              <line key={i}
+                x1={playerX - 50 - dx}
+                y1={GROUND_Y - 30 + (i % 2) * 8}
+                x2={playerX - 90 - dx}
+                y2={GROUND_Y - 28 + (i % 2) * 8}
+                strokeWidth={4 - i * 0.5}
+                opacity={0.85 - i * 0.15}
+              />
+            ))}
+            <text x={playerX - 70} y={GROUND_Y - 56} fontSize="14" fill="#3a85b8" fontWeight="700">⚡ hypersonic</text>
+          </g>
+        )}
+
+        {/* WINGS GLIDE — if the creature has wings and is light enough,
+            visible wing-flap arc + altitude bob. */}
+        {running && creature.hybrids.includes('wings') && stats.massKg <= 5 && (
+          <g opacity="0.8" className="bob-breathe" style={{ transformOrigin: `${playerX}px ${GROUND_Y - 70}px` }}>
+            <text x={playerX - 30} y={GROUND_Y - 76} fontSize="22">🪽</text>
+            <text x={playerX + 12} y={GROUND_Y - 76} fontSize="22" transform={`scale(-1 1) translate(${-2 * (playerX + 12)} 0)`}>🪽</text>
+          </g>
+        )}
+
         {hasBespokeShape(creature) ? (
           <BespokeInScene creature={creature} x={playerX - 65} y={GROUND_Y - 88} width={130} height={100} animate="run" />
         ) : (
