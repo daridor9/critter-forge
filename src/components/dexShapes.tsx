@@ -2711,32 +2711,29 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
       viewBox="0 0 400 300"
       width="100%"
       height="100%"
-      preserveAspectRatio="xMidYMax meet"
+      preserveAspectRatio="xMidYMid meet"
       style={{ display: 'block', width: '100%', height: '100%' }}
     >
       {BG_DEFS}
       {/* backdrop — hidden in arena scenes by .dex-bare svg > rect[400×300] */}
       <rect width="400" height="300" fill={`url(#${bg})`} />
-      {/* soft ground shadow */}
-      <ellipse cx="200" cy="282" rx="110" ry="9" fill="rgba(0,0,0,0.18)" />
-      {/* inner foreignObject — HTML flexbox bottom-anchors the emoji glyph
-          dead-center horizontally. fontSize is in viewBox px so it scales
-          with the SVG via viewBox math. */}
+      {/* inner foreignObject — HTML flexbox centers the emoji dead-center
+          horizontally + vertically inside the tile. fontSize is in
+          viewBox px so it scales with the SVG via viewBox math. */}
       <foreignObject x="0" y="0" width="400" height="300">
         <div
           style={{
             width: '100%',
             height: '100%',
             display: 'flex',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'center',
-            paddingBottom: '24px',
             boxSizing: 'border-box',
           }}
         >
           <span
             style={{
-              fontSize: '170px',
+              fontSize: '200px',
               lineHeight: 0.9,
               filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
               userSelect: 'none',
