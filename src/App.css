@@ -1,34 +1,19 @@
 :root {
-  /* Cafe-inspired warm palette */
-  --bg: #fdf6e3;
-  --bg-soft: #f4ead3;
-  --fg: #6b5a4a;
-  --fg-h: #2c1f14;
-  --fg-dim: #8c7a64;
-  --accent: #c75d3a;
-  --accent-bg: rgba(199, 93, 58, 0.10);
-  --accent-border: rgba(199, 93, 58, 0.40);
-  --accent2: #5b9fe0;
-  --leaf: #6b8e4e;
-  --panel: #ffffff;
-  --line: #e8dcc4;
+  /* Cafe-inspired warm DARK palette — always-on (user preference). */
+  --bg: #1f1810;
+  --bg-soft: #2a2117;
+  --fg: #c4b59a;
+  --fg-h: #f5e9d0;
+  --fg-dim: #9a8a72;
+  --accent: #e88260;
+  --accent-bg: rgba(232, 130, 96, 0.15);
+  --accent-border: rgba(232, 130, 96, 0.50);
+  --accent2: #6cb0ef;
+  --leaf: #9bb87a;
+  --panel: #2a2117;
+  --line: #3a2e22;
   --heading: Georgia, 'Iowan Old Style', serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1f1810;
-    --bg-soft: #2a2117;
-    --fg: #c4b59a;
-    --fg-h: #f5e9d0;
-    --fg-dim: #9a8a72;
-    --accent: #e88260;
-    --accent-bg: rgba(232, 130, 96, 0.15);
-    --accent-border: rgba(232, 130, 96, 0.50);
-    --leaf: #9bb87a;
-    --panel: #2a2117;
-    --line: #3a2e22;
-  }
+  color-scheme: dark;
 }
 
 * {
