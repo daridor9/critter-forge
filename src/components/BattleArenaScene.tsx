@@ -31,8 +31,25 @@ function CreatureInBattle({
   dimmed?: boolean;
 }) {
   const opacity = dimmed ? 0.4 : 1;
+  // Passive auras that ride with each creature in battle (regen pulse,
+  // bioluminescence glow). Make build choices visible at a glance.
+  const hasRegen = creature.hybrids.includes('regeneration');
+  const hasBiolum = creature.hybrids.includes('bioluminescence');
   return (
     <g opacity={opacity}>
+      {/* bioluminescence: soft cyan aura around the creature */}
+      {hasBiolum && (
+        <g className="bob-breathe" style={{ transformOrigin: `${x}px ${y - height / 2}px` }}>
+          <circle cx={x} cy={y - height / 2} r={width * 0.7} fill="#aef0ff" opacity="0.18" />
+        </g>
+      )}
+      {/* regeneration: subtle pink pulse ring (always-on hint that creature heals) */}
+      {hasRegen && (
+        <g opacity="0.55" className="bob-breathe" style={{ transformOrigin: `${x}px ${y - height / 2}px` }}>
+          <ellipse cx={x} cy={y - height / 2} rx={width * 0.55} ry={height * 0.45}
+            fill="none" stroke="#ff7ab0" strokeWidth="1.4" strokeDasharray="3 5" />
+        </g>
+      )}
       {hasBespokeShape(creature) ? (
         <BespokeInScene
           creature={creature}
@@ -119,12 +136,31 @@ function BrawlScene({
           <circle cx={W / 2 + 10} cy={GROUND_Y - 14} r="4" />
         </g>
       )}
-      {/* impact flash icon */}
-      {flash && (
-        <g transform={`translate(${W / 2} ${GROUND_Y - 28})`}>
-          <text textAnchor="middle" fontSize="28" fontWeight="700">💥</text>
-        </g>
-      )}
+      {/* impact flash icon + ATTACKER hybrid procs (firebreath, electric, etc.) */}
+      {flash && (() => {
+        const attacker = flash === 'A' ? creatureA : creatureB;
+        const procs: string[] = [];
+        if (attacker.hybrids.includes('firebreath')) procs.push('🔥');
+        if (attacker.hybrids.includes('electric')) procs.push('⚡');
+        if (attacker.hybrids.includes('venom')) procs.push('🐍');
+        if (attacker.hybrids.includes('stoneskin')) procs.push('🪨');
+        if (attacker.hybrids.includes('dragon')) procs.push('🐉');
+        return (
+          <g transform={`translate(${W / 2} ${GROUND_Y - 28})`}>
+            <text textAnchor="middle" fontSize="28" fontWeight="700">💥</text>
+            {procs.map((p, i) => (
+              <text key={i}
+                x={(i - (procs.length - 1) / 2) * 26}
+                y={-22}
+                textAnchor="middle"
+                fontSize="22"
+                style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}>
+                {p}
+              </text>
+            ))}
+          </g>
+        );
+      })()}
 
       {/* creature A on the left, facing right */}
       <g style={{ transition: 'transform 0.18s ease', transform: `translateX(${aX - 180}px)` }}>
