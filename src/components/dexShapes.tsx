@@ -690,72 +690,96 @@ export function LionShape({ colors }: { colors: ColorOverride }) {
 }
 
 export function DolphinShape({ colors }: { colors: ColorOverride }) {
+  // CARTOON STYLE — bold outlines, solid colors, sparkle eye, big smile.
+  // Signature features preserved: horizontal fluke (not vertical fish tail),
+  // pectoral fin, rostrum/beak, dorsal fin, blowhole with water spout,
+  // white underbelly, iconic upturned dolphin smile.
+  const OUT = '#0a1a2a';
+  const OUT_W = 3;
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
-      <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.85" />
+      <rect width="400" height="300" fill="url(#shape-bg-water)" opacity="0.9" />
 
-      <g opacity="0.55">
-        <line x1="40" y1="50" x2="62" y2="46" stroke="white" strokeWidth="2" strokeLinecap="round" />
-        <line x1="150" y1="42" x2="172" y2="46" stroke="white" strokeWidth="2" strokeLinecap="round" />
-        <line x1="270" y1="48" x2="292" y2="44" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      {/* sparkle highlights and ripples in the water — kept light/cartoony */}
+      <g opacity="0.7" stroke="white" strokeWidth="2" strokeLinecap="round">
+        <line x1="40" y1="50" x2="62" y2="46" />
+        <line x1="150" y1="42" x2="172" y2="46" />
+        <line x1="270" y1="48" x2="292" y2="44" />
       </g>
-      <g opacity="0.35">
-        <ellipse cx="80" cy="240" rx="40" ry="3" fill="white" />
-        <ellipse cx="320" cy="250" rx="35" ry="3" fill="white" />
+      <g opacity="0.45" fill="white">
+        <ellipse cx="80" cy="240" rx="42" ry="3" />
+        <ellipse cx="320" cy="250" rx="38" ry="3" />
       </g>
-
-      <ellipse cx="195" cy="175" rx="125" ry="40" fill={colors.shade} transform="rotate(-8 195 175)" />
-      <ellipse cx="195" cy="170" rx="118" ry="34" fill={colors.main} transform="rotate(-8 195 170)" />
-      <ellipse cx="200" cy="195" rx="105" ry="14" fill="white" opacity="0.85" transform="rotate(-8 200 195)" />
-      <ellipse cx="180" cy="145" rx="70" ry="10" fill="white" opacity="0.18" transform="rotate(-8 180 145)" />
-
-      <path d="M 190 130 Q 195 80 235 110 Q 215 130 200 140 Z" fill={colors.shade} />
-      <path d="M 192 132 Q 198 95 225 115 Q 213 130 200 138 Z" fill={colors.main} />
-
-      {/* HORIZONTAL FLUKE — smoother, more rounded.
-          Dolphins and whales have horizontal flukes (vs. vertical fish tails).
-          Two lobes splayed up and down with a central notch. */}
-      <path d="M 305 175 Q 348 145 388 110 Q 386 145 360 175 Q 350 178 320 178 Z" fill={colors.shade} />
-      <path d="M 310 175 Q 348 152 378 122 Q 378 148 358 174 Q 348 176 322 176 Z" fill={colors.main} />
-      <path d="M 305 175 Q 348 205 388 240 Q 386 205 360 175 Q 350 172 320 172 Z" fill={colors.shade} />
-      <path d="M 310 175 Q 348 198 378 228 Q 378 202 358 176 Q 348 174 322 174 Z" fill={colors.main} />
-      {/* central notch highlight */}
-      <ellipse cx="340" cy="175" rx="18" ry="4" fill={colors.light} opacity="0.6" />
-
-      {/* PECTORAL FIN — angled side flipper */}
-      <ellipse cx="118" cy="210" rx="22" ry="11" fill={colors.shade} transform="rotate(28 118 210)" />
-      <ellipse cx="118" cy="208" rx="18" ry="8" fill={colors.main} transform="rotate(28 118 208)" />
-
-      {/* ROSTRUM (beak) — the dolphin's pointed snout */}
-      <path d="M 60 175 L 22 168 L 28 178 L 14 180 L 28 188 L 22 198 L 60 192 Z" fill={colors.shade} />
-      <path d="M 62 178 L 30 172 L 32 180 L 24 182 L 32 188 L 30 192 L 62 188 Z" fill={colors.main} />
-
-      {/* ICONIC SMILE — the dolphin's signature upturned-mouth curve.
-          A bold smile line that goes from the rostrum tip back along the cheek. */}
-      <path d="M 22 184 Q 38 198 70 192" stroke="#1a0a08" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-      {/* second smile-shadow for depth */}
-      <path d="M 24 185 Q 40 196 68 191" stroke="#3a2118" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.6" />
-
-      {/* BRIGHT FRIENDLY EYE — large, expressive, with a happy gleam */}
-      <g className="eye-blink" style={{ transformOrigin: '70px 168px' }}>
-        <circle cx="70" cy="168" r="5.5" fill="white" stroke="#222" strokeWidth="0.7" />
-        <circle cx="70" cy="168" r="3.5" fill="#1a1a1a" />
-        <circle cx="72" cy="166" r="1.6" fill="white" />
-        <circle cx="68" cy="170" r="0.8" fill="white" opacity="0.8" />
+      {/* a couple of cartoon bubbles rising near the dolphin */}
+      <g fill="white" opacity="0.7" stroke={OUT} strokeWidth="1">
+        <circle cx="56" cy="220" r="4" />
+        <circle cx="46" cy="200" r="3" />
+        <circle cx="62" cy="186" r="2.5" />
       </g>
 
-      {/* BLOWHOLE — clearer indentation on top of the head */}
-      <ellipse cx="118" cy="135" rx="6" ry="3" fill={colors.shade} />
-      <ellipse cx="118" cy="134" rx="4" ry="2" fill="#1a0a08" opacity="0.7" />
-      {/* water spout from blowhole */}
-      <g opacity="0.55" className="bob-breathe" style={{ transformOrigin: '118px 120px' }}>
-        <ellipse cx="118" cy="100" rx="15" ry="6" fill="#cfeefb" />
-        <ellipse cx="112" cy="80" rx="10" ry="4" fill="#cfeefb" opacity="0.8" />
-        <ellipse cx="124" cy="84" rx="7" ry="3" fill="#cfeefb" opacity="0.7" />
+      {/* HORIZONTAL FLUKE — drawn first so the body overlaps it cleanly */}
+      <path d="M 300 175 Q 348 142 388 108 Q 386 148 360 178 Q 348 180 318 180 Z"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} strokeLinejoin="round" />
+      <path d="M 300 175 Q 348 208 388 242 Q 386 202 360 172 Q 348 170 318 170 Z"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} strokeLinejoin="round" />
+
+      {/* PECTORAL FIN — angled side flipper, drawn behind body */}
+      <ellipse cx="120" cy="212" rx="24" ry="12"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W}
+        transform="rotate(28 120 212)" />
+
+      {/* BODY — sleek streamlined ellipse with bold outline */}
+      <ellipse cx="195" cy="175" rx="125" ry="40"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W}
+        transform="rotate(-8 195 175)" />
+      {/* WHITE BELLY — bottlenose dolphin underside */}
+      <path d="M 80 195 Q 195 230 310 190 Q 308 212 195 222 Q 82 214 80 195 Z"
+        fill="#fff5ea" stroke={OUT} strokeWidth="1.5"
+        transform="rotate(-8 195 205)" />
+
+      {/* DORSAL FIN — curved, top of the back */}
+      <path d="M 188 130 Q 200 78 238 108 Q 218 128 200 140 Z"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} strokeLinejoin="round" />
+
+      {/* ROSTRUM (beak) — pointed snout, cleaner cartoon wedge */}
+      <path d="M 60 172 L 18 168 Q 6 178 18 188 L 60 192 Z"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} strokeLinejoin="round" />
+      {/* white tip on rostrum */}
+      <path d="M 30 174 Q 20 180 30 186 L 46 184 Q 46 178 46 178 Z"
+        fill="#fff5ea" stroke={OUT} strokeWidth="1.2" />
+
+      {/* ICONIC SMILE — bold cartoon upturned mouth */}
+      <path d="M 20 184 Q 40 200 76 192" stroke={OUT} strokeWidth="3" fill="none" strokeLinecap="round" />
+      {/* tiny smile-corner dimple */}
+      <circle cx="76" cy="192" r="1.6" fill={OUT} />
+
+      {/* BIG SPARKLY EYE */}
+      <g className="eye-blink" style={{ transformOrigin: '76px 166px' }}>
+        <ellipse cx="76" cy="166" rx="7.5" ry="8" fill="white" stroke={OUT} strokeWidth={OUT_W} />
+        <ellipse cx="77" cy="167" rx="4.5" ry="6" fill="#3a6a8a" />
+        <ellipse cx="77" cy="167" rx="2" ry="5" fill={OUT} />
+        <circle cx="75" cy="164" r="1.6" fill="white" />
+        <circle cx="78" cy="169" r="0.9" fill="white" />
       </g>
 
-      <ellipse cx="200" cy="262" rx="115" ry="7" fill="rgba(0,0,0,0.15)" />
+      {/* BLOWHOLE — bold cartoon oval */}
+      <ellipse cx="120" cy="132" rx="7" ry="3.5"
+        fill={OUT} stroke={OUT} strokeWidth="1" />
+      {/* WATER SPOUT — cartoon puffs rising from blowhole */}
+      <g className="bob-breathe" style={{ transformOrigin: '120px 120px' }}>
+        <ellipse cx="120" cy="104" rx="16" ry="7"
+          fill="#cfeefb" stroke={OUT} strokeWidth="1.6" />
+        <ellipse cx="112" cy="82" rx="10" ry="5"
+          fill="#cfeefb" stroke={OUT} strokeWidth="1.4" />
+        <ellipse cx="126" cy="86" rx="8" ry="4"
+          fill="#cfeefb" stroke={OUT} strokeWidth="1.4" />
+        <circle cx="106" cy="68" r="3.5" fill="#cfeefb" stroke={OUT} strokeWidth="1.2" />
+        <circle cx="130" cy="70" r="3" fill="#cfeefb" stroke={OUT} strokeWidth="1.2" />
+      </g>
+
+      {/* SOFT SHADOW BENEATH (suggests floating above the waterline) */}
+      <ellipse cx="200" cy="262" rx="115" ry="7" fill="rgba(0,0,0,0.18)" />
     </svg>
   );
 }
@@ -1898,8 +1922,18 @@ export function CheetahShape({ colors }: { colors: ColorOverride }) {
   );
 }
 
+// ─── Snow Leopard — CARTOON STYLE ─────────────────────────────────────
+// Matches Lion/Cheetah cartoon treatment. Signature features preserved:
+// pale blue-green icy eyes (only big cat with this color), extra-fluffy
+// long tail, rosette pattern (open ring spots), pale grey-white fur.
 export function SnowLeopardShape({ colors }: { colors: ColorOverride }) {
+  const OUT = '#3a3530';
+  const OUT_W = 3;
+  const body = colors.main;
+  const bodyShade = colors.shade;
+  const belly = 'white';
   const rosette = colors.pattern ?? '#3a3530';
+  const innerEar = '#f4c8d4';
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       <defs>
@@ -1909,99 +1943,128 @@ export function SnowLeopardShape({ colors }: { colors: ColorOverride }) {
         </linearGradient>
       </defs>
       <rect width="400" height="300" fill="url(#snow-bg)" />
+      {/* snow strip */}
       <ellipse cx="200" cy="288" rx="200" ry="14" fill="white" />
       <ellipse cx="200" cy="290" rx="120" ry="6" fill="rgba(0,0,0,0.12)" />
 
-      {/* EXTRA-FLUFFY THICK TAIL — snow leopards have a tail almost as long
-          as their body, used as a counterweight for jumping and as a scarf
-          to wrap around their face when they sleep in the cold. */}
-      <path d="M 88 195 Q 50 185 26 200 Q 14 215 22 234 Q 32 248 50 250" stroke={colors.shade} strokeWidth="28" fill="none" strokeLinecap="round" />
-      <path d="M 88 195 Q 50 185 26 200 Q 14 215 22 234 Q 32 248 50 250" stroke={colors.main} strokeWidth="22" fill="none" strokeLinecap="round" />
-      {/* fur tufts along the underside */}
-      <g fill={colors.light} opacity="0.5">
-        <circle cx="68" cy="208" r="4" />
-        <circle cx="48" cy="216" r="4" />
-        <circle cx="28" cy="230" r="4" />
-        <circle cx="40" cy="252" r="4" />
-      </g>
-      <g fill={rosette} opacity="0.6">
-        <circle cx="62" cy="200" r="3.5" />
-        <circle cx="42" cy="208" r="3.5" />
-        <circle cx="28" cy="220" r="3.5" />
-        <circle cx="36" cy="240" r="3.2" />
-        <circle cx="52" cy="195" r="2.5" />
-        <circle cx="22" cy="232" r="2.5" />
+      {/* EXTRA-FLUFFY THICK TAIL — single bold chunky outline + lighter
+          underside band. Snow leopards have a tail almost as long as their
+          body, used as a counterweight and as a scarf when sleeping. */}
+      <path d="M 92 195 Q 50 180 22 200 Q 6 220 18 244 Q 30 260 50 260"
+        stroke={OUT} strokeWidth={OUT_W + 22} fill="none" strokeLinecap="round" />
+      <path d="M 92 195 Q 50 180 22 200 Q 6 220 18 244 Q 30 260 50 260"
+        stroke={body} strokeWidth={OUT_W + 18} fill="none" strokeLinecap="round" />
+      {/* light fluff underside */}
+      <path d="M 92 200 Q 50 188 22 208 Q 8 226 22 246"
+        stroke={belly} strokeWidth="9" fill="none" strokeLinecap="round" opacity="0.7" />
+      {/* tail rosettes */}
+      <g fill="none" stroke={rosette} strokeWidth={OUT_W - 1}>
+        <circle cx="62" cy="195" r="5" />
+        <circle cx="38" cy="208" r="5" />
+        <circle cx="22" cy="230" r="5" />
+        <circle cx="36" cy="252" r="4.5" />
       </g>
 
-      <rect x="110" y="218" width="22" height="55" fill={colors.shade} rx="5" />
-      <rect x="150" y="222" width="20" height="51" fill={colors.shade} rx="5" />
-      <rect x="225" y="220" width="22" height="53" fill={colors.shade} rx="5" />
-      <rect x="265" y="222" width="20" height="51" fill={colors.shade} rx="5" />
-      <ellipse cx="121" cy="276" rx="14" ry="4" fill="#3a2118" />
-      <ellipse cx="160" cy="276" rx="13" ry="4" fill="#3a2118" />
-      <ellipse cx="236" cy="276" rx="14" ry="4" fill="#3a2118" />
-      <ellipse cx="275" cy="276" rx="13" ry="4" fill="#3a2118" />
+      {/* LEGS — chunky rounded rectangles with bold outline */}
+      {[112, 154, 230, 270].map((x, i) => (
+        <g key={i}>
+          <rect x={x - 12} y="215" width="24" height="60" rx="8"
+            fill={i % 2 ? body : bodyShade} stroke={OUT} strokeWidth={OUT_W} />
+          <ellipse cx={x} cy="278" rx="14" ry="4" fill={OUT} />
+          {/* rosette on each leg */}
+          <circle cx={x} cy="235" r="4" fill="none" stroke={rosette} strokeWidth={OUT_W - 1} />
+        </g>
+      ))}
 
-      <ellipse cx="195" cy="195" rx="100" ry="40" fill={colors.shade} />
-      <ellipse cx="195" cy="190" rx="95" ry="35" fill={colors.main} />
-      <ellipse cx="195" cy="218" rx="80" ry="12" fill="white" opacity="0.55" />
+      {/* BODY — bold ellipse */}
+      <ellipse cx="195" cy="195" rx="100" ry="42"
+        fill={body} stroke={OUT} strokeWidth={OUT_W} />
+      {/* white belly band */}
+      <ellipse cx="195" cy="218" rx="84" ry="12" fill={belly} opacity="0.9" />
 
-      <g fill={rosette} opacity="0.55" stroke={rosette} strokeWidth="1.2">
-        <circle cx="140" cy="186" r="6" fill="none" />
-        <circle cx="160" cy="200" r="6" fill="none" />
-        <circle cx="178" cy="184" r="5.5" fill="none" />
-        <circle cx="198" cy="195" r="6" fill="none" />
-        <circle cx="218" cy="184" r="5.5" fill="none" />
-        <circle cx="232" cy="198" r="6" fill="none" />
-        <circle cx="250" cy="186" r="5.5" fill="none" />
-        <circle cx="266" cy="200" r="5" fill="none" />
-        <circle cx="142" cy="178" r="3" />
-        <circle cx="180" cy="178" r="3" />
-        <circle cx="218" cy="178" r="3" />
-        <circle cx="252" cy="178" r="3" />
+      {/* ROSETTES — open ring spots in two rows. Cartoon-clean.
+          Snow leopards have ~12-14 visible rosettes on each side. */}
+      <g fill="none" stroke={rosette} strokeWidth={OUT_W - 1}>
+        {/* upper row */}
+        <circle cx="135" cy="186" r="7" />
+        <circle cx="165" cy="192" r="7" />
+        <circle cx="195" cy="186" r="7" />
+        <circle cx="225" cy="192" r="7" />
+        <circle cx="255" cy="186" r="7" />
+        {/* lower row */}
+        <circle cx="120" cy="208" r="6" />
+        <circle cx="150" cy="212" r="6" />
+        <circle cx="180" cy="208" r="6" />
+        <circle cx="210" cy="212" r="6" />
+        <circle cx="240" cy="208" r="6" />
+        <circle cx="268" cy="212" r="6" />
+      </g>
+      {/* tiny dark center dots inside each rosette (real rosette structure) */}
+      <g fill={rosette}>
+        <circle cx="135" cy="186" r="1.5" />
+        <circle cx="165" cy="192" r="1.5" />
+        <circle cx="195" cy="186" r="1.5" />
+        <circle cx="225" cy="192" r="1.5" />
+        <circle cx="255" cy="186" r="1.5" />
       </g>
 
-      <g fill={colors.shade} stroke="white" strokeWidth="0.4" opacity="0.6">
-        {[0,1,2,3,4,5,6,7,8].map((i) => (
-          <line key={i} x1={130 + i*15} y1={158} x2={132 + i*15} y2={150} stroke="white" strokeWidth="1.5" />
-        ))}
+      {/* HEAD — round face with bold outline */}
+      <circle cx="298" cy="180" r="34" fill={body} stroke={OUT} strokeWidth={OUT_W} />
+      {/* light upper face */}
+      <ellipse cx="290" cy="170" rx="20" ry="6" fill={belly} opacity="0.6" />
+
+      {/* EARS — small rounded with pink interior */}
+      <g>
+        <ellipse cx="282" cy="156" rx="10" ry="12" fill={body} stroke={OUT} strokeWidth={OUT_W}
+          transform="rotate(-18 282 156)" />
+        <ellipse cx="283" cy="159" rx="5" ry="7" fill={innerEar} transform="rotate(-18 283 159)" />
+        <ellipse cx="316" cy="156" rx="10" ry="12" fill={body} stroke={OUT} strokeWidth={OUT_W}
+          transform="rotate(18 316 156)" />
+        <ellipse cx="315" cy="159" rx="5" ry="7" fill={innerEar} transform="rotate(18 315 159)" />
       </g>
 
-      <circle cx="295" cy="180" r="36" fill={colors.shade} />
-      <circle cx="294" cy="178" r="32" fill={colors.main} />
-      <ellipse cx="288" cy="170" rx="20" ry="6" fill="white" opacity="0.45" />
-
-      <polygon points="276,158 280,142 290,158" fill={colors.shade} />
-      <polygon points="310,158 320,142 314,158" fill={colors.shade} />
-      <polygon points="280,156 283,148 287,156" fill="#f4c8d4" opacity="0.6" />
-      <polygon points="313,156 317,148 312,156" fill="#f4c8d4" opacity="0.6" />
-
-      <g fill={rosette} opacity="0.6">
-        <circle cx="285" cy="158" r="2" />
-        <circle cx="305" cy="158" r="2" />
-        <circle cx="275" cy="175" r="2.5" />
-        <circle cx="315" cy="175" r="2.5" />
+      {/* SIGNATURE PALE BLUE-GREEN EYES — the icy eye color only snow
+          leopards have. Big sparkle cartoon style. */}
+      <g className="eye-blink" style={{ transformOrigin: '286px 178px' }}>
+        <circle cx="286" cy="178" r="10" fill="white" stroke={OUT} strokeWidth={OUT_W - 1} />
+        <circle cx="287" cy="178" r="7" fill="#9ad0d8" />
+        <circle cx="287" cy="178" r="4.5" fill={OUT} />
+        <circle cx="289" cy="175" r="2.4" fill="white" />
+        <circle cx="285" cy="181" r="1.2" fill="white" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '314px 178px' }}>
+        <circle cx="314" cy="178" r="10" fill="white" stroke={OUT} strokeWidth={OUT_W - 1} />
+        <circle cx="315" cy="178" r="7" fill="#9ad0d8" />
+        <circle cx="315" cy="178" r="4.5" fill={OUT} />
+        <circle cx="317" cy="175" r="2.4" fill="white" />
+        <circle cx="313" cy="181" r="1.2" fill="white" />
       </g>
 
-      <ellipse cx="312" cy="190" rx="12" ry="9" fill={colors.main} />
-      <ellipse cx="320" cy="192" rx="4" ry="3" fill="#1a1a1a" />
-
-      {/* SIGNATURE PALE BLUE-GREEN EYES — snow leopards are the only big
-          cat with this distinctive icy eye color. */}
-      <g className="eye-blink" style={{ transformOrigin: '288px 176px' }}>
-        <circle cx="288" cy="176" r="5.5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="289" cy="176" rx="3" ry="4.5" fill="#9ad0d8" />
-        <ellipse cx="289" cy="176" rx="1.4" ry="3.4" fill="#1a1a1a" />
-        <circle cx="290" cy="174" r="1.4" fill="white" />
-      </g>
-      <g className="eye-blink" style={{ transformOrigin: '304px 176px' }}>
-        <circle cx="304" cy="176" r="5.5" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="305" cy="176" rx="3" ry="4.5" fill="#9ad0d8" />
-        <ellipse cx="305" cy="176" rx="1.4" ry="3.4" fill="#1a1a1a" />
-        <circle cx="306" cy="174" r="1.4" fill="white" />
+      {/* dark eye-spots above (snow leopard face marking) */}
+      <g fill={rosette}>
+        <ellipse cx="282" cy="167" rx="2.5" ry="1.5" />
+        <ellipse cx="318" cy="167" rx="2.5" ry="1.5" />
       </g>
 
-      <path d="M 306 198 Q 312 204 320 200" stroke="#3a2118" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      {/* MUZZLE — light snout area */}
+      <ellipse cx="300" cy="200" rx="16" ry="11" fill={belly} stroke={OUT} strokeWidth={OUT_W - 1} />
+
+      {/* NOSE — triangular dark nose */}
+      <path d="M 293 196 L 307 196 L 300 204 Z" fill={OUT} strokeLinejoin="round" />
+
+      {/* MOUTH — friendly smile + tiny fangs */}
+      <path d="M 300 204 L 300 208" stroke={OUT} strokeWidth={OUT_W - 1} strokeLinecap="round" />
+      <path d="M 290 210 Q 300 218 310 210" stroke={OUT} strokeWidth={OUT_W - 1} fill="none" strokeLinecap="round" />
+      <polygon points="295,212 296,217 298,212" fill="white" stroke={OUT} strokeWidth="0.5" />
+      <polygon points="302,212 304,217 305,212" fill="white" stroke={OUT} strokeWidth="0.5" />
+
+      {/* whisker dots */}
+      <g fill={OUT}>
+        <circle cx="289" cy="202" r="1" />
+        <circle cx="287" cy="206" r="1" />
+        <circle cx="311" cy="202" r="1" />
+        <circle cx="313" cy="206" r="1" />
+      </g>
     </svg>
   );
 }
@@ -3173,6 +3236,11 @@ export function KangarooShape({ colors }: { colors: ColorOverride }) {
 // ─── Tiger ──────────────────────────────────────────────────────────────
 // Like a big cat with bold black stripes on orange.
 export function TigerShape({ colors }: { colors: ColorOverride }) {
+  // CARTOON STYLE — bold outlines, solid colors, sparkle eyes, friendly mouth.
+  // Signature features preserved: irregular black stripes, white belly,
+  // ringed black-tipped tail, amber eyes, perky pink-interior ears.
+  const OUT = '#2a1810';
+  const OUT_W = 3;
   return (
     <svg viewBox="0 0 400 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
       {BG_DEFS}
@@ -3180,94 +3248,132 @@ export function TigerShape({ colors }: { colors: ColorOverride }) {
       <line x1="20" y1="262" x2="380" y2="262" stroke="#b5ad95" strokeWidth="1" strokeDasharray="3 4" />
 
       {/* shadow */}
-      <ellipse cx="200" cy="265" rx="150" ry="6" fill="rgba(0,0,0,0.18)" />
+      <ellipse cx="200" cy="265" rx="150" ry="7" fill="rgba(0,0,0,0.22)" />
 
-      {/* legs */}
-      <rect x="120" y="190" width="22" height="68" rx="6" fill={colors.shade} />
-      <rect x="158" y="190" width="22" height="68" rx="6" fill={colors.main} />
-      <rect x="240" y="190" width="22" height="68" rx="6" fill={colors.shade} />
-      <rect x="278" y="190" width="22" height="68" rx="6" fill={colors.main} />
+      {/* TAIL — long, curling up, black-tipped with rings (drawn first, behind body) */}
+      <path d="M 95 178 Q 55 168 32 142 Q 22 128 30 118"
+        stroke={OUT} strokeWidth={OUT_W + 14} fill="none" strokeLinecap="round" />
+      <path d="M 95 178 Q 55 168 32 142 Q 22 128 30 118"
+        stroke={colors.main} strokeWidth="13" fill="none" strokeLinecap="round" />
+      {/* tail rings — solid black bands wrapping the tail */}
+      <g stroke={OUT} strokeWidth="6" strokeLinecap="round" fill="none">
+        <path d="M 76 175 q 2 6 0 8" />
+        <path d="M 60 167 q 2 6 -1 8" />
+        <path d="M 44 156 q 3 5 -1 9" />
+      </g>
+      {/* solid black tail tip */}
+      <circle cx="30" cy="118" r="9" fill={OUT} />
 
-      {/* body — slight forward tilt for a stalking posture */}
-      <ellipse cx="200" cy="180" rx="115" ry="48" fill={colors.shade} />
-      <ellipse cx="200" cy="175" rx="110" ry="42" fill={colors.main} />
+      {/* legs — chunky rounded rectangles with bold outlines */}
+      <rect x="118" y="192" width="26" height="68" rx="9"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} />
+      <rect x="156" y="192" width="26" height="68" rx="9"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} />
+      <rect x="238" y="192" width="26" height="68" rx="9"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} />
+      <rect x="276" y="192" width="26" height="68" rx="9"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} />
+      {/* paw stripes — short black bands on each leg */}
+      <g stroke={OUT} strokeWidth="3" fill="none" strokeLinecap="round">
+        <line x1="122" y1="210" x2="140" y2="210" />
+        <line x1="160" y1="210" x2="178" y2="210" />
+        <line x1="242" y1="210" x2="260" y2="210" />
+        <line x1="280" y1="210" x2="298" y2="210" />
+      </g>
+      {/* toe lines on each paw */}
+      <g stroke={OUT} strokeWidth="2" fill="none" strokeLinecap="round">
+        <line x1="125" y1="258" x2="125" y2="252" />
+        <line x1="131" y1="259" x2="131" y2="253" />
+        <line x1="137" y1="258" x2="137" y2="252" />
+        <line x1="163" y1="258" x2="163" y2="252" />
+        <line x1="169" y1="259" x2="169" y2="253" />
+        <line x1="175" y1="258" x2="175" y2="252" />
+        <line x1="245" y1="258" x2="245" y2="252" />
+        <line x1="251" y1="259" x2="251" y2="253" />
+        <line x1="257" y1="258" x2="257" y2="252" />
+        <line x1="283" y1="258" x2="283" y2="252" />
+        <line x1="289" y1="259" x2="289" y2="253" />
+        <line x1="295" y1="258" x2="295" y2="252" />
+      </g>
+
+      {/* body — big chunky ellipse with bold outline */}
+      <ellipse cx="200" cy="180" rx="115" ry="48"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} />
       {/* WHITE BELLY — distinctive tiger underside */}
-      <ellipse cx="200" cy="200" rx="98" ry="20" fill="#fff5e8" opacity="0.92" />
-      <ellipse cx="200" cy="208" rx="94" ry="12" fill="#ffffff" opacity="0.65" />
+      <path d="M 110 195 Q 200 230 290 195 Q 290 218 200 222 Q 110 218 110 195 Z"
+        fill="#fff5e8" stroke={OUT} strokeWidth="1.5" opacity="0.95" />
 
-      {/* IRREGULAR BLACK STRIPES — varied widths, curving down the body
-          like real tiger stripes wrap from the spine to the belly. */}
-      <g fill="#1a1a1a" opacity="0.92">
-        {/* spine to flank stripes, each different shape */}
-        <path d="M 140 148 q -3 26 -1 56 q 4 -2 5 -10 q -2 -22 -3 -48 z" />
-        <path d="M 160 144 q -2 32 1 64 q 5 -1 5 -10 q -3 -28 -3 -55 z" />
-        <path d="M 184 142 q -3 36 0 70 q 7 -2 7 -12 q -3 -32 -4 -60 z" />
-        <path d="M 208 144 q -2 34 1 68 q 6 -1 6 -11 q -3 -30 -3 -58 z" />
-        <path d="M 232 142 q -3 32 1 64 q 5 -1 6 -10 q -3 -28 -4 -55 z" />
-        <path d="M 256 144 q -2 30 1 60 q 5 -1 5 -10 q -2 -26 -3 -52 z" />
-        <path d="M 278 148 q -2 24 1 50 q 5 -1 5 -9 q -2 -22 -4 -42 z" />
-        {/* shorter accent stripes — half-length on the flank */}
-        <path d="M 148 195 q -2 16 0 30 q 3 -1 3 -8 q -1 -14 -2 -24 z" opacity="0.85" />
-        <path d="M 196 195 q -2 16 0 30 q 3 -1 3 -8 q -1 -14 -2 -24 z" opacity="0.85" />
-        <path d="M 244 195 q -2 16 0 30 q 3 -1 3 -8 q -1 -14 -2 -24 z" opacity="0.85" />
+      {/* IRREGULAR BLACK STRIPES — bold solid bands curving from spine to belly */}
+      <g fill={OUT}>
+        <path d="M 140 138 q -4 30 -2 60 q 6 -3 7 -12 q -2 -24 -5 -50 z" />
+        <path d="M 162 134 q -3 36 1 70 q 7 -3 7 -13 q -4 -30 -5 -58 z" />
+        <path d="M 186 132 q -4 40 1 76 q 9 -3 9 -14 q -4 -34 -6 -64 z" />
+        <path d="M 210 134 q -3 38 1 74 q 8 -3 8 -13 q -4 -32 -5 -62 z" />
+        <path d="M 234 132 q -4 36 1 70 q 7 -3 7 -13 q -4 -30 -5 -58 z" />
+        <path d="M 258 134 q -3 32 1 64 q 6 -3 6 -12 q -3 -28 -4 -54 z" />
+        <path d="M 280 138 q -3 28 1 54 q 6 -2 6 -11 q -3 -24 -4 -46 z" />
+        {/* shorter belly-edge accent stripes */}
+        <path d="M 148 195 q -2 18 0 32 q 4 -1 4 -10 q -1 -14 -3 -24 z" />
+        <path d="M 196 195 q -2 18 0 32 q 4 -1 4 -10 q -1 -14 -3 -24 z" />
+        <path d="M 246 195 q -2 18 0 32 q 4 -1 4 -10 q -1 -14 -3 -24 z" />
       </g>
 
-      {/* TAIL — striped rings (real tiger feature) */}
-      <path d="M 85 175 Q 50 160 30 145" stroke={colors.shade} strokeWidth="14" fill="none" strokeLinecap="round" />
-      <path d="M 85 175 Q 50 160 30 145" stroke={colors.main} strokeWidth="10" fill="none" strokeLinecap="round" />
-      {/* tail rings — five black bands along the tail */}
-      <g fill="#1a1a1a" opacity="0.9">
-        <ellipse cx="76" cy="173" rx="3" ry="6" transform="rotate(-30 76 173)" />
-        <ellipse cx="64" cy="167" rx="3" ry="6" transform="rotate(-30 64 167)" />
-        <ellipse cx="52" cy="160" rx="3" ry="6" transform="rotate(-35 52 160)" />
-        <ellipse cx="40" cy="152" rx="3" ry="6" transform="rotate(-40 40 152)" />
-        <ellipse cx="30" cy="146" rx="4" ry="7" transform="rotate(-45 30 146)" />
+      {/* head — big round with bold outline */}
+      <circle cx="310" cy="158" r="44"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} />
+      {/* white muzzle/cheek area */}
+      <ellipse cx="310" cy="180" rx="26" ry="14" fill="#fff5e8" stroke={OUT} strokeWidth="1.5" />
+
+      {/* ears — perky with pink interior */}
+      <ellipse cx="286" cy="124" rx="10" ry="13"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} transform="rotate(-25 286 124)" />
+      <ellipse cx="286" cy="126" rx="5" ry="7" fill="#f4a8b8" transform="rotate(-25 286 126)" />
+      <ellipse cx="334" cy="124" rx="10" ry="13"
+        fill={colors.main} stroke={OUT} strokeWidth={OUT_W} transform="rotate(25 334 124)" />
+      <ellipse cx="334" cy="126" rx="5" ry="7" fill="#f4a8b8" transform="rotate(25 334 126)" />
+
+      {/* head stripes — bold curving bands across forehead and cheeks */}
+      <g fill={OUT}>
+        <path d="M 296 122 q -2 14 -1 22 q 3 -1 3 -6 q -1 -10 -2 -16 z" />
+        <path d="M 310 118 q -1 16 0 24 q 3 -1 3 -6 q -1 -12 -2 -18 z" />
+        <path d="M 324 122 q 2 14 1 22 q -3 -1 -3 -6 q 1 -10 2 -16 z" />
+        <path d="M 278 140 q -3 10 -1 18 q 3 -1 3 -6 q -1 -8 -2 -12 z" />
+        <path d="M 342 140 q 3 10 1 18 q -3 -1 -3 -6 q 1 -8 2 -12 z" />
       </g>
 
-      {/* head */}
-      <circle cx="310" cy="160" r="42" fill={colors.shade} />
-      <circle cx="310" cy="160" r="38" fill={colors.main} />
-      <ellipse cx="305" cy="178" rx="28" ry="14" fill={colors.light} opacity="0.6" />
-
-      {/* head stripes */}
-      <g stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round" fill="none">
-        <path d="M 300 130 q -3 8 -2 16" />
-        <path d="M 312 125 q -1 9 0 18" />
-        <path d="M 324 130 q 3 8 2 16" />
-        <path d="M 282 145 q -3 6 -2 12" />
-        <path d="M 338 145 q 3 6 2 12" />
+      {/* eyes — big sparkly amber */}
+      <g className="eye-blink" style={{ transformOrigin: '294px 158px' }}>
+        <ellipse cx="294" cy="158" rx="8.5" ry="9" fill="white" stroke={OUT} strokeWidth={OUT_W} />
+        <ellipse cx="295" cy="159" rx="5" ry="6.5" fill="#f5a040" />
+        <ellipse cx="295" cy="159" rx="2" ry="5" fill={OUT} />
+        <circle cx="293" cy="156" r="1.6" fill="white" />
+        <circle cx="297" cy="161" r="0.9" fill="white" />
+      </g>
+      <g className="eye-blink" style={{ transformOrigin: '326px 158px' }}>
+        <ellipse cx="326" cy="158" rx="8.5" ry="9" fill="white" stroke={OUT} strokeWidth={OUT_W} />
+        <ellipse cx="327" cy="159" rx="5" ry="6.5" fill="#f5a040" />
+        <ellipse cx="327" cy="159" rx="2" ry="5" fill={OUT} />
+        <circle cx="325" cy="156" r="1.6" fill="white" />
+        <circle cx="329" cy="161" r="0.9" fill="white" />
       </g>
 
-      {/* ears */}
-      <ellipse cx="288" cy="128" rx="9" ry="11" fill={colors.shade} transform="rotate(-25 288 128)" />
-      <ellipse cx="288" cy="130" rx="5" ry="7" fill="#f4b8b8" transform="rotate(-25 288 130)" />
-      <ellipse cx="332" cy="128" rx="9" ry="11" fill={colors.shade} transform="rotate(25 332 128)" />
-      <ellipse cx="332" cy="130" rx="5" ry="7" fill="#f4b8b8" transform="rotate(25 332 130)" />
+      {/* nose — triangle */}
+      <path d="M 304 170 L 316 170 L 310 178 Z" fill={OUT} />
+      {/* friendly mouth */}
+      <path d="M 310 178 Q 310 186 302 186 M 310 178 Q 310 186 318 186"
+        stroke={OUT} strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d="M 296 188 Q 310 196 324 188"
+        stroke={OUT} strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      {/* tiny white fangs */}
+      <polygon points="305 187 307 192 309 187" fill="white" stroke={OUT} strokeWidth="0.8" />
+      <polygon points="311 187 313 192 315 187" fill="white" stroke={OUT} strokeWidth="0.8" />
 
-      {/* eyes */}
-      <g className="eye-blink" style={{ transformOrigin: '296px 160px' }}>
-        <circle cx="296" cy="160" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="297" cy="160" rx="2.5" ry="4" fill="#f5a040" />
-        <ellipse cx="297" cy="160" rx="1" ry="3" fill="#1a1a1a" />
-      </g>
-      <g className="eye-blink" style={{ transformOrigin: '324px 160px' }}>
-        <circle cx="324" cy="160" r="6" fill="white" stroke="#222" strokeWidth="0.6" />
-        <ellipse cx="325" cy="160" rx="2.5" ry="4" fill="#f5a040" />
-        <ellipse cx="325" cy="160" rx="1" ry="3" fill="#1a1a1a" />
-      </g>
-
-      {/* nose + mouth + fangs */}
-      <ellipse cx="310" cy="176" rx="5" ry="3.5" fill="#1a1a1a" />
-      <path d="M 310 180 Q 305 188 300 185 M 310 180 Q 315 188 320 185" stroke="#1a1a1a" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <polygon points="304 185 306 192 308 185" fill="white" stroke="#888" strokeWidth="0.4" />
-      <polygon points="312 185 314 192 316 185" fill="white" stroke="#888" strokeWidth="0.4" />
-
-      {/* whiskers */}
-      <g stroke="white" strokeWidth="0.6" opacity="0.7">
-        <line x1="296" y1="178" x2="270" y2="174" />
-        <line x1="296" y1="182" x2="268" y2="184" />
-        <line x1="324" y1="178" x2="350" y2="174" />
-        <line x1="324" y1="182" x2="352" y2="184" />
+      {/* whisker dots */}
+      <g fill={OUT}>
+        <circle cx="290" cy="178" r="1" />
+        <circle cx="288" cy="182" r="1" />
+        <circle cx="330" cy="178" r="1" />
+        <circle cx="332" cy="182" r="1" />
       </g>
     </svg>
   );
