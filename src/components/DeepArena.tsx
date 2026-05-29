@@ -13,7 +13,7 @@ export type DeepOutcome = {
 
 export type DepthZoneId = 'reef' | 'twilight' | 'abyss';
 export type TravelMode = 'dive' | 'swim' | 'glide';
-export type SwimRouteId = 'lagoon' | 'open-sea' | 'storm-crossing';
+export type SwimRouteId = 'lagoon' | 'open-sea' | 'storm-crossing' | 'river-crossing';
 export type GlideRouteId = 'thermal' | 'crosswind' | 'cyclone';
 
 interface SwimRoute {
@@ -23,11 +23,17 @@ interface SwimRoute {
   description: string;
   distanceM: number;
   waveHeight: number;     // visual amplitude
-  predator: boolean;      // shark interrupt in the middle
+  predator: boolean;      // predator interrupt in the middle (shark or croc)
+  predatorEmoji?: string; // override the predator graphic per route
   rewardMult: number;
   difficultyLabel: string;
   skyColor: [string, string];
   waterColor: [string, string];
+  // River-crossing variant: downstream current that drags
+  // non-aquatic creatures backward (and washes them out if they fail
+  // to make progress). Aquatic / dive-adapted creatures shrug it off.
+  currentMps?: number;
+  river?: boolean;
 }
 
 interface GlideRoute {
@@ -70,6 +76,22 @@ const SWIM_ROUTES: SwimRoute[] = [
     difficultyLabel: 'medium',
     skyColor: ['#9fc6e0', '#5b94b8'],
     waterColor: ['#3a85b8', '#1f4a78'],
+  },
+  {
+    id: 'river-crossing',
+    label: 'River crossing',
+    emoji: '🏞️',
+    description: 'Wade 120m across a fast river. The current drags non-swimmers downstream — make progress or get washed out. Crocodiles patrol the deep channel.',
+    distanceM: 120,
+    waveHeight: 3,
+    predator: true,
+    predatorEmoji: '🐊',
+    rewardMult: 1.4,
+    difficultyLabel: 'mammal-hostile',
+    skyColor: ['#cfe0bf', '#a8c490'],
+    waterColor: ['#6ba488', '#3a6258'],
+    currentMps: 2.2,
+    river: true,
   },
   {
     id: 'storm-crossing',
@@ -435,15 +457,33 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
           : swimSpeed;
         const effSpeed = base * mod.speedMult;
         swimPosRef.current += effSpeed * dt;
+        // RIVER CURRENT — drags non-aquatic creatures downstream. Aquatic
+        // creatures (fish, gilled) and underwater-style swimmers shrug it
+        // off. Big leg-tier helps push against it.
+        if (swimRoute.currentMps && !aq && style !== 'underwater') {
+          const grip = 1 + creature.legTier * 0.35;
+          const drift = (swimRoute.currentMps / grip) * dt;
+          swimPosRef.current -= drift;
+        }
         if (!aq) swimStamRef.current -= dt * mod.staminaDrainMult;
         setSwimPos(swimPosRef.current);
         setSwimStamina(swimStamRef.current);
 
-        // Predator interrupt at ~50% on the open-sea route.
+        // Washed downstream — the current pushed you past the starting
+        // bank. Only happens on river-crossing for non-swimmers.
+        if (swimPosRef.current < -20) {
+          stop({ won: false, reason: 'exhausted', maxDepth: 0 });
+          return;
+        }
+
+        // Predator interrupt at ~50% on routes with one (shark or croc).
         if (swimRoute.predator && !predatorTriggered && swimPosRef.current > swimRoute.distanceM * 0.5) {
           setPredatorTriggered(true);
-          // Escape roll: aquatic + legTier + top speed + style bonus (sprint helps a lot).
-          const escape = (aq ? 0.5 : 0) + creature.legTier * 0.2 + Math.min(stats.topSpeedKmh / 80, 0.3) + mod.predEscapeBonus;
+          // Escape roll: aquatic + legTier + top speed + style bonus.
+          // Crocodiles on the river are HARDER for non-swimmers — they're
+          // in their element and you're not.
+          const crocPenalty = swimRoute.river && !aq ? -0.15 : 0;
+          const escape = (aq ? 0.5 : 0) + creature.legTier * 0.2 + Math.min(stats.topSpeedKmh / 80, 0.3) + mod.predEscapeBonus + crocPenalty;
           if (Math.random() > escape) {
             stop({ won: false, reason: 'caught', maxDepth: Math.round(swimPosRef.current) });
             return;
@@ -539,7 +579,7 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
       <p className="arena-help">
         {headerDesc}{' '}
         {travelMode === 'dive' && <>Dive to <strong>{TARGET_DEPTH}m</strong> and return. Past {PRESSURE_SAFE_DEPTH}m the pressure crushes you without armor or a fish body.</>}
-        {travelMode === 'swim' && <>Cross <strong>{swimRoute.distanceM}m</strong> of surface water. {aq ? 'Gills + a fish body keep you tireless.' : 'Non-aquatic creatures tire — stamina runs out.'}</>}
+        {travelMode === 'swim' && <>Cross <strong>{swimRoute.distanceM}m</strong> of {swimRoute.river ? 'fast river' : 'surface water'}. {aq ? 'Gills + a fish body keep you tireless.' : swimRoute.river ? 'The current drags you downstream — strong legs + the underwater style help you push across.' : 'Non-aquatic creatures tire — stamina runs out.'}</>}
         {travelMode === 'glide' && (gliderOk
           ? <>Glide <strong>{glideRoute.distanceM}m</strong> from cliff to landing point. Don't let altitude hit zero.</>
           : <strong style={{ color: '#c44' }}>Glide mode needs wings — give your creature the wings hybrid or a bird body plan.</strong>)}
@@ -992,23 +1032,96 @@ export function DeepArena({ creature, stats, onFinish }: Props) {
             stroke="#fff" strokeWidth="1.5" fill="none" opacity="0.6"
           />
 
-          {/* underwater fish silhouettes */}
-          <g opacity="0.35" fill="#0a2548">
-            <ellipse cx={W * 0.2} cy={H - 40} rx="14" ry="4" />
-            <ellipse cx={W * 0.65} cy={H - 60} rx="10" ry="3" />
-            <ellipse cx={W * 0.85} cy={H - 30} rx="12" ry="4" />
-          </g>
+          {/* River-crossing only: leafy forest banks on both sides + scrolling
+              current arrows so you can see the water moving downstream */}
+          {swimRoute.river && (
+            <g>
+              {/* near (start) bank — leafy strip at the left */}
+              <rect x="0" y={SURFACE - 8} width="44" height={H - SURFACE + 8} fill="#3a5a28" />
+              <g fill="#5a7838" opacity="0.85">
+                <ellipse cx="14" cy={SURFACE - 6} rx="18" ry="12" />
+                <ellipse cx="32" cy={SURFACE - 10} rx="14" ry="10" />
+                <ellipse cx="6" cy={SURFACE - 14} rx="10" ry="8" />
+                <ellipse cx="38" cy={SURFACE - 18} rx="9" ry="7" />
+              </g>
+              {/* far (goal) bank — leafy strip at the right */}
+              <rect x={W - 44} y={SURFACE - 8} width="44" height={H - SURFACE + 8} fill="#3a5a28" />
+              <g fill="#5a7838" opacity="0.85">
+                <ellipse cx={W - 14} cy={SURFACE - 6} rx="18" ry="12" />
+                <ellipse cx={W - 32} cy={SURFACE - 10} rx="14" ry="10" />
+                <ellipse cx={W - 6} cy={SURFACE - 14} rx="10" ry="8" />
+                <ellipse cx={W - 38} cy={SURFACE - 18} rx="9" ry="7" />
+              </g>
+              {/* CURRENT ARROWS — flow from upstream (left) to downstream
+                  (right), animated via Date.now offset. */}
+              <g stroke="#cfe9d8" strokeWidth="1.6" fill="none" opacity="0.7" strokeLinecap="round">
+                {Array.from({ length: 12 }).map((_, i) => {
+                  const offset = (Date.now() / 60) % 80;
+                  const x = 50 + ((i * 50 + offset) % (W - 100));
+                  const y = SURFACE + 20 + (i % 3) * 30;
+                  return (
+                    <g key={i}>
+                      <line x1={x} y1={y} x2={x + 22} y2={y} />
+                      <polyline points={`${x + 18},${y - 3} ${x + 22},${y} ${x + 18},${y + 3}`} />
+                    </g>
+                  );
+                })}
+              </g>
+              {/* drifting logs you might cling to */}
+              <g fill="#5a3a18">
+                {[{x: W * 0.3, y: SURFACE + 50}, {x: W * 0.7, y: SURFACE + 80}].map((p, i) => (
+                  <g key={i} transform={`translate(${(p.x + (Date.now() / 60) % 200) - 100} ${p.y})`}>
+                    <ellipse cx="0" cy="0" rx="14" ry="3" />
+                    <line x1="-14" y1="0" x2="14" y2="0" stroke="#3a2418" strokeWidth="0.5" />
+                  </g>
+                ))}
+              </g>
+            </g>
+          )}
 
-          {/* start and goal markers */}
+          {/* underwater fish silhouettes (ocean routes only) */}
+          {!swimRoute.river && (
+            <g opacity="0.35" fill="#0a2548">
+              <ellipse cx={W * 0.2} cy={H - 40} rx="14" ry="4" />
+              <ellipse cx={W * 0.65} cy={H - 60} rx="10" ry="3" />
+              <ellipse cx={W * 0.85} cy={H - 30} rx="12" ry="4" />
+            </g>
+          )}
+
+          {/* start and goal markers — labels swap to bank/bank for rivers */}
           <g>
             <polygon points={`30,${SURFACE - 6} 40,${SURFACE - 6} 35,${SURFACE - 22}`} fill="#5cc46a" />
-            <text x="35" y={SURFACE - 26} fontSize="9" textAnchor="middle" fill="#fff">start</text>
+            <text x="35" y={SURFACE - 26} fontSize="9" textAnchor="middle" fill="#fff">{swimRoute.river ? 'near bank' : 'start'}</text>
             <polygon points={`${W - 40},${SURFACE - 6} ${W - 30},${SURFACE - 6} ${W - 35},${SURFACE - 22}`} fill="#ffd040" />
-            <text x={W - 35} y={SURFACE - 26} fontSize="9" textAnchor="middle" fill="#fff">land</text>
+            <text x={W - 35} y={SURFACE - 26} fontSize="9" textAnchor="middle" fill="#fff">{swimRoute.river ? 'far bank' : 'land'}</text>
           </g>
 
-          {/* shark predator */}
-          {swimRoute.predator && (
+          {/* predator: shark on ocean routes, CROCODILE on river crossings */}
+          {swimRoute.predator && swimRoute.river && (
+            <g transform={`translate(${sharkX} ${SURFACE + 16})`} opacity="0.9">
+              {/* crocodile body */}
+              <ellipse cx="0" cy="0" rx="28" ry="6" fill="#5a7838" />
+              <path d="M -28 0 q -10 -3 -16 0 q -10 3 0 6 q 10 3 16 -2 z" fill="#5a7838" />
+              {/* snout with teeth */}
+              <path d="M 22 0 L 36 -2 L 38 0 L 36 2 Z" fill="#5a7838" />
+              <g stroke="#fff" strokeWidth="0.4" fill="none">
+                <line x1="26" y1="-1" x2="26" y2="-2.5" />
+                <line x1="30" y1="-1" x2="30" y2="-2.5" />
+                <line x1="34" y1="-1" x2="34" y2="-2.5" />
+              </g>
+              {/* eye + nostril above the water */}
+              <circle cx="14" cy="-3" r="1.6" fill="#ffd040" />
+              <circle cx="14" cy="-3" r="0.7" fill="#1a1208" />
+              <circle cx="32" cy="-3" r="0.8" fill="#1a1208" />
+              {/* back scutes */}
+              <g fill="#3a5a28">
+                <polygon points="-10,-5 -7,-7 -4,-5" />
+                <polygon points="-4,-5 -1,-7 2,-5" />
+                <polygon points="2,-5 5,-7 8,-5" />
+              </g>
+            </g>
+          )}
+          {swimRoute.predator && !swimRoute.river && (
             <g transform={`translate(${sharkX} ${SURFACE + 14})`} opacity="0.85">
               <ellipse cx="0" cy="0" rx="22" ry="6" fill="#3a4858" />
               <polygon points="-22,0 -32,-4 -32,4" fill="#3a4858" />
