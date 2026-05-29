@@ -195,12 +195,20 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
   }, [stats.coldTolerance, stats.massKg, terrainId]);
 
   const climbFrac = Math.min(1, altitude / altGoal);
-  // Start the creature at the visible base of the mountain (y=H), not above
-  // it. topY=36 keeps the head from clipping the very top of the SVG.
-  const baseY = H;
-  const topY = 36;
-  const footY = baseY - climbFrac * (baseY - topY);
   const cx = W / 2;
+
+  // The climber follows a straight line from the visible BOTTOM-CENTER of
+  // the mountain up to the terrain-specific summit (where the flag sits).
+  // This guarantees the climber starts on the ground (fully visible) and
+  // ends at the flag — instead of floating at center-screen.
+  const SUMMIT_Y: Record<string, number> = {
+    alpine: 32,
+    volcanic: 72,
+    glacial: H * 0.18,
+    aurora: 32,
+  };
+  const climbX = cx;
+  const climbY = (H - 4) + ((SUMMIT_Y[env.id] ?? 32) - (H - 4)) * climbFrac;
 
   const snowflakes = Array.from({ length: env.snowCount }).map((_, i) => ({
     x: (i * 31 + 17) % W,
@@ -444,9 +452,20 @@ export function ClimbArena({ creature, stats, generation = 1, onFinish }: Props)
         ))}
 
         {hasBespokeShape(creature) ? (
-          <BespokeInScene creature={creature} x={cx - 50} y={footY - 70} width={100} height={80} animate="run" />
+          // 80x80 box, bottom edge anchored at climbY so the creature
+          // visibly stands on the ground at the start and the flag at
+          // the end. xMidYMax inside the shape SVG keeps feet at the
+          // bottom of the box.
+          <BespokeInScene
+            creature={creature}
+            x={climbX - 40}
+            y={climbY - 78}
+            width={80}
+            height={80}
+            animate="run"
+          />
         ) : (
-          <CreatureBody creature={creature} cx={cx - 4} footY={footY} scale={0.32} facingRight={true} animate="run" />
+          <CreatureBody creature={creature} cx={climbX - 4} footY={climbY} scale={0.32} facingRight={true} animate="run" />
         )}
 
         <rect x="6" y="6" width="260" height="22" fill="rgba(255,255,255,0.88)" rx="4" stroke="#bbb" />
