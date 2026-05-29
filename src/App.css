@@ -609,12 +609,12 @@ h2 {
 .dex-bare svg > rect[width="400"][height="300"] { display: none; }
 .dex-bare svg > line[stroke-dasharray="3 4"] { display: none; }
 .dex-bare svg > defs { /* keep — gradients no longer reach the BG */ }
-/* In arena scenes (.dex-bare), shift the EmojiShape glyph DOWN so it
-   bottoms-out at the ground line instead of floating mid-tile. Dex,
-   creature stage, and any non-scene context keep the centered default. */
-.dex-bare .emoji-glyph-wrap {
-  transform: translateY(60px);
-}
+/* EmojiShape has TWO text glyphs — centered (for dex tiles) and
+   bottom-anchored (for arena scenes). Toggle visibility based on
+   whether we're inside a .dex-bare wrapper (set by BespokeInScene). */
+.emoji-text-scene { display: none; }
+.dex-bare .emoji-text-centered { display: none; }
+.dex-bare .emoji-text-scene { display: inline; }
 
 .arena-tabs {
   display: flex;

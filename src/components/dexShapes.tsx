@@ -2717,24 +2717,34 @@ function makeEmojiShape(shapeName: string): ComponentType<{ colors: ColorOverrid
       {BG_DEFS}
       {/* backdrop — hidden in arena scenes by .dex-bare svg > rect[400×300] */}
       <rect width="400" height="300" fill={`url(#${bg})`} />
-      {/* Plain SVG text — most reliable cross-browser path. foreignObject
-          + HTML flexbox didn't always scale predictably inside arena/dex
-          containers. text-anchor=middle + dominant-baseline=central
-          centers the glyph on (200, 150). The .emoji-glyph-wrap class
-          gets a CSS translate inside .dex-bare (arena scenes) to push
-          the emoji down so it bottoms-out at the ground line. */}
-      <g className="emoji-glyph-wrap">
-        <text
-          x="200"
-          y="150"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize="140"
-          aria-hidden="true"
-        >
-          {emoji}
-        </text>
-      </g>
+      {/* Two text glyphs, toggled by CSS via the .dex-bare ancestor class
+          set by BespokeInScene in arena contexts. Display:none is rock-
+          solid cross-browser, unlike CSS transforms on SVG <g> elements
+          which behave inconsistently in WebKit. */}
+      {/* Centered (default — dex tiles, CreatureStage) */}
+      <text
+        className="emoji-text-centered"
+        x="200"
+        y="150"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="140"
+        aria-hidden="true"
+      >
+        {emoji}
+      </text>
+      {/* Bottom-anchored (visible only in .dex-bare arena scenes) */}
+      <text
+        className="emoji-text-scene"
+        x="200"
+        y="260"
+        textAnchor="middle"
+        dominantBaseline="alphabetic"
+        fontSize="140"
+        aria-hidden="true"
+      >
+        {emoji}
+      </text>
     </svg>
   );
   Component.displayName = `EmojiShape(${shapeName})`;
