@@ -2895,10 +2895,9 @@ h2 {
 .hybrid-chip {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  padding: 10px 6px 8px;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
   border: 1.5px solid var(--line);
   background: var(--panel);
   border-radius: 12px;
@@ -2907,44 +2906,41 @@ h2 {
   text-align: center;
   position: relative;
   overflow: hidden;
-  min-height: 92px;
   transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, background 0.12s;
 }
 .hybrid-chip:hover:not(.disabled) {
   border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.28);
 }
 .hybrid-chip.selected {
   border-color: var(--accent);
-  background: var(--accent-bg);
-  box-shadow: 0 0 0 1.5px var(--accent) inset;
+  box-shadow: 0 0 0 2px var(--accent) inset;
 }
 .hybrid-chip.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-/* The glyph is now a centered emoji span — no separate tile, no
-   internal divider, no SVG backdrop. Single clean card per hybrid
-   like the demo and matching the dex aesthetic. */
+/* Glyph tile — top portion holds the BIG emoji on its own dark warm
+   backdrop (the HybridGlyph SVG's gradient). Same pattern as a dex
+   thumb. */
 .hybrid-glyph {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 100%;
-  flex: 1 1 auto;
-  font-size: 32px;
-  line-height: 1;
+  height: 84px;
+  overflow: hidden;
 }
-/* Hide the inner SVG that HybridGlyph component renders — replaced
-   visually by the emoji baked into the React component's text fallback.
-   The component still renders an SVG but we hide it and the parent
-   .hybrid-glyph flex centering takes over via the text/glyph passed in. */
-.hybrid-glyph svg text { font-size: 200px; }
-.hybrid-glyph svg rect[width="400"][height="300"] { display: none; }
-.hybrid-glyph svg { display: block; width: 100%; height: 56px; }
+.hybrid-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .hybrid-text {
-  display: contents;  /* the children (name + tagline) flow into the parent flex */
+  display: flex;
+  flex-direction: column;
+  padding: 7px 4px 9px;
+  background: var(--bg-soft);
+  border-top: 1px solid var(--line);
 }
 .hybrid-name {
   font-size: 12px;
@@ -2955,8 +2951,12 @@ h2 {
 .hybrid-tagline {
   display: none;
 }
+.hybrid-chip.selected .hybrid-text {
+  background: var(--accent);
+  color: white;
+}
 .hybrid-chip.selected .hybrid-name {
-  color: var(--accent);
+  color: white;
 }
 .hybrid-warn {
   font-size: 8px;
