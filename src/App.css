@@ -1241,7 +1241,7 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 10px;
@@ -2551,7 +2551,7 @@ h2 {
 .battle-hp small { font-size: 10.5px; color: #5a4828; }
 
 .battle-log {
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 10px;
@@ -2592,7 +2592,7 @@ h2 {
 .bracket-modal { max-width: 980px; }
 
 .bracket-config {
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 10px 12px;
@@ -2682,7 +2682,7 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px;
@@ -2729,7 +2729,7 @@ h2 {
   border-bottom: 1px solid var(--line);
 }
 .bracket-match {
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 6px 8px;
@@ -4799,7 +4799,7 @@ h2 {
   font-style: italic;
 }
 .profile-total-row td {
-  background: #fbf6e8;
+  background: var(--bg-soft);
   border-top: 2px solid #d8c8a0;
   text-align: left;
 }
@@ -4920,7 +4920,7 @@ h2 {
   border: 2px solid var(--line);
   border-radius: 10px;
   margin-bottom: 8px;
-  background: #fbf8f1;
+  background: var(--bg-soft);
 }
 .family-row.active {
   background: linear-gradient(135deg, #fff4cf, #fff8e0);
@@ -4981,7 +4981,7 @@ h2 {
 }
 
 .family-add {
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1px dashed var(--line);
   border-radius: 10px;
   padding: 10px 12px;
@@ -5320,7 +5320,7 @@ h2 {
   word-break: break-all;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fbf8f1;
+  background: var(--bg-soft);
   resize: none;
 }
 .share-url-help {
@@ -5394,7 +5394,7 @@ h2 {
   margin-bottom: 14px;
 }
 .gauntlet-pip {
-  background: #fbf8f1;
+  background: var(--bg-soft);
   border: 1.5px solid var(--line);
   border-radius: 8px;
   padding: 6px 4px;
