@@ -2892,12 +2892,15 @@ h2 {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
+/* Matches the demo HTML exactly: single-piece card, plain emoji span,
+   name below, gentle hover lift. No SVG wrapper, no internal divider. */
 .hybrid-chip {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0;
-  padding: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 6px 10px;
   border: 1.5px solid var(--line);
   background: var(--panel);
   border-radius: 12px;
@@ -2905,42 +2908,30 @@ h2 {
   font: inherit;
   text-align: center;
   position: relative;
-  overflow: hidden;
-  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, background 0.12s;
+  transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s, background 0.12s;
 }
 .hybrid-chip:hover:not(.disabled) {
   border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.28);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 .hybrid-chip.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent) inset;
+  background: var(--accent-bg);
 }
 .hybrid-chip.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-/* Glyph tile — top portion holds the BIG emoji on its own dark warm
-   backdrop (the HybridGlyph SVG's gradient). Same pattern as a dex
-   thumb. */
 .hybrid-glyph {
-  display: block;
-  width: 100%;
-  height: 84px;
-  overflow: hidden;
-}
-.hybrid-glyph svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+  font-size: 36px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
 }
 .hybrid-text {
   display: flex;
   flex-direction: column;
-  padding: 7px 4px 9px;
-  background: var(--bg-soft);
-  border-top: 1px solid var(--line);
+  margin-top: 2px;
 }
 .hybrid-name {
   font-size: 12px;
@@ -2951,12 +2942,8 @@ h2 {
 .hybrid-tagline {
   display: none;
 }
-.hybrid-chip.selected .hybrid-text {
-  background: var(--accent);
-  color: white;
-}
 .hybrid-chip.selected .hybrid-name {
-  color: white;
+  color: var(--accent);
 }
 .hybrid-warn {
   font-size: 8px;
