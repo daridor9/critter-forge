@@ -1688,19 +1688,38 @@ h2 {
 }
 
 /* ─── Campaign modal — "The Adapting" ──────────────────────────── */
-.campaign-modal { max-width: 760px; }
-.campaign-progress {
-  margin-bottom: 16px;
+.campaign-modal { max-width: 880px; }
+
+/* Two-pane layout: winding map on the left, chapter detail on the right */
+.campaign-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
 }
+@media (max-width: 720px) {
+  .campaign-layout { grid-template-columns: 1fr; }
+}
+
+.campaign-map-wrap {
+  padding: 16px 14px;
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+
+.campaign-progress { margin-bottom: 16px; }
 .campaign-progress-bar {
-  background: #eee;
+  background: var(--bg-deep);
   border: 1px solid var(--line);
   border-radius: 8px;
   height: 10px;
   overflow: hidden;
 }
 .campaign-progress-fill {
-  background: linear-gradient(90deg, #5cc46a, #c0843a);
+  background: linear-gradient(90deg, var(--leaf), var(--accent));
   height: 100%;
   transition: width 0.4s ease;
 }
@@ -1712,115 +1731,182 @@ h2 {
   color: var(--fg-dim);
 }
 
-.campaign-chapter-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.campaign-chapter {
-  border: 1.5px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel);
-  overflow: hidden;
-  transition: border-color 0.15s;
-}
-.campaign-chapter.done {
-  border-color: #5cc46a;
-  background: #f0f6e8;
-}
-.campaign-chapter.locked {
-  opacity: 0.5;
-}
-.campaign-chapter.open {
-  border-color: var(--accent);
-}
-.campaign-chapter-head {
+/* ─── The winding journey map ─── */
+.campaign-map {
+  position: relative;
   width: 100%;
-  background: transparent;
-  border: none;
-  padding: 12px 14px;
-  display: grid;
-  grid-template-columns: 48px 32px 1fr 30px;
-  gap: 10px;
-  align-items: center;
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
 }
-.campaign-chapter-head:disabled { cursor: not-allowed; }
-.campaign-chapter-num {
+.campaign-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.campaign-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2.5px solid var(--line);
+  background: var(--panel);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s;
+  padding: 0;
+}
+.campaign-node-emoji { font-size: 24px; line-height: 1; }
+.campaign-node-num {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  color: var(--fg-dim);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.campaign-node-check {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--leaf);
+  color: #16240f;
   font-size: 11px;
   font-weight: 800;
-  color: var(--fg-dim);
-  letter-spacing: 0.05em;
-}
-.campaign-chapter-emoji { font-size: 24px; text-align: center; }
-.campaign-chapter-title {
   display: flex;
-  flex-direction: column;
-  line-height: 1.25;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--panel);
 }
-.campaign-chapter-title strong {
-  font-size: 14px;
-  color: var(--fg);
+.campaign-node.done {
+  border-color: var(--leaf);
 }
-.campaign-chapter-title small {
-  font-size: 11px;
+.campaign-node.current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-bg), 0 0 14px var(--node-color, var(--accent));
+  animation: campaign-pulse 2s ease-in-out infinite;
+}
+@keyframes campaign-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--accent-bg), 0 0 10px var(--node-color, var(--accent)); }
+  50% { box-shadow: 0 0 0 6px var(--accent-bg), 0 0 20px var(--node-color, var(--accent)); }
+}
+.campaign-node.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+.campaign-node.selected {
+  transform: translate(-50%, -50%) scale(1.15);
+  border-color: var(--accent);
+  z-index: 3;
+}
+.campaign-node:hover:not(.locked):not(.selected) {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* ─── Right pane: chapter detail ─── */
+.campaign-detail {
+  padding: 18px 20px;
+  overflow-y: auto;
+}
+.campaign-detail-empty {
   color: var(--fg-dim);
   font-style: italic;
-}
-.campaign-chapter-status {
-  font-size: 16px;
   text-align: center;
+  margin-top: 40px;
 }
-.campaign-chapter-body {
-  padding: 12px 14px;
-  border-top: 1px solid var(--line);
-  border-left: 4px solid var(--accent);
-  background: var(--bg-soft);
+.campaign-detail-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+.campaign-detail-emoji {
+  font-size: 48px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+.campaign-detail-num {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-h);
+  opacity: 0.85;
+}
+.campaign-detail-banner h3 {
+  margin: 2px 0;
+  font-size: 20px;
+  color: var(--fg-h);
+}
+.campaign-detail-era {
+  font-size: 12px;
+  color: var(--fg-h);
+  opacity: 0.8;
+  font-style: italic;
 }
 .campaign-premise {
-  font-size: 13px;
-  line-height: 1.5;
-  margin-bottom: 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin: 0 0 14px;
   font-style: italic;
-}
-.campaign-detail-row {
-  font-size: 12.5px;
-  margin: 4px 0;
-  line-height: 1.4;
-}
-.campaign-bio-fact {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 12px;
-  line-height: 1.5;
-  margin: 8px 0;
   color: var(--fg);
 }
-.campaign-actions {
-  margin-top: 8px;
-}
-.campaign-done-msg {
-  color: #2a8050;
-  font-weight: 700;
+.campaign-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 13px;
-  margin: 6px 0;
+  margin: 10px 0;
+  line-height: 1.45;
+}
+.campaign-detail-row strong { color: var(--fg-h); }
+.campaign-detail-row span { color: var(--fg); }
+.campaign-bio-fact {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin: 14px 0;
+  color: var(--fg);
+}
+.campaign-actions { margin-top: 14px; }
+.campaign-done-msg {
+  color: var(--leaf);
+  font-weight: 700;
+  font-size: 14px;
+  margin: 12px 0;
 }
 .campaign-victory {
   background: linear-gradient(135deg, #3a2e18, #2a2010);
-  border: 2px solid #d8a040;
+  border: 2px solid var(--gold, #d8a040);
   border-radius: 10px;
   padding: 14px 16px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: #5a3b18;
-  margin-bottom: 14px;
+  color: #f0d8a0;
+  margin-top: 16px;
 }
+.campaign-reset-btn { color: var(--danger) !important; }
 
 /* ─── Lifecycle modal — baby / adult / elder ──────────────────── */
 .lifecycle-modal { max-width: 880px; }
